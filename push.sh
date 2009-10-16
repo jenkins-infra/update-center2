@@ -16,10 +16,10 @@ svn up -N www2/latest www2/download
 mvn -e clean install exec:java
 
 # push to dlc.sun.com
-#rsync -avz --delete ./dlc.sun.com/ sjavatx@trx2.sun.com:/export/nfs/dlc/hudson/downloads
+rsync -avz --delete ./dlc.sun.com/ sjavatx@trx2.sun.com:/export/nfs/dlc/hudson/downloads
 
 # push references to dlc.sun.com to the website
 pushd www2/download
   svn add $(svn status | grep "^?" | cut -d " " -f2-) .
 popd
-#svn commit -m "pushing new web contents" www2
+svn commit -m "pushing new web contents" www2
