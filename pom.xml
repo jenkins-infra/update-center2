@@ -9,7 +9,7 @@
   <artifactId>update-center</artifactId>
   
   <version>1.1-SNAPSHOT</version>
-  <name>Update center generator</name>
+  <name>Update center generator for hudson-ci.org</name>
   <description>Generates update center script</description>
 
   <build>
