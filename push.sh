@@ -10,7 +10,7 @@ popd
 # prepare the www workspace for execution
 rm -rf www2 || true
 svn co -N https://www.dev.java.net/svn/hudson/trunk/www2
-svn up -N www2/latest www2/download
+svn up www2/latest www2/download
 
 # generate all the metadata
 mvn -e clean install exec:java
