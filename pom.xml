@@ -38,8 +38,8 @@
         <configuration>
           <mainClass>org.jvnet.hudson.update_center.Main</mainClass>
           <arguments>
-            <argument>-o</argument>
-            <argument>${project.basedir}/output.json</argument>
+            <argument>-www</argument>
+            <argument>${project.basedir}/www2</argument>
             <argument>-dlc</argument>
             <argument>${project.basedir}/dlc.sun.com</argument>
           </arguments>

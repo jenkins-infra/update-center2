@@ -71,6 +71,10 @@ public class MavenArtifact {
         return o;
     }
 
+    public VersionNumber getVersion() {
+        return new VersionNumber(version);
+    }
+
     public long getTimestamp() throws IOException {
         if (timestamp==0)
             getManifest();
