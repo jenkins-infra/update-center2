@@ -94,7 +94,7 @@ public class Main {
 
             plugins.put(plugin.artifactId,plugin.toJSON());
             redirect.printf("Redirect 302 /latest/%s.hpi %s\n", plugin.artifactId, latest.getURL());
-            String permalink = String.format("/download/plugins/%1$s/latest/%1$s.hpi\n", plugin.artifactId);
+            String permalink = String.format("/download/plugins/%1$s/latest/%1$s.hpi", plugin.artifactId);
             redirect.printf("Redirect 302 %s %s\n", permalink, latest.getURL());
 
             if (dlc!=null) {
