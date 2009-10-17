@@ -4,7 +4,7 @@
 wget --timestamping http://download.java.net/maven/2/.index/nexus-maven-repository-index.zip
 mkdir index || true
 pushd index
-  unzip ../nexus-maven-repository-index.zip
+  unzip -o ../nexus-maven-repository-index.zip
 popd
 
 # prepare the www workspace for execution
