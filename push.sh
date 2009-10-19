@@ -2,7 +2,8 @@
 
 # obtain index
 wget --timestamping http://download.java.net/maven/2/.index/nexus-maven-repository-index.zip
-mkdir index || true
+rmdir index || true
+mkdir index
 pushd index
   unzip -o ../nexus-maven-repository-index.zip
 popd
