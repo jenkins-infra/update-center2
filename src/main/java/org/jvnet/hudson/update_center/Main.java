@@ -4,11 +4,15 @@ import net.sf.json.JSONObject;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.sonatype.nexus.index.ArtifactInfo;
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -36,6 +40,9 @@ public class Main {
     @Option(name="-www",usage="Built hudson-ci.org layout")
     public File www = null;
 
+    @Option(name="-index.html",usage="Update the version number of the latest hudson.war in hudson-ci.org/index.html")
+    public File indexHtml = null;
+
     public static void main(String[] args) throws Exception {
         Main main = new Main();
         CmdLineParser p = new CmdLineParser(main);
@@ -44,6 +51,7 @@ public class Main {
         if (main.www!=null) {
             main.output = new File(main.www,"update-center.json");
             main.htaccess = new File(main.www,"latest/.htaccess");
+            main.indexHtml = new File(main.www,"index.html");
         }
 
         main.run();
@@ -52,6 +60,8 @@ public class Main {
     public void run() throws Exception {
 
         MavenRepository repo = new MavenRepository();
+
+        updateIndexHtml(repo);
 
         PrintWriter latestRedirect = new PrintWriter(new FileWriter(htaccess), true);
 
@@ -66,6 +76,22 @@ public class Main {
         pw.println(");");
         pw.close();
         latestRedirect.close();
+    }
+
+    /**
+     * Updates the version number display in http://hudson-ci.org/index.html.
+     */
+    private void updateIndexHtml(MavenRepository repo) throws IOException, AbstractArtifactResolutionException {
+        if (indexHtml!=null) {
+            VersionNumber latest = repo.getHudsonWar().lastKey();
+            System.out.println("Latest version is "+latest);
+            String content = IOUtils.toString(new FileInputStream(indexHtml), "UTF-8");
+            // replace text inside the marker 
+            content = content.replaceFirst("LATEST_VERSION.+/LATEST_VERSION","LATEST_VERSION-->"+latest+"<!--/LATEST_VERSION");
+            FileOutputStream out = new FileOutputStream(indexHtml);
+            IOUtils.write(content, out,"UTF-8");
+            out.close();
+        }
     }
 
     /**
