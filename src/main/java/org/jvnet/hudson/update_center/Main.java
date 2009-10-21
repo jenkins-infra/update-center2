@@ -1,25 +1,40 @@
 package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONObject;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.io.output.TeeOutputStream;
+import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
+import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.sonatype.nexus.index.ArtifactInfo;
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.security.DigestOutputStream;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.MessageDigest;
+import java.security.PrivateKey;
+import java.security.Signature;
+import static java.security.Security.addProvider;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.net.URL;
+import java.util.List;
+import java.util.TreeMap;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -42,6 +57,12 @@ public class Main {
 
     @Option(name="-index.html",usage="Update the version number of the latest hudson.war in hudson-ci.org/index.html")
     public File indexHtml = null;
+
+    @Option(name="-key",usage="Private key to sign the update center. Must be used in conjunction with -certificate.")
+    public File privateKey = null;
+
+    @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option")
+    public File certificate = null;
 
     public static void main(String[] args) throws Exception {
         Main main = new Main();
@@ -68,7 +89,14 @@ public class Main {
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
         root.put("core", buildCore(repo, latestRedirect));
-        root.put("plugins", buildPlugins(repo, latestRedirect));
+        //root.put("plugins", buildPlugins(repo, latestRedirect));
+
+        if(privateKey!=null && certificate!=null)
+            sign(root);
+        else {
+            if (privateKey!=null || certificate!=null)
+                throw new Exception("private key and certificate must be both specified");
+        }
 
         PrintWriter pw = new PrintWriter(new FileWriter(output));
         pw.println("updateCenter.post(");
@@ -76,6 +104,53 @@ public class Main {
         pw.println(");");
         pw.close();
         latestRedirect.close();
+    }
+
+    /**
+     * Generates a canonicalized JSON format of the given object, and put the signature in it.
+     * Because it mutates the signed object itself, validating the signature needs a bit of work,
+     * but this enables a signature to be added transparently.
+     */
+    private void sign(JSONObject o) throws GeneralSecurityException, IOException {
+        JSONObject sign = new JSONObject();
+
+        X509Certificate cert = (X509Certificate) CertificateFactory.getInstance("X.509")
+                .generateCertificate(new FileInputStream(certificate));
+
+        // this is for computing a digest
+        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+        DigestOutputStream dos = new DigestOutputStream(new NullOutputStream(),sha1);
+
+        // this is for computing a signature
+        PrivateKey key = ((KeyPair)new PEMReader(new FileReader(privateKey)).readObject()).getPrivate();
+        Signature sig = Signature.getInstance("SHA1withRSA");
+        sig.initSign(key);
+        SignatureOutputStream sos = new SignatureOutputStream(sig);
+
+        // this is for verifying that signature validates
+        Signature verifier = Signature.getInstance("SHA1withRSA");
+        verifier.initVerify(cert.getPublicKey());
+        SignatureOutputStream vos = new SignatureOutputStream(verifier);
+
+        o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(new TeeOutputStream(dos,sos),vos),"UTF-8"));
+
+        // digest
+        byte[] digest = sha1.digest();
+        sign.put("digest",new String(Base64.encodeBase64(digest)));
+
+        // signature
+        byte[] s = sig.sign();
+        sign.put("signature",new String(Base64.encodeBase64(s)));
+
+        // and certificate
+        cert.checkValidity();
+        sign.put("certificate",new String(Base64.encodeBase64(cert.getEncoded())));
+
+        // did the signature validate?
+        if (!verifier.verify(s))
+            throw new GeneralSecurityException("Signature failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
+
+        o.put("signature",sign);
     }
 
     /**
@@ -191,5 +266,9 @@ public class Main {
             buildIndex(new File(www,"download/war/"),"hudson.war", wars.values(), "/download/war/latest/hudson.war");
 
         return core;
+    }
+
+    static {
+        addProvider(new BouncyCastleProvider());
     }
 }

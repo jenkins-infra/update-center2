@@ -42,6 +42,10 @@
             <argument>${project.basedir}/www2</argument>
             <argument>-dlc</argument>
             <argument>${project.basedir}/dlc.sun.com</argument>
+            <argument>-key</argument>
+            <argument>${project.basedir}/test.key</argument>
+            <argument>-certificate</argument>
+            <argument>${project.basedir}/test.crt</argument>
           </arguments>
         </configuration>
       </plugin>
@@ -72,8 +76,7 @@
     <dependency>
       <groupId>org.kohsuke.stapler</groupId>
       <artifactId>json-lib</artifactId>
-      <version>2.1</version>
-      <classifier>jdk15</classifier>
+      <version>2.1-rev3</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -105,6 +108,11 @@
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-compat</artifactId>
       <version>3.0-alpha-2</version>
+    </dependency>
+    <dependency>
+      <groupId>bouncycastle</groupId>
+      <artifactId>bcprov-jdk15</artifactId>
+      <version>140</version>
     </dependency>
   </dependencies>
 </project>
