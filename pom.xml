@@ -6,7 +6,7 @@
     <version>1.7</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>update-center</artifactId>
+  <artifactId>update-center2</artifactId>
   
   <version>1.1-SNAPSHOT</version>
   <name>Update center generator for hudson-ci.org</name>
