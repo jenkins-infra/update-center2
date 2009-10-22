@@ -1,13 +1,14 @@
 package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONObject;
+import net.sf.json.JSONArray;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
-import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMReader;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.sonatype.nexus.index.ArtifactInfo;
@@ -20,13 +21,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.FileNotFoundException;
 import java.security.DigestOutputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
-import java.security.Signature;
 import static java.security.Security.addProvider;
+import java.security.Signature;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ public class Main {
     public File privateKey = null;
 
     @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option")
-    public File certificate = null;
+    public List<File> certificates = new ArrayList<File>();
 
     public static void main(String[] args) throws Exception {
         Main main = new Main();
@@ -91,10 +93,10 @@ public class Main {
         root.put("core", buildCore(repo, latestRedirect));
         //root.put("plugins", buildPlugins(repo, latestRedirect));
 
-        if(privateKey!=null && certificate!=null)
+        if(privateKey!=null && !certificates.isEmpty())
             sign(root);
         else {
-            if (privateKey!=null || certificate!=null)
+            if (privateKey!=null || !certificates.isEmpty())
                 throw new Exception("private key and certificate must be both specified");
         }
 
@@ -114,8 +116,9 @@ public class Main {
     private void sign(JSONObject o) throws GeneralSecurityException, IOException {
         JSONObject sign = new JSONObject();
 
-        X509Certificate cert = (X509Certificate) CertificateFactory.getInstance("X.509")
-                .generateCertificate(new FileInputStream(certificate));
+
+        List<X509Certificate> certs = getCertificateChain();
+        X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
 
         // this is for computing a digest
         MessageDigest sha1 = MessageDigest.getInstance("SHA1");
@@ -129,7 +132,7 @@ public class Main {
 
         // this is for verifying that signature validates
         Signature verifier = Signature.getInstance("SHA1withRSA");
-        verifier.initVerify(cert.getPublicKey());
+        verifier.initVerify(signer.getPublicKey());
         SignatureOutputStream vos = new SignatureOutputStream(verifier);
 
         o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(new TeeOutputStream(dos,sos),vos),"UTF-8"));
@@ -142,15 +145,32 @@ public class Main {
         byte[] s = sig.sign();
         sign.put("signature",new String(Base64.encodeBase64(s)));
 
-        // and certificate
-        cert.checkValidity();
-        sign.put("certificate",new String(Base64.encodeBase64(cert.getEncoded())));
+        // and certificate chain
+        JSONArray a = new JSONArray();
+        for (X509Certificate cert : certs)
+            a.add(new String(Base64.encodeBase64(cert.getEncoded())));
+        sign.put("certificates",a);
 
         // did the signature validate?
         if (!verifier.verify(s))
             throw new GeneralSecurityException("Signature failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
 
         o.put("signature",sign);
+    }
+
+    /**
+     * Loads a certificate chain and makes sure it's valid.
+     */
+    private List<X509Certificate> getCertificateChain() throws FileNotFoundException, GeneralSecurityException {
+        CertificateFactory cf = CertificateFactory.getInstance("X509");
+        List<X509Certificate> certs = new ArrayList<X509Certificate>();
+        for (File f : certificates) {
+            X509Certificate c = (X509Certificate) cf.generateCertificate(new FileInputStream(f));
+            c.checkValidity();
+            certs.add(c);
+        }
+        CertUtil.validatePath(certs);
+        return certs;
     }
 
     /**
