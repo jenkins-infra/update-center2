@@ -35,6 +35,8 @@ import org.bouncycastle.openssl.PEMReader;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.sonatype.nexus.index.ArtifactInfo;
+import org.jvnet.hudson.crypto.SignatureOutputStream;
+import org.jvnet.hudson.crypto.CertificateUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -192,7 +194,7 @@ public class Main {
             c.checkValidity();
             certs.add(c);
         }
-        CertUtil.validatePath(certs);
+        CertificateUtil.validatePath(certs);
         return certs;
     }
 
