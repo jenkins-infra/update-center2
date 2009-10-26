@@ -116,7 +116,7 @@ public class Main {
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
         root.put("core", buildCore(repo, latestRedirect));
-        //root.put("plugins", buildPlugins(repo, latestRedirect));
+        root.put("plugins", buildPlugins(repo, latestRedirect));
 
         if(privateKey!=null && !certificates.isEmpty())
             sign(root);
