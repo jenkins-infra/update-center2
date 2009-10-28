@@ -93,7 +93,7 @@ public class Main {
     @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option")
     public List<File> certificates = new ArrayList<File>();
 
-    @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use an URL or GUID. This value is not exposed to users, but instead internally used by Hudson.")
+    @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.hudson\". This value is not exposed to users, but instead internally used by Hudson.")
     public String id;
 
     @Option(name="-connectionCheckUrl",
