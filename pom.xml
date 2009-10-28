@@ -42,15 +42,19 @@
             <argument>${project.basedir}/www2</argument>
             <argument>-dlc</argument>
             <argument>${project.basedir}/dlc.sun.com</argument>
-            <!--argument>-key</argument>
-            <argument>${project.basedir}/test.key</argument>
+            <argument>-key</argument>
+            <argument>${keyName}.key</argument>
             <argument>-certificate</argument>
-            <argument>${project.basedir}/test.crt</argument-->
+            <argument>${keyName}.crt</argument>
           </arguments>
         </configuration>
       </plugin>
     </plugins>
   </build>
+
+  <properties>
+    <keyName>${project.basedir}/test</keyName>
+  </properties>
 
   <dependencies>
     <dependency>

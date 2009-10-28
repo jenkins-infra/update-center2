@@ -13,8 +13,14 @@ rm -rf www2 || true
 svn co -N https://www.dev.java.net/svn/hudson/trunk/www2
 svn up www2/latest www2/download
 
+# obtain key and certificate for signing
+scp "hudson@hudson.sfbay.sun.com:~/server/keys/official-update-center.*" .
+
 # generate all the metadata
-mvn -e clean install exec:java
+mvn -e clean install exec:java -DkeyName=official-update-center
+
+# delete keys
+rm official-update-center.*
 
 # push to dlc.sun.com
 rsync -avz --delete ./dlc.sun.com/ sjavatx@trx2.sun.com:/export/nfs/dlc/hudson/downloads
