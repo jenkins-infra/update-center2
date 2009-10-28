@@ -56,12 +56,14 @@ import static java.security.Security.addProvider;
 import java.security.Signature;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.cert.TrustAnchor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.Set;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -204,7 +206,11 @@ public class Main {
             c.checkValidity();
             certs.add(c);
         }
-        CertificateUtil.validatePath(certs);
+        
+        Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
+        rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/hudson-community.cert")),null));
+
+        CertificateUtil.validatePath(certs,rootCAs);
         return certs;
     }
 
