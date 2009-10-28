@@ -91,6 +91,13 @@ public class Main {
     @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option")
     public List<File> certificates = new ArrayList<File>();
 
+    @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use an URL or GUID. This value is not exposed to users, but instead internally used by Hudson.")
+    public String id;
+
+    @Option(name="-connectionCheckUrl",
+            usage="Specify an URL of the 'always up' server for performing connection check.")
+    public String connectionCheckUrl;
+
     public static void main(String[] args) throws Exception {
         Main main = new Main();
         CmdLineParser p = new CmdLineParser(main);
@@ -117,6 +124,9 @@ public class Main {
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
         root.put("core", buildCore(repo, latestRedirect));
         root.put("plugins", buildPlugins(repo, latestRedirect));
+        root.put("id",id);
+        if (connectionCheckUrl!=null)
+            root.put("connectionCheckUrl",connectionCheckUrl);
 
         if(privateKey!=null && !certificates.isEmpty())
             sign(root);
