@@ -167,7 +167,8 @@ public class Plugin {
         }
 
         HPI hpi = latest;
-        json.put("requiredCore",hpi.getRequiredHudsonVersion());
+        String requiredCore = hpi.getRequiredHudsonVersion();
+        json.put("requiredCore", requiredCore!=null ? requiredCore : "1.0");
         
         if (hpi.getCompatibleSinceVersion() != null) {
             json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
