@@ -167,8 +167,7 @@ public class Plugin {
         }
 
         HPI hpi = latest;
-        String requiredCore = hpi.getRequiredHudsonVersion();
-        json.put("requiredCore", requiredCore!=null ? requiredCore : "1.0");
+        json.put("requiredCore", fixNull(hpi.getRequiredHudsonVersion()));
         
         if (hpi.getCompatibleSinceVersion() != null) {
             json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
@@ -196,6 +195,14 @@ public class Plugin {
         json.put("developers", devs);
 
         return json;
+    }
+
+    /**
+     * Earlier versions of the maven-hpi-plugin put "null" string literal, so we need to treat it as real null.
+     */
+    private String fixNull(String v) {
+        if("null".equals(v))    return null;
+        return v;
     }
 
 
