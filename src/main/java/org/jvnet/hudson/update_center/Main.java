@@ -210,7 +210,11 @@ public class Main {
         Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
         rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/hudson-community.cert")),null));
 
-        CertificateUtil.validatePath(certs,rootCAs);
+        try {
+            CertificateUtil.validatePath(certs,rootCAs);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
         return certs;
     }
 
