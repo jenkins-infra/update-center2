@@ -17,7 +17,14 @@ svn up www2/latest www2/download
 scp "hudson@hudson.sfbay.sun.com:~/server/keys/official-update-center.*" .
 
 # generate all the metadata
-mvn -e clean install exec:java -DkeyName=official-update-center
+mvn -e clean install
+java -jar target/update-center2-*-SNAPSHOT-jar-with-dependencies.jar \
+  -id default \
+  -connectionCheckUrl http://www.google.com/ \
+  -www ./www2 \
+  -dlc ./dlc.sun.com \
+  -key official-update-center.key \
+  -certificate official-update-center.crt
 
 # delete keys
 rm official-update-center.*

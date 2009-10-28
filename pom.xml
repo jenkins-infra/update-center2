@@ -15,39 +15,25 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>org.jvnet.hudson.update_center.Main</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <!-- run it like "mvn install exec:java" -->
+        <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
             <goals>
-              <goal>java</goal>
+              <goal>attached</goal>
             </goals>
+            <phase>package</phase>
+            <configuration>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <archive>
+                <manifest>
+                  <mainClass>org.jvnet.hudson.update_center.Main</mainClass>
+                </manifest>
+              </archive>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <mainClass>org.jvnet.hudson.update_center.Main</mainClass>
-          <arguments>
-            <argument>-www</argument>
-            <argument>${project.basedir}/www2</argument>
-            <argument>-dlc</argument>
-            <argument>${project.basedir}/dlc.sun.com</argument>
-            <argument>-key</argument>
-            <argument>${keyName}.key</argument>
-            <argument>-certificate</argument>
-            <argument>${keyName}.crt</argument>
-          </arguments>
-        </configuration>
       </plugin>
     </plugins>
   </build>
