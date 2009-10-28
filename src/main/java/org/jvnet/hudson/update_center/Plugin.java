@@ -35,7 +35,6 @@ import org.dom4j.io.SAXReader;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -97,13 +96,15 @@ public class Plugin {
                 url = dom.selectSingleNode("/m:project/m:url");
             if(url!=null) {
                 String wikiPage = ((Element)url).getTextTrim();
-                return cpl.getPage(wikiPage); // found the confluence page successfully
+                try {
+                    return cpl.getPage(wikiPage); // found the confluence page successfully
+                } catch (RemoteException e) {
+                    System.err.println("Failed to fetch "+wikiPage);
+                    e.printStackTrace();
+                }
             }
         } catch (DocumentException e) {
             System.err.println("Can't parse POM for "+artifactId);
-            e.printStackTrace();
-        } catch (RemoteException e) {
-            System.err.println("POM points to a non-confluence page for "+artifactId);
             e.printStackTrace();
 	    }
 
