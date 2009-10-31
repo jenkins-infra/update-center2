@@ -46,4 +46,8 @@ public final class PluginHistory {
     public PluginHistory(String shortName) {
         this.artifactId = shortName;
     }
+
+    public HPI latest() {
+        return artifacts.get(artifacts.firstKey());
+    }
 }
