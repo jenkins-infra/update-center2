@@ -18,7 +18,7 @@ scp "hudson@hudson.sfbay.sun.com:~/server/keys/official-update-center.*" .
 
 # generate all the metadata
 mvn -e clean install
-java -jar target/update-center2-*-bin.dir/update-center2-*.jar \
+java -jar target/update-center2-*-bin*/update-center2-*.jar \
   -id default \
   -connectionCheckUrl http://www.google.com/ \
   -www ./www2 \
