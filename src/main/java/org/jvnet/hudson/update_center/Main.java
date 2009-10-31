@@ -34,6 +34,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.CmdLineException;
 import org.sonatype.nexus.index.ArtifactInfo;
 import org.jvnet.hudson.crypto.SignatureOutputStream;
 import org.jvnet.hudson.crypto.CertificateUtil;
@@ -103,15 +104,21 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Main main = new Main();
         CmdLineParser p = new CmdLineParser(main);
-        p.parseArgument(args);
+        try {
+            p.parseArgument(args);
 
-        if (main.www!=null) {
-            main.output = new File(main.www,"update-center.json");
-            main.htaccess = new File(main.www,"latest/.htaccess");
-            main.indexHtml = new File(main.www,"index.html");
+            if (main.www!=null) {
+                main.output = new File(main.www,"update-center.json");
+                main.htaccess = new File(main.www,"latest/.htaccess");
+                main.indexHtml = new File(main.www,"index.html");
+            }
+
+            main.run();
+        } catch (CmdLineException e) {
+            System.err.println(e.getMessage());
+            p.printUsage(System.err);
+            System.exit(1);
         }
-
-        main.run();
     }
 
     public void run() throws Exception {
