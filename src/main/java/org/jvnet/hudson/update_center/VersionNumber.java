@@ -36,6 +36,7 @@
 package org.jvnet.hudson.update_center;
 
 import java.util.StringTokenizer;
+import java.util.Comparator;
 
 /**
  * Immutable representation of a dot-separated digits (such as "1.0.1").
@@ -136,4 +137,10 @@ public class VersionNumber implements Comparable<VersionNumber> {
             if(r!=0)    return r;
         }
     }
+
+    public static final Comparator<VersionNumber> DESCENDING = new Comparator<VersionNumber>() {
+        public int compare(VersionNumber o1, VersionNumber o2) {
+            return o2.compareTo(o1);
+        }
+    };
 }

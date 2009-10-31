@@ -144,7 +144,7 @@ public class MavenRepository {
         FlatSearchRequest request = new FlatSearchRequest(q);
         FlatSearchResponse response = indexer.searchFlat(request);
 
-        TreeMap<VersionNumber,HudsonWar> r = new TreeMap<VersionNumber, HudsonWar>();
+        TreeMap<VersionNumber,HudsonWar> r = new TreeMap<VersionNumber, HudsonWar>(VersionNumber.DESCENDING);
 
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots

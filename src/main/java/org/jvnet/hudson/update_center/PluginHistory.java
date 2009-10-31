@@ -39,7 +39,7 @@ public final class PluginHistory {
     /**
      * All discovered versions, by the numbers.
      */
-    final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<VersionNumber, HPI>();
+    final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<VersionNumber, HPI>(VersionNumber.DESCENDING);
 
     final Set<String> groupId = new TreeSet<String>();
 
