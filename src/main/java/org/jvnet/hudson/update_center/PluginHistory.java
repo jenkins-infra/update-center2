@@ -34,12 +34,12 @@ public final class PluginHistory {
     /**
      * ArtifactID equals short name.
      */
-    final String artifactId;
+    public final String artifactId;
 
     /**
      * All discovered versions, by the numbers.
      */
-    final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<VersionNumber, HPI>(VersionNumber.DESCENDING);
+    public final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<VersionNumber, HPI>(VersionNumber.DESCENDING);
 
     final Set<String> groupId = new TreeSet<String>();
 

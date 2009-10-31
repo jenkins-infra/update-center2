@@ -223,7 +223,7 @@ public class Main {
      */
     private void updateIndexHtml(MavenRepository repo) throws IOException, AbstractArtifactResolutionException {
         if (indexHtml!=null) {
-            VersionNumber latest = repo.getHudsonWar().lastKey();
+            VersionNumber latest = repo.getHudsonWar().firstKey();
             System.out.println("Latest version is "+latest);
             String content = IOUtils.toString(new FileInputStream(indexHtml), "UTF-8");
             // replace text inside the marker 
@@ -249,8 +249,8 @@ public class Main {
                 continue;       // subsumed into the ivy plugin. Hiding from the update center
 
             List<HPI> versions = new ArrayList<HPI>(hpi.artifacts.values());
-            HPI latest = versions.get(versions.size()-1);
-            HPI previous = versions.size()>1 ? versions.get(versions.size()-2) : null;
+            HPI latest = versions.get(0);
+            HPI previous = versions.size()>1 ? versions.get(1) : null;
 
             Plugin plugin = new Plugin(hpi.artifactId,latest,previous,cpl);
 
@@ -311,7 +311,7 @@ public class Main {
      */
     protected JSONObject buildCore(MavenRepository repository, PrintWriter redirect) throws Exception {
         TreeMap<VersionNumber,HudsonWar> wars = repository.getHudsonWar();
-        HudsonWar latest = wars.get(wars.lastKey());
+        HudsonWar latest = wars.get(wars.firstKey());
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
 
