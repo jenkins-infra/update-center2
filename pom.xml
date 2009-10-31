@@ -15,6 +15,17 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>org.jvnet.hudson.update_center.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
@@ -23,14 +34,9 @@
             </goals>
             <phase>package</phase>
             <configuration>
-              <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-              </descriptorRefs>
-              <archive>
-                <manifest>
-                  <mainClass>org.jvnet.hudson.update_center.Main</mainClass>
-                </manifest>
-              </archive>
+              <descriptors>
+                <descriptor>src/assembly.xml</descriptor>
+              </descriptors>
             </configuration>
           </execution>
         </executions>

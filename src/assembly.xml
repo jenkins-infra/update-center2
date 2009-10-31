@@ -1,0 +1,21 @@
+<assembly>
+  <id>bin</id>
+  <formats>
+    <format>dir</format>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <dependencySets>
+    <dependencySet>
+      <scope>runtime</scope>
+    </dependencySet>
+  </dependencySets>
+  <!--<fileSets>-->
+    <!--<fileSet>-->
+      <!--<directory>${project.build.directory}</directory>-->
+      <!--<includes>-->
+        <!--<include>*.jar</include>-->
+      <!--</includes>-->
+    <!--</fileSet>-->
+  <!--</fileSets>-->
+</assembly>
