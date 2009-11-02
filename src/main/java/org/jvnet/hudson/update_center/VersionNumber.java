@@ -70,7 +70,7 @@ public class VersionNumber implements Comparable<VersionNumber> {
         StringTokenizer tokens = new StringTokenizer(num,".-");
         digits = new int[tokens.countTokens()];
         if(digits.length<2)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("No digits: "+num);
 
         int i=0;
         while( tokens.hasMoreTokens() ) {
@@ -96,7 +96,7 @@ public class VersionNumber implements Comparable<VersionNumber> {
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for( int i=0; i<digits.length; i++ ) {
             if(i!=0)    buf.append('.');
             buf.append( Integer.toString(digits[i]) );
