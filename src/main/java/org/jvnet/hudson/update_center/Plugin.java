@@ -141,13 +141,15 @@ public class Plugin {
             return null;
 
         String excerpt = m.group(1);
-        return HYPERLINK_PATTERN.matcher(excerpt).replaceAll("<a href='$2'>$1</a>");
+        String oneLiner = NEWLINE_PATTERN.matcher(excerpt).replaceAll(" ");
+        return HYPERLINK_PATTERN.matcher(oneLiner).replaceAll("<a href='$2'>$1</a>");
     }
 
     // Tweaking to ignore leading whitespace after the initial {excerpt}
-    private static final Pattern EXCERPT_PATTERN = Pattern.compile("\\{excerpt(?::hidden(?:=true)?)?\\}\\s*(.+)\\{excerpt\\}");
+    private static final Pattern EXCERPT_PATTERN = Pattern.compile("\\{excerpt(?::hidden(?:=true)?)?\\}\\s*(.+)\\{excerpt\\}", Pattern.DOTALL);
     private static final Pattern HYPERLINK_PATTERN = Pattern.compile("\\[([^|\\]]+)\\|([^|\\]]+)(|([^]])+)?\\]");
-
+    private static final Pattern NEWLINE_PATTERN = Pattern.compile("(?:\\r\\n|\\n)");
+    
     public JSONObject toJSON() throws IOException {
         JSONObject json = latest.toJSON(artifactId);
 
