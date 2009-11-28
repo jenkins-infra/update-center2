@@ -68,12 +68,18 @@ public class Plugin {
      * Null if we couldn't find it.
      */
     public final RemotePage page;
+    /**
+     * Confluence labels for the plugin wiki page.
+     * Null if wiki page wasn't found.
+     */
+    public final String[] labels;
 
     public Plugin(String artifactId, HPI latest, HPI previous, ConfluencePluginList cpl) throws IOException {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
         this.page = findPage(cpl);
+        this.labels = getLabels(cpl);
     }
 
     /**
@@ -85,7 +91,6 @@ public class Plugin {
      */
     private RemotePage findPage(ConfluencePluginList cpl) throws IOException {
         try {
-
             DocumentFactory factory = new DocumentFactory();
             factory.setXPathNamespaceURIs(Collections.singletonMap("m","http://maven.apache.org/POM/4.0.0"));
 
@@ -106,7 +111,7 @@ public class Plugin {
         } catch (DocumentException e) {
             System.err.println("Can't parse POM for "+artifactId);
             e.printStackTrace();
-	    }
+        }
 
         try {
             String p = OVERRIDES.getProperty(artifactId);
@@ -122,6 +127,17 @@ public class Plugin {
             return cpl.findNearest(artifactId);
         } catch (RemoteException e) {
             System.err.println("Failed to locate nearest");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private String[] getLabels(ConfluencePluginList cpl) {
+        if (page!=null) try {
+            return cpl.getLabels(page);
+        } catch (RemoteException e) {
+            System.err.println("Failed to fetch labels for " + page.getUrl());
             e.printStackTrace();
         }
 
@@ -166,6 +182,8 @@ public class Plugin {
             String excerpt = getExcerptInHTML();
             if(excerpt!=null)
                 json.put("excerpt",excerpt);
+            if(labels!=null)
+                json.put("labels",labels);
         }
 
         HPI hpi = latest;

@@ -25,6 +25,7 @@ package org.jvnet.hudson.update_center;
 
 import com.sun.xml.bind.v2.util.EditDistance;
 import hudson.plugins.jira.soap.ConfluenceSoapService;
+import hudson.plugins.jira.soap.RemoteLabel;
 import hudson.plugins.jira.soap.RemotePage;
 import hudson.plugins.jira.soap.RemotePageSummary;
 import org.jvnet.hudson.confluence.Confluence;
@@ -90,6 +91,16 @@ public class ConfluencePluginList {
             return service.getPage("","HUDSON",pageName);
         }
         return null;
+    }
+
+    public String[] getLabels(RemotePage page) throws RemoteException {
+        RemoteLabel[] labels = service.getLabelsById("", page.getId());
+        if (labels==null) return new String[0];
+        String[] result = new String[labels.length];
+        int i = 0;
+        for (RemoteLabel label : labels)
+            result[i++] = label.getName();
+        return result;
     }
 
     private static final String[] HUDSON_WIKI_PREFIX = {
