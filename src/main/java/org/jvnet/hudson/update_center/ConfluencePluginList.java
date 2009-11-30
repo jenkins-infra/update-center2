@@ -34,6 +34,7 @@ import javax.xml.rpc.ServiceException;
 import java.io.IOException;
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,11 +97,11 @@ public class ConfluencePluginList {
     public String[] getLabels(RemotePage page) throws RemoteException {
         RemoteLabel[] labels = service.getLabelsById("", page.getId());
         if (labels==null) return new String[0];
-        String[] result = new String[labels.length];
-        int i = 0;
+        ArrayList<String> result = new ArrayList<String>(labels.length);
         for (RemoteLabel label : labels)
-            result[i++] = label.getName();
-        return result;
+            if (label.getName().startsWith("plugin-"))
+                result.add(label.getName().substring(7));
+        return result.toArray(new String[result.size()]);
     }
 
     private static final String[] HUDSON_WIKI_PREFIX = {
