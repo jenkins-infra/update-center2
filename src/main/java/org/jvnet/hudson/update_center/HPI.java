@@ -139,7 +139,7 @@ public class HPI extends MavenArtifact {
         public final String email;
 
         Developer(String token) throws ParseException {
-            String[] pieces = token.split(":");
+            String[] pieces = token.split(":",-1);
             if (pieces.length!=3)
                 throw new ParseException("Unexpected developer name: "+token,0);
             name = pieces[0];
