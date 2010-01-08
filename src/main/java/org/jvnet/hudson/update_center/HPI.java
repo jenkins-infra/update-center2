@@ -93,7 +93,7 @@ public class HPI extends MavenArtifact {
 
     public List<Developer> getDevelopers() throws IOException {
         String devs = getManifestAttributes().getValue("Plugin-Developers");
-        if (devs == null) return Collections.emptyList();
+        if (devs == null || devs.trim().length()==0) return Collections.emptyList();
 
         List<Developer> r = new ArrayList<Developer>();
         for (String token : devs.split(",")) {
