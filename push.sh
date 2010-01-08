@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 # obtain index
-wget --timestamping http://download.java.net/maven/2/.index/nexus-maven-repository-index.zip
+wget --verbose --timestamping http://download.java.net/maven/2/.index/nexus-maven-repository-index.zip
 rm -rf index || true
 mkdir index
 pushd index
