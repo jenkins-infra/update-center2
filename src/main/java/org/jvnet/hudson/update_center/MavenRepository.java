@@ -23,6 +23,8 @@
  */
 package org.jvnet.hudson.update_center;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.maven.artifact.Artifact;
@@ -35,6 +37,7 @@ import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.transform.ArtifactTransformationManager;
+import org.apache.tools.ant.taskdefs.Expand;
 import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.codehaus.plexus.DefaultPlexusContainer;
@@ -49,7 +52,10 @@ import org.sonatype.nexus.index.NexusIndexer;
 import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -70,11 +76,11 @@ public class MavenRepository {
     private final List<ArtifactRepository> remoteRepositories;
     private final ArtifactRepository local;
 
-    public MavenRepository() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException {
+    public MavenRepository() throws Exception {
         this("java.net2",new File("./index"));
     }
 
-    public MavenRepository(String id, File indexDirectory) throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException {
+    public MavenRepository(String id, File indexDirectory) throws Exception {
         ClassWorld classWorld = new ClassWorld( "plexus.core", MavenRepository.class.getClassLoader() );
         ContainerConfiguration configuration = new DefaultContainerConfiguration().setClassWorld( classWorld );
         PlexusContainer plexus = new DefaultPlexusContainer( configuration );
@@ -96,6 +102,48 @@ public class MavenRepository {
                 new File(new File(System.getProperty("user.home")), ".m2/repository").toURI().toURL().toExternalForm(),
                 new DefaultRepositoryLayout(), policy, policy);
 
+    }
+
+    /**
+     * Opens a Maven repository by downloading its index file.
+     */
+    public MavenRepository(String id, URL repository) throws Exception {
+        this(id,load(id,new URL(repository,".index/nexus-maven-repository-index.zip")));
+    }
+
+    private static File load(String id, URL url) throws IOException {
+        File dir = new File(new File(System.getProperty("java.io.tmpdir")), "maven-index/" + id);
+        File zip = new File(dir,"index.zip");
+        File expanded = new File(dir,"expanded");
+
+        URLConnection con = url.openConnection();
+        if (!expanded.exists() || !zip.exists() || zip.lastModified()!=con.getLastModified()) {
+            System.out.println("Downloading "+url);
+            // if the download fail in the middle, only leave a broken tmp file
+            dir.mkdirs();
+            File tmp = new File(dir,"index.zi_");
+            FileOutputStream o = new FileOutputStream(tmp);
+            IOUtils.copy(con.getInputStream(), o);
+            o.close();
+
+            if (expanded.exists())
+                FileUtils.deleteDirectory(expanded);
+            expanded.mkdirs();
+
+            Expand e = new Expand();
+            e.setSrc(tmp);
+            e.setDest(expanded);
+            e.execute();
+
+            // as a proof that the expansion was properly completed
+            tmp.renameTo(zip);
+            zip.setLastModified(con.getLastModified());
+        } else {
+            System.out.println("Reusing the locally cached "+url+" at "+zip);
+        }
+
+
+        return expanded;
     }
 
     File resolve(ArtifactInfo a) throws AbstractArtifactResolutionException {
