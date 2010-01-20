@@ -77,10 +77,18 @@ public class MavenRepository {
     private final ArtifactRepository local;
 
     public MavenRepository() throws Exception {
-        this("java.net2",new File("./index"));
+        this("java.net2",new File("./index"), new URL("http://maven.glassfish.org/content/groups/public/"));
     }
 
-    public MavenRepository(String id, File indexDirectory) throws Exception {
+    /**
+     * @param id
+     *      Repository ID. This ID has to match the ID in the repository index, due to a design bug in Maven.
+     * @param indexDirectory
+     *      Directory that contains exploded index zip file.
+     * @param repository
+     *      URL of the Maven repository. Used to resolve artifacts.
+     */
+    public MavenRepository(String id, File indexDirectory, URL repository) throws Exception {
         ClassWorld classWorld = new ClassWorld( "plexus.core", MavenRepository.class.getClassLoader() );
         ContainerConfiguration configuration = new DefaultContainerConfiguration().setClassWorld( classWorld );
         PlexusContainer plexus = new DefaultPlexusContainer( configuration );
@@ -96,7 +104,7 @@ public class MavenRepository {
 
         ArtifactRepositoryPolicy policy = new ArtifactRepositoryPolicy(true, "daily", "warn");
         remoteRepositories = Collections.singletonList(
-                arf.createArtifactRepository("m.g.o-public", "http://maven.glassfish.org/content/groups/public/",
+                arf.createArtifactRepository(id, repository.toExternalForm(),
                         new DefaultRepositoryLayout(), policy, policy));
         local = arf.createArtifactRepository("local",
                 new File(new File(System.getProperty("user.home")), ".m2/repository").toURI().toURL().toExternalForm(),
@@ -108,7 +116,7 @@ public class MavenRepository {
      * Opens a Maven repository by downloading its index file.
      */
     public MavenRepository(String id, URL repository) throws Exception {
-        this(id,load(id,new URL(repository,".index/nexus-maven-repository-index.zip")));
+        this(id,load(id,new URL(repository,".index/nexus-maven-repository-index.zip")), repository);
     }
 
     private static File load(String id, URL url) throws IOException {
