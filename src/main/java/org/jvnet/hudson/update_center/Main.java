@@ -23,8 +23,8 @@
  */
 package org.jvnet.hudson.update_center;
 
-import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -32,39 +32,40 @@ import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
+import org.jvnet.hudson.crypto.CertificateUtil;
+import org.jvnet.hudson.crypto.SignatureOutputStream;
+import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.CmdLineException;
 import org.sonatype.nexus.index.ArtifactInfo;
-import org.jvnet.hudson.crypto.SignatureOutputStream;
-import org.jvnet.hudson.crypto.CertificateUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.FileNotFoundException;
 import java.security.DigestOutputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
-import static java.security.Security.addProvider;
 import java.security.Signature;
 import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.security.cert.TrustAnchor;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.Set;
+import java.util.TreeMap;
+
+import static java.security.Security.addProvider;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -102,28 +103,32 @@ public class Main {
     public String connectionCheckUrl;
 
     public static void main(String[] args) throws Exception {
-        Main main = new Main();
-        CmdLineParser p = new CmdLineParser(main);
+        System.exit(new Main().run(args));
+    }
+
+    public int run(String[] args) throws Exception {
+        CmdLineParser p = new CmdLineParser(this);
         try {
             p.parseArgument(args);
 
-            if (main.www!=null) {
-                main.output = new File(main.www,"update-center.json");
-                main.htaccess = new File(main.www,"latest/.htaccess");
-                main.indexHtml = new File(main.www,"index.html");
+            if (www!=null) {
+                output = new File(www,"update-center.json");
+                htaccess = new File(www,"latest/.htaccess");
+                indexHtml = new File(www,"index.html");
             }
 
-            main.run();
+            run();
+            return 0;
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
             p.printUsage(System.err);
-            System.exit(1);
+            return 1;
         }
     }
 
     public void run() throws Exception {
 
-        MavenRepository repo = new MavenRepository();
+        MavenRepository repo = createRepository();
 
         updateIndexHtml(repo);
 
@@ -150,6 +155,10 @@ public class Main {
         pw.println(");");
         pw.close();
         latestRedirect.close();
+    }
+
+    protected MavenRepository createRepository() throws Exception {
+        return new MavenRepository();
     }
 
     /**
