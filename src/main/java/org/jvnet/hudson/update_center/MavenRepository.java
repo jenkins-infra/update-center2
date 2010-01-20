@@ -167,7 +167,7 @@ public class MavenRepository {
     /**
      * Discover all plugins from this Maven repository.
      */
-    public Collection<PluginHistory> listHudsonPlugins() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException, ArtifactNotFoundException {
+    public Collection<PluginHistory> listHudsonPlugins() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
         BooleanQuery q = new BooleanQuery();
         q.add(indexer.constructQuery(ArtifactInfo.PACKAGING,"hpi"), Occur.MUST);
 
@@ -182,7 +182,7 @@ public class MavenRepository {
             PluginHistory p = plugins.get(a.artifactId);
             if (p==null)
                 plugins.put(a.artifactId, p=new PluginHistory(a.artifactId));
-            p.artifacts.put(new VersionNumber(a.version),new HPI(this,p,a));
+            p.artifacts.put(new VersionNumber(a.version), createHpiArtifact(a, p));
             p.groupId.add(a.groupId);
         }
 
@@ -208,9 +208,21 @@ public class MavenRepository {
             if (a.classifier!=null)  continue;          // just pick up the main war
 
             VersionNumber v = new VersionNumber(a.version);
-            r.put(v,new HudsonWar(this,a));
+            r.put(v, createHudsonWarArtifact(a));
         }
 
         return r;
+    }
+
+/*
+    Hook for subtypes to use customized implementations.
+ */
+
+    protected HPI createHpiArtifact(ArtifactInfo a, PluginHistory p) throws AbstractArtifactResolutionException {
+        return new HPI(this,p,a);
+    }
+
+    protected HudsonWar createHudsonWarArtifact(ArtifactInfo a) {
+        return new HudsonWar(this,a);
     }
 }
