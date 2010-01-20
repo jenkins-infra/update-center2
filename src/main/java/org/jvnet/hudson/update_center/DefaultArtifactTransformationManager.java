@@ -86,6 +86,7 @@ public class DefaultArtifactTransformationManager
         }
     }
 
-
-
+    public List getArtifactTransformations() {
+        return artifactTransformations;
+    }
 }
