@@ -76,8 +76,12 @@ public class MavenRepository {
     private final List<ArtifactRepository> remoteRepositories;
     private final ArtifactRepository local;
 
+    /**
+     * Creates a reference to the default Maven repository for Hudson, which is java.net maven2 repository.
+     */
     public MavenRepository() throws Exception {
-        this("java.net2",new File("./index"), new URL("http://maven.glassfish.org/content/groups/public/"));
+        // use download.java.net or maven.dyndns.org, not maven.glassfish.org since those indices are updated faster
+        this("java.net2",new URL("http://download.java.net/maven/2/"));
     }
 
     /**

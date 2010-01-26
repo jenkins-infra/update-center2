@@ -1,13 +1,5 @@
 #!/bin/bash -ex
 
-# obtain index
-wget --verbose --timestamping http://download.java.net/maven/2/.index/nexus-maven-repository-index.zip
-rm -rf index || true
-mkdir index
-pushd index
-  unzip -o ../nexus-maven-repository-index.zip
-popd
-
 # prepare the www workspace for execution
 rm -rf www2 || true
 svn co -N https://www.dev.java.net/svn/hudson/trunk/www2
