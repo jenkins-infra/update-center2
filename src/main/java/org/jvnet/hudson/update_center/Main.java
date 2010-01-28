@@ -261,10 +261,6 @@ public class Main {
         JSONObject plugins = new JSONObject();
         for( PluginHistory hpi : repository.listHudsonPlugins() ) {
             System.out.println(hpi.artifactId);
-            if(hpi.artifactId.equals("ivy2"))
-                continue;       // subsumed into the ivy plugin. Hiding from the update center
-            if(hpi.artifactId.equals("ConfigurationSlicing"))
-                continue;       // renamed into configurationslicing, and this double causes a check out problem on Windows
 
             List<HPI> versions = new ArrayList<HPI>(hpi.artifacts.values());
             HPI latest = versions.get(0);

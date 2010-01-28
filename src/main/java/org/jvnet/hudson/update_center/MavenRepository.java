@@ -183,6 +183,11 @@ public class MavenRepository {
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
 
+            if(a.artifactId.equals("ivy2"))
+                continue;       // subsumed into the ivy plugin. Hiding from the update center
+            if(a.artifactId.equals("ConfigurationSlicing"))
+                continue;       // renamed into configurationslicing, and this double causes a check out problem on Windows
+
             PluginHistory p = plugins.get(a.artifactId);
             if (p==null)
                 plugins.put(a.artifactId, p=new PluginHistory(a.artifactId));
