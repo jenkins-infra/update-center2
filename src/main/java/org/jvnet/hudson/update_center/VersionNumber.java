@@ -69,8 +69,6 @@ public class VersionNumber implements Comparable<VersionNumber> {
     public VersionNumber( String num ) {
         StringTokenizer tokens = new StringTokenizer(num,".-");
         digits = new int[tokens.countTokens()];
-        if(digits.length<2)
-            throw new IllegalArgumentException("No digits: "+num);
 
         int i=0;
         while( tokens.hasMoreTokens() ) {
