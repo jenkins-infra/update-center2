@@ -188,10 +188,18 @@ public class MavenRepository {
             if(a.artifactId.equals("ConfigurationSlicing"))
                 continue;       // renamed into configurationslicing, and this double causes a check out problem on Windows
 
+            VersionNumber v;
+            try {
+                v = new VersionNumber(a.version);
+            } catch (NumberFormatException e) {
+                System.out.println("Failed to parse version number "+a.version+" for "+a);
+                continue;
+            }
+
             PluginHistory p = plugins.get(a.artifactId);
             if (p==null)
                 plugins.put(a.artifactId, p=new PluginHistory(a.artifactId));
-            p.artifacts.put(new VersionNumber(a.version), createHpiArtifact(a, p));
+            p.artifacts.put(v, createHpiArtifact(a, p));
             p.groupId.add(a.groupId);
         }
 
