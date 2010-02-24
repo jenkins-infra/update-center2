@@ -37,6 +37,8 @@ package org.jvnet.hudson.update_center;
 
 import java.util.StringTokenizer;
 import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Immutable representation of a dot-separated digits (such as "1.0.1").
@@ -67,6 +69,11 @@ public class VersionNumber implements Comparable<VersionNumber> {
      *      if the parsing fails.
      */
     public VersionNumber( String num ) {
+        // normalization. "1.0-alpha1" -> "1.0-alpha-1"
+        Matcher m = ALPHA_NUMBER.matcher(num);
+        if (m.find())
+            num = num.substring(0, m.start())+'-'+num.substring(m.start());
+
         StringTokenizer tokens = new StringTokenizer(num,".-");
         digits = new int[tokens.countTokens()];
 
@@ -141,4 +148,6 @@ public class VersionNumber implements Comparable<VersionNumber> {
             return o2.compareTo(o1);
         }
     };
+
+    private static final Pattern ALPHA_NUMBER = Pattern.compile("(?<=alpha|beta)[0-9]");
 }
