@@ -329,7 +329,6 @@ public class Main {
         System.out.println("core\n=> "+ core);
 
         redirect.printf("Redirect 302 /latest/hudson.war %s\n", latest.getURL());
-        redirect.printf("Redirect 302 /download/war/latest/hudson.war %s\n", latest.getURL());
 
         if (dlc!=null) {
             // build dlc.sun.com layout
