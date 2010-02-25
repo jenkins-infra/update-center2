@@ -273,8 +273,7 @@ public class Main {
             System.out.println("=> "+plugin.toJSON());
 
             plugins.put(plugin.artifactId,plugin.toJSON());
-            redirect.printf("Redirect 302 /latest/%s.hpi %s\n", plugin.artifactId, latest.getURL());
-            String permalink = String.format("/download/plugins/%1$s/latest/%1$s.hpi", plugin.artifactId);
+            String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
             redirect.printf("Redirect 302 %s %s\n", permalink, latest.getURL());
 
             if (dlc!=null) {
@@ -342,7 +341,7 @@ public class Main {
         }
 
         if (www!=null)
-            buildIndex(new File(www,"download/war/"),"hudson.war", wars.values(), "/download/war/latest/hudson.war");
+            buildIndex(new File(www,"download/war/"),"hudson.war", wars.values(), "/latest/hudson.war");
 
         return core;
     }
