@@ -56,8 +56,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -204,6 +206,41 @@ public class MavenRepository {
         }
 
         return plugins.values();
+    }
+
+    
+    /**
+     * Discover all plugins from this Maven repository in order released, not using PluginHistory.
+     */
+    public Map<Date,Map<String,HPI>> listHudsonPluginsByReleaseDate() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
+        BooleanQuery q = new BooleanQuery();
+        q.add(indexer.constructQuery(ArtifactInfo.PACKAGING,"hpi"), Occur.MUST);
+
+        FlatSearchRequest request = new FlatSearchRequest(q);
+        FlatSearchResponse response = indexer.searchFlat(request);
+
+        Map<Date, Map<String,HPI>> plugins = new TreeMap<Date, Map<String,HPI>>();
+
+        for (ArtifactInfo a : response.getResults()) {
+            if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
+
+            if(a.artifactId.equals("ivy2"))
+                continue;       // subsumed into the ivy plugin. Hiding from the update center
+            if(a.artifactId.equals("ConfigurationSlicing"))
+                continue;       // renamed into configurationslicing, and this double causes a check out problem on Windows
+
+            HPI h = createHpiArtifact(a, null);
+            Date releaseDate = h.getTimestampAsDate();
+            System.out.println("adding " + h.artifact.artifactId + ":" + h.version);
+            Map<String,HPI> pluginsOnDate = plugins.get(releaseDate);
+            if (pluginsOnDate==null) {
+                pluginsOnDate = new TreeMap<String,HPI>();
+                plugins.put(releaseDate, pluginsOnDate);
+            }
+            pluginsOnDate.put(a.artifactId,h);
+        }
+
+        return plugins;
     }
 
     /**

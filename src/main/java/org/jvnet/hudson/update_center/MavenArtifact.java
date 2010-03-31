@@ -29,9 +29,12 @@ import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.Long;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -85,11 +88,8 @@ public class MavenArtifact {
         o.put("name", name);
         o.put("version", version);
 
-        long lastModified = getTimestamp();
-
         o.put("url", getURL().toExternalForm());
-        SimpleDateFormat buildDateFormatter = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
-        o.put("buildDate", buildDateFormatter.format(lastModified));
+        o.put("buildDate", getTimestampAsString());
 
         return o;
     }
@@ -98,6 +98,32 @@ public class MavenArtifact {
         return new VersionNumber(version);
     }
 
+    public String getTimestampAsString() throws IOException {
+        long lastModified = getTimestamp();
+        SimpleDateFormat bdf = getDateFormat();
+
+        return bdf.format(lastModified);
+    }
+
+    public Date getTimestampAsDate() throws IOException {
+        long lastModified = getTimestamp();
+        SimpleDateFormat bdf = getDateFormat();
+
+        Date tsDate;
+        
+        try {
+            tsDate = bdf.parse(bdf.format(new Date(lastModified)));
+        } catch (ParseException pe) {
+            throw new IOException(pe.getMessage());
+        }
+
+        return tsDate;
+    }
+    
+    public static SimpleDateFormat getDateFormat() {
+        return new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+    }
+        
     public long getTimestamp() throws IOException {
         if (timestamp==0)
             getManifest();

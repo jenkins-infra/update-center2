@@ -165,6 +165,22 @@ public class Plugin {
     private static final Pattern EXCERPT_PATTERN = Pattern.compile("\\{excerpt(?::hidden(?:=true)?)?\\}\\s*(.+)\\{excerpt\\}", Pattern.DOTALL);
     private static final Pattern HYPERLINK_PATTERN = Pattern.compile("\\[([^|\\]]+)\\|([^|\\]]+)(|([^]])+)?\\]");
     private static final Pattern NEWLINE_PATTERN = Pattern.compile("(?:\\r\\n|\\n)");
+
+    public String getTitle() {
+        String title = "";
+        if (page!=null) {
+            title = page.getTitle();
+        }
+        return title;
+    }
+
+    public String getWiki() {
+        String wiki = "";
+        if (page!=null) {
+            wiki = page.getUrl();
+        }
+        return wiki;
+    }
     
     public JSONObject toJSON() throws IOException {
         JSONObject json = latest.toJSON(artifactId);

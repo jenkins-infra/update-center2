@@ -57,11 +57,14 @@ import java.security.Signature;
 import java.security.cert.CertificateFactory;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -73,6 +76,9 @@ import static java.security.Security.addProvider;
 public class Main {
     @Option(name="-o",usage="json file")
     public File output = new File("output.json");
+
+    @Option(name="-r",usage="release history JSON file")
+    public File releaseHistory = new File("release-history.json");
 
     @Option(name="-h",usage="htaccess file")
     public File htaccess = new File(".htaccess");
@@ -115,6 +121,7 @@ public class Main {
                 output = new File(www,"update-center.json");
                 htaccess = new File(www,"latest/.htaccess");
                 indexHtml = new File(www,"index.html");
+                releaseHistory = new File(www,"release-history.json");
             }
 
             run();
@@ -154,6 +161,11 @@ public class Main {
         pw.println(root.toString(2));
         pw.println(");");
         pw.close();
+        JSONObject rhRoot = new JSONObject();
+        rhRoot.put("releaseHistory", buildReleaseHistory(repo,latestRedirect));
+        PrintWriter rhpw = new PrintWriter(new FileWriter(releaseHistory));
+        rhpw.println(rhRoot.toString(2));
+        rhpw.close();
         latestRedirect.close();
     }
 
@@ -290,6 +302,53 @@ public class Main {
         }
 
         return plugins;
+    }
+
+    /**
+     * Build JSON for the release history list.
+     * @param repository
+     * @param redirect
+     */
+    protected JSONArray buildReleaseHistory(MavenRepository repository, PrintWriter redirect) throws Exception {
+        ConfluencePluginList cpl = new ConfluencePluginList();
+
+        JSONArray releaseHistory = new JSONArray();
+        for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet() ) {
+            String relDate = MavenArtifact.getDateFormat().format(relsOnDate.getKey());
+            System.out.println("Releases on " + relDate);
+            
+            JSONArray releases = new JSONArray();
+
+            for (Map.Entry<String,HPI> rel : relsOnDate.getValue().entrySet()) {
+                HPI h = rel.getValue();
+                JSONObject o = new JSONObject();
+                try {
+                    Plugin plugin = new Plugin(h.artifact.artifactId, h, null, cpl);
+                    
+                    String title = plugin.getTitle();
+                    if ((title==null) || (title.equals(""))) {
+                        title = h.artifact.artifactId;
+                    }
+                    
+                    o.put("title", title);
+                    o.put("wiki", plugin.getWiki());
+                    o.put("version", h.version);
+                    System.out.println("\t" + title + ":" + h.version);
+                } catch (IOException e) {
+                    System.out.println("Failed to resolve plugin " + h.artifact.artifactId + " so using defaults");
+                    o.put("title", h.artifact.artifactId);
+                    o.put("wiki", "");
+                    o.put("version", h.version);
+                }
+                releases.add(o);
+            }
+            JSONObject d = new JSONObject();
+            d.put("date", relDate);
+            d.put("releases", releases);
+            releaseHistory.add(d);
+        }
+        
+        return releaseHistory;
     }
 
     private void buildIndex(File dir, String title, Collection<? extends MavenArtifact> versions, String permalink) throws IOException {
