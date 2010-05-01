@@ -38,6 +38,6 @@ public class HudsonWar extends MavenArtifact {
 
     @Override
     public URL getURL() throws MalformedURLException {
-        return new URL("http://hudson-ci.org/download/war/"+version+"/hudson.war");
+        return new URL("http://updates.hudson-labs.org/download/war/"+version+"/hudson.war");
     }
 }

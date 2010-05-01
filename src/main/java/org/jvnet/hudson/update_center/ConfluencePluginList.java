@@ -51,6 +51,9 @@ public class ConfluencePluginList {
     private final Map<String,RemotePageSummary> children = new HashMap<String, RemotePageSummary>();
     private final String[] normalizedTitles;
 
+    private final Map<String,RemotePage> pageCache = new HashMap<String, RemotePage>();
+    private final Map<Long,String[]> labelCache = new HashMap<Long, String[]>();
+
     public ConfluencePluginList() throws IOException, ServiceException {
         service = Confluence.connect(new URL("http://wiki.hudson-ci.org/"));
         RemotePage page = service.getPage("", "HUDSON", "Plugins");
@@ -89,19 +92,30 @@ public class ConfluencePluginList {
                 continue;
 
             String pageName = url.substring(p.length()).replace('+',' '); // poor hack for URL escape
-            return service.getPage("","HUDSON",pageName);
+
+            RemotePage page = pageCache.get(pageName);
+            if (page==null) {
+                page = service.getPage("", "HUDSON", pageName);
+                pageCache.put(pageName,page);
+            }
+            return page;
         }
         return null;
     }
 
     public String[] getLabels(RemotePage page) throws RemoteException {
-        RemoteLabel[] labels = service.getLabelsById("", page.getId());
-        if (labels==null) return new String[0];
-        ArrayList<String> result = new ArrayList<String>(labels.length);
-        for (RemoteLabel label : labels)
-            if (label.getName().startsWith("plugin-"))
-                result.add(label.getName().substring(7));
-        return result.toArray(new String[result.size()]);
+        String[] r = labelCache.get(page.getId());
+        if (r==null) {
+            RemoteLabel[] labels = service.getLabelsById("", page.getId());
+            if (labels==null) return new String[0];
+            ArrayList<String> result = new ArrayList<String>(labels.length);
+            for (RemoteLabel label : labels)
+                if (label.getName().startsWith("plugin-"))
+                    result.add(label.getName().substring(7));
+            r = result.toArray(new String[result.size()]);
+            labelCache.put(page.getId(),r);
+        }
+        return r;
     }
 
     private static final String[] HUDSON_WIKI_PREFIX = {

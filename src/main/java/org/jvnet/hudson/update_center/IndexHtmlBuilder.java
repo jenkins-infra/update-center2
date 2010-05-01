@@ -66,7 +66,7 @@ public class IndexHtmlBuilder implements Closeable {
     }
 
     public void add(MavenArtifact a) throws IOException {
-        add(a.getURL().toExternalForm(), a.version);
+        add(a.getURL().getPath(), a.version);
     }
 
     public void add(String url, String caption) throws MalformedURLException {

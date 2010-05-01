@@ -49,6 +49,7 @@ import org.sonatype.nexus.index.ArtifactInfo;
 import org.sonatype.nexus.index.FlatSearchRequest;
 import org.sonatype.nexus.index.FlatSearchResponse;
 import org.sonatype.nexus.index.NexusIndexer;
+import org.sonatype.nexus.index.context.IndexingContext;
 import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 
 import java.io.File;
@@ -102,7 +103,7 @@ public class MavenRepository {
                 ArtifactTransformationManager.class.getName(),"default").setImplementationClass(DefaultArtifactTransformationManager.class);
 
         indexer = plexus.lookup( NexusIndexer.class );
-        indexer.addIndexingContext(id, id,null, indexDirectory,null,null, NexusIndexer.DEFAULT_INDEX);
+        IndexingContext ic = indexer.addIndexingContext(id, id,null, indexDirectory,null,null, NexusIndexer.DEFAULT_INDEX);
 
         af = plexus.lookup(ArtifactFactory.class);
         ar = plexus.lookup(ArtifactResolver.class);
@@ -122,7 +123,14 @@ public class MavenRepository {
      * Opens a Maven repository by downloading its index file.
      */
     public MavenRepository(String id, URL repository) throws Exception {
-        this(id,load(id,new URL(repository,".index/nexus-maven-repository-index.zip")), repository);
+        this(id,new URL(repository,".index/nexus-maven-repository-index.zip"), repository);
+    }
+
+    /**
+     * Opens a Maven repository by downloading its index file.
+     */
+    public MavenRepository(String id, URL index, URL repository) throws Exception {
+        this(id,load(id,index), repository);
     }
 
     private static File load(String id, URL url) throws IOException {

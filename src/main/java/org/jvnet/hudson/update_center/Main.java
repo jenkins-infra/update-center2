@@ -37,7 +37,6 @@ import org.jvnet.hudson.crypto.SignatureOutputStream;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,6 +47,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.security.DigestOutputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -57,12 +57,11 @@ import java.security.Signature;
 import java.security.cert.CertificateFactory;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,10 +83,10 @@ public class Main {
     public File htaccess = new File(".htaccess");
 
     /**
-     * This option builds the directory image to be staged to http://dlc.sun.com/hudson/downloads
+     * This option builds the directory image for the download server.
      */
-    @Option(name="-dlc",usage="Build dlc.sun.com layout")
-    public File dlc = null;
+    @Option(name="-download",usage="Build download server layout")
+    public File download = null;
 
     @Option(name="-www",usage="Built hudson-ci.org layout")
     public File www = null;
@@ -162,7 +161,7 @@ public class Main {
         pw.println(");");
         pw.close();
         JSONObject rhRoot = new JSONObject();
-        rhRoot.put("releaseHistory", buildReleaseHistory(repo,latestRedirect));
+        rhRoot.put("releaseHistory", buildReleaseHistory(repo));
         PrintWriter rhpw = new PrintWriter(new FileWriter(releaseHistory));
         rhpw.println(rhRoot.toString(2));
         rhpw.close();
@@ -170,7 +169,9 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        return new MavenRepository();
+        return new MavenRepository("java.net2",
+                new URL("http://maven.hudson-labs.org/.index/nexus-maven-repository-index.zip"),
+                new URL("http://maven.dyndns.org/2/"));
     }
 
     /**
@@ -286,14 +287,11 @@ public class Main {
 
             plugins.put(plugin.artifactId,plugin.toJSON());
             String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
-            redirect.printf("Redirect 302 %s %s\n", permalink, latest.getURL());
+            redirect.printf("Redirect 302 %s %s\n", permalink, latest.getURL().getPath());
 
-            if (dlc!=null) {
-                // build dlc.sun.com layout
+            if (download!=null) {
                 for (HPI v : versions) {
-                    ArtifactInfo a = v.artifact;
-                    ln("../../../../../maven/2/"+ a.groupId.replace('.','/')+"/"+ a.artifactId+"/"+ a.version+"/"+ a.artifactId+"-"+ a.version+"."+ a.packaging,
-                            new File(dlc,"plugins/"+hpi.artifactId+"/"+v.version+"/"+hpi.artifactId+".hpi"));
+                    stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
                 }
             }
 
@@ -305,11 +303,30 @@ public class Main {
     }
 
     /**
+     * Stages an artifact into the specified location.
+     */
+    private void stage(MavenArtifact a, File dst) throws IOException, InterruptedException {
+        File src = a.resolve();
+        if (dst.exists() && dst.lastModified()==src.lastModified() && dst.length()==src.length())
+            return;   // already up to date
+
+//        dst.getParentFile().mkdirs();
+//        FileUtils.copyFile(src,dst);
+
+        dst.getParentFile().mkdirs();
+
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command("ln","-f", src.getAbsolutePath(), dst.getAbsolutePath());
+        if (pb.start().waitFor()!=0)
+            throw new IOException("ln failed");
+
+    }
+
+    /**
      * Build JSON for the release history list.
      * @param repository
-     * @param redirect
      */
-    protected JSONArray buildReleaseHistory(MavenRepository repository, PrintWriter redirect) throws Exception {
+    protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
         ConfluencePluginList cpl = new ConfluencePluginList();
 
         JSONArray releaseHistory = new JSONArray();
@@ -387,14 +404,12 @@ public class Main {
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
 
-        redirect.printf("Redirect 302 /latest/hudson.war %s\n", latest.getURL());
+        redirect.printf("Redirect 302 /latest/hudson.war %s\n", latest.getURL().getPath());
 
-        if (dlc!=null) {
-            // build dlc.sun.com layout
+        if (download!=null) {
+            // build the download server layout
             for (HudsonWar w : wars.values()) {
-                ArtifactInfo a = w.artifact;
-                ln("../../../../maven/2/org/jvnet/hudson/main/hudson-war/"+a.version+"/hudson-war-"+a.version+".war",
-                        new File(dlc,"war/"+w.version+"/hudson.war"));
+                stage(w, new File(download,"war/"+w.version+"/hudson.war"));
             }
         }
 
