@@ -63,6 +63,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 /**
@@ -192,11 +193,7 @@ public class MavenRepository {
 
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-
-            if(a.artifactId.equals("ivy2"))
-                continue;       // subsumed into the ivy plugin. Hiding from the update center
-            if(a.artifactId.equals("ConfigurationSlicing"))
-                continue;       // renamed into configurationslicing, and this double causes a check out problem on Windows
+            if (IGNORE.containsKey(a.artifactId))   continue;       // artifactIds to omit
 
             VersionNumber v;
             try {
@@ -231,11 +228,7 @@ public class MavenRepository {
 
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-
-            if(a.artifactId.equals("ivy2"))
-                continue;       // subsumed into the ivy plugin. Hiding from the update center
-            if(a.artifactId.equals("ConfigurationSlicing"))
-                continue;       // renamed into configurationslicing, and this double causes a check out problem on Windows
+            if (IGNORE.containsKey(a.artifactId))   continue;       // artifactIds to omit
 
             HPI h = createHpiArtifact(a, null);
             Date releaseDate = h.getTimestampAsDate();
@@ -286,5 +279,15 @@ public class MavenRepository {
 
     protected HudsonWar createHudsonWarArtifact(ArtifactInfo a) {
         return new HudsonWar(this,a);
+    }
+
+    private static final Properties IGNORE = new Properties();
+
+    static {
+        try {
+            IGNORE.load(Plugin.class.getClassLoader().getResourceAsStream("artifact-ignores.properties"));
+        } catch (IOException e) {
+            throw new Error(e);
+        }
     }
 }
