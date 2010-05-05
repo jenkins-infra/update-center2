@@ -218,8 +218,9 @@ public class Plugin {
         json.put("dependencies",deps);
 
         JSONArray devs = new JSONArray();
-        if (!hpi.getDevelopers().isEmpty()) {
-            for (HPI.Developer dev : hpi.getDevelopers())
+        List<HPI.Developer> devList = hpi.getDevelopers();
+        if (!devList.isEmpty()) {
+            for (HPI.Developer dev : devList)
                 devs.add(dev.toJSON());
         } else {
             try {
