@@ -405,6 +405,9 @@ public class Main {
         System.out.println("core\n=> "+ core);
 
         redirect.printf("Redirect 302 /latest/hudson.war %s\n", latest.getURL().getPath());
+        redirect.printf("Redirect 302 /latest/debian/hudson.deb http://pkg.hudson-labs.org/debian/binary/hudson_%s_all.deb\n", latest.getVersion());
+        redirect.printf("Redirect 302 /latest/redhat/hudson.rpm http://pkg.hudson-labs.org/redhat/RPMS/noarch/hudson-%s-1.1.noarch.rpm\n", latest.getVersion());
+        redirect.printf("Redirect 302 /latest/opensuse/hudson.rpm http://pkg.hudson-labs.org/opensuse/RPMS/noarch/hudson-%s-1.1.noarch.rpm\n", latest.getVersion());
 
         if (download!=null) {
             // build the download server layout
