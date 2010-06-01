@@ -170,7 +170,7 @@ public class Main {
 
     protected MavenRepository createRepository() throws Exception {
         return new MavenRepository("java.net2",
-                new URL("http://maven.hudson-labs.org/.index/nexus-maven-repository-index.zip"),
+                new URL("http://cucumber.hudson-labs.org/.index/nexus-maven-repository-index.zip"),
                 new URL("http://maven.dyndns.org/2/"));
     }
 
