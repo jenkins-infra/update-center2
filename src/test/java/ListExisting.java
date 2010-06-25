@@ -1,5 +1,4 @@
 import org.jvnet.hudson.update_center.HPI;
-import org.jvnet.hudson.update_center.MavenRepository;
 import org.jvnet.hudson.update_center.MavenRepositoryImpl;
 import org.jvnet.hudson.update_center.PluginHistory;
 
@@ -14,7 +13,8 @@ import java.util.TreeSet;
  */
 public class ListExisting {
     public static void main(String[] args) throws Exception{
-        MavenRepository r = new MavenRepositoryImpl("java.net2",new URL("http://maven.dyndns.org/2/"));
+        MavenRepositoryImpl r = new MavenRepositoryImpl();
+        r.addRemoteRepository("java.net2",new URL("http://maven.dyndns.org/2/"));
         Set<String> groupIds = new TreeSet<String>();
         for (PluginHistory p : r.listHudsonPlugins()) {
             HPI hpi = p.latest();
