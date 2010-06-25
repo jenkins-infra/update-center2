@@ -29,7 +29,6 @@ import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.Long;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -50,7 +49,7 @@ public class MavenArtifact {
     /**
      * Where did this plugin come from?
      */
-    public final MavenRepository repository;
+    public final MavenRepositoryImpl repository;
     public final ArtifactInfo artifact;
     public final String version;
     private File hpi;
@@ -59,7 +58,7 @@ public class MavenArtifact {
     private long timestamp;
     private Manifest manifest;
 
-    public MavenArtifact(MavenRepository repository, ArtifactInfo artifact) {
+    public MavenArtifact(MavenRepositoryImpl repository, ArtifactInfo artifact) {
         this.artifact = artifact;
         this.repository = repository;
         version = artifact.version;
