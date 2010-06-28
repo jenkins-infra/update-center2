@@ -124,6 +124,10 @@ public class MavenRepositoryImpl extends MavenRepository {
         File expanded = new File(dir,"expanded");
 
         URLConnection con = url.openConnection();
+        if (url.getUserInfo()!=null) {
+            con.setRequestProperty("Authorization","Basic "+new sun.misc.BASE64Encoder().encode(url.getUserInfo().getBytes()));
+        }
+
         if (!expanded.exists() || !zip.exists() || zip.lastModified()!=con.getLastModified()) {
             System.out.println("Downloading "+url);
             // if the download fail in the middle, only leave a broken tmp file
