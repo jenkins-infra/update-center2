@@ -8,7 +8,7 @@
   </parent>
   <artifactId>update-center2</artifactId>
   
-  <version>1.4</version>
+  <version>1.5-SNAPSHOT</version>
   <name>Update center generator for hudson-ci.org</name>
   <description>Generates update center script</description>
 
@@ -125,10 +125,4 @@
       <version>1.8.1</version>
     </dependency>
   </dependencies>
-
-  <scm>
-    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/update-center2-1.4</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/update-center2-1.4</developerConnection>
-    <url>https://hudson.dev.java.net/source/browse/hudson/tags/update-center2-1.4</url>
-  </scm>
 </project>
