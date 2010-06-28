@@ -32,7 +32,7 @@ import java.net.MalformedURLException;
  * @author Kohsuke Kawaguchi
  */
 public class HudsonWar extends MavenArtifact {
-    public HudsonWar(MavenRepositoryImpl repository, ArtifactInfo artifact) {
+    public HudsonWar(MavenRepository repository, ArtifactInfo artifact) {
         super(repository, artifact);
     }
 

@@ -46,7 +46,7 @@ public class HPI extends MavenArtifact {
      */
     public final PluginHistory history;
 
-    public HPI(MavenRepositoryImpl repository, PluginHistory history, ArtifactInfo artifact) throws AbstractArtifactResolutionException {
+    public HPI(MavenRepository repository, PluginHistory history, ArtifactInfo artifact) throws AbstractArtifactResolutionException {
         super(repository, artifact);
         this.history = history;
     }

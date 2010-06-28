@@ -157,11 +157,7 @@ public class MavenRepositoryImpl extends MavenRepository {
         return expanded;
     }
 
-    File resolve(ArtifactInfo a) throws AbstractArtifactResolutionException {
-        return resolve(a,a.packaging);
-    }
-
-    File resolve(ArtifactInfo a, String type) throws AbstractArtifactResolutionException {
+    protected File resolve(ArtifactInfo a, String type) throws AbstractArtifactResolutionException {
         Artifact artifact = af.createArtifact(a.groupId, a.artifactId, a.version, "compile", type);
         ar.resolve(artifact,remoteRepositories,local);
         return artifact.getFile();

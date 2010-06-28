@@ -49,7 +49,7 @@ public class MavenArtifact {
     /**
      * Where did this plugin come from?
      */
-    public final MavenRepositoryImpl repository;
+    public final MavenRepository repository;
     public final ArtifactInfo artifact;
     public final String version;
     private File hpi;
@@ -58,7 +58,7 @@ public class MavenArtifact {
     private long timestamp;
     private Manifest manifest;
 
-    public MavenArtifact(MavenRepositoryImpl repository, ArtifactInfo artifact) {
+    public MavenArtifact(MavenRepository repository, ArtifactInfo artifact) {
         this.artifact = artifact;
         this.repository = repository;
         version = artifact.version;

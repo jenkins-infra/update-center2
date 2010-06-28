@@ -3,8 +3,10 @@ package org.jvnet.hudson.update_center;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.sonatype.nexus.index.ArtifactInfo;
 import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
@@ -50,4 +52,10 @@ public abstract class MavenRepository {
      * Discover all hudson.war versions.
      */
     public abstract TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException;
+
+    protected File resolve(ArtifactInfo a) throws AbstractArtifactResolutionException {
+        return resolve(a,a.packaging);
+    }
+
+    protected abstract File resolve(ArtifactInfo a, String type) throws AbstractArtifactResolutionException;
 }
