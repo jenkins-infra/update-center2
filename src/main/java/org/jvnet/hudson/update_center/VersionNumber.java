@@ -134,9 +134,9 @@ public class VersionNumber implements Comparable<VersionNumber> {
             if( i==this.digits.length && i==rhs.digits.length )
                 return 0;   // equals
             if( i==this.digits.length )
-                return -1;  // rhs is larger
+                return rhs.digits[i]>=0 ? -1 /*rhs is larger*/: 1 /*lhs is larger*/;
             if( i==rhs.digits.length )
-                return 1;
+                return this.digits[i]>=0 ? 1 : -1;
 
             int r = this.digits[i] - rhs.digits[i];
             if(r!=0)    return r;
