@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2004-2009, Sun Microsystems, Inc.
+ * Copyright (c) 2004-2010, Sun Microsystems, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,6 @@ import org.dom4j.io.SAXReader;
 import java.io.File;
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Locale;
@@ -224,11 +223,7 @@ public class Plugin {
             for (HPI.Developer dev : devList)
                 devs.add(dev.toJSON());
         } else {
-            try {
-                devs.add(new HPI.Developer(" :" + latest.getBuiltBy()+ ": ").toJSON());
-            } catch (ParseException e) {
-                throw new AssertionError(e);
-            }
+            devs.add(new HPI.Developer("", latest.getBuiltBy(), "").toJSON());
         }
         json.put("developers", devs);
 

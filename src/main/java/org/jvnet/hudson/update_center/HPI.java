@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2004-2009, Sun Microsystems, Inc.
+ * Copyright (c) 2004-2010, Sun Microsystems, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,10 @@ import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.*;
 import java.net.URL;
 import java.net.MalformedURLException;
 
@@ -45,6 +45,8 @@ public class HPI extends MavenArtifact {
      * Which of the lineage did this come from?
      */
     public final PluginHistory history;
+
+    private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
     public HPI(MavenRepository repository, PluginHistory history, ArtifactInfo artifact) throws AbstractArtifactResolutionException {
         super(repository, artifact);
@@ -96,14 +98,15 @@ public class HPI extends MavenArtifact {
         if (devs == null || devs.trim().length()==0) return Collections.emptyList();
 
         List<Developer> r = new ArrayList<Developer>();
-        for (String token : devs.split(",")) {
-            try {
-                r.add(new Developer(token));
-            } catch (ParseException e) {
-                // ignore and move on
-                System.err.println(e);
-            }
+        Matcher m = developersPattern.matcher(devs);
+        int totalMatched = 0;
+        while (m.find()) {
+            r.add(new Developer(m.group(1).trim(), m.group(2).trim(), m.group(3).trim()));
+            totalMatched += m.end() - m.start();
         }
+        if (totalMatched < devs.length())
+            // ignore and move on
+            System.err.println("Unparsable developer info: '" + devs.substring(totalMatched)+"'");
         return r;
     }
 
@@ -138,22 +141,19 @@ public class HPI extends MavenArtifact {
         public final String developerId;
         public final String email;
 
-        Developer(String token) throws ParseException {
-            String[] pieces = token.split(":",-1);
-            if (pieces.length!=3)
-                throw new ParseException("Unexpected developer name: "+token,0);
-            name = pieces[0];
-            developerId = pieces[1];
-            email = pieces[2];
+        Developer(String name, String developerId, String email) {
+            this.name = name;
+            this.developerId = developerId;
+            this.email = email;
         }
 
         public JSONObject toJSON() {
             JSONObject o = new JSONObject();
-            if (!name.equals("") && !name.equals(" "))
+            if (!name.equals(""))
                 o.put("name", name);
             if (!developerId.equals(""))
                 o.put("developerId", developerId);
-            if (!email.equals("") && !email.equals(" "))
+            if (!email.equals(""))
                 o.put("email", email);
 
             if (!o.isEmpty()) {
@@ -162,6 +162,5 @@ public class HPI extends MavenArtifact {
                 return null;
             }
         }
-
     }
 }
