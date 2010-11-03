@@ -282,6 +282,10 @@ public class Main {
             HPI previous = versions.size()>1 ? versions.get(1) : null;
 
             Plugin plugin = new Plugin(hpi.artifactId,latest,previous,cpl);
+            if (plugin.deprecated) {
+                System.out.println("=> Plugin is deprecated.. skipping.");
+                continue;
+            }
 
             if(plugin.page!=null)
                 System.out.println("=> "+plugin.page.getTitle());

@@ -73,6 +73,10 @@ public class Plugin {
      * Null if wiki page wasn't found.
      */
     public final String[] labels;
+    /**
+     * Deprecated plugins should not be included in update center.
+     */
+    public final boolean deprecated;
 
     public Plugin(String artifactId, HPI latest, HPI previous, ConfluencePluginList cpl) throws IOException {
         this.artifactId = artifactId;
@@ -80,6 +84,14 @@ public class Plugin {
         this.previous = previous;
         this.page = findPage(cpl);
         this.labels = getLabels(cpl);
+        boolean dep = false;
+        if (labels!=null)
+            for (String label : labels)
+                if ("plugin-deprecated".equals(label)) {
+                    dep = true;
+                    break;
+                }
+        this.deprecated = dep;
     }
 
     /**
