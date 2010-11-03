@@ -85,9 +85,9 @@ public class Plugin {
         this.page = findPage(cpl);
         this.labels = getLabels(cpl);
         boolean dep = false;
-        if (labels!=null)
+        if (labels != null)
             for (String label : labels)
-                if ("plugin-deprecated".equals(label)) {
+                if ("deprecated".equals(label)) {
                     dep = true;
                     break;
                 }
