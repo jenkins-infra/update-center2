@@ -172,7 +172,7 @@ public class Main {
         MavenRepositoryImpl r = new MavenRepositoryImpl();
         r.addRemoteRepository("java.net2",
                 new URL("http://cucumber.hudson-labs.org/.index/nexus-maven-repository-index.zip"),
-                new URL("http://maven.dyndns.org/2/"));
+                new URL("http://maven.glassfish.org/content/groups/public/"));
         return r;
     }
 
