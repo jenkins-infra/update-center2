@@ -319,6 +319,7 @@ public class Main {
 //        dst.getParentFile().mkdirs();
 //        FileUtils.copyFile(src,dst);
 
+        // TODO: directory and the war file should have the release timestamp
         dst.getParentFile().mkdirs();
 
         ProcessBuilder pb = new ProcessBuilder();
