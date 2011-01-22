@@ -74,6 +74,11 @@ public class Plugin {
      */
     public final String[] labels;
     /**
+     * Hostname of SCM info from POM of latest release, or null.
+     * To determine if source lives in github or java.net svn.
+     */
+    public final String scm;
+    /**
      * Deprecated plugins should not be included in update center.
      */
     public final boolean deprecated;
@@ -82,7 +87,8 @@ public class Plugin {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
-        this.page = findPage(cpl);
+        Document pom = readPOM();
+        this.page = findPage(cpl, pom);
         this.labels = getLabels(cpl);
         boolean dep = false;
         if (labels != null)
@@ -91,7 +97,21 @@ public class Plugin {
                     dep = true;
                     break;
                 }
+        this.scm = getScmHost(pom);
         this.deprecated = dep;
+    }
+
+    private Document readPOM() throws IOException {
+        try {
+            DocumentFactory factory = new DocumentFactory();
+            factory.setXPathNamespaceURIs(Collections.singletonMap("m","http://maven.apache.org/POM/4.0.0"));
+            File pomFile = latest.resolvePOM();
+            return new SAXReader(factory).read(pomFile);
+        } catch (DocumentException e) {
+            System.err.println("Can't parse POM for "+artifactId);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -101,16 +121,11 @@ public class Plugin {
      * First we'll try to parse POM and obtain the URL.
      * If that fails, find the nearest name from the children list.
      */
-    private RemotePage findPage(ConfluencePluginList cpl) throws IOException {
-        try {
-            DocumentFactory factory = new DocumentFactory();
-            factory.setXPathNamespaceURIs(Collections.singletonMap("m","http://maven.apache.org/POM/4.0.0"));
-
-            File pom = latest.resolvePOM();
-            Document dom = new SAXReader(factory).read(pom);
-            Node url = dom.selectSingleNode("/project/url");
+    private RemotePage findPage(ConfluencePluginList cpl, Document pom) throws IOException {
+        if (pom != null) {
+            Node url = pom.selectSingleNode("/project/url");
             if(url==null)
-                url = dom.selectSingleNode("/m:project/m:url");
+                url = pom.selectSingleNode("/m:project/m:url");
             if(url!=null) {
                 String wikiPage = ((Element)url).getTextTrim();
                 try {
@@ -120,9 +135,6 @@ public class Plugin {
                     e.printStackTrace();
                 }
             }
-        } catch (DocumentException e) {
-            System.err.println("Can't parse POM for "+artifactId);
-            e.printStackTrace();
         }
 
         try {
@@ -142,6 +154,26 @@ public class Plugin {
             e.printStackTrace();
         }
 
+        return null;
+    }
+
+    private static final Pattern HOSTNAME_PATTERN = Pattern.compile("://(?:\\w*@)?([\\w.]+)/");
+
+    /**
+     * Get hostname of SCM specified in POM of latest release, or null.
+     */
+    private String getScmHost(Document pom) {
+        if (pom != null) {
+            Node scm = pom.selectSingleNode("/project/scm/connection");
+            if (scm == null)
+                scm = pom.selectSingleNode("/m:project/m:scm/m:connection");
+            if (scm != null) {
+                String conn = ((Element)scm).getTextTrim();
+                Matcher m = HOSTNAME_PATTERN.matcher(conn);
+                if (m.find())
+                    return m.group(1);
+            }
+        }
         return null;
     }
 
@@ -203,7 +235,6 @@ public class Plugin {
         if (previous!=null)
             json.put("previousTimestamp", fisheyeDateFormatter.format(previous.getTimestamp()));
 
-
         if(page!=null) {
             json.put("wiki",page.getUrl());
             json.put("title",page.getTitle());
@@ -212,6 +243,9 @@ public class Plugin {
                 json.put("excerpt",excerpt);
             if(labels!=null)
                 json.put("labels",labels);
+        }
+        if (scm!=null) {
+            json.put("scm", scm);
         }
 
         HPI hpi = latest;
