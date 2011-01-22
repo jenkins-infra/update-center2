@@ -83,12 +83,17 @@ public class Plugin {
      */
     public final boolean deprecated;
 
+    /**
+     * POM parsed as a DOM.
+     */
+    private final Document pom;
+
     public Plugin(String artifactId, HPI latest, HPI previous, ConfluencePluginList cpl) throws IOException {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
-        Document pom = readPOM();
-        this.page = findPage(cpl, pom);
+        this.pom = readPOM();
+        this.page = findPage(cpl);
         this.labels = getLabels(cpl);
         boolean dep = false;
         if (labels != null)
@@ -97,7 +102,7 @@ public class Plugin {
                     dep = true;
                     break;
                 }
-        this.scm = getScmHost(pom);
+        this.scm = getScmHost();
         this.deprecated = dep;
     }
 
@@ -121,7 +126,7 @@ public class Plugin {
      * First we'll try to parse POM and obtain the URL.
      * If that fails, find the nearest name from the children list.
      */
-    private RemotePage findPage(ConfluencePluginList cpl, Document pom) throws IOException {
+    private RemotePage findPage(ConfluencePluginList cpl) throws IOException {
         if (pom != null) {
             Node url = pom.selectSingleNode("/project/url");
             if(url==null)
@@ -162,7 +167,7 @@ public class Plugin {
     /**
      * Get hostname of SCM specified in POM of latest release, or null.
      */
-    private String getScmHost(Document pom) {
+    private String getScmHost() {
         if (pom != null) {
             Node scm = pom.selectSingleNode("/project/scm/connection");
             if (scm == null)
