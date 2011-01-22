@@ -232,10 +232,12 @@ public class Plugin {
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
         fisheyeDateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));
-        if (previous!=null)
+        if (previous!=null) {
+            json.put("previousVersion", previous.version);
             json.put("previousTimestamp", fisheyeDateFormatter.format(previous.getTimestamp()));
+        }
 
-        if(page!=null) {
+        if (page!=null) {
             json.put("wiki",page.getUrl());
             json.put("title",page.getTitle());
             String excerpt = getExcerptInHTML();
