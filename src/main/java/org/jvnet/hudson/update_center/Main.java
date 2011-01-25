@@ -142,7 +142,9 @@ public class Main {
 
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
-        root.put("core", buildCore(repo, latestRedirect));
+        JSONObject core = buildCore(repo, latestRedirect);
+        if (core!=null)
+            root.put("core", core);
         root.put("plugins", buildPlugins(repo, latestRedirect));
         root.put("id",id);
         if (connectionCheckUrl!=null)
@@ -319,6 +321,7 @@ public class Main {
 //        dst.getParentFile().mkdirs();
 //        FileUtils.copyFile(src,dst);
 
+        // TODO: directory and the war file should have the release timestamp
         dst.getParentFile().mkdirs();
 
         ProcessBuilder pb = new ProcessBuilder();
@@ -406,6 +409,8 @@ public class Main {
      */
     protected JSONObject buildCore(MavenRepository repository, PrintWriter redirect) throws Exception {
         TreeMap<VersionNumber,HudsonWar> wars = repository.getHudsonWar();
+        if (wars.isEmpty())     return null;
+
         HudsonWar latest = wars.get(wars.firstKey());
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
