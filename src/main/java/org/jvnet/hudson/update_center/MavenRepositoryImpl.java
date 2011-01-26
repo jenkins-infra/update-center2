@@ -153,7 +153,6 @@ public class MavenRepositoryImpl extends MavenRepository {
             System.out.println("Reusing the locally cached "+url+" at "+zip);
         }
 
-
         return expanded;
     }
 
@@ -174,7 +173,8 @@ public class MavenRepositoryImpl extends MavenRepository {
 
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-            if (IGNORE.containsKey(a.artifactId))   continue;       // artifactIds to omit
+            if (IGNORE.containsKey(a.artifactId) || IGNORE.contains(a.artifactId + "-" + a.version))
+                continue;       // artifactIds or particular versions to omit
 
             VersionNumber v;
             try {
