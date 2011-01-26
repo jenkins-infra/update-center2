@@ -282,6 +282,8 @@ public class Main {
             List<HPI> versions = new ArrayList<HPI>(hpi.artifacts.values());
             HPI latest = versions.get(0);
             HPI previous = versions.size()>1 ? versions.get(1) : null;
+            // Doublecheck that latest-by-version is also latest-by-date:
+            checkLatestDate(versions, latest);
 
             Plugin plugin = new Plugin(hpi.artifactId,latest,previous,cpl);
             if (plugin.deprecated) {
@@ -308,6 +310,17 @@ public class Main {
         }
 
         return plugins;
+    }
+
+    private void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
+        TreeMap<Long,HPI> artifactsByDate = new TreeMap<Long,HPI>();
+        for (HPI h : artifacts)
+            artifactsByDate.put(h.getTimestamp(), h);
+        HPI latestByDate = artifactsByDate.get(artifactsByDate.lastKey());
+        if (latestByDate != latestByVersion) System.out.println(
+            "** Latest-by-version (" + latestByVersion.version + ','
+            + latestByVersion.getTimestampAsString() + ") doesn't match latest-by-date ("
+            + latestByDate.version + ',' + latestByDate.getTimestampAsString() + ')');
     }
 
     /**
