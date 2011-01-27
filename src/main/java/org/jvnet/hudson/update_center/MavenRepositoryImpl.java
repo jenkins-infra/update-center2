@@ -173,7 +173,7 @@ public class MavenRepositoryImpl extends MavenRepository {
 
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-            if (IGNORE.containsKey(a.artifactId) || IGNORE.contains(a.artifactId + "-" + a.version))
+            if (IGNORE.containsKey(a.artifactId) || IGNORE.containsKey(a.artifactId + "-" + a.version))
                 continue;       // artifactIds or particular versions to omit
 
             VersionNumber v;
