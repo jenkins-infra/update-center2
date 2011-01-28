@@ -169,7 +169,8 @@ public class MavenRepositoryImpl extends MavenRepository {
         FlatSearchRequest request = new FlatSearchRequest(q);
         FlatSearchResponse response = indexer.searchFlat(request);
 
-        Map<String, PluginHistory> plugins = new TreeMap<String, PluginHistory>();
+        Map<String, PluginHistory> plugins =
+            new TreeMap<String, PluginHistory>(String.CASE_INSENSITIVE_ORDER);
 
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
