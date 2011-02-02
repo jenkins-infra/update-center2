@@ -196,25 +196,30 @@ public class MavenRepositoryImpl extends MavenRepository {
     }
 
     public TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException {
+        TreeMap<VersionNumber,HudsonWar> r = new TreeMap<VersionNumber, HudsonWar>(VersionNumber.DESCENDING);
+        listWar(r, "org.jenkins-ci.main", null);
+        listWar(r, "org.jvnet.hudson.main", CUT_OFF);
+        return r;
+    }
+
+    private void listWar(TreeMap<VersionNumber, HudsonWar> r, String groupId, VersionNumber cap) throws IOException {
         BooleanQuery q = new BooleanQuery();
-        q.add(indexer.constructQuery(ArtifactInfo.GROUP_ID,"org.jenkins-ci.main"), Occur.MUST);
+        q.add(indexer.constructQuery(ArtifactInfo.GROUP_ID,groupId), Occur.MUST);
         q.add(indexer.constructQuery(ArtifactInfo.PACKAGING,"war"), Occur.MUST);
 
         FlatSearchRequest request = new FlatSearchRequest(q);
         FlatSearchResponse response = indexer.searchFlat(request);
 
-        TreeMap<VersionNumber,HudsonWar> r = new TreeMap<VersionNumber, HudsonWar>(VersionNumber.DESCENDING);
-
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-            if (!a.artifactId.equals("jenkins-war"))  continue;      // somehow using this as a query results in 0 hits.
+            if (!a.artifactId.equals("jenkins-war")
+             && !a.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
             if (a.classifier!=null)  continue;          // just pick up the main war
+            if (cap!=null && new VersionNumber(a.version).compareTo(cap)>0) continue;
 
             VersionNumber v = new VersionNumber(a.version);
             r.put(v, createHudsonWarArtifact(a));
         }
-
-        return r;
     }
 
 /*
@@ -240,4 +245,9 @@ public class MavenRepositoryImpl extends MavenRepository {
     }
 
     protected static final ArtifactRepositoryPolicy POLICY = new ArtifactRepositoryPolicy(true, "daily", "warn");
+
+    /**
+     * Hudson -> Jenkins cut-over version.
+     */
+    public static final VersionNumber CUT_OFF = new VersionNumber("1.395");
 }
