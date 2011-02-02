@@ -173,7 +173,7 @@ public class Main {
     protected MavenRepository createRepository() throws Exception {
         MavenRepositoryImpl r = new MavenRepositoryImpl();
         r.addRemoteRepository("java.net2",
-                new URL("http://cucumber.hudson-labs.org/.index/nexus-maven-repository-index.zip"),
+                new URL("http://cucumber.jenkins-ci.org/.index/nexus-maven-repository-index.zip"),
                 new URL("http://maven.glassfish.org/content/groups/public/"));
         return r;
     }
@@ -428,10 +428,10 @@ public class Main {
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
 
-        redirect.printf("Redirect 302 /latest/hudson.war %s\n", latest.getURL().getPath());
-        redirect.printf("Redirect 302 /latest/debian/hudson.deb http://pkg.hudson-labs.org/debian/binary/hudson_%s_all.deb\n", latest.getVersion());
-        redirect.printf("Redirect 302 /latest/redhat/hudson.rpm http://pkg.hudson-labs.org/redhat/RPMS/noarch/hudson-%s-1.1.noarch.rpm\n", latest.getVersion());
-        redirect.printf("Redirect 302 /latest/opensuse/hudson.rpm http://pkg.hudson-labs.org/opensuse/RPMS/noarch/hudson-%s-1.1.noarch.rpm\n", latest.getVersion());
+        redirect.printf("Redirect 302 /latest/jenkins.war %s\n", latest.getURL().getPath());
+        redirect.printf("Redirect 302 /latest/debian/jenkins.deb http://pkg.jenkins-ci.org/debian/binary/jenkins_%s_all.deb\n", latest.getVersion());
+        redirect.printf("Redirect 302 /latest/redhat/jenkins.rpm http://pkg.jenkins-ci.org/redhat/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
+        redirect.printf("Redirect 302 /latest/opensuse/jenkins.rpm http://pkg.jenkins-ci.org/opensuse/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
 
         if (download!=null) {
             // build the download server layout

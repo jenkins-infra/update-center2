@@ -55,8 +55,8 @@ public class ConfluencePluginList {
     private final Map<Long,String[]> labelCache = new HashMap<Long, String[]>();
 
     public ConfluencePluginList() throws IOException, ServiceException {
-        service = Confluence.connect(new URL("http://wiki.hudson-ci.org/"));
-        RemotePage page = service.getPage("", "HUDSON", "Plugins");
+        service = Confluence.connect(new URL("http://wiki.jenkins-ci.org/"));
+        RemotePage page = service.getPage("", "JENKINS", "Plugins");
 
         for (RemotePageSummary child : service.getChildren("", page.getId()))
             children.put(normalize(child.getTitle()),child);
@@ -81,7 +81,7 @@ public class ConfluencePluginList {
 
         String nearest = EditDistance.findNearest(pluginArtifactId, normalizedTitles);
         if(EditDistance.editDistance(nearest,pluginArtifactId)<4)
-            return service.getPage("","HUDSON",children.get(nearest).getTitle());
+            return service.getPage("","JENKINS",children.get(nearest).getTitle());
         else
             return null;    // too far
     }
@@ -95,7 +95,7 @@ public class ConfluencePluginList {
 
             RemotePage page = pageCache.get(pageName);
             if (page==null) {
-                page = service.getPage("", "HUDSON", pageName);
+                page = service.getPage("", "JENKINS", pageName);
                 pageCache.put(pageName,page);
             }
             return page;
@@ -121,5 +121,6 @@ public class ConfluencePluginList {
     private static final String[] HUDSON_WIKI_PREFIX = {
             "http://hudson.gotdns.com/wiki/display/HUDSON/",
             "http://wiki.hudson-ci.org/display/HUDSON/",
+            "http://wiki.jenkins-ci.org/display/JENKINS/"
     };
 }

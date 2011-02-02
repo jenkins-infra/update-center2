@@ -197,7 +197,7 @@ public class MavenRepositoryImpl extends MavenRepository {
 
     public TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException {
         BooleanQuery q = new BooleanQuery();
-        q.add(indexer.constructQuery(ArtifactInfo.GROUP_ID,"org.jvnet.hudson.main"), Occur.MUST);
+        q.add(indexer.constructQuery(ArtifactInfo.GROUP_ID,"org.jenkins-ci.main"), Occur.MUST);
         q.add(indexer.constructQuery(ArtifactInfo.PACKAGING,"war"), Occur.MUST);
 
         FlatSearchRequest request = new FlatSearchRequest(q);
@@ -207,7 +207,7 @@ public class MavenRepositoryImpl extends MavenRepository {
 
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-            if (!a.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
+            if (!a.artifactId.equals("jenkins-war"))  continue;      // somehow using this as a query results in 0 hits.
             if (a.classifier!=null)  continue;          // just pick up the main war
 
             VersionNumber v = new VersionNumber(a.version);
