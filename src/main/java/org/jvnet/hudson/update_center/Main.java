@@ -136,8 +136,7 @@ public class Main {
 
         MavenRepository repo = createRepository();
 
-        updateIndexHtml(repo);
-
+        htaccess.getParentFile().mkdirs();
         PrintWriter latestRedirect = new PrintWriter(new FileWriter(htaccess), true);
 
         JSONObject root = new JSONObject();
@@ -249,22 +248,6 @@ public class Main {
             e.printStackTrace();
         }
         return certs;
-    }
-
-    /**
-     * Updates the version number display in http://hudson-ci.org/index.html.
-     */
-    private void updateIndexHtml(MavenRepository repo) throws IOException, AbstractArtifactResolutionException {
-        if (indexHtml!=null) {
-            VersionNumber latest = repo.getHudsonWar().firstKey();
-            System.out.println("Latest version is "+latest);
-            String content = IOUtils.toString(new FileInputStream(indexHtml), "UTF-8");
-            // replace text inside the marker 
-            content = content.replaceFirst("LATEST_VERSION.+/LATEST_VERSION","LATEST_VERSION-->"+latest+"<!--/LATEST_VERSION");
-            FileOutputStream out = new FileOutputStream(indexHtml);
-            IOUtils.write(content, out,"UTF-8");
-            out.close();
-        }
     }
 
     /**
