@@ -38,12 +38,15 @@ public class HudsonWar extends MavenArtifact {
 
     @Override
     public URL getURL() throws MalformedURLException {
+        return new URL("http://updates.jenkins-ci.org/download/war/"+version+"/"+ getFileName());
+    }
+
+    public String getFileName() {
         String fileName;
         if (new VersionNumber(version).compareTo(MavenRepositoryImpl.CUT_OFF)<=0)
             fileName = "hudson.war";
         else
             fileName = "jenkins.war";
-
-        return new URL("http://updates.jenkins-ci.org/download/war/"+version+"/"+fileName);
+        return fileName;
     }
 }

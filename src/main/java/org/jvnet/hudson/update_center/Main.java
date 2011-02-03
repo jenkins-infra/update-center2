@@ -419,12 +419,12 @@ public class Main {
         if (download!=null) {
             // build the download server layout
             for (HudsonWar w : wars.values()) {
-                stage(w, new File(download,"war/"+w.version+"/hudson.war"));
+                stage(w, new File(download,"war/"+w.version+"/"+w.getFileName()));
             }
         }
 
         if (www!=null)
-            buildIndex(new File(www,"download/war/"),"hudson.war", wars.values(), "/latest/hudson.war");
+            buildIndex(new File(www,"download/war/"),"jenkins.war", wars.values(), "/latest/jenkins.war");
 
         return core;
     }
