@@ -358,6 +358,8 @@ public class Main {
                     }
                     
                     o.put("title", title);
+                    o.put("gav", h.artifact.groupId+':'+h.artifact.artifactId+':'+h.artifact.version);
+                    o.put("timestamp", h.getTimestamp());
                     o.put("wiki", plugin.getWiki());
                     o.put("version", h.version);
                     System.out.println("\t" + title + ":" + h.version);
