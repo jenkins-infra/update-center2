@@ -69,6 +69,29 @@ public class MavenArtifact {
             if (hpi==null)
                 hpi = repository.resolve(artifact);
             return hpi;
+        } catch (IllegalArgumentException e) {
+            /*
+                Exception in thread "main" java.lang.IllegalArgumentException: Invalid uri 'http://maven.glassfish.org/content/groups/public//${parent/groupId}/startup-trigger-plugin/1.1/startup-trigger-plugin-1.1.hpi': escaped absolute path not valid
+                    at org.apache.commons.httpclient.HttpMethodBase.<init>(HttpMethodBase.java:222)
+                    at org.apache.commons.httpclient.methods.GetMethod.<init>(GetMethod.java:89)
+                    at org.apache.maven.wagon.shared.http.AbstractHttpClientWagon.fillInputData(AbstractHttpClientWagon.java:465)
+                    at org.apache.maven.wagon.StreamWagon.getInputStream(StreamWagon.java:116)
+                    at org.apache.maven.wagon.StreamWagon.getIfNewer(StreamWagon.java:88)
+                    at org.apache.maven.wagon.StreamWagon.get(StreamWagon.java:61)
+                    at org.apache.maven.artifact.manager.DefaultWagonManager.getRemoteFile(DefaultWagonManager.java:597)
+                    at org.apache.maven.artifact.manager.DefaultWagonManager.getArtifact(DefaultWagonManager.java:476)
+                    at org.apache.maven.artifact.manager.DefaultWagonManager.getArtifact(DefaultWagonManager.java:354)
+                    at org.apache.maven.artifact.resolver.DefaultArtifactResolver.resolve(DefaultArtifactResolver.java:167)
+                    at org.apache.maven.artifact.resolver.DefaultArtifactResolver.resolve(DefaultArtifactResolver.java:82)
+                    at org.jvnet.hudson.update_center.MavenRepositoryImpl.resolve(MavenRepositoryImpl.java:161)
+                    at org.jvnet.hudson.update_center.MavenRepository.resolve(MavenRepository.java:57)
+                    at org.jvnet.hudson.update_center.MavenArtifact.resolve(MavenArtifact.java:70)
+                    at org.jvnet.hudson.update_center.MavenArtifact.getManifest(MavenArtifact.java:134)
+                    at org.jvnet.hudson.update_center.MavenArtifact.getTimestamp(MavenArtifact.java:128)
+                    at org.jvnet.hudson.update_center.Main.checkLatestDate(Main.java:301)
+                    at org.jvnet.hudson.update_center.Main.buildPlugins(Main.java:269)
+             */
+            throw (IOException)new IOException("Failed to resolve artifact "+artifact).initCause(e);
         } catch (AbstractArtifactResolutionException e) {
             throw (IOException)new IOException("Failed to resolve artifact "+artifact).initCause(e);
         }

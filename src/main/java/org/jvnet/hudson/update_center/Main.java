@@ -260,36 +260,41 @@ public class Main {
 
         JSONObject plugins = new JSONObject();
         for( PluginHistory hpi : repository.listHudsonPlugins() ) {
-            System.out.println(hpi.artifactId);
+            try {
+                System.out.println(hpi.artifactId);
 
-            List<HPI> versions = new ArrayList<HPI>(hpi.artifacts.values());
-            HPI latest = versions.get(0);
-            HPI previous = versions.size()>1 ? versions.get(1) : null;
-            // Doublecheck that latest-by-version is also latest-by-date:
-            checkLatestDate(versions, latest);
+                List<HPI> versions = new ArrayList<HPI>(hpi.artifacts.values());
+                HPI latest = versions.get(0);
+                HPI previous = versions.size()>1 ? versions.get(1) : null;
+                // Doublecheck that latest-by-version is also latest-by-date:
+                checkLatestDate(versions, latest);
 
-            Plugin plugin = new Plugin(hpi.artifactId,latest,previous,cpl);
-            if (plugin.deprecated) {
-                System.out.println("=> Plugin is deprecated.. skipping.");
-                continue;
-            }
-
-            if(plugin.page!=null)
-                System.out.println("=> "+plugin.page.getTitle());
-            System.out.println("=> "+plugin.toJSON());
-
-            plugins.put(plugin.artifactId,plugin.toJSON());
-            String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
-            redirect.printf("Redirect 302 %s %s\n", permalink, latest.getURL().getPath());
-
-            if (download!=null) {
-                for (HPI v : versions) {
-                    stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
+                Plugin plugin = new Plugin(hpi.artifactId,latest,previous,cpl);
+                if (plugin.deprecated) {
+                    System.out.println("=> Plugin is deprecated.. skipping.");
+                    continue;
                 }
-            }
 
-            if (www!=null)
-                buildIndex(new File(www,"download/plugins/"+hpi.artifactId),hpi.artifactId,versions,permalink);
+                if(plugin.page!=null)
+                    System.out.println("=> "+plugin.page.getTitle());
+                System.out.println("=> "+plugin.toJSON());
+
+                plugins.put(plugin.artifactId,plugin.toJSON());
+                String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
+                redirect.printf("Redirect 302 %s %s\n", permalink, latest.getURL().getPath());
+
+                if (download!=null) {
+                    for (HPI v : versions) {
+                        stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
+                    }
+                }
+
+                if (www!=null)
+                    buildIndex(new File(www,"download/plugins/"+hpi.artifactId),hpi.artifactId,versions,permalink);
+            } catch (IOException e) {
+                e.printStackTrace();
+                // move on to the next plugin
+            }
         }
 
         return plugins;
