@@ -113,7 +113,7 @@ public class Plugin {
             File pomFile = latest.resolvePOM();
             return new SAXReader(factory).read(pomFile);
         } catch (DocumentException e) {
-            System.err.println("Can't parse POM for "+artifactId);
+            System.err.println("** Can't parse POM for "+artifactId);
             e.printStackTrace();
             return null;
         }
@@ -127,6 +127,15 @@ public class Plugin {
      * If that fails, find the nearest name from the children list.
      */
     private RemotePage findPage(ConfluencePluginList cpl) throws IOException {
+        try {
+            String p = OVERRIDES.getProperty(artifactId);
+            if(p!=null)
+                return cpl.getPage(p);
+        } catch (RemoteException e) {
+            System.err.println("** Override failed for "+artifactId);
+            e.printStackTrace();
+        }
+
         if (pom != null) {
             Node url = pom.selectSingleNode("/project/url");
             if(url==null)
@@ -136,26 +145,19 @@ public class Plugin {
                 try {
                     return cpl.getPage(wikiPage); // found the confluence page successfully
                 } catch (RemoteException e) {
-                    System.err.println("Failed to fetch "+wikiPage);
+                    System.err.println("** Failed to fetch "+wikiPage);
                     e.printStackTrace();
+                } catch (IllegalArgumentException e) {
+                    System.err.println(e.getMessage());
                 }
             }
-        }
-
-        try {
-            String p = OVERRIDES.getProperty(artifactId);
-            if(p!=null)
-                return cpl.getPage(p);
-        } catch (RemoteException e) {
-            System.err.println("Override failed for "+artifactId);
-            e.printStackTrace();
         }
 
         // try to guess the Wiki page
         try {
             return cpl.findNearest(artifactId);
         } catch (RemoteException e) {
-            System.err.println("Failed to locate nearest");
+            System.err.println("** Failed to locate nearest");
             e.printStackTrace();
         }
 
@@ -177,7 +179,9 @@ public class Plugin {
                 Matcher m = HOSTNAME_PATTERN.matcher(conn);
                 if (m.find())
                     return m.group(1);
+                else System.out.println("** Unable to parse scm/connection: " + conn);
             }
+            else System.out.println("** No scm/connection found in pom");
         }
         return null;
     }

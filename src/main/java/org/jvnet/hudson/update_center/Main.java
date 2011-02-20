@@ -275,8 +275,8 @@ public class Main {
                     continue;
                 }
 
-                if(plugin.page!=null)
-                    System.out.println("=> "+plugin.page.getTitle());
+                System.out.println(
+                  plugin.page!=null ? "=> "+plugin.page.getTitle() : "** No wiki page found");
                 System.out.println("=> "+plugin.toJSON());
 
                 plugins.put(plugin.artifactId,plugin.toJSON());
