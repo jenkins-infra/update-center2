@@ -100,7 +100,9 @@ public class ConfluencePluginList {
             // Avoid creating lots of sessions on wiki server.. get a session and reuse it.
             if (wikiSessionId == null)
                 wikiSessionId = initSession("http://wiki.jenkins-ci.org/");
-            url = checkRedirect(url, wikiSessionId);
+            url = checkRedirect(
+                    "http://wiki.jenkins-ci.org/pages/tinyurl.action?urlIdentifier=" + tinylink.group(1),
+                    wikiSessionId);
         } catch (IOException e) {
             throw new RemoteException("Failed to lookup tinylink redirect", e);
         }
