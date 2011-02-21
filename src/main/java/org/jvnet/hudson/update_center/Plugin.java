@@ -164,7 +164,8 @@ public class Plugin {
         return null;
     }
 
-    private static final Pattern HOSTNAME_PATTERN = Pattern.compile("://(?:\\w*@)?([\\w.-]+)[/:]");
+    private static final Pattern HOSTNAME_PATTERN =
+        Pattern.compile(":(?://|git:)(?:\\w*@)?([\\w.-]+)[/:]");
 
     /**
      * Get hostname of SCM specified in POM of latest release, or null.
