@@ -32,11 +32,15 @@ import org.jvnet.hudson.confluence.Confluence;
 
 import javax.xml.rpc.ServiceException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * List of plugins from confluence.
@@ -53,6 +57,8 @@ public class ConfluencePluginList {
 
     private final Map<String,RemotePage> pageCache = new HashMap<String, RemotePage>();
     private final Map<Long,String[]> labelCache = new HashMap<Long, String[]>();
+
+    private String wikiSessionId;
 
     public ConfluencePluginList() throws IOException, ServiceException {
         service = Confluence.connect(new URL("http://wiki.jenkins-ci.org/"));
@@ -89,8 +95,17 @@ public class ConfluencePluginList {
     }
 
     public RemotePage getPage(String url) throws RemoteException {
+        Matcher tinylink = TINYLINK_PATTERN.matcher(url);
+        if (tinylink.matches()) try {
+            // Avoid creating lots of sessions on wiki server.. get a session and reuse it.
+            if (wikiSessionId == null)
+                wikiSessionId = initSession("http://wiki.jenkins-ci.org/");
+            url = checkRedirect(url, wikiSessionId);
+        } catch (IOException e) {
+            throw new RemoteException("Failed to lookup tinylink redirect", e);
+        }
         for( String p : HUDSON_WIKI_PREFIX ) {
-            if(!url.startsWith(p))
+            if (!url.startsWith(p))
                 continue;
 
             String pageName = url.substring(p.length()).replace('+',' '); // poor hack for URL escape
@@ -103,6 +118,25 @@ public class ConfluencePluginList {
             return page;
         }
         throw new IllegalArgumentException("** Failed to resolve "+url);
+    }
+
+    private static String checkRedirect(String url, String sessionId) throws IOException {
+        return connect(url, sessionId).getHeaderField("Location");
+    }
+
+    private static String initSession(String url) throws IOException {
+        String cookie = connect(url, null).getHeaderField("Set-Cookie");
+        return cookie.substring(0, cookie.indexOf(';')); // Remove ;Path=/
+    }
+
+    private static HttpURLConnection connect(String url, String sessionId) throws IOException {
+        HttpURLConnection huc = (HttpURLConnection)new URL(url).openConnection();
+        huc.setInstanceFollowRedirects(false);
+        huc.setDoOutput(false);
+        if (sessionId != null) huc.addRequestProperty("Cookie", sessionId);
+        InputStream i = huc.getInputStream();
+        while (i.read() >= 0) ; // Drain stream
+        return huc;
     }
 
     public String[] getLabels(RemotePage page) throws RemoteException {
@@ -121,8 +155,10 @@ public class ConfluencePluginList {
     }
 
     private static final String[] HUDSON_WIKI_PREFIX = {
-            "http://hudson.gotdns.com/wiki/display/HUDSON/",
-            "http://wiki.hudson-ci.org/display/HUDSON/",
-            "http://wiki.jenkins-ci.org/display/JENKINS/"
+        "http://wiki.jenkins-ci.org/display/JENKINS/",
+        "http://wiki.hudson-ci.org/display/HUDSON/",
+        "http://hudson.gotdns.com/wiki/display/HUDSON/",
     };
+
+    private static final Pattern TINYLINK_PATTERN = Pattern.compile(".*/x/(\\w+)");
 }
