@@ -46,7 +46,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * An entry of a Hudson plugin in the update center metadata.
+ * An entry of a plugin in the update center metadata.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -165,7 +165,7 @@ public class Plugin {
     }
 
     private static final Pattern HOSTNAME_PATTERN =
-        Pattern.compile(":(?://|git:)(?:\\w*@)?([\\w.-]+)[/:]");
+        Pattern.compile("(?:://(?:\\w*@)?|scm:git:\\w*@)([\\w.-]+)[/:]");
 
     /**
      * Get hostname of SCM specified in POM of latest release, or null.
