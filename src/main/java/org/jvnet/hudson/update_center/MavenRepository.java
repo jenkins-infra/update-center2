@@ -34,14 +34,19 @@ public abstract class MavenRepository {
 
         for (PluginHistory p : all) {
             for (HPI h : p.artifacts.values()) {
-                Date releaseDate = h.getTimestampAsDate();
-                System.out.println("adding " + h.artifact.artifactId + ":" + h.version);
-                Map<String,HPI> pluginsOnDate = plugins.get(releaseDate);
-                if (pluginsOnDate==null) {
-                    pluginsOnDate = new TreeMap<String,HPI>();
-                    plugins.put(releaseDate, pluginsOnDate);
+                try {
+                    Date releaseDate = h.getTimestampAsDate();
+                    System.out.println("adding " + h.artifact.artifactId + ":" + h.version);
+                    Map<String,HPI> pluginsOnDate = plugins.get(releaseDate);
+                    if (pluginsOnDate==null) {
+                        pluginsOnDate = new TreeMap<String,HPI>();
+                        plugins.put(releaseDate, pluginsOnDate);
+                    }
+                    pluginsOnDate.put(p.artifactId,h);
+                } catch (IOException e) {
+                    // if we fail to resolve artifact, move on
+                    e.printStackTrace();
                 }
-                pluginsOnDate.put(p.artifactId,h);
             }
         }
 
