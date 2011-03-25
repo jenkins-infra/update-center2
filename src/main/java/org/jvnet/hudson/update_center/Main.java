@@ -155,13 +155,13 @@ public class Main {
 
         PrintWriter pw = new PrintWriter(new FileWriter(output));
         pw.println("updateCenter.post(");
-        pw.println(root.toString(2));
+        pw.println(root.toString());
         pw.println(");");
         pw.close();
         JSONObject rhRoot = new JSONObject();
         rhRoot.put("releaseHistory", buildReleaseHistory(repo));
         PrintWriter rhpw = new PrintWriter(new FileWriter(releaseHistory));
-        rhpw.println(rhRoot.toString(2));
+        rhpw.println(rhRoot.toString());
         rhpw.close();
         latestRedirect.close();
     }
