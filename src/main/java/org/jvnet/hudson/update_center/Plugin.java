@@ -32,6 +32,7 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
+import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,6 +84,8 @@ public class Plugin {
      */
     public final boolean deprecated;
 
+    private final SAXReader xmlReader;
+
     /**
      * POM parsed as a DOM.
      */
@@ -92,6 +95,10 @@ public class Plugin {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
+        DocumentFactory factory = new DocumentFactory();
+        factory.setXPathNamespaceURIs(
+                Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
+        this.xmlReader = new SAXReader(factory);
         this.pom = readPOM();
         this.page = findPage(cpl);
         this.labels = getLabels(cpl);
@@ -108,10 +115,7 @@ public class Plugin {
 
     private Document readPOM() throws IOException {
         try {
-            DocumentFactory factory = new DocumentFactory();
-            factory.setXPathNamespaceURIs(Collections.singletonMap("m","http://maven.apache.org/POM/4.0.0"));
-            File pomFile = latest.resolvePOM();
-            return new SAXReader(factory).read(pomFile);
+            return xmlReader.read(latest.resolvePOM());
         } catch (DocumentException e) {
             System.err.println("** Can't parse POM for "+artifactId);
             e.printStackTrace();
@@ -137,11 +141,8 @@ public class Plugin {
         }
 
         if (pom != null) {
-            Node url = pom.selectSingleNode("/project/url");
-            if(url==null)
-                url = pom.selectSingleNode("/m:project/m:url");
-            if(url!=null) {
-                String wikiPage = ((Element)url).getTextTrim();
+            String wikiPage = selectSingleValue(pom, "/project/url");
+            if (wikiPage != null) {
                 try {
                     return cpl.getPage(wikiPage); // found the confluence page successfully
                 } catch (RemoteException e) {
@@ -164,6 +165,18 @@ public class Plugin {
         return null;
     }
 
+    private static Node selectSingleNode(Document pom, String path) {
+        Node result = pom.selectSingleNode(path);
+        if (result == null)
+            result = pom.selectSingleNode(path.replaceAll("/", "/m:"));
+        return result;
+    }
+
+    private static String selectSingleValue(Document dom, String path) {
+        Node node = selectSingleNode(dom, path);
+        return node != null ? ((Element)node).getTextTrim() : null;
+    }
+
     private static final Pattern HOSTNAME_PATTERN =
         Pattern.compile("(?:://(?:\\w*@)?|scm:git:\\w*@)([\\w.-]+)[/:]");
 
@@ -172,15 +185,29 @@ public class Plugin {
      */
     private String getScmHost() {
         if (pom != null) {
-            Node scm = pom.selectSingleNode("/project/scm/connection");
-            if (scm == null)
-                scm = pom.selectSingleNode("/m:project/m:scm/m:connection");
+            String scm = selectSingleValue(pom, "/project/scm/connection");
+            if (scm == null) {
+                // Try parent pom
+                Element parent = (Element)selectSingleNode(pom, "/project/parent");
+                if (parent != null) try {
+                    Document parentPom = xmlReader.read(
+                            latest.repository.resolve(
+                                    new ArtifactInfo("",
+                                            parent.element("groupId").getTextTrim(),
+                                            parent.element("artifactId").getTextTrim(),
+                                            parent.element("version").getTextTrim(),
+                                            ""), "pom"));
+                    scm = selectSingleValue(parentPom, "/project/scm/connection");
+                } catch (Exception ex) {
+                    System.out.println("** Failed to read parent pom");
+                    ex.printStackTrace();
+                }
+            }
             if (scm != null) {
-                String conn = ((Element)scm).getTextTrim();
-                Matcher m = HOSTNAME_PATTERN.matcher(conn);
+                Matcher m = HOSTNAME_PATTERN.matcher(scm);
                 if (m.find())
                     return m.group(1);
-                else System.out.println("** Unable to parse scm/connection: " + conn);
+                else System.out.println("** Unable to parse scm/connection: " + scm);
             }
             else System.out.println("** No scm/connection found in pom");
         }
