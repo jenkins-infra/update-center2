@@ -274,9 +274,9 @@ public class Main {
 
                 System.out.println(
                   plugin.page!=null ? "=> "+plugin.page.getTitle() : "** No wiki page found");
-                System.out.println("=> "+plugin.toJSON());
-
-                plugins.put(plugin.artifactId,plugin.toJSON());
+                JSONObject json = plugin.toJSON();
+                System.out.println("=> " + json);
+                plugins.put(plugin.artifactId, json);
                 String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
                 redirect.printf("Redirect 302 %s %s\n", permalink, latest.getURL().getPath());
 
