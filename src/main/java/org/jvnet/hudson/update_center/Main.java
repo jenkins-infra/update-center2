@@ -168,7 +168,7 @@ public class Main {
 
     protected MavenRepository createRepository() throws Exception {
         MavenRepositoryImpl r = new MavenRepositoryImpl();
-        r.addRemoteRepository("jenkins",
+        r.addRemoteRepository("java.net2",
                 new URL("http://updates.jenkins-ci.org/.index/nexus-maven-repository-index.zip"),
                 new URL("http://maven.glassfish.org/content/groups/public/"));
         return r;
