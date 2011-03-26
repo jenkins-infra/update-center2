@@ -253,10 +253,11 @@ public class Plugin {
     private static final Pattern NEWLINE_PATTERN = Pattern.compile("(?:\\r\\n|\\n)");
 
     public String getTitle() {
-        String title = "";
-        if (page!=null) {
-            title = page.getTitle();
-        }
+        String title = page != null ? page.getTitle() : null;
+        if (title == null)
+            title = selectSingleValue(pom, "/project/name");
+        if (title == null)
+            title = artifactId;
         return title;
     }
 
