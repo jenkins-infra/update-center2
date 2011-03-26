@@ -168,7 +168,7 @@ public class Main {
 
     protected MavenRepository createRepository() throws Exception {
         MavenRepositoryImpl r = new MavenRepositoryImpl();
-        r.addRemoteRepository("java.net2",
+        r.addRemoteRepository("jenkins",
                 new URL("http://updates.jenkins-ci.org/.index/nexus-maven-repository-index.zip"),
                 new URL("http://maven.glassfish.org/content/groups/public/"));
         return r;
@@ -267,7 +267,7 @@ public class Main {
                 checkLatestDate(versions, latest);
 
                 Plugin plugin = new Plugin(hpi.artifactId,latest,previous,cpl);
-                if (plugin.deprecated) {
+                if (plugin.isDeprecated()) {
                     System.out.println("=> Plugin is deprecated.. skipping.");
                     continue;
                 }

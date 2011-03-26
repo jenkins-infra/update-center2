@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2004-2010, Sun Microsystems, Inc.
+ * Copyright (c) 2004-2011, Sun Microsystems, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,6 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.sonatype.nexus.index.ArtifactInfo;
 
-import java.io.File;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
@@ -69,22 +68,21 @@ public class Plugin {
      * Null if we couldn't find it.
      */
     public final RemotePage page;
+
     /**
      * Confluence labels for the plugin wiki page.
      * Null if wiki page wasn't found.
      */
-    public final String[] labels;
-    /**
-     * Hostname of SCM info from POM of latest release, or null.
-     * To determine if source lives in github or java.net svn.
-     */
-    public final String scm;
+    private String[] labels;
+    private boolean labelsRead = false;
+
     /**
      * Deprecated plugins should not be included in update center.
      */
-    public final boolean deprecated;
+    private boolean deprecated = false;
 
     private final SAXReader xmlReader;
+    private final ConfluencePluginList cpl;
 
     /**
      * POM parsed as a DOM.
@@ -101,16 +99,7 @@ public class Plugin {
         this.xmlReader = new SAXReader(factory);
         this.pom = readPOM();
         this.page = findPage(cpl);
-        this.labels = getLabels(cpl);
-        boolean dep = false;
-        if (labels != null)
-            for (String label : labels)
-                if ("deprecated".equals(label)) {
-                    dep = true;
-                    break;
-                }
-        this.scm = getScmHost();
-        this.deprecated = dep;
+        this.cpl = cpl;
     }
 
     private Document readPOM() throws IOException {
@@ -182,6 +171,7 @@ public class Plugin {
 
     /**
      * Get hostname of SCM specified in POM of latest release, or null.
+     * Used to determine if source lives in github or svn.
      */
     private String getScmHost() {
         if (pom != null) {
@@ -214,15 +204,30 @@ public class Plugin {
         return null;
     }
 
-    private String[] getLabels(ConfluencePluginList cpl) {
+    public String[] getLabels() {
+        if (!labelsRead) readLabels();
+        return labels;
+    }
+
+    public boolean isDeprecated() {
+        if (!labelsRead) readLabels();
+        return deprecated;
+    }
+
+    private void readLabels() {
         if (page!=null) try {
-            return cpl.getLabels(page);
+            labels = cpl.getLabels(page);
         } catch (RemoteException e) {
             System.err.println("Failed to fetch labels for " + page.getUrl());
             e.printStackTrace();
         }
-
-        return null;
+        if (labels != null)
+            for (String label : labels)
+                if ("deprecated".equals(label)) {
+                    deprecated = true;
+                    break;
+                }
+        this.labelsRead = true;
     }
 
     /**
@@ -278,11 +283,13 @@ public class Plugin {
             json.put("wiki",page.getUrl());
             json.put("title",page.getTitle());
             String excerpt = getExcerptInHTML();
-            if(excerpt!=null)
+            if (excerpt!=null)
                 json.put("excerpt",excerpt);
-            if(labels!=null)
-                json.put("labels",labels);
+            String[] labelList = getLabels();
+            if (labelList!=null)
+                json.put("labels",labelList);
         }
+        String scm = getScmHost();
         if (scm!=null) {
             json.put("scm", scm);
         }
