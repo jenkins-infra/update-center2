@@ -85,10 +85,10 @@ public class Main {
     @Option(name="-download",usage="Build download server layout")
     public File download = null;
 
-    @Option(name="-www",usage="Built hudson-ci.org layout")
+    @Option(name="-www",usage="Built jenkins-ci.org layout")
     public File www = null;
 
-    @Option(name="-index.html",usage="Update the version number of the latest hudson.war in hudson-ci.org/index.html")
+    @Option(name="-index.html",usage="Update the version number of the latest jenkins.war in jenkins-ci.org/index.html")
     public File indexHtml = null;
 
     @Option(name="-key",usage="Private key to sign the update center. Must be used in conjunction with -certificate.")
@@ -97,7 +97,7 @@ public class Main {
     @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option")
     public List<File> certificates = new ArrayList<File>();
 
-    @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.hudson\". This value is not exposed to users, but instead internally used by Hudson.")
+    @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
     public String id;
 
     @Option(name="-connectionCheckUrl",
@@ -405,7 +405,7 @@ public class Main {
     }
 
     /**
-     * Build JSON for the core Hudson.
+     * Build JSON for the core Jenkins.
      */
     protected JSONObject buildCore(MavenRepository repository, PrintWriter redirect) throws Exception {
         TreeMap<VersionNumber,HudsonWar> wars = repository.getHudsonWar();
