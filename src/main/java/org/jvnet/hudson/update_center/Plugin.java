@@ -288,8 +288,15 @@ public class Plugin {
         }
 
         HPI hpi = latest;
-        json.put("requiredCore", fixNull(hpi.getRequiredHudsonVersion()));
-        
+        String requiredCore = fixNull(hpi.getRequiredHudsonVersion());
+        if (requiredCore == null) {
+            // Parent versions 1.393 to 1.397 failed to record requiredCore.
+            // If value is missing, let's default to 1.397 for now.
+            System.out.println("** requiredCore missing.. defaulting to 1.397");
+            requiredCore = "1.397";
+        }
+        json.put("requiredCore", requiredCore);
+
         if (hpi.getCompatibleSinceVersion() != null) {
             json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
         }
