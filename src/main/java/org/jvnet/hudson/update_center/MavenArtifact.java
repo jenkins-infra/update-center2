@@ -173,4 +173,9 @@ public class MavenArtifact {
     public URL getURL() throws MalformedURLException {
         return new URL("maven.glassfish.org/content/groups/public/"+artifact.groupId.replace('.','/')+"/"+artifact.artifactId+"/"+artifact.version+"/"+artifact.artifactId+"-"+artifact.version+"."+artifact.packaging);
     }
+
+    @Override
+    public String toString() {
+        return artifact.toString();
+    }
 }
