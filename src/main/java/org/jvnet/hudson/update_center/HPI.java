@@ -80,10 +80,15 @@ public class HPI extends MavenArtifact {
         if (v!=null)        return v;
 
         v = getManifestAttributes().getValue("Hudson-Version");
-        try {
-            if (new VersionNumber(v).compareTo(MavenRepositoryImpl.CUT_OFF)<=0)
-                return v;   // Hudson <= 1.395 is treated as Jenkins
-        } catch (IllegalArgumentException e) {
+        if (v!=null && !v.equals("null")) {
+            try {
+                VersionNumber n = new VersionNumber(v);
+                if (n.compareTo(MavenRepositoryImpl.CUT_OFF)<=0)
+                    return v;   // Hudson <= 1.395 is treated as Jenkins
+                // TODO: Jenkins-Version started appearing from Jenkins 1.401 POM.
+                // so maybe Hudson > 1.400 shouldn't be considered as a Jenkins plugin?
+            } catch (IllegalArgumentException e) {
+            }
         }
 
         // Parent versions 1.393 to 1.398 failed to record requiredCore.
