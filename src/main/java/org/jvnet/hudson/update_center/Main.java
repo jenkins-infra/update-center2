@@ -104,6 +104,9 @@ public class Main {
             usage="Specify an URL of the 'always up' server for performing connection check.")
     public String connectionCheckUrl;
 
+    @Option(name="-pretty",usage="Pretty-print the result")
+    public boolean prettyPrint;
+
     public static void main(String[] args) throws Exception {
         System.exit(new Main().run(args));
     }
@@ -156,13 +159,13 @@ public class Main {
 
         PrintWriter pw = new PrintWriter(new FileWriter(output));
         pw.println("updateCenter.post(");
-        pw.println(root.toString());
+        pw.println(prettyPrint?root.toString(2):root.toString());
         pw.println(");");
         pw.close();
         JSONObject rhRoot = new JSONObject();
         rhRoot.put("releaseHistory", buildReleaseHistory(repo));
         PrintWriter rhpw = new PrintWriter(new FileWriter(releaseHistory));
-        rhpw.println(rhRoot.toString());
+        rhpw.println(prettyPrint?rhRoot.toString(2):rhRoot.toString());
         rhpw.close();
         latestRedirect.close();
     }
