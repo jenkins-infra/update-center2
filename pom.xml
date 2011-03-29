@@ -131,4 +131,9 @@
       <url>http://maven.glassfish.org/content/groups/public/</url>
     </repository>
   </repositories>
+
+  <scm>
+    <connection>scm:git:git://github.com/jenkinsci/backend-update-center2.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/backend-update-center2.git</developerConnection>
+  </scm>
 </project>
