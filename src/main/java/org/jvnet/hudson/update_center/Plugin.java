@@ -296,7 +296,7 @@ public class Plugin {
         }
 
         HPI hpi = latest;
-        String requiredCore = fixNull(hpi.getRequiredHudsonVersion());
+        String requiredCore = fixNull(hpi.getRequiredJenkinsVersion());
         if (requiredCore == null) {
             // Parent versions 1.393 to 1.398 failed to record requiredCore.
             // If value is missing, let's default to 1.398 for now.

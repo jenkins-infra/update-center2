@@ -67,8 +67,21 @@ public class HPI extends MavenArtifact {
         return getManifestAttributes().getValue("Built-By");
     }
 
+    /**
+     * @deprecated
+     *      Most probably you should be using {@link #getRequiredJenkinsVersion()}
+     */
     public String getRequiredHudsonVersion() throws IOException {
         return getManifestAttributes().getValue("Hudson-Version");
+    }
+
+    public String getRequiredJenkinsVersion() throws IOException {
+        String v = getManifestAttributes().getValue("Jenkins-Version");
+        if (v!=null)        return v;
+        v = getManifestAttributes().getValue("Hudson-Version");
+        if (new VersionNumber(v).compareTo(MavenRepositoryImpl.CUT_OFF)<=0)
+            return v;   // Hudson <= 1.395 is treated as Jenkins
+        return null;
     }
 
     public String getCompatibleSinceVersion() throws IOException {
