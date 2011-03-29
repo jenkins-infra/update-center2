@@ -133,7 +133,8 @@ public class Main {
 
         MavenRepository repo = createRepository();
 
-        htaccess.getParentFile().mkdirs();
+        File p = htaccess.getParentFile();
+        if (p!=null)        p.mkdirs();
         PrintWriter latestRedirect = new PrintWriter(new FileWriter(htaccess), true);
 
         JSONObject root = new JSONObject();
