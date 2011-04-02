@@ -280,9 +280,9 @@ public class Plugin {
             json.put("previousTimestamp", fisheyeDateFormatter.format(previous.getTimestamp()));
         }
 
+        json.put("title", getTitle());
         if (page!=null) {
             json.put("wiki",page.getUrl());
-            json.put("title",page.getTitle());
             String excerpt = getExcerptInHTML();
             if (excerpt!=null)
                 json.put("excerpt",excerpt);
