@@ -296,8 +296,7 @@ public class Plugin {
         }
 
         HPI hpi = latest;
-        String requiredCore = fixNull(hpi.getRequiredJenkinsVersion());
-        json.put("requiredCore", requiredCore);
+        json.put("requiredCore", hpi.getRequiredJenkinsVersion());
 
         if (hpi.getCompatibleSinceVersion() != null) {
             json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
@@ -323,15 +322,6 @@ public class Plugin {
 
         return json;
     }
-
-    /**
-     * Earlier versions of the maven-hpi-plugin put "null" string literal, so we need to treat it as real null.
-     */
-    private String fixNull(String v) {
-        if("null".equals(v))    return null;
-        return v;
-    }
-
 
     private static final Properties OVERRIDES = new Properties();
 

@@ -80,7 +80,7 @@ public class HPI extends MavenArtifact {
         if (v!=null)        return v;
 
         v = getManifestAttributes().getValue("Hudson-Version");
-        if (v!=null && !v.equals("null")) {
+        if (fixNull(v) != null) {
             try {
                 VersionNumber n = new VersionNumber(v);
                 if (n.compareTo(MavenRepositoryImpl.CUT_OFF)<=0)
@@ -94,6 +94,14 @@ public class HPI extends MavenArtifact {
         // Parent versions 1.393 to 1.398 failed to record requiredCore.
         // If value is missing, let's default to 1.398 for now.
         return "1.398";
+    }
+
+    /**
+     * Earlier versions of the maven-hpi-plugin put "null" string literal, so we need to treat it as real null.
+     */
+    private static String fixNull(String v) {
+        if("null".equals(v))    return null;
+        return v;
     }
 
     public String getCompatibleSinceVersion() throws IOException {
