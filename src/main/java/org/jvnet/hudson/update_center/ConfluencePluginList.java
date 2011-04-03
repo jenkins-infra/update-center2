@@ -59,9 +59,10 @@ public class ConfluencePluginList {
     private final Map<Long,String[]> labelCache = new HashMap<Long, String[]>();
 
     private String wikiSessionId;
+    private final String WIKI_URL = "https://wiki.jenkins-ci.org/";
 
     public ConfluencePluginList() throws IOException, ServiceException {
-        service = Confluence.connect(new URL("http://wiki.jenkins-ci.org/"));
+        service = Confluence.connect(new URL(WIKI_URL));
         RemotePage page = service.getPage("", "JENKINS", "Plugins");
 
         for (RemotePageSummary child : service.getChildren("", page.getId()))
@@ -99,14 +100,14 @@ public class ConfluencePluginList {
         if (tinylink.matches()) try {
             // Avoid creating lots of sessions on wiki server.. get a session and reuse it.
             if (wikiSessionId == null)
-                wikiSessionId = initSession("http://wiki.jenkins-ci.org/");
+                wikiSessionId = initSession(WIKI_URL);
             url = checkRedirect(
-                    "http://wiki.jenkins-ci.org/pages/tinyurl.action?urlIdentifier=" + tinylink.group(1),
+                    WIKI_URL + "pages/tinyurl.action?urlIdentifier=" + tinylink.group(1),
                     wikiSessionId);
         } catch (IOException e) {
             throw new RemoteException("Failed to lookup tinylink redirect", e);
         }
-        for( String p : HUDSON_WIKI_PREFIX ) {
+        for( String p : WIKI_PREFIXES ) {
             if (!url.startsWith(p))
                 continue;
 
@@ -156,7 +157,8 @@ public class ConfluencePluginList {
         return r;
     }
 
-    private static final String[] HUDSON_WIKI_PREFIX = {
+    private static final String[] WIKI_PREFIXES = {
+        "https://wiki.jenkins-ci.org/display/JENKINS/",
         "http://wiki.jenkins-ci.org/display/JENKINS/",
         "http://wiki.hudson-ci.org/display/HUDSON/",
         "http://hudson.gotdns.com/wiki/display/HUDSON/",
