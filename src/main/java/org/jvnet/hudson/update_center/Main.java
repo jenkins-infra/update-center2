@@ -315,7 +315,7 @@ public class Main {
     /**
      * Stages an artifact into the specified location.
      */
-    private void stage(MavenArtifact a, File dst) throws IOException, InterruptedException {
+    protected void stage(MavenArtifact a, File dst) throws IOException, InterruptedException {
         File src = a.resolve();
         if (dst.exists() && dst.lastModified()==src.lastModified() && dst.length()==src.length())
             return;   // already up to date
