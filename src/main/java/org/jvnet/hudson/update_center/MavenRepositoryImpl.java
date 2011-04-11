@@ -76,11 +76,12 @@ public class MavenRepositoryImpl extends MavenRepository {
     private final List<ArtifactRepository> remoteRepositories = new ArrayList<ArtifactRepository>();
     private final ArtifactRepository local;
     private final ArtifactRepositoryFactory arf;
+    private PlexusContainer plexus;
 
     public MavenRepositoryImpl() throws Exception {
         ClassWorld classWorld = new ClassWorld( "plexus.core", MavenRepositoryImpl.class.getClassLoader() );
         ContainerConfiguration configuration = new DefaultContainerConfiguration().setClassWorld( classWorld );
-        PlexusContainer plexus = new DefaultPlexusContainer( configuration );
+        plexus = new DefaultPlexusContainer( configuration );
         plexus.getComponentDescriptor(ArtifactTransformationManager.class,
                 ArtifactTransformationManager.class.getName(),"default").setImplementationClass(DefaultArtifactTransformationManager.class);
 
@@ -93,6 +94,13 @@ public class MavenRepositoryImpl extends MavenRepository {
         local = arf.createArtifactRepository("local",
                 new File(new File(System.getProperty("user.home")), ".m2/repository").toURI().toURL().toExternalForm(),
                 new DefaultRepositoryLayout(), POLICY, POLICY);
+    }
+
+    /**
+     * Plexus container that's hosting the Maven components.
+     */
+    public PlexusContainer getPlexus() {
+        return plexus;
     }
 
     /**
