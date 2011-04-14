@@ -71,7 +71,7 @@ public class IndexHtmlBuilder implements Closeable {
 
     public void add(String url, String caption) throws MalformedURLException {
         out.println(
-            "<tr><td><img src='/images/jar.png'/></td><td><a href='"+ url +"'>"+ caption +"</a></td></tr>"
+            "<tr><td><img src='http://jenkins-ci.org/images/jar.png'/></td><td><a href='"+ url +"'>"+ caption +"</a></td></tr>"
         );
     }
 
