@@ -288,6 +288,14 @@ public class Main {
                     for (HPI v : versions) {
                         stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
                     }
+                    if (!versions.isEmpty()) {
+                        // symlink to latest
+                        ProcessBuilder pb = new ProcessBuilder();
+                        pb.command("ln","-s", versions.get(0).version, "latest");
+                        pb.directory(new File(download, "plugins/" + hpi.artifactId));
+                        if (pb.start().waitFor()!=0)
+                            throw new IOException("ln failed");
+                    }
                 }
 
                 if (www!=null)
@@ -427,7 +435,7 @@ public class Main {
         if (download!=null) {
             // build the download server layout
             for (HudsonWar w : wars.values()) {
-                stage(w, new File(download,"war/"+w.version+"/"+w.getFileName()));
+                 stage(w, new File(download,"war/"+w.version+"/"+w.getFileName()));
             }
         }
 
