@@ -37,7 +37,7 @@ public final class PluginHistory {
     public final String artifactId;
 
     /**
-     * All discovered versions, by the numbers.
+     * All discovered versions, by the version numbers, newer versions first.
      */
     public final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<VersionNumber, HPI>(VersionNumber.DESCENDING);
 
