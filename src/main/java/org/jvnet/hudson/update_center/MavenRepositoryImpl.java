@@ -70,12 +70,12 @@ import java.util.TreeMap;
  * @author Kohsuke Kawaguchi
  */
 public class MavenRepositoryImpl extends MavenRepository {
-    private final NexusIndexer indexer;
-    private final ArtifactFactory af;
-    private final ArtifactResolver ar;
-    private final List<ArtifactRepository> remoteRepositories = new ArrayList<ArtifactRepository>();
-    private final ArtifactRepository local;
-    private final ArtifactRepositoryFactory arf;
+    protected NexusIndexer indexer;
+    protected ArtifactFactory af;
+    protected ArtifactResolver ar;
+    protected List<ArtifactRepository> remoteRepositories = new ArrayList<ArtifactRepository>();
+    protected ArtifactRepository local;
+    protected ArtifactRepositoryFactory arf;
     private PlexusContainer plexus;
 
     public MavenRepositoryImpl() throws Exception {
