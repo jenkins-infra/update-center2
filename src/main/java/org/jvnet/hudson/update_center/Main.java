@@ -288,14 +288,8 @@ public class Main {
                     for (HPI v : versions) {
                         stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
                     }
-                    if (!versions.isEmpty()) {
-                        // symlink to latest
-                        ProcessBuilder pb = new ProcessBuilder();
-                        pb.command("ln","-s", versions.get(0).version, "latest");
-                        pb.directory(new File(download, "plugins/" + hpi.artifactId));
-                        if (pb.start().waitFor()!=0)
-                            throw new IOException("ln failed");
-                    }
+                    if (!versions.isEmpty())
+                        createLatestSymlink(hpi, versions.get(0));
                 }
 
                 if (www!=null)
@@ -307,6 +301,17 @@ public class Main {
         }
 
         return plugins;
+    }
+
+    /**
+     * Generates symlink to the latest version.
+     */
+    protected void createLatestSymlink(PluginHistory hpi, HPI latest) throws InterruptedException, IOException {
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command("ln","-s", latest.version, "latest");
+        pb.directory(new File(download, "plugins/" + hpi.artifactId));
+        if (pb.start().waitFor()!=0)
+            throw new IOException("ln failed");
     }
 
     private void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
