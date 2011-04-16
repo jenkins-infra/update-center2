@@ -307,11 +307,15 @@ public class Main {
      * Generates symlink to the latest version.
      */
     protected void createLatestSymlink(PluginHistory hpi, HPI latest) throws InterruptedException, IOException {
+        File dir = new File(download, "plugins/" + hpi.artifactId);
+        new File(dir,"latest").delete();
+
         ProcessBuilder pb = new ProcessBuilder();
         pb.command("ln","-s", latest.version, "latest");
-        pb.directory(new File(download, "plugins/" + hpi.artifactId));
-        if (pb.start().waitFor()!=0)
-            throw new IOException("ln failed");
+        pb.directory(dir);
+        int r = pb.start().waitFor();
+        if (r !=0)
+            throw new IOException("ln failed: "+r);
     }
 
     private void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
