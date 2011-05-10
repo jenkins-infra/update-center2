@@ -196,4 +196,12 @@ public class HPI extends MavenArtifact {
             }
         }
     }
+
+    /**
+     * Does this artifact come from the jenkins community?
+     */
+    public boolean isAuthenticJenkinsArtifact() {
+        // mayebe it should be startWith("org.jenkins")?
+        return artifact.groupId.contains("jenkins");
+    }
 }

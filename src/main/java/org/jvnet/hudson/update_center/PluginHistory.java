@@ -23,6 +23,10 @@
  */
 package org.jvnet.hudson.update_center;
 
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -50,4 +54,58 @@ public final class PluginHistory {
     public HPI latest() {
         return artifacts.get(artifacts.firstKey());
     }
+
+    /**
+     * Adding a plugin carefully.
+     *
+     * <p>
+     * If a plugin is renamed to jenkins-ci.org, we want to stop picking up newer changes elsewhere.
+     */
+    public void addArtifact(HPI hpi) {
+        VersionNumber v;
+        try {
+            v = new VersionNumber(hpi.version);
+        } catch (NumberFormatException e) {
+            System.out.println("Failed to parse version number "+hpi.version+" for "+hpi);
+            return;
+        }
+
+        HPI existing = artifacts.get(v);
+        if (existing==null || PRIORITY.compare(existing,hpi)<=0)
+            artifacts.put(v,hpi);
+
+
+        // if we have any authentic Jenkins artifact, we don't want to pick up non-authentic versions that are newer than that
+        // drop entries so that this constraint is satisfied
+        Map.Entry<VersionNumber,HPI> tippingPoint = findYoungestJenkinsArtifact();
+        if (tippingPoint!=null) {
+            Iterator<Map.Entry<VersionNumber,HPI>> itr = artifacts.headMap(tippingPoint.getKey()).entrySet().iterator();
+            while (itr.hasNext()) {
+                Entry<VersionNumber, HPI> e = itr.next();
+                if (!e.getValue().isAuthenticJenkinsArtifact())
+                    itr.remove();
+            }
+        }
+    }
+
+    /**
+     * Returns the youngest version of the artifact that's authentic Jenkins artifact.
+     */
+    public Map.Entry<VersionNumber,HPI> findYoungestJenkinsArtifact() {
+        for (Map.Entry<VersionNumber,HPI> e : artifacts.descendingMap().entrySet()) {
+            if (e.getValue().isAuthenticJenkinsArtifact())
+                return e;
+        }
+        return null;
+    }
+
+    private static final Comparator<HPI> PRIORITY = new Comparator<HPI>() {
+        public int compare(HPI a, HPI b) {
+            return priority(a)-priority(b);
+        }
+
+        private int priority(HPI h) {
+            return h.isAuthenticJenkinsArtifact() ? 1 : 0;
+        }
+    };
 }

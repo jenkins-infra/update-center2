@@ -185,18 +185,10 @@ public class MavenRepositoryImpl extends MavenRepository {
             if (IGNORE.containsKey(a.artifactId) || IGNORE.containsKey(a.artifactId + "-" + a.version))
                 continue;       // artifactIds or particular versions to omit
 
-            VersionNumber v;
-            try {
-                v = new VersionNumber(a.version);
-            } catch (NumberFormatException e) {
-                System.out.println("Failed to parse version number "+a.version+" for "+a);
-                continue;
-            }
-
             PluginHistory p = plugins.get(a.artifactId);
             if (p==null)
                 plugins.put(a.artifactId, p=new PluginHistory(a.artifactId));
-            p.artifacts.put(v, createHpiArtifact(a, p));
+            p.addArtifact(createHpiArtifact(a, p));
             p.groupId.add(a.groupId);
         }
 
