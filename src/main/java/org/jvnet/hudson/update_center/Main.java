@@ -107,6 +107,9 @@ public class Main {
     @Option(name="-pretty",usage="Pretty-print the result")
     public boolean prettyPrint;
 
+    @Option(name="-cap",usage="Cap the version number and only report data that's compatible with ")
+    public String cap = null;
+
     public static void main(String[] args) throws Exception {
         System.exit(new Main().run(args));
     }
@@ -135,6 +138,8 @@ public class Main {
     public void run() throws Exception {
 
         MavenRepository repo = createRepository();
+        if (cap!=null)
+            repo = new VersionCappedMavenRepository(repo,new VersionNumber(cap));
 
         File p = htaccess.getParentFile();
         if (p!=null)        p.mkdirs();
