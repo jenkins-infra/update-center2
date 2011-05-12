@@ -39,7 +39,9 @@ public class VersionCappedMavenRepository extends MavenRepository {
     @Override
     public Collection<PluginHistory> listHudsonPlugins() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
         Collection<PluginHistory> r = base.listHudsonPlugins();
-        for (PluginHistory h : r) {
+        for (Iterator<PluginHistory> jtr = r.iterator(); jtr.hasNext();) {
+            PluginHistory h = jtr.next();
+
             for (Iterator<Entry<VersionNumber, HPI>> itr = h.artifacts.entrySet().iterator(); itr.hasNext();) {
                 Entry<VersionNumber, HPI> e =  itr.next();
                 try {
@@ -51,6 +53,9 @@ public class VersionCappedMavenRepository extends MavenRepository {
                 }
                 itr.remove();
             }
+
+            if (h.artifacts.isEmpty())
+                jtr.remove();
         }
 
         return r;
