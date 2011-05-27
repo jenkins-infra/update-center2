@@ -155,11 +155,10 @@ public class Main {
         if (connectionCheckUrl!=null)
             root.put("connectionCheckUrl",connectionCheckUrl);
 
-        if(privateKey!=null && !certificates.isEmpty())
-            sign(root);
-        else {
-            if (privateKey!=null || !certificates.isEmpty())
-                throw new Exception("private key and certificate must be both specified");
+        if(privateKey!=null || !certificates.isEmpty())
+        {
+            Signing s = new Signing(privateKey, certificates);
+            s.sign(root);
         }
 
         PrintWriter pw = new PrintWriter(new FileWriter(output));
@@ -181,79 +180,6 @@ public class Main {
                 new URL("http://updates.jenkins-ci.org/.index/nexus-maven-repository-index.zip"),
                 new URL("http://maven.glassfish.org/content/groups/public/"));
         return r;
-    }
-
-    /**
-     * Generates a canonicalized JSON format of the given object, and put the signature in it.
-     * Because it mutates the signed object itself, validating the signature needs a bit of work,
-     * but this enables a signature to be added transparently.
-     */
-    private void sign(JSONObject o) throws GeneralSecurityException, IOException {
-        JSONObject sign = new JSONObject();
-
-
-        List<X509Certificate> certs = getCertificateChain();
-        X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
-
-        // this is for computing a digest
-        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-        DigestOutputStream dos = new DigestOutputStream(new NullOutputStream(),sha1);
-
-        // this is for computing a signature
-        PrivateKey key = ((KeyPair)new PEMReader(new FileReader(privateKey)).readObject()).getPrivate();
-        Signature sig = Signature.getInstance("SHA1withRSA");
-        sig.initSign(key);
-        SignatureOutputStream sos = new SignatureOutputStream(sig);
-
-        // this is for verifying that signature validates
-        Signature verifier = Signature.getInstance("SHA1withRSA");
-        verifier.initVerify(signer.getPublicKey());
-        SignatureOutputStream vos = new SignatureOutputStream(verifier);
-
-        o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(new TeeOutputStream(dos,sos),vos),"UTF-8"));
-
-        // digest
-        byte[] digest = sha1.digest();
-        sign.put("digest",new String(Base64.encodeBase64(digest)));
-
-        // signature
-        byte[] s = sig.sign();
-        sign.put("signature",new String(Base64.encodeBase64(s)));
-
-        // and certificate chain
-        JSONArray a = new JSONArray();
-        for (X509Certificate cert : certs)
-            a.add(new String(Base64.encodeBase64(cert.getEncoded())));
-        sign.put("certificates",a);
-
-        // did the signature validate?
-        if (!verifier.verify(s))
-            throw new GeneralSecurityException("Signature failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
-
-        o.put("signature",sign);
-    }
-
-    /**
-     * Loads a certificate chain and makes sure it's valid.
-     */
-    private List<X509Certificate> getCertificateChain() throws FileNotFoundException, GeneralSecurityException {
-        CertificateFactory cf = CertificateFactory.getInstance("X509");
-        List<X509Certificate> certs = new ArrayList<X509Certificate>();
-        for (File f : certificates) {
-            X509Certificate c = (X509Certificate) cf.generateCertificate(new FileInputStream(f));
-            c.checkValidity();
-            certs.add(c);
-        }
-        
-        Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
-        rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/hudson-community.cert")),null));
-
-        try {
-            CertificateUtil.validatePath(certs,rootCAs);
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        }
-        return certs;
     }
 
     /**
