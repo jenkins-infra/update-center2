@@ -306,17 +306,17 @@ public class Plugin {
         }
 
         JSONArray deps = new JSONArray();
-        for (HPI.Dependency d : hpi.getDependencies())
+        for (Dependency d : hpi.getDependencies())
             deps.add(d.toJSON());
         json.put("dependencies",deps);
 
         JSONArray devs = new JSONArray();
-        List<HPI.Developer> devList = hpi.getDevelopers();
+        List<Developer> devList = hpi.getDevelopers();
         if (!devList.isEmpty()) {
-            for (HPI.Developer dev : devList)
+            for (Developer dev : devList)
                 devs.add(dev.toJSON());
         } else {
-            devs.add(new HPI.Developer("", latest.getBuiltBy(), "").toJSON());
+            devs.add(new Developer("", latest.getBuiltBy(), "").toJSON());
         }
         json.put("developers", devs);
 

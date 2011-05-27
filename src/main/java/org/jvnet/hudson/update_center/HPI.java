@@ -143,59 +143,6 @@ public class HPI extends MavenArtifact {
         return r;
     }
 
-    public static class Dependency {
-        public final String name;
-        public final String version;
-        public final boolean optional;
-
-        Dependency(String token) {
-            this.optional = token.endsWith(OPTIONAL);
-            if(optional)
-                token = token.substring(0, token.length()-OPTIONAL.length());
-
-            String[] pieces = token.split(":");
-            name = pieces[0];
-            version = pieces[1];
-        }
-
-        private static final String OPTIONAL = ";resolution:=optional";
-
-        public JSONObject toJSON() {
-            JSONObject o = new JSONObject();
-            o.put("name",name);
-            o.put("version",version);
-            o.put("optional",optional);
-            return o;
-        }
-    }
-
-    public static class Developer {
-        public final String name;
-        public final String developerId;
-        public final String email;
-
-        Developer(String name, String developerId, String email) {
-            this.name = name;
-            this.developerId = developerId;
-            this.email = email;
-        }
-
-        public JSONObject toJSON() {
-            JSONObject o = new JSONObject();
-            if (!name.equals(""))
-                o.put("name", name);
-            if (!developerId.equals(""))
-                o.put("developerId", developerId);
-            if (!email.equals(""))
-                o.put("email", email);
-
-            if (!o.isEmpty()) {
-                return o;
-            } else {
-                return null;
-            }
-        }
-    }
 
     /**
      * Does this artifact come from the jenkins community?
