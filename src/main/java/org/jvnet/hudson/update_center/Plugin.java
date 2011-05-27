@@ -58,11 +58,11 @@ public class Plugin {
     /**
      * Latest version of this plugin.
      */
-    public final HPI latest;
+    public final IHPI latest;
     /**
      * Latest version of this plugin.
      */
-    public final HPI previous;
+    public final IHPI previous;
     /**
      * Confluence page of this plugin in Wiki.
      * Null if we couldn't find it.
@@ -81,31 +81,27 @@ public class Plugin {
      */
     private boolean deprecated = false;
 
-    private final SAXReader xmlReader;
     private final ConfluencePluginList cpl;
 
     /**
      * POM parsed as a DOM.
      */
-    private final Document pom;
+    private final Pom pom;
 
-    public Plugin(String artifactId, HPI latest, HPI previous, ConfluencePluginList cpl) throws IOException {
+    public Plugin(String artifactId, IHPI latest, IHPI previous, ConfluencePluginList cpl) throws IOException {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
-        DocumentFactory factory = new DocumentFactory();
-        factory.setXPathNamespaceURIs(
-                Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
-        this.xmlReader = new SAXReader(factory);
+
         this.pom = readPOM();
         this.page = findPage(cpl);
         this.cpl = cpl;
     }
 
-    private Document readPOM() throws IOException {
+    private Pom readPOM() throws IOException {
         try {
-            return xmlReader.read(latest.resolvePOM());
-        } catch (DocumentException e) {
+            return latest.getPom();
+        } catch (Exception e) {
             System.err.println("** Can't parse POM for "+artifactId);
             e.printStackTrace();
             return null;
@@ -130,7 +126,7 @@ public class Plugin {
         }
 
         if (pom != null) {
-            String wikiPage = selectSingleValue(pom, "/project/url");
+            String wikiPage = pom.selectSingleValue("/project/url");
             if (wikiPage != null) {
                 try {
                     return cpl.getPage(wikiPage); // found the confluence page successfully
@@ -154,55 +150,10 @@ public class Plugin {
         return null;
     }
 
-    private static Node selectSingleNode(Document pom, String path) {
-        Node result = pom.selectSingleNode(path);
-        if (result == null)
-            result = pom.selectSingleNode(path.replaceAll("/", "/m:"));
-        return result;
-    }
 
-    private static String selectSingleValue(Document dom, String path) {
-        Node node = selectSingleNode(dom, path);
-        return node != null ? ((Element)node).getTextTrim() : null;
-    }
 
-    private static final Pattern HOSTNAME_PATTERN =
-        Pattern.compile("(?:://(?:\\w*@)?|scm:git:\\w*@)([\\w.-]+)[/:]");
 
-    /**
-     * Get hostname of SCM specified in POM of latest release, or null.
-     * Used to determine if source lives in github or svn.
-     */
-    private String getScmHost() {
-        if (pom != null) {
-            String scm = selectSingleValue(pom, "/project/scm/connection");
-            if (scm == null) {
-                // Try parent pom
-                Element parent = (Element)selectSingleNode(pom, "/project/parent");
-                if (parent != null) try {
-                    Document parentPom = xmlReader.read(
-                            latest.repository.resolve(
-                                    new ArtifactInfo("",
-                                            parent.element("groupId").getTextTrim(),
-                                            parent.element("artifactId").getTextTrim(),
-                                            parent.element("version").getTextTrim(),
-                                            ""), "pom"));
-                    scm = selectSingleValue(parentPom, "/project/scm/connection");
-                } catch (Exception ex) {
-                    System.out.println("** Failed to read parent pom");
-                    ex.printStackTrace();
-                }
-            }
-            if (scm != null) {
-                Matcher m = HOSTNAME_PATTERN.matcher(scm);
-                if (m.find())
-                    return m.group(1);
-                else System.out.println("** Unable to parse scm/connection: " + scm);
-            }
-            else System.out.println("** No scm/connection found in pom");
-        }
-        return null;
-    }
+
 
     public String[] getLabels() {
         if (!labelsRead) readLabels();
@@ -255,7 +206,7 @@ public class Plugin {
     public String getTitle() {
         String title = page != null ? page.getTitle() : null;
         if (title == null)
-            title = selectSingleValue(pom, "/project/name");
+            title = pom.selectSingleValue("/project/name");
         if (title == null)
             title = artifactId;
         return title;
@@ -274,9 +225,9 @@ public class Plugin {
 
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
         fisheyeDateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-        json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));
+        json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp().getTimestamp()));
         if (previous!=null) {
-            json.put("previousVersion", previous.version);
+            json.put("previousVersion", previous.getVersion().toString());
             json.put("previousTimestamp", fisheyeDateFormatter.format(previous.getTimestamp()));
         }
 
@@ -290,16 +241,16 @@ public class Plugin {
             if (labelList!=null)
                 json.put("labels",labelList);
         }
-        String scm = getScmHost();
+        String scm = pom.getScmHost();
         if (scm!=null) {
             json.put("scm", scm);
         }
 
-        HPI hpi = latest;
+        IHPI hpi = latest;
         json.put("requiredCore", hpi.getRequiredJenkinsVersion());
 
         if (hpi.getCompatibleSinceVersion() != null) {
-            json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
+            json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion().toString());
         }
         if (hpi.getSandboxStatus() != null) {
             json.put("sandboxStatus",hpi.getSandboxStatus());

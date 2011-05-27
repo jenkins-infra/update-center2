@@ -42,13 +42,13 @@ public class VersionCappedMavenRepository extends MavenRepository {
         for (Iterator<PluginHistory> jtr = r.iterator(); jtr.hasNext();) {
             PluginHistory h = jtr.next();
 
-            for (Iterator<Entry<VersionNumber, HPI>> itr = h.artifacts.entrySet().iterator(); itr.hasNext();) {
-                Entry<VersionNumber, HPI> e =  itr.next();
+            for (Iterator<Entry<VersionNumber, IHPI>> itr = h.artifacts.entrySet().iterator(); itr.hasNext();) {
+                Entry<VersionNumber, IHPI> e =  itr.next();
                 try {
-                    VersionNumber v = new VersionNumber(e.getValue().getRequiredJenkinsVersion());
+                    VersionNumber v = e.getValue().getRequiredJenkinsVersion().getNumber();
                     if (v.compareTo(cap)<=0)
                         continue;
-                } catch (IOException x) {
+                } catch (Exception x) {
                     x.printStackTrace();
                 }
                 itr.remove();

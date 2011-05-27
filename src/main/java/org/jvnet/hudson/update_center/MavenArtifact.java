@@ -25,9 +25,12 @@ package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONObject;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -55,7 +58,7 @@ public class MavenArtifact {
     private File hpi;
 
     // lazily computed
-    private long timestamp;
+    private Timestamp timestamp;
     private Manifest manifest;
 
     public MavenArtifact(MavenRepository repository, ArtifactInfo artifact) {
@@ -105,49 +108,47 @@ public class MavenArtifact {
         }
     }
 
+    public Pom getPom() throws IOException, DocumentException {
+        return readPom(resolvePOM());
+    }
+
+    private Pom readPom(File file) throws IOException, DocumentException {
+        Pom pom = new Pom( new FileInputStream(file) );
+        // Try parent pom
+        Element parent = (Element) pom.selectSingleNode("/project/parent");
+        if (parent != null) try {
+            File f = repository.resolve(
+                    new ArtifactInfo("",
+                            parent.element("groupId").getTextTrim(),
+                            parent.element("artifactId").getTextTrim(),
+                            parent.element("version").getTextTrim(),
+                            ""), "pom");
+            pom.setParent( readPom(file) );
+        } catch (Exception ex) {
+            System.out.println("** Failed to read parent pom");
+            ex.printStackTrace();
+        }
+
+        return pom;
+    }
+
     public JSONObject toJSON(String name) throws IOException {
         JSONObject o = new JSONObject();
         o.put("name", name);
         o.put("version", version);
 
         o.put("url", getURL().toExternalForm());
-        o.put("buildDate", getTimestampAsString());
+        o.put("buildDate", getTimestamp().getTimestampAsString());
 
         return o;
     }
 
-    public VersionNumber getVersion() {
-        return new VersionNumber(version);
+    public Version getVersion() {
+        return new Version(version);
     }
 
-    public String getTimestampAsString() throws IOException {
-        long lastModified = getTimestamp();
-        SimpleDateFormat bdf = getDateFormat();
-
-        return bdf.format(lastModified);
-    }
-
-    public Date getTimestampAsDate() throws IOException {
-        long lastModified = getTimestamp();
-        SimpleDateFormat bdf = getDateFormat();
-
-        Date tsDate;
-        
-        try {
-            tsDate = bdf.parse(bdf.format(new Date(lastModified)));
-        } catch (ParseException pe) {
-            throw new IOException(pe.getMessage());
-        }
-
-        return tsDate;
-    }
-    
-    public static SimpleDateFormat getDateFormat() {
-        return new SimpleDateFormat("MMM dd, yyyy", Locale.US);
-    }
-        
-    public long getTimestamp() throws IOException {
-        if (timestamp==0)
+    public Timestamp getTimestamp() throws IOException {
+        if (timestamp==null)
             getManifest();
         return timestamp;
     }
@@ -158,7 +159,7 @@ public class MavenArtifact {
             try {
                 JarFile jar = new JarFile(f);
                 ZipEntry e = jar.getEntry("META-INF/MANIFEST.MF");
-                timestamp = e.getTime();
+                timestamp = new Timestamp(e.getTime());
                 manifest = jar.getManifest();
                 jar.close();
             } catch (IOException x) {
@@ -183,4 +184,9 @@ public class MavenArtifact {
     public String toString() {
         return artifact.toString();
     }
+
+    public ArtifactInfo getArtifact() {
+        return artifact;
+    }
+
 }

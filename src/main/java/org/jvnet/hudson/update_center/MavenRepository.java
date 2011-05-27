@@ -18,7 +18,7 @@ import java.util.TreeMap;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class MavenRepository {
+public abstract class MavenRepository implements IArtifactProvider {
     /**
      * Discover all plugins from this Maven repository.
      */
@@ -27,23 +27,23 @@ public abstract class MavenRepository {
     /**
      * Discover all plugins from this Maven repository in order released, not using PluginHistory.
      */
-    public Map<Date,Map<String,HPI>> listHudsonPluginsByReleaseDate() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
+    public Map<Date,Map<String,IHPI>> listHudsonPluginsByReleaseDate() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
         Collection<PluginHistory> all = listHudsonPlugins();
 
-        Map<Date, Map<String,HPI>> plugins = new TreeMap<Date, Map<String,HPI>>();
+        Map<Date, Map<String,IHPI>> plugins = new TreeMap<Date, Map<String,IHPI>>();
 
         for (PluginHistory p : all) {
-            for (HPI h : p.artifacts.values()) {
+            for (IHPI h : p.artifacts.values()) {
                 try {
                     Date releaseDate = h.getTimestampAsDate();
-                    System.out.println("adding " + h.artifact.artifactId + ":" + h.version);
-                    Map<String,HPI> pluginsOnDate = plugins.get(releaseDate);
+                    System.out.println("adding " + h.getArtifact().artifactId + ":" + h.getVersion());
+                    Map<String,IHPI> pluginsOnDate = plugins.get(releaseDate);
                     if (pluginsOnDate==null) {
-                        pluginsOnDate = new TreeMap<String,HPI>();
+                        pluginsOnDate = new TreeMap<String,IHPI>();
                         plugins.put(releaseDate, pluginsOnDate);
                     }
                     pluginsOnDate.put(p.artifactId,h);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     // if we fail to resolve artifact, move on
                     e.printStackTrace();
                 }

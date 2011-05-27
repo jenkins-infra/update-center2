@@ -1,4 +1,5 @@
 import org.jvnet.hudson.update_center.HPI;
+import org.jvnet.hudson.update_center.IHPI;
 import org.jvnet.hudson.update_center.MavenRepositoryImpl;
 import org.jvnet.hudson.update_center.PluginHistory;
 
@@ -21,8 +22,8 @@ public class ListExisting {
         Set<String> groupIds = new TreeSet<String>();
         Collection<PluginHistory> all = r.listHudsonPlugins();
         for (PluginHistory p : all) {
-            HPI hpi = p.latest();
-            groupIds.add(hpi.artifact.groupId);
+            IHPI hpi = p.latest();
+            groupIds.add(hpi.getArtifact().groupId);
         }
 
         for (String groupId : groupIds) {

@@ -40,7 +40,7 @@ import java.net.MalformedURLException;
  *
  * @author Kohsuke Kawaguchi
  */
-public class HPI extends MavenArtifact {
+public class HPI extends MavenArtifact implements IHPI {
     /**
      * Which of the lineage did this come from?
      */
@@ -75,16 +75,17 @@ public class HPI extends MavenArtifact {
         return getManifestAttributes().getValue("Hudson-Version");
     }
 
-    public String getRequiredJenkinsVersion() throws IOException {
+    public Version getRequiredJenkinsVersion() throws IOException {
         String v = getManifestAttributes().getValue("Jenkins-Version");
-        if (v!=null)        return v;
+        if (v!=null)
+            return new Version(v);
 
         v = getManifestAttributes().getValue("Hudson-Version");
         if (fixNull(v) != null) {
             try {
                 VersionNumber n = new VersionNumber(v);
                 if (n.compareTo(MavenRepositoryImpl.CUT_OFF)<=0)
-                    return v;   // Hudson <= 1.395 is treated as Jenkins
+                    return new Version(v);   // Hudson <= 1.395 is treated as Jenkins
                 // TODO: Jenkins-Version started appearing from Jenkins 1.401 POM.
                 // so maybe Hudson > 1.400 shouldn't be considered as a Jenkins plugin?
             } catch (IllegalArgumentException e) {
@@ -93,7 +94,7 @@ public class HPI extends MavenArtifact {
 
         // Parent versions 1.393 to 1.398 failed to record requiredCore.
         // If value is missing, let's default to 1.398 for now.
-        return "1.398";
+        return new Version("1.398");
     }
 
     /**
@@ -104,8 +105,8 @@ public class HPI extends MavenArtifact {
         return v;
     }
 
-    public String getCompatibleSinceVersion() throws IOException {
-        return getManifestAttributes().getValue("Compatible-Since-Version");
+    public Version getCompatibleSinceVersion() throws IOException {
+        return new Version(getManifestAttributes().getValue("Compatible-Since-Version"));
     }
 
     public String getDisplayName() throws IOException {

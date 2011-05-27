@@ -195,9 +195,9 @@ public class Main {
             try {
                 System.out.println(hpi.artifactId);
 
-                List<HPI> versions = new ArrayList<HPI>(hpi.artifacts.values());
-                HPI latest = versions.get(0);
-                HPI previous = versions.size()>1 ? versions.get(1) : null;
+                List<IHPI> versions = new ArrayList<IHPI>(hpi.artifacts.values());
+                IHPI latest = versions.get(0);
+                IHPI previous = versions.size()>1 ? versions.get(1) : null;
                 // Doublecheck that latest-by-version is also latest-by-date:
                 checkLatestDate(versions, latest);
 
@@ -216,8 +216,8 @@ public class Main {
                 redirect.printf("Redirect 302 %s %s\n", permalink, latest.getURL().getPath());
 
                 if (download!=null) {
-                    for (HPI v : versions) {
-                        stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
+                    for (IHPI v : versions) {
+                        stage((MavenArtifact)v, new File(download, "plugins/" + hpi.artifactId + "/" + v.getVersion() + "/" + hpi.artifactId + ".hpi"));
                     }
                     if (!versions.isEmpty())
                         createLatestSymlink(hpi, versions.get(0));
@@ -237,27 +237,27 @@ public class Main {
     /**
      * Generates symlink to the latest version.
      */
-    protected void createLatestSymlink(PluginHistory hpi, HPI latest) throws InterruptedException, IOException {
+    protected void createLatestSymlink(PluginHistory hpi, IHPI latest) throws InterruptedException, IOException {
         File dir = new File(download, "plugins/" + hpi.artifactId);
         new File(dir,"latest").delete();
 
         ProcessBuilder pb = new ProcessBuilder();
-        pb.command("ln","-s", latest.version, "latest");
+        pb.command("ln","-s", latest.getVersion().toString(), "latest");
         pb.directory(dir);
         int r = pb.start().waitFor();
         if (r !=0)
             throw new IOException("ln failed: "+r);
     }
 
-    private void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
-        TreeMap<Long,HPI> artifactsByDate = new TreeMap<Long,HPI>();
-        for (HPI h : artifacts)
-            artifactsByDate.put(h.getTimestamp(), h);
-        HPI latestByDate = artifactsByDate.get(artifactsByDate.lastKey());
+    private void checkLatestDate(Collection<IHPI> artifacts, IHPI latestByVersion) throws IOException {
+        TreeMap<Long,IHPI> artifactsByDate = new TreeMap<Long,IHPI>();
+        for (IHPI h : artifacts)
+            artifactsByDate.put(h.getTimestamp().getTimestamp(), h);
+        IHPI latestByDate = artifactsByDate.get(artifactsByDate.lastKey());
         if (latestByDate != latestByVersion) System.out.println(
-            "** Latest-by-version (" + latestByVersion.version + ','
-            + latestByVersion.getTimestampAsString() + ") doesn't match latest-by-date ("
-            + latestByDate.version + ',' + latestByDate.getTimestampAsString() + ')');
+            "** Latest-by-version (" + latestByVersion.getVersion() + ','
+            + latestByVersion.getTimestamp().getTimestampAsString() + ") doesn't match latest-by-date ("
+            + latestByDate.getVersion() + ',' + latestByDate.getTimestamp().getTimestampAsString() + ')');
     }
 
     /**
@@ -289,34 +289,34 @@ public class Main {
         ConfluencePluginList cpl = new ConfluencePluginList();
 
         JSONArray releaseHistory = new JSONArray();
-        for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet() ) {
-            String relDate = MavenArtifact.getDateFormat().format(relsOnDate.getKey());
+        for( Map.Entry<Date,Map<String,IHPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet() ) {
+            String relDate = Timestamp.getDateFormat().format(relsOnDate.getKey());
             System.out.println("Releases on " + relDate);
             
             JSONArray releases = new JSONArray();
 
-            for (Map.Entry<String,HPI> rel : relsOnDate.getValue().entrySet()) {
-                HPI h = rel.getValue();
+            for (Map.Entry<String,IHPI> rel : relsOnDate.getValue().entrySet()) {
+                IHPI h = rel.getValue();
                 JSONObject o = new JSONObject();
                 try {
-                    Plugin plugin = new Plugin(h.artifact.artifactId, h, null, cpl);
+                    Plugin plugin = new Plugin(h.getArtifact().artifactId, h, null, cpl);
                     
                     String title = plugin.getTitle();
                     if ((title==null) || (title.equals(""))) {
-                        title = h.artifact.artifactId;
+                        title = h.getArtifact().artifactId;
                     }
                     
                     o.put("title", title);
-                    o.put("gav", h.artifact.groupId+':'+h.artifact.artifactId+':'+h.artifact.version);
+                    o.put("gav", h.getArtifact().groupId+':'+h.getArtifact().artifactId+':'+h.getArtifact().version);
                     o.put("timestamp", h.getTimestamp());
                     o.put("wiki", plugin.getWiki());
-                    o.put("version", h.version);
-                    System.out.println("\t" + title + ":" + h.version);
+                    o.put("version", h.getVersion().toString());
+                    System.out.println("\t" + title + ":" + h.getVersion());
                 } catch (IOException e) {
-                    System.out.println("Failed to resolve plugin " + h.artifact.artifactId + " so using defaults");
-                    o.put("title", h.artifact.artifactId);
+                    System.out.println("Failed to resolve plugin " + h.getArtifact().artifactId + " so using defaults");
+                    o.put("title", h.getArtifact().artifactId);
                     o.put("wiki", "");
-                    o.put("version", h.version);
+                    o.put("version", h.getArtifact());
                 }
                 releases.add(o);
             }
@@ -329,17 +329,17 @@ public class Main {
         return releaseHistory;
     }
 
-    private void buildIndex(File dir, String title, Collection<? extends MavenArtifact> versions, String permalink) throws IOException {
-        List<MavenArtifact> list = new ArrayList<MavenArtifact>(versions);
-        Collections.sort(list,new Comparator<MavenArtifact>() {
-            public int compare(MavenArtifact o1, MavenArtifact o2) {
+    private void buildIndex(File dir, String title, Collection<? extends IArtifact> versions, String permalink) throws IOException {
+        List<IArtifact> list = new ArrayList<IArtifact>(versions);
+        Collections.sort(list,new Comparator<IArtifact>() {
+            public int compare(IArtifact o1, IArtifact o2) {
                 return -o1.getVersion().compareTo(o2.getVersion());
             }
         });
 
         IndexHtmlBuilder index = new IndexHtmlBuilder(dir, title);
         index.add(permalink,"permalink to the latest");
-        for (MavenArtifact a : list)
+        for (IArtifact a : list)
             index.add(a);
         index.close();
     }

@@ -43,7 +43,7 @@ public final class PluginHistory {
     /**
      * All discovered versions, by the version numbers, newer versions first.
      */
-    public final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<VersionNumber, HPI>(VersionNumber.DESCENDING);
+    public final TreeMap<VersionNumber,IHPI> artifacts = new TreeMap<VersionNumber, IHPI>(VersionNumber.DESCENDING);
 
     final Set<String> groupId = new TreeSet<String>();
 
@@ -51,7 +51,7 @@ public final class PluginHistory {
         this.artifactId = shortName;
     }
 
-    public HPI latest() {
+    public IHPI latest() {
         return artifacts.get(artifacts.firstKey());
     }
 
@@ -61,27 +61,27 @@ public final class PluginHistory {
      * <p>
      * If a plugin is renamed to jenkins-ci.org, we want to stop picking up newer changes elsewhere.
      */
-    public void addArtifact(HPI hpi) {
+    public void addArtifact(IHPI hpi) {
         VersionNumber v;
         try {
-            v = new VersionNumber(hpi.version);
+            v = hpi.getVersion().getNumber();
         } catch (NumberFormatException e) {
-            System.out.println("Failed to parse version number "+hpi.version+" for "+hpi);
+            System.out.println("Failed to parse version number for "+hpi);
             return;
         }
 
-        HPI existing = artifacts.get(v);
+        IHPI existing = artifacts.get(v);
         if (existing==null || PRIORITY.compare(existing,hpi)<=0)
             artifacts.put(v,hpi);
 
 
         // if we have any authentic Jenkins artifact, we don't want to pick up non-authentic versions that are newer than that
         // drop entries so that this constraint is satisfied
-        Map.Entry<VersionNumber,HPI> tippingPoint = findYoungestJenkinsArtifact();
+        Map.Entry<VersionNumber,IHPI> tippingPoint = findYoungestJenkinsArtifact();
         if (tippingPoint!=null) {
-            Iterator<Map.Entry<VersionNumber,HPI>> itr = artifacts.headMap(tippingPoint.getKey()).entrySet().iterator();
+            Iterator<Map.Entry<VersionNumber,IHPI>> itr = artifacts.headMap(tippingPoint.getKey()).entrySet().iterator();
             while (itr.hasNext()) {
-                Entry<VersionNumber, HPI> e = itr.next();
+                Entry<VersionNumber, IHPI> e = itr.next();
                 if (!e.getValue().isAuthenticJenkinsArtifact())
                     itr.remove();
             }
@@ -91,20 +91,20 @@ public final class PluginHistory {
     /**
      * Returns the youngest version of the artifact that's authentic Jenkins artifact.
      */
-    public Map.Entry<VersionNumber,HPI> findYoungestJenkinsArtifact() {
-        for (Map.Entry<VersionNumber,HPI> e : artifacts.descendingMap().entrySet()) {
+    public Map.Entry<VersionNumber,IHPI> findYoungestJenkinsArtifact() {
+        for (Map.Entry<VersionNumber,IHPI> e : artifacts.descendingMap().entrySet()) {
             if (e.getValue().isAuthenticJenkinsArtifact())
                 return e;
         }
         return null;
     }
 
-    private static final Comparator<HPI> PRIORITY = new Comparator<HPI>() {
-        public int compare(HPI a, HPI b) {
+    private static final Comparator<IHPI> PRIORITY = new Comparator<IHPI>() {
+        public int compare(IHPI a, IHPI b) {
             return priority(a)-priority(b);
         }
 
-        private int priority(HPI h) {
+        private int priority(IHPI h) {
             return h.isAuthenticJenkinsArtifact() ? 1 : 0;
         }
     };
