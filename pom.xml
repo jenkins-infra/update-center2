@@ -113,6 +113,11 @@
       <artifactId>maven-compat</artifactId>
       <version>3.0-alpha-2</version>
     </dependency>
+      <dependency>
+          <groupId>net.java.loci</groupId>
+          <artifactId>jsr308-all</artifactId>
+          <version>1.1.2</version>
+      </dependency>
     <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bcprov-jdk15</artifactId>
