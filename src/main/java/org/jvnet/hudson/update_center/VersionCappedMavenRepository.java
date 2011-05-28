@@ -61,8 +61,9 @@ public class VersionCappedMavenRepository extends MavenRepository {
         return r;
     }
 
+
     @Override
-    public File resolve(ArtifactInfo a, String type) throws AbstractArtifactResolutionException {
-        return base.resolve(a, type);
+    protected File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException {
+        return base.resolve(a, type, classifier);
     }
 }
