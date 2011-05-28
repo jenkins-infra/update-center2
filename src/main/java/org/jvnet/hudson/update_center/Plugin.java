@@ -186,7 +186,7 @@ public class Plugin {
                                             parent.element("groupId").getTextTrim(),
                                             parent.element("artifactId").getTextTrim(),
                                             parent.element("version").getTextTrim(),
-                                            ""), "pom"));
+                                            ""), "pom", null));
                     scm = selectSingleValue(parentPom, "/project/scm/connection");
                 } catch (Exception ex) {
                     System.out.println("** Failed to read parent pom");

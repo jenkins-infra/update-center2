@@ -99,7 +99,15 @@ public class MavenArtifact {
 
     public File resolvePOM() throws IOException {
         try {
-            return repository.resolve(artifact,"pom");
+            return repository.resolve(artifact,"pom", null);
+        } catch (AbstractArtifactResolutionException e) {
+            throw (IOException)new IOException("Failed to resolve artifact "+artifact).initCause(e);
+        }
+    }
+
+    public File resolveSources() throws IOException {
+        try {
+            return repository.resolve(artifact,"jar","sources");
         } catch (AbstractArtifactResolutionException e) {
             throw (IOException)new IOException("Failed to resolve artifact "+artifact).initCause(e);
         }

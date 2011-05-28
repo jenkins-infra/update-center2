@@ -59,8 +59,8 @@ public abstract class MavenRepository {
     public abstract TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException;
 
     protected File resolve(ArtifactInfo a) throws AbstractArtifactResolutionException {
-        return resolve(a,a.packaging);
+        return resolve(a,a.packaging, null);
     }
 
-    protected abstract File resolve(ArtifactInfo a, String type) throws AbstractArtifactResolutionException;
+    protected abstract File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException;
 }
