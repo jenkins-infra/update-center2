@@ -83,6 +83,11 @@ public class VersionNumber implements Comparable<VersionNumber> {
             if(token.equals("*")) {
                 digits[i++] = 1000;
             } else
+            if(token.startsWith("snapshot")) {
+                digits[i-1]--;
+                digits[i++] = 1000;
+                break;
+            } else
             if(token.equals("alpha")) {
                 digits[i++] = -2;
             } else
