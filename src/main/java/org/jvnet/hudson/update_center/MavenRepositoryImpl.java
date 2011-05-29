@@ -227,7 +227,7 @@ public class MavenRepositoryImpl extends MavenRepository {
  */
 
     protected HPI createHpiArtifact(ArtifactInfo a, PluginHistory p) throws AbstractArtifactResolutionException {
-        return new HPI(this,p,a);
+        return new MavenArtifactHPI(this,p,a);
     }
 
     protected HudsonWar createHudsonWarArtifact(ArtifactInfo a) {

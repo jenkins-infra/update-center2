@@ -35,7 +35,7 @@ public abstract class MavenRepository implements IArtifactProvider {
         for (PluginHistory p : all) {
             for (IHPI h : p.artifacts.values()) {
                 try {
-                    Date releaseDate = h.getTimestampAsDate();
+                    Date releaseDate = h.getTimestamp().getTimestampAsDate();
                     System.out.println("adding " + h.getArtifact().artifactId + ":" + h.getVersion());
                     Map<String,IHPI> pluginsOnDate = plugins.get(releaseDate);
                     if (pluginsOnDate==null) {

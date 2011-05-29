@@ -23,6 +23,7 @@
  */
 package org.jvnet.hudson.update_center;
 
+import com.sun.tools.javac.resources.version;
 import net.sf.json.JSONObject;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.sonatype.nexus.index.ArtifactInfo;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.jar.Attributes;
 import java.util.regex.*;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -40,7 +42,7 @@ import java.net.MalformedURLException;
  *
  * @author Kohsuke Kawaguchi
  */
-public class HPI extends MavenArtifact implements IHPI {
+public abstract class HPI implements IHPI {
     /**
      * Which of the lineage did this come from?
      */
@@ -48,17 +50,11 @@ public class HPI extends MavenArtifact implements IHPI {
 
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
-    public HPI(MavenRepository repository, PluginHistory history, ArtifactInfo artifact) throws AbstractArtifactResolutionException {
-        super(repository, artifact);
+    public HPI(PluginHistory history) throws AbstractArtifactResolutionException {
         this.history = history;
     }
 
-    /**
-     * Download a plugin via more intuitive URL. This also helps us track download counts.
-     */
-    public URL getURL() throws MalformedURLException {
-        return new URL("http://updates.jenkins-ci.org/download/plugins/"+artifact.artifactId+"/"+version+"/"+artifact.artifactId+".hpi");
-    }
+    public abstract Attributes getManifestAttributes() throws IOException;
 
     /**
      * Who built this release?
@@ -145,11 +141,5 @@ public class HPI extends MavenArtifact implements IHPI {
     }
 
 
-    /**
-     * Does this artifact come from the jenkins community?
-     */
-    public boolean isAuthenticJenkinsArtifact() {
-        // mayebe it should be startWith("org.jenkins")?
-        return artifact.groupId.contains("jenkins");
-    }
+
 }
