@@ -33,7 +33,7 @@ import java.util.TreeMap;
 
 public class UpdateCenter {
 
-    public boolean prettyPrint = true;
+    public boolean prettyPrint = false;
 
     IArtifactProvider repository;
 
