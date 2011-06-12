@@ -7,9 +7,9 @@ import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.Trees;
 import com.sun.tools.javac.api.JavacTool;
-import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -42,22 +43,24 @@ public class ExtensionpointsExtractor {
         this.hpi = hpi;
     }
 
-    public JSONObject extract() throws IOException, InterruptedException {
+    public List<ExtensionImpl> extract() throws IOException, InterruptedException {
         File sourcesJar = hpi.resolveSources();
         File dir = unzip(sourcesJar);
         File pom = hpi.resolvePOM();
         FileUtils.copyInto(pom, dir, "pom.xml");
         File dependencies = downloadDependencies(dir);
 
-        JavacTask javac = prepareJavac(dir, dependencies);
+        final JavacTask javac = prepareJavac(dir, dependencies);
         final Trees trees = Trees.instance(javac);
         final Elements elements = javac.getElements();
         final Types types = javac.getTypes();
 
-        final TypeMirror extensionPoint = types.getDeclaredType(elements.getTypeElement("hudson.ExtensionPoint"));
+        final TypeElement extensionPoint = elements.getTypeElement("hudson.ExtensionPoint");
 
         Iterable<? extends CompilationUnitTree> parsed = javac.parse();
         javac.analyze();
+
+        final List<ExtensionImpl> r = new ArrayList<ExtensionImpl>();
 
         // discover all compiled types
         TreePathScanner<?,?> classScanner = new TreePathScanner<Void,Void>() {
@@ -65,18 +68,17 @@ public class ExtensionpointsExtractor {
                 TreePath path = getCurrentPath();
                 TypeElement e = (TypeElement) trees.getElement(path);
                 if(e!=null) {
-                    System.out.println("Found " + e.getQualifiedName());
-                    checkIfExtension(e,e);
+//                    if (!e.getModifiers().contains(Modifier.ABSTRACT))
+                        checkIfExtension(e,e);
                 }
 
                 return super.visitClass(ct, _);
             }
 
             private void checkIfExtension(TypeElement root, TypeElement e) {
-                if (e.getInterfaces().contains(extensionPoint)) {
-                    System.out.println("  extension of " + e.getQualifiedName());
-                }
                 for (TypeMirror i : e.getInterfaces()) {
+                    if (types.asElement(i).equals(extensionPoint))
+                        r.add(new ExtensionImpl(hpi, javac, root, e));
                     checkIfExtension(root,(TypeElement)types.asElement(i));
                 }
                 TypeMirror s = e.getSuperclass();
@@ -85,11 +87,10 @@ public class ExtensionpointsExtractor {
             }
         };
 
-        for( CompilationUnitTree u : parsed ) {
+        for( CompilationUnitTree u : parsed )
             classScanner.scan(u,null);
-        }
 
-        return new JSONObject();
+        return r;
     }
 
     private JavacTask prepareJavac(File sourceFiles, File dependencies) throws IOException {
@@ -168,6 +169,12 @@ public class ExtensionpointsExtractor {
                 new URL("http://maven.glassfish.org/content/groups/public/"));
         PluginHistory p = r.listHudsonPlugins().iterator().next();
         System.out.println(p.artifactId);
-        new ExtensionpointsExtractor(p.latest()).extract();
+
+        List<ExtensionImpl> impls = new ExtensionpointsExtractor(p.latest()).extract();
+        for (ExtensionImpl impl : impls) {
+            System.out.printf("Found %s as %s\n",
+                    impl.implementation.getQualifiedName(),
+                    impl.extensionPoint.getQualifiedName());
+        }
     }
 }
