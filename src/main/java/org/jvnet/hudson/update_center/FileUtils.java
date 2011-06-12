@@ -1,9 +1,11 @@
 package org.jvnet.hudson.update_center;
 
-import org.bouncycastle.ocsp.OCSPReqGenerator;
-
-import java.io.*;
-import java.util.Collections;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,7 +17,7 @@ import java.util.zip.ZipFile;
  *
  * @author Robert Sandell &lt;robert.sandell@sonyericsson.com&gt;
  */
-public final class FileUtils {
+public final class FileUtils extends org.apache.commons.io.FileUtils {
 
     /**
      * Unzips a zip/jar archive into the specified directory.
@@ -62,13 +64,12 @@ public final class FileUtils {
         out.close();
     }
 
-    public static void copyInto(File file, File toDir, String filename) throws IOException {
-        File nFile = new File(toDir, filename);
-        org.apache.commons.io.FileUtils.copyFile(file, nFile);
+    public static void copyInto(File file, File dst) throws IOException {
+        copyFile(file, dst);
     }
 
     public static Iterable<File> getFileIterator(File dir, String extension) {
-        Iterator i = org.apache.commons.io.FileUtils.iterateFiles(dir, new String[]{extension}, true);
+        Iterator i = iterateFiles(dir, new String[]{extension}, true);
         LinkedList<File> l = new LinkedList<File>();
         while(i.hasNext()) {
             l.add((File) i.next());

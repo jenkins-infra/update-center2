@@ -44,53 +44,63 @@ public class ExtensionpointsExtractor {
     }
 
     public List<ExtensionImpl> extract() throws IOException, InterruptedException {
-        File sourcesJar = hpi.resolveSources();
-        File dir = unzip(sourcesJar);
-        File pom = hpi.resolvePOM();
-        FileUtils.copyInto(pom, dir, "pom.xml");
-        File dependencies = downloadDependencies(dir);
+        File tempDir = File.createTempFile("jenkins","extPoint");
+        tempDir.delete();
+        tempDir.mkdirs();
 
-        final JavacTask javac = prepareJavac(dir, dependencies);
-        final Trees trees = Trees.instance(javac);
-        final Elements elements = javac.getElements();
-        final Types types = javac.getTypes();
+        try {
+            File srcdir = new File(tempDir,"src");
+            File libdir = new File(tempDir,"lib");
+            unzip(hpi.resolveSources(),srcdir);
 
-        final TypeElement extensionPoint = elements.getTypeElement("hudson.ExtensionPoint");
+            File pom = hpi.resolvePOM();
+            FileUtils.copyInto(pom, new File(srcdir, "pom.xml"));
+            downloadDependencies(srcdir,libdir);
 
-        Iterable<? extends CompilationUnitTree> parsed = javac.parse();
-        javac.analyze();
+            final JavacTask javac = prepareJavac(srcdir, libdir);
+            final Trees trees = Trees.instance(javac);
+            final Elements elements = javac.getElements();
+            final Types types = javac.getTypes();
 
-        final List<ExtensionImpl> r = new ArrayList<ExtensionImpl>();
+            final TypeElement extensionPoint = elements.getTypeElement("hudson.ExtensionPoint");
 
-        // discover all compiled types
-        TreePathScanner<?,?> classScanner = new TreePathScanner<Void,Void>() {
-            public Void visitClass(ClassTree ct, Void _) {
-                TreePath path = getCurrentPath();
-                TypeElement e = (TypeElement) trees.getElement(path);
-                if(e!=null) {
-//                    if (!e.getModifiers().contains(Modifier.ABSTRACT))
-                        checkIfExtension(e,e);
+            Iterable<? extends CompilationUnitTree> parsed = javac.parse();
+            javac.analyze();
+
+            final List<ExtensionImpl> r = new ArrayList<ExtensionImpl>();
+
+            // discover all compiled types
+            TreePathScanner<?,?> classScanner = new TreePathScanner<Void,Void>() {
+                public Void visitClass(ClassTree ct, Void _) {
+                    TreePath path = getCurrentPath();
+                    TypeElement e = (TypeElement) trees.getElement(path);
+                    if(e!=null) {
+                        if (!e.getModifiers().contains(Modifier.ABSTRACT))
+                            checkIfExtension(e,e);
+                    }
+
+                    return super.visitClass(ct, _);
                 }
 
-                return super.visitClass(ct, _);
-            }
-
-            private void checkIfExtension(TypeElement root, TypeElement e) {
-                for (TypeMirror i : e.getInterfaces()) {
-                    if (types.asElement(i).equals(extensionPoint))
-                        r.add(new ExtensionImpl(hpi, javac, root, e));
-                    checkIfExtension(root,(TypeElement)types.asElement(i));
+                private void checkIfExtension(TypeElement root, TypeElement e) {
+                    for (TypeMirror i : e.getInterfaces()) {
+                        if (types.asElement(i).equals(extensionPoint))
+                            r.add(new ExtensionImpl(hpi, javac, root, e));
+                        checkIfExtension(root,(TypeElement)types.asElement(i));
+                    }
+                    TypeMirror s = e.getSuperclass();
+                    if (!(s instanceof NoType))
+                        checkIfExtension(root,(TypeElement)types.asElement(s));
                 }
-                TypeMirror s = e.getSuperclass();
-                if (!(s instanceof NoType))
-                    checkIfExtension(root,(TypeElement)types.asElement(s));
-            }
-        };
+            };
 
-        for( CompilationUnitTree u : parsed )
-            classScanner.scan(u,null);
+            for( CompilationUnitTree u : parsed )
+                classScanner.scan(u,null);
 
-        return r;
+            return r;
+        } finally {
+            FileUtils.deleteDirectory(tempDir);
+        }
     }
 
     private JavacTask prepareJavac(File sourceFiles, File dependencies) throws IOException {
@@ -127,14 +137,12 @@ public class ExtensionpointsExtractor {
 
     }
 
-    private File downloadDependencies(File pomDir) throws IOException, InterruptedException {
-        File tempDir = new File(System.getProperty("java.io.tmp"), hpi.artifact.artifactId + "-dependencies-" + System.currentTimeMillis());
-        tempDir.mkdirs();
-        tempDir.deleteOnExit();
+    private void downloadDependencies(File pomDir, File destDir) throws IOException, InterruptedException {
+        destDir.mkdirs();
         ProcessBuilder builder = new ProcessBuilder("mvn",
                 "dependency:copy-dependencies",
                 "-DincludeScope=compile",
-                "-DoutputDirectory=" + tempDir.getAbsolutePath());
+                "-DoutputDirectory=" + destDir.getAbsolutePath());
         builder.directory(pomDir);
         builder.redirectErrorStream(true);
         Process proc = builder.start();
@@ -151,15 +159,10 @@ public class ExtensionpointsExtractor {
             System.out.write(output.toByteArray());
             throw new IOException("Maven didn't like this! " + pomDir.getAbsolutePath());
         }
-        return tempDir;
     }
 
-    private File unzip(File sourcesJar) throws IOException {
-        File tempDir = new File(System.getProperty("java.io.tmp"), hpi.artifact.artifactId + "-source-" + System.currentTimeMillis());
-        tempDir.mkdirs();
-        tempDir.deleteOnExit();
-        FileUtils.unzip(sourcesJar, tempDir);
-        return tempDir;
+    private void unzip(File sourcesJar, File destDir) throws IOException {
+        FileUtils.unzip(sourcesJar, destDir);
     }
 
     public static void main(String[] args) throws Exception {
