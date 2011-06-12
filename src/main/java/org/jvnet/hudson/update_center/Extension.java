@@ -17,7 +17,7 @@ import java.io.File;
  *
  * @author Kohsuke Kawaguchi
  */
-public final class ExtensionImpl {
+public final class Extension {
     /**
      * Back reference to the artifact where this implementation was found.
      */
@@ -49,7 +49,7 @@ public final class ExtensionImpl {
      */
     public final Trees trees;
 
-    ExtensionImpl(MavenArtifact artifact, JavacTask javac, Trees trees, TypeElement implementation, TreePath implPath, TypeElement extensionPoint) {
+    Extension(MavenArtifact artifact, JavacTask javac, Trees trees, TypeElement implementation, TreePath implPath, TypeElement extensionPoint) {
         this.artifact = artifact;
         this.javac = javac;
         this.implementation = implementation;

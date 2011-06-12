@@ -44,7 +44,7 @@ public class ExtensionPointsExtractor {
         this.hpi = hpi;
     }
 
-    public List<ExtensionImpl> extract() throws IOException, InterruptedException {
+    public List<Extension> extract() throws IOException, InterruptedException {
         File tempDir = File.createTempFile("jenkins","extPoint");
         tempDir.delete();
         tempDir.mkdirs();
@@ -88,7 +88,7 @@ public class ExtensionPointsExtractor {
             Iterable<? extends CompilationUnitTree> parsed = javac.parse();
             javac.analyze();
 
-            final List<ExtensionImpl> r = new ArrayList<ExtensionImpl>();
+            final List<Extension> r = new ArrayList<Extension>();
 
             // discover all compiled types
             TreePathScanner<?,?> classScanner = new TreePathScanner<Void,Void>() {
@@ -106,7 +106,7 @@ public class ExtensionPointsExtractor {
                 private void checkIfExtension(TreePath pathToRoot, TypeElement root, TypeElement e) {
                     for (TypeMirror i : e.getInterfaces()) {
                         if (types.asElement(i).equals(extensionPoint))
-                            r.add(new ExtensionImpl(hpi, javac, trees, root, pathToRoot, e));
+                            r.add(new Extension(hpi, javac, trees, root, pathToRoot, e));
                         checkIfExtension(pathToRoot,root,(TypeElement)types.asElement(i));
                     }
                     TypeMirror s = e.getSuperclass();

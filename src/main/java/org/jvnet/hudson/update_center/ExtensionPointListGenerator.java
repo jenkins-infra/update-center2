@@ -22,8 +22,8 @@ public class ExtensionPointListGenerator {
     private final Map<Name,Family> families = new HashMap<Name,Family>();
 
     public class Family {
-        ExtensionImpl definition;
-        final List<ExtensionImpl> implementations = new ArrayList<ExtensionImpl>();
+        Extension definition;
+        final List<Extension> implementations = new ArrayList<Extension>();
 
         public String getName() {
             return definition.extensionPoint.getQualifiedName().toString();
@@ -69,9 +69,9 @@ public class ExtensionPointListGenerator {
             JSONObject o = f.definition.toJSON();
 
             JSONArray use = new JSONArray();
-            for (ExtensionImpl impl : f.implementations)
+            for (Extension impl : f.implementations)
                 use.add(impl.toJSON());
-            o.put("implementations",use);
+            o.put("implementations", use);
 
             all.put(f.getName(),o);
         }
@@ -80,7 +80,7 @@ public class ExtensionPointListGenerator {
     }
 
     private void discover(MavenArtifact a) throws IOException, InterruptedException {
-        for (ExtensionImpl e : new ExtensionPointsExtractor(a).extract()) {
+        for (Extension e : new ExtensionPointsExtractor(a).extract()) {
             synchronized (families) {
                 System.out.printf("Found %s as %s\n",
                         e.implementation.getQualifiedName(),
@@ -108,7 +108,7 @@ public class ExtensionPointListGenerator {
         JSONArray impl = new JSONArray();
         JSONArray def = new JSONArray();
 
-        for (ExtensionImpl e : new ExtensionPointsExtractor(a).extract()) {
+        for (Extension e : new ExtensionPointsExtractor(a).extract()) {
             System.out.printf("Found %s as %s\n",
                     e.implementation.getQualifiedName(),
                     e.extensionPoint.getQualifiedName());
