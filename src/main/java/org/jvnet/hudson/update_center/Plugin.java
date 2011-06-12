@@ -37,11 +37,14 @@ import org.sonatype.nexus.index.ArtifactInfo;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -93,13 +96,48 @@ public class Plugin {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
-        DocumentFactory factory = new DocumentFactory();
-        factory.setXPathNamespaceURIs(
-                Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
-        this.xmlReader = new SAXReader(factory);
+        this.xmlReader = createXmlReader();
         this.pom = readPOM();
         this.page = findPage(cpl);
         this.cpl = cpl;
+    }
+
+    public Plugin(PluginHistory hpi, ConfluencePluginList cpl) throws IOException {
+        this.artifactId = hpi.artifactId;
+        List<HPI> versions = new ArrayList<HPI>(hpi.artifacts.values());
+        this.latest = versions.get(0);
+        this.previous = versions.size()>1 ? versions.get(1) : null;
+
+        // Doublecheck that latest-by-version is also latest-by-date:
+        checkLatestDate(versions, latest);
+
+        this.xmlReader = createXmlReader();
+        this.pom = readPOM();
+        this.page = findPage(cpl);
+        this.cpl = cpl;
+    }
+
+    public Plugin(HPI hpi, ConfluencePluginList cpl) throws IOException {
+        this(hpi.artifact.artifactId, hpi,  null, cpl);
+    }
+
+    private SAXReader createXmlReader() {
+        DocumentFactory factory = new DocumentFactory();
+        factory.setXPathNamespaceURIs(
+                Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
+        return new SAXReader(factory);
+    }
+
+    private static void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
+        TreeMap<Long,HPI> artifactsByDate = new TreeMap<Long,HPI>();
+        for (HPI h : artifacts)
+            artifactsByDate.put(h.getTimestamp(), h);
+        HPI latestByDate = artifactsByDate.get(artifactsByDate.lastKey());
+        if (latestByDate != latestByVersion)
+            System.out.println(
+                "** Latest-by-version (" + latestByVersion.version + ','
+                + latestByVersion.getTimestampAsString() + ") doesn't match latest-by-date ("
+                + latestByDate.version + ',' + latestByDate.getTimestampAsString() + ')');
     }
 
     private Document readPOM() throws IOException {
@@ -173,7 +211,7 @@ public class Plugin {
      * Get hostname of SCM specified in POM of latest release, or null.
      * Used to determine if source lives in github or svn.
      */
-    private String getScmHost() {
+    public String getScmHost() {
         if (pom != null) {
             String scm = selectSingleValue(pom, "/project/scm/connection");
             if (scm == null) {

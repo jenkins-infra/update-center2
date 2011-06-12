@@ -1,19 +1,24 @@
 package org.jvnet.hudson.update_center;
 
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.JavacTask;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.Trees;
 
 import javax.lang.model.element.TypeElement;
 
 /**
- * Information about the implementation of an extension point in a plugin.
+ * Information about the implementation of an extension point
+ * (and extension point definition.)
  *
  * @author Kohsuke Kawaguchi
  */
 public final class ExtensionImpl {
     /**
-     * Back reference to the plugin where this implementation was found.
+     * Back reference to the artifact where this implementation was found.
      */
-    public final HPI plugin;
+    public final MavenArtifact artifact;
 
     /**
      * The compiler session where this information was determined.
@@ -31,10 +36,52 @@ public final class ExtensionImpl {
      */
     public final TypeElement extensionPoint;
 
-    ExtensionImpl(HPI plugin, JavacTask javac, TypeElement implementation, TypeElement extensionPoint) {
-        this.plugin = plugin;
+    /**
+     * {@link TreePath} that leads to {@link #implementation}
+     */
+    public final TreePath implPath;
+
+    /**
+     * {@link Trees} object for {@link #javac}
+     */
+    public final Trees trees;
+
+    ExtensionImpl(MavenArtifact artifact, JavacTask javac, Trees trees, TypeElement implementation, TreePath implPath, TypeElement extensionPoint) {
+        this.artifact = artifact;
         this.javac = javac;
         this.implementation = implementation;
+        this.implPath = implPath;
         this.extensionPoint = extensionPoint;
+        this.trees = trees;
+    }
+
+    /**
+     * Returns true if this record is about a definition of an extension point
+     * (as opposed to an implementation of a defined extension point.)
+     */
+    public boolean isDefinition() {
+        return implementation.equals(extensionPoint);
+    }
+
+    /**
+     * Returns the {@link ClassTree} representation of {@link #implementation}.
+     */
+    public ClassTree getClassTree() {
+        return (ClassTree)implPath.getLeaf();
+    }
+
+    public CompilationUnitTree getCompilationUnit() {
+        return implPath.getCompilationUnit();
+    }
+    
+    public String getJavadoc() {
+        return javac.getElements().getDocComment(implementation);
+    }
+
+    /**
+     * Returns the artifact Id of the plugin that it came from.
+     */
+    public String getArtifactId() {
+        return artifact.artifact.artifactId;
     }
 }

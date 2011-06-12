@@ -9,7 +9,6 @@ import com.sun.source.util.Trees;
 import com.sun.tools.javac.api.JavacTool;
 import org.apache.commons.io.IOUtils;
 
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
@@ -24,7 +23,6 @@ import javax.tools.StandardLocation;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,13 +31,16 @@ import java.util.Locale;
 
 /**
  * Finds the defined extension points in a HPI.
+ *
+ * @author Robert Sandell
+ * @author Kohsuke Kawaguchi
  */
 @SuppressWarnings({"Since15"})
 public class ExtensionpointsExtractor {
 
-    private HPI hpi;
+    private MavenArtifact hpi;
 
-    public ExtensionpointsExtractor(HPI hpi) {
+    public ExtensionpointsExtractor(MavenArtifact hpi) {
         this.hpi = hpi;
     }
 
@@ -62,8 +63,6 @@ public class ExtensionpointsExtractor {
             final Elements elements = javac.getElements();
             final Types types = javac.getTypes();
 
-            final TypeElement extensionPoint = elements.getTypeElement("hudson.ExtensionPoint");
-
             Iterable<? extends CompilationUnitTree> parsed = javac.parse();
             javac.analyze();
 
@@ -71,26 +70,26 @@ public class ExtensionpointsExtractor {
 
             // discover all compiled types
             TreePathScanner<?,?> classScanner = new TreePathScanner<Void,Void>() {
+                final TypeElement extensionPoint = elements.getTypeElement("hudson.ExtensionPoint");
+
                 public Void visitClass(ClassTree ct, Void _) {
                     TreePath path = getCurrentPath();
                     TypeElement e = (TypeElement) trees.getElement(path);
-                    if(e!=null) {
-                        if (!e.getModifiers().contains(Modifier.ABSTRACT))
-                            checkIfExtension(e,e);
-                    }
+                    if(e!=null)
+                        checkIfExtension(path,e,e);
 
                     return super.visitClass(ct, _);
                 }
 
-                private void checkIfExtension(TypeElement root, TypeElement e) {
+                private void checkIfExtension(TreePath pathToRoot, TypeElement root, TypeElement e) {
                     for (TypeMirror i : e.getInterfaces()) {
                         if (types.asElement(i).equals(extensionPoint))
-                            r.add(new ExtensionImpl(hpi, javac, root, e));
-                        checkIfExtension(root,(TypeElement)types.asElement(i));
+                            r.add(new ExtensionImpl(hpi, javac, trees, root, pathToRoot, e));
+                        checkIfExtension(pathToRoot,root,(TypeElement)types.asElement(i));
                     }
                     TypeMirror s = e.getSuperclass();
                     if (!(s instanceof NoType))
-                        checkIfExtension(root,(TypeElement)types.asElement(s));
+                        checkIfExtension(pathToRoot,root,(TypeElement)types.asElement(s));
                 }
             };
 
@@ -165,21 +164,4 @@ public class ExtensionpointsExtractor {
         FileUtils.unzip(sourcesJar, destDir);
     }
 
-    public static void main(String[] args) throws Exception {
-        MavenRepositoryImpl r = new MavenRepositoryImpl();
-        r.addRemoteRepository("java.net2",
-                new File("updates.jenkins-ci.org"),
-                new URL("http://maven.glassfish.org/content/groups/public/"));
-
-        for (PluginHistory p : r.listHudsonPlugins()) {
-            System.out.println(p.artifactId);
-
-            List<ExtensionImpl> impls = new ExtensionpointsExtractor(p.latest()).extract();
-            for (ExtensionImpl impl : impls) {
-                System.out.printf("Found %s as %s\n",
-                        impl.implementation.getQualifiedName(),
-                        impl.extensionPoint.getQualifiedName());
-            }
-        }
-    }
 }

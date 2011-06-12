@@ -43,8 +43,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * List of plugins from confluence.
+ * List of plugins from confluence. Primarily serve as a cache.
  *
+ * <p>
  * See http://confluence.atlassian.com/display/DOC/Remote+API+Specification
  * for the confluence API.
  *

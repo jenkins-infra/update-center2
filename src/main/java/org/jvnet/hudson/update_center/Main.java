@@ -28,7 +28,6 @@ import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.TeeOutputStream;
-import org.apache.maven.model.Organization;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.jvnet.hudson.crypto.CertificateUtil;
@@ -37,7 +36,6 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-import javax.security.auth.login.Configuration;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -299,13 +297,7 @@ public class Main {
             try {
                 System.out.println(hpi.artifactId);
 
-                List<HPI> versions = new ArrayList<HPI>(hpi.artifacts.values());
-                HPI latest = versions.get(0);
-                HPI previous = versions.size()>1 ? versions.get(1) : null;
-                // Doublecheck that latest-by-version is also latest-by-date:
-                checkLatestDate(versions, latest);
-
-                Plugin plugin = new Plugin(hpi.artifactId,latest,previous,cpl);
+                Plugin plugin = new Plugin(hpi,cpl);
                 if (plugin.isDeprecated()) {
                     System.out.println("=> Plugin is deprecated.. skipping.");
                     continue;
@@ -317,18 +309,18 @@ public class Main {
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
                 String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
-                redirect.printf("Redirect 302 %s %s\n", permalink, latest.getURL().getPath());
+                redirect.printf("Redirect 302 %s %s\n", permalink, plugin.latest.getURL().getPath());
 
                 if (download!=null) {
-                    for (HPI v : versions) {
+                    for (HPI v : hpi.artifacts.values()) {
                         stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
                     }
-                    if (!versions.isEmpty())
-                        createLatestSymlink(hpi, versions.get(0));
+                    if (!hpi.artifacts.isEmpty())
+                        createLatestSymlink(hpi, plugin.latest);
                 }
 
                 if (www!=null)
-                    buildIndex(new File(www,"download/plugins/"+hpi.artifactId),hpi.artifactId,versions,permalink);
+                    buildIndex(new File(www,"download/plugins/"+hpi.artifactId),hpi.artifactId,hpi.artifacts.values(),permalink);
             } catch (IOException e) {
                 e.printStackTrace();
                 // move on to the next plugin
@@ -351,17 +343,6 @@ public class Main {
         int r = pb.start().waitFor();
         if (r !=0)
             throw new IOException("ln failed: "+r);
-    }
-
-    private void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
-        TreeMap<Long,HPI> artifactsByDate = new TreeMap<Long,HPI>();
-        for (HPI h : artifacts)
-            artifactsByDate.put(h.getTimestamp(), h);
-        HPI latestByDate = artifactsByDate.get(artifactsByDate.lastKey());
-        if (latestByDate != latestByVersion) System.out.println(
-            "** Latest-by-version (" + latestByVersion.version + ','
-            + latestByVersion.getTimestampAsString() + ") doesn't match latest-by-date ("
-            + latestByDate.version + ',' + latestByDate.getTimestampAsString() + ')');
     }
 
     /**
@@ -403,7 +384,7 @@ public class Main {
                 HPI h = rel.getValue();
                 JSONObject o = new JSONObject();
                 try {
-                    Plugin plugin = new Plugin(h.artifact.artifactId, h, null, cpl);
+                    Plugin plugin = new Plugin(h, cpl);
                     
                     String title = plugin.getTitle();
                     if ((title==null) || (title.equals(""))) {
