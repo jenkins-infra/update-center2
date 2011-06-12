@@ -170,14 +170,16 @@ public class ExtensionpointsExtractor {
         r.addRemoteRepository("java.net2",
                 new File("updates.jenkins-ci.org"),
                 new URL("http://maven.glassfish.org/content/groups/public/"));
-        PluginHistory p = r.listHudsonPlugins().iterator().next();
-        System.out.println(p.artifactId);
 
-        List<ExtensionImpl> impls = new ExtensionpointsExtractor(p.latest()).extract();
-        for (ExtensionImpl impl : impls) {
-            System.out.printf("Found %s as %s\n",
-                    impl.implementation.getQualifiedName(),
-                    impl.extensionPoint.getQualifiedName());
+        for (PluginHistory p : r.listHudsonPlugins()) {
+            System.out.println(p.artifactId);
+
+            List<ExtensionImpl> impls = new ExtensionpointsExtractor(p.latest()).extract();
+            for (ExtensionImpl impl : impls) {
+                System.out.printf("Found %s as %s\n",
+                        impl.implementation.getQualifiedName(),
+                        impl.extensionPoint.getQualifiedName());
+            }
         }
     }
 }
