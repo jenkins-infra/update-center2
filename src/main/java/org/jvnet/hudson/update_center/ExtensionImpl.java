@@ -86,7 +86,7 @@ public final class ExtensionImpl {
         String pkg = packageName==null?"":packageName.toString().replace('.', '/')+'/';
 
         String name = new File(getCompilationUnit().getSourceFile().getName()).getName();
-        return pkg + name+".java";
+        return pkg + name;
     }
 
     /**
