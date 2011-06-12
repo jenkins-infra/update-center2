@@ -110,9 +110,6 @@ public class Main {
     @Option(name="-cap",usage="Cap the version number and only report data that's compatible with ")
     public String cap = null;
 
-    @Option(name = "-pluginExtensionPoints", usage = "If the plugin extension point index should be generated.")
-    public boolean pluginExtensionPoints = true;
-
     public static void main(String[] args) throws Exception {
         System.exit(new Main().run(args));
     }
@@ -143,10 +140,6 @@ public class Main {
         MavenRepository repo = createRepository();
         if (cap!=null)
             repo = new VersionCappedMavenRepository(repo,new VersionNumber(cap));
-        if(pluginExtensionPoints) {
-            buildPluginExtensionPoints(repo);
-            return; //TODO don't do this.
-        }
 
         File p = htaccess.getParentFile();
         if (p!=null)        p.mkdirs();
@@ -261,27 +254,6 @@ public class Main {
             e.printStackTrace();
         }
         return certs;
-    }
-
-    /**
-     * Build JSON for the extension points in the plugins.
-     * @param repository
-     * @return
-     */
-    protected JSONArray buildPluginExtensionPoints(MavenRepository repository) throws Exception {
-        JSONArray plugins = new JSONArray();
-        for( PluginHistory hpi : repository.listHudsonPlugins() ) {
-            try {
-                System.out.println(hpi.artifactId);
-
-                ExtensionPointsExtractor epe = new ExtensionPointsExtractor(hpi.latest());
-                plugins.add(epe.extract());
-            } catch (IOException e) {
-                e.printStackTrace();
-                // move on to the next plugin
-            }
-        }
-        return plugins;
     }
 
     /**
