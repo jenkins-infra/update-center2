@@ -134,12 +134,14 @@ public class ExtensionPointListGenerator {
         JSONObject o = toJSON(hpi);
         Plugin p = new Plugin(hpi,cpl);
         o.put("url",p.getWiki());
+        o.put("title",p.getTitle());
         return o;
     }
 
     private JSONObject toJSON(HudsonWar war, ConfluencePluginList cpl) throws IOException, InterruptedException {
         JSONObject o = toJSON(war.getCoreArtifact());
         o.put("url","https://github.com/jenkinsci/jenkins");
+        o.put("title","Jenkins Core");
         return o;
     }
 }
