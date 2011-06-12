@@ -66,18 +66,11 @@ public class ExtensionPointListGenerator {
         JSONObject all = new JSONObject();
         for (Family f : families.values()) {
             if (f.definition==null)     continue;   // skip undefined extension points
-            JSONObject o = new JSONObject();
-
-            o.put("javadoc",f.definition.getJavadoc());
+            JSONObject o = f.definition.toJSON();
 
             JSONArray use = new JSONArray();
-            for (ExtensionImpl impl : f.implementations) {
-                JSONObject i = new JSONObject();
-                i.put("className",impl.implementation.getQualifiedName().toString());
-                i.put("plugin",impl.artifact.artifact.artifactId);
-                i.put("javadoc",impl.getJavadoc());
-                use.add(i);
-            }
+            for (ExtensionImpl impl : f.implementations)
+                use.add(impl.toJSON());
             o.put("implementations",use);
 
             all.put(f.getName(),o);

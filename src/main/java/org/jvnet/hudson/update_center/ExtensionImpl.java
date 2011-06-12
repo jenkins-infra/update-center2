@@ -2,11 +2,14 @@ package org.jvnet.hudson.update_center;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.ExpressionTree;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.Trees;
+import net.sf.json.JSONObject;
 
 import javax.lang.model.element.TypeElement;
+import java.io.File;
 
 /**
  * Information about the implementation of an extension point
@@ -73,7 +76,27 @@ public final class ExtensionImpl {
     public CompilationUnitTree getCompilationUnit() {
         return implPath.getCompilationUnit();
     }
-    
+
+    /**
+     * Gets the source file name that contains this definition, including directories
+     * that match the package name portion.
+     */
+    public String getSourceFile() {
+        ExpressionTree packageName = getCompilationUnit().getPackageName();
+        String pkg = packageName==null?"":packageName.toString().replace('.', '/')+'/';
+
+        String name = new File(getCompilationUnit().getSourceFile().getName()).getName();
+        return pkg + name+".java";
+    }
+
+    /**
+     * Gets the line number in the source file where this implementation was defined.
+     */
+    public long getLineNumber() {
+        return getCompilationUnit().getLineMap().getLineNumber(
+                trees.getSourcePositions().getStartPosition(getCompilationUnit(), getClassTree()));
+    }
+
     public String getJavadoc() {
         return javac.getElements().getDocComment(implementation);
     }
@@ -83,5 +106,15 @@ public final class ExtensionImpl {
      */
     public String getArtifactId() {
         return artifact.artifact.artifactId;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject i = new JSONObject();
+        i.put("className",implementation.getQualifiedName().toString());
+        i.put("plugin",getArtifactId());
+        i.put("javadoc",getJavadoc());
+        i.put("sourceFile",getSourceFile());
+        i.put("lineNumber",getLineNumber());
+        return i;
     }
 }
