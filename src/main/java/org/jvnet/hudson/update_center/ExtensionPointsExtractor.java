@@ -36,11 +36,11 @@ import java.util.Locale;
  * @author Kohsuke Kawaguchi
  */
 @SuppressWarnings({"Since15"})
-public class ExtensionpointsExtractor {
+public class ExtensionPointsExtractor {
 
     private MavenArtifact hpi;
 
-    public ExtensionpointsExtractor(MavenArtifact hpi) {
+    public ExtensionPointsExtractor(MavenArtifact hpi) {
         this.hpi = hpi;
     }
 

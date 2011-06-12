@@ -87,7 +87,7 @@ public class ExtensionPointListGenerator {
     }
 
     private void discover(MavenArtifact a) throws IOException, InterruptedException {
-        for (ExtensionImpl e : new ExtensionpointsExtractor(a).extract()) {
+        for (ExtensionImpl e : new ExtensionPointsExtractor(a).extract()) {
             synchronized (families) {
                 System.out.printf("Found %s as %s\n",
                         e.implementation.getQualifiedName(),
@@ -115,7 +115,7 @@ public class ExtensionPointListGenerator {
         JSONArray impl = new JSONArray();
         JSONArray def = new JSONArray();
 
-        for (ExtensionImpl e : new ExtensionpointsExtractor(a).extract()) {
+        for (ExtensionImpl e : new ExtensionPointsExtractor(a).extract()) {
             System.out.printf("Found %s as %s\n",
                     e.implementation.getQualifiedName(),
                     e.extensionPoint.getQualifiedName());
