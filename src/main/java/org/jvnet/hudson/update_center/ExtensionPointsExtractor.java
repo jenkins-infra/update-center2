@@ -53,7 +53,7 @@ public class ExtensionPointsExtractor {
         try {
             File srcdir = new File(tempDir,"src");
             File libdir = new File(tempDir,"lib");
-            unzip(hpi.resolveSources(),srcdir);
+            FileUtils.unzip(hpi.resolveSources(), srcdir);
 
             File pom = hpi.resolvePOM();
             FileUtils.copyFile(pom, new File(srcdir, "pom.xml"));
@@ -132,7 +132,6 @@ public class ExtensionPointsExtractor {
 
     private Iterable<? extends File> generateSources(File sourceDir) {
         return FileUtils.getFileIterator(sourceDir, "java");
-
     }
 
     private void downloadDependencies(File pomDir, File destDir) throws IOException, InterruptedException {
@@ -158,9 +157,4 @@ public class ExtensionPointsExtractor {
             throw new IOException("Maven didn't like this! " + pomDir.getAbsolutePath());
         }
     }
-
-    private void unzip(File sourcesJar, File destDir) throws IOException {
-        FileUtils.unzip(sourcesJar, destDir);
-    }
-
 }

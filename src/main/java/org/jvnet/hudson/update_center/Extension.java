@@ -111,7 +111,7 @@ public final class Extension {
     public JSONObject toJSON() {
         JSONObject i = new JSONObject();
         i.put("className",implementation.getQualifiedName().toString());
-        i.put("plugin",getArtifactId());
+        i.put("artifact",artifact.getGavId());
         i.put("javadoc",getJavadoc());
         i.put("sourceFile",getSourceFile());
         i.put("lineNumber",getLineNumber());

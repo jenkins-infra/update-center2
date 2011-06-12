@@ -16,6 +16,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Command-line tool to list up extension points and their implementations into a JSON file.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class ExtensionPointListGenerator {
@@ -40,9 +42,14 @@ public class ExtensionPointListGenerator {
                 new File("updates.jenkins-ci.org"),
                 new URL("http://maven.glassfish.org/content/groups/public/"));
 
-        HudsonWar war = r.getHudsonWar().firstEntry().getValue();
+        final ConfluencePluginList cpl = new ConfluencePluginList();
 
+        // this object captures information about modules where extensions are defined/found.
+        final JSONObject artifacts = new JSONObject();
+
+        HudsonWar war = r.getHudsonWar().firstEntry().getValue();
         discover(war.getCoreArtifact());
+        artifacts.put(war.getCoreArtifact().getGavId(), toJSON(war,cpl));
 
         ExecutorService svc = Executors.newFixedThreadPool(4);
         for (final PluginHistory p : new ArrayList<PluginHistory>(r.listHudsonPlugins()).subList(0,5)) {
@@ -51,6 +58,9 @@ public class ExtensionPointListGenerator {
                     try {
                         System.out.println(p.artifactId);
                         discover(p.latest());
+                        synchronized (artifacts) {
+                            artifacts.put(p.latest().getGavId(), toJSON(p.latest(),cpl));
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                         // skip to the next plugin
@@ -76,7 +86,11 @@ public class ExtensionPointListGenerator {
             all.put(f.getName(),o);
         }
 
-        FileUtils.writeStringToFile(new File("extension-points.json"), all.toString(2));
+        JSONObject container = new JSONObject();
+        container.put("extensionPoints",all);
+        container.put("artifacts",artifacts);
+
+        FileUtils.writeStringToFile(new File("extension-points.json"), container.toString(2));
     }
 
     private void discover(MavenArtifact a) throws IOException, InterruptedException {
@@ -102,34 +116,11 @@ public class ExtensionPointListGenerator {
 
 
     /**
-     * Builds the extension point information into JSON object.
+     * Builds information about an artifact into JSON.
      */
     private JSONObject toJSON(MavenArtifact a) throws IOException, InterruptedException {
-        JSONArray impl = new JSONArray();
-        JSONArray def = new JSONArray();
-
-        for (Extension e : new ExtensionPointsExtractor(a).extract()) {
-            System.out.printf("Found %s as %s\n",
-                    e.implementation.getQualifiedName(),
-                    e.extensionPoint.getQualifiedName());
-
-            JSONObject o = new JSONObject();
-            o.put("extensionPoint",e.extensionPoint.getQualifiedName());
-            String doc = e.getJavadoc();
-            if (doc!=null)
-                o.put("javadoc", doc);
-
-            if (!e.isDefinition()) {
-                o.put("implementation",e.implementation.getQualifiedName());
-            }
-
-            (e.isDefinition() ? def : impl).add(o);
-        }
-
         JSONObject o = new JSONObject();
-        o.put("definitions",def);
-        o.put("implementations",impl);
-        o.put("name",a.artifact.artifactId);
+        o.put("gav",a.getGavId());
         return o;
     }
 
