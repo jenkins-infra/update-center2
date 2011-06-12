@@ -9,10 +9,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * @author Kohsuke Kawaguchi
  */
 public class ExtensionPointListGenerator {
-    private final Map<Name,Family> families = new HashMap<Name,Family>();
+    private final Map<String,Family> families = new HashMap<String,Family>();
 
     public class Family {
         Extension definition;
@@ -49,17 +52,18 @@ public class ExtensionPointListGenerator {
 
         HudsonWar war = r.getHudsonWar().firstEntry().getValue();
         discover(war.getCoreArtifact());
-        artifacts.put(war.getCoreArtifact().getGavId(), toJSON(war,cpl));
+        artifacts.put(war.getCoreArtifact().getGavId(), toJSON(war, cpl));
 
         ExecutorService svc = Executors.newFixedThreadPool(4);
+        Set<Future> futures = new HashSet<Future>();
         for (final PluginHistory p : new ArrayList<PluginHistory>(r.listHudsonPlugins()).subList(0,5)) {
-            svc.submit(new Runnable() {
+            futures.add(svc.submit(new Runnable() {
                 public void run() {
                     try {
                         System.out.println(p.artifactId);
                         discover(p.latest());
                         synchronized (artifacts) {
-                            artifacts.put(p.latest().getGavId(), toJSON(p.latest(),cpl));
+                            artifacts.put(p.latest().getGavId(), toJSON(p.latest(), cpl));
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -68,10 +72,12 @@ public class ExtensionPointListGenerator {
                         e.printStackTrace();
                     }
                 }
-            });
+            }));
+        }
+        for (Future f : futures) {
+            f.get();
         }
         svc.shutdown();
-        svc.awaitTermination(999, TimeUnit.DAYS);
 
         JSONObject all = new JSONObject();
         for (Family f : families.values()) {
@@ -100,7 +106,7 @@ public class ExtensionPointListGenerator {
                         e.implementation.getQualifiedName(),
                         e.extensionPoint.getQualifiedName());
 
-                Name key = e.extensionPoint.getQualifiedName();
+                String key = e.extensionPoint.getQualifiedName().toString();
                 Family f = families.get(key);
                 if (f==null)    families.put(key,f=new Family());
 
