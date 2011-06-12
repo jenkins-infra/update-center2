@@ -10,6 +10,8 @@ import net.sf.json.JSONObject;
 
 import javax.lang.model.element.TypeElement;
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Information about the implementation of an extension point
@@ -102,6 +104,29 @@ public final class Extension {
     }
 
     /**
+     * Javadoc converted to the confluence markup.
+     */
+    public String getConfluenceDoc() {
+        String javadoc = getJavadoc();
+        if(javadoc==null)   return null;
+
+        {// replace @link
+            Matcher m = LINK.matcher(javadoc);
+            StringBuffer sb = new StringBuffer();
+            while(m.find()) {
+                String simpleName = m.group(1);
+                m.appendReplacement(sb, '['+simpleName+"@javadoc]");
+            }
+            m.appendTail(sb);
+            javadoc = sb.toString();
+        }
+
+        for (Macro m : MACROS)
+            javadoc = m.replace(javadoc);
+        return javadoc;
+    }
+
+    /**
      * Returns the artifact Id of the plugin that it came from.
      */
     public String getArtifactId() {
@@ -113,8 +138,32 @@ public final class Extension {
         i.put("className",implementation.getQualifiedName().toString());
         i.put("artifact",artifact.getGavId());
         i.put("javadoc",getJavadoc());
+        i.put("confluenceDoc", getConfluenceDoc());
         i.put("sourceFile",getSourceFile());
         i.put("lineNumber",getLineNumber());
         return i;
     }
+
+    private static final class Macro {
+        private final Pattern from;
+        private final String to;
+
+        private Macro(Pattern from, String to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        public String replace(String s) {
+            return from.matcher(s).replaceAll(to);
+        }
+    }
+
+    private static final Pattern LINK = Pattern.compile("\\{@link ([^}]+)}");
+    private static final Macro[] MACROS = new Macro[] {
+        new Macro(LINK,     "{{$1{}}}"),
+        new Macro(Pattern.compile("<tt>([^<]+?)</tt>"),  "{{$1{}}}"),
+        new Macro(Pattern.compile("<b>([^<]+?)</b>"),  "*$1*"),
+        new Macro(Pattern.compile("<p/?>"),  "\n"),
+        new Macro(Pattern.compile("</p>"),  "")
+    };
 }
