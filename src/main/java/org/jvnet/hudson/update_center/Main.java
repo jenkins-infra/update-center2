@@ -276,7 +276,7 @@ public class Main {
             try {
                 System.out.println(hpi.artifactId);
 
-                ExtensionpointsExtractor epe = new ExtensionpointsExtractor(hpi);
+                ExtensionpointsExtractor epe = new ExtensionpointsExtractor(hpi.latest());
                 plugins.add(epe.extract());
             } catch (IOException e) {
                 e.printStackTrace();
