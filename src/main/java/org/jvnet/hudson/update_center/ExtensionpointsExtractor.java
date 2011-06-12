@@ -10,10 +10,11 @@ import com.sun.tools.javac.api.JavacTool;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
@@ -50,19 +51,37 @@ public class ExtensionpointsExtractor {
 
         JavacTask javac = prepareJavac(dir, dependencies);
         final Trees trees = Trees.instance(javac);
+        final Elements elements = javac.getElements();
+        final Types types = javac.getTypes();
+
+        final TypeMirror extensionPoint = types.getDeclaredType(elements.getTypeElement("hudson.ExtensionPoint"));
 
         Iterable<? extends CompilationUnitTree> parsed = javac.parse();
         javac.analyze();
 
+        // discover all compiled types
         TreePathScanner<?,?> classScanner = new TreePathScanner<Void,Void>() {
             public Void visitClass(ClassTree ct, Void _) {
                 TreePath path = getCurrentPath();
                 TypeElement e = (TypeElement) trees.getElement(path);
                 if(e!=null) {
-                    System.out.println("Found "+e.getQualifiedName());
+                    System.out.println("Found " + e.getQualifiedName());
+                    checkIfExtension(e,e);
                 }
 
                 return super.visitClass(ct, _);
+            }
+
+            private void checkIfExtension(TypeElement root, TypeElement e) {
+                if (e.getInterfaces().contains(extensionPoint)) {
+                    System.out.println("  extension of " + e.getQualifiedName());
+                }
+                for (TypeMirror i : e.getInterfaces()) {
+                    checkIfExtension(root,(TypeElement)types.asElement(i));
+                }
+                TypeMirror s = e.getSuperclass();
+                if (!(s instanceof NoType))
+                    checkIfExtension(root,(TypeElement)types.asElement(s));
             }
         };
 
