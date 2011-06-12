@@ -55,7 +55,7 @@ public class ExtensionpointsExtractor {
             unzip(hpi.resolveSources(),srcdir);
 
             File pom = hpi.resolvePOM();
-            FileUtils.copyInto(pom, new File(srcdir, "pom.xml"));
+            FileUtils.copyFile(pom, new File(srcdir, "pom.xml"));
             downloadDependencies(srcdir,libdir);
 
             final JavacTask javac = prepareJavac(srcdir, libdir);

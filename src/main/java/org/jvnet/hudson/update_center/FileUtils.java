@@ -64,10 +64,6 @@ public final class FileUtils extends org.apache.commons.io.FileUtils {
         out.close();
     }
 
-    public static void copyInto(File file, File dst) throws IOException {
-        copyFile(file, dst);
-    }
-
     public static Iterable<File> getFileIterator(File dir, String extension) {
         Iterator i = iterateFiles(dir, new String[]{extension}, true);
         LinkedList<File> l = new LinkedList<File>();
