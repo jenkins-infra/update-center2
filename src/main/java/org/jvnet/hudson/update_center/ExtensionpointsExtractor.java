@@ -49,6 +49,7 @@ public class ExtensionpointsExtractor {
         tempDir.delete();
         tempDir.mkdirs();
 
+        StandardJavaFileManager fileManager = null;
         try {
             File srcdir = new File(tempDir,"src");
             File libdir = new File(tempDir,"lib");
@@ -58,7 +59,28 @@ public class ExtensionpointsExtractor {
             FileUtils.copyFile(pom, new File(srcdir, "pom.xml"));
             downloadDependencies(srcdir,libdir);
 
-            final JavacTask javac = prepareJavac(srcdir, libdir);
+            JavaCompiler javac1 = JavacTool.create();
+            DiagnosticListener<? super JavaFileObject> errorListener = new DiagnosticListener<JavaFileObject>() {
+                public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+                    //TODO report
+                    System.out.println(diagnostic);
+                }
+            };
+            fileManager = javac1.getStandardFileManager(errorListener, Locale.getDefault(), Charset.defaultCharset());
+
+
+            fileManager.setLocation(StandardLocation.CLASS_PATH, generateClassPath(libdir));
+
+            // annotation processing appears to cause the source files to be reparsed
+            // (even though I couldn't find exactly where it's done), which causes
+            // Tree symbols created by the original JavacTask.parse() call to be thrown away,
+            // which breaks later processing.
+            // So for now, don't perform annotation processing
+            List<String> options = Arrays.asList("-proc:none");
+
+            Iterable<? extends JavaFileObject> files = fileManager.getJavaFileObjectsFromFiles(generateSources(srcdir));
+            JavaCompiler.CompilationTask task = javac1.getTask(null, fileManager, errorListener, options, null, files);
+            final JavacTask javac = (JavacTask) task;
             final Trees trees = Trees.instance(javac);
             final Elements elements = javac.getElements();
             final Types types = javac.getTypes();
@@ -99,32 +121,9 @@ public class ExtensionpointsExtractor {
             return r;
         } finally {
             FileUtils.deleteDirectory(tempDir);
+            if (fileManager!=null)
+                fileManager.close();
         }
-    }
-
-    private JavacTask prepareJavac(File sourceFiles, File dependencies) throws IOException {
-        JavaCompiler javac = JavacTool.create();
-        DiagnosticListener<? super JavaFileObject> errorListener = new DiagnosticListener<JavaFileObject>() {
-            public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-                //TODO report
-                System.out.println(diagnostic);
-            }
-        };
-        StandardJavaFileManager fileManager = javac.getStandardFileManager(errorListener, Locale.getDefault(), Charset.defaultCharset());
-
-
-        fileManager.setLocation(StandardLocation.CLASS_PATH, generateClassPath(dependencies));
-
-        // annotation processing appears to cause the source files to be reparsed
-        // (even though I couldn't find exactly where it's done), which causes
-        // Tree symbols created by the original JavacTask.parse() call to be thrown away,
-        // which breaks later processing.
-        // So for now, don't perform annotation processing
-        List<String> options = Arrays.asList("-proc:none");
-
-        Iterable<? extends JavaFileObject> files = fileManager.getJavaFileObjectsFromFiles(generateSources(sourceFiles));
-        JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, errorListener, options, null, files);
-        return (JavacTask) task;
     }
 
     private Iterable<? extends File> generateClassPath(File dependencies) {

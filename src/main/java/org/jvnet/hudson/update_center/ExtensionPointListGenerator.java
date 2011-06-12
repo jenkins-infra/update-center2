@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -41,18 +44,28 @@ public class ExtensionPointListGenerator {
 
         discover(war.getCoreArtifact());
 
-        for (PluginHistory p : r.listHudsonPlugins()) {
-            try {
-                System.out.println(p.artifactId);
-                discover(p.latest());
-            } catch (IOException e) {
-                e.printStackTrace();
-                // skip to the next plugin
-            }
+        ExecutorService svc = Executors.newFixedThreadPool(4);
+        for (final PluginHistory p : new ArrayList<PluginHistory>(r.listHudsonPlugins()).subList(0,5)) {
+            svc.submit(new Runnable() {
+                public void run() {
+                    try {
+                        System.out.println(p.artifactId);
+                        discover(p.latest());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        // skip to the next plugin
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
+        svc.shutdown();
+        svc.awaitTermination(999, TimeUnit.DAYS);
 
         JSONObject all = new JSONObject();
         for (Family f : families.values()) {
+            if (f.definition==null)     continue;   // skip undefined extension points
             JSONObject o = new JSONObject();
 
             o.put("javadoc",f.definition.getJavadoc());
@@ -70,24 +83,26 @@ public class ExtensionPointListGenerator {
             all.put(f.getName(),o);
         }
 
-        FileUtils.writeStringToFile(new File("extension-points.json"),all.toString(2));
+        FileUtils.writeStringToFile(new File("extension-points.json"), all.toString(2));
     }
 
     private void discover(MavenArtifact a) throws IOException, InterruptedException {
         for (ExtensionImpl e : new ExtensionpointsExtractor(a).extract()) {
-            System.out.printf("Found %s as %s\n",
-                    e.implementation.getQualifiedName(),
-                    e.extensionPoint.getQualifiedName());
+            synchronized (families) {
+                System.out.printf("Found %s as %s\n",
+                        e.implementation.getQualifiedName(),
+                        e.extensionPoint.getQualifiedName());
 
-            Name key = e.extensionPoint.getQualifiedName();
-            Family f = families.get(key);
-            if (f==null)    families.put(key,f=new Family());
+                Name key = e.extensionPoint.getQualifiedName();
+                Family f = families.get(key);
+                if (f==null)    families.put(key,f=new Family());
 
-            if (e.isDefinition()) {
-                assert f.definition==null;
-                f.definition = e;
-            } else {
-                f.implementations.add(e);
+                if (e.isDefinition()) {
+                    assert f.definition==null;
+                    f.definition = e;
+                } else {
+                    f.implementations.add(e);
+                }
             }
         }
     }
