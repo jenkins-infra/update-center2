@@ -41,6 +41,19 @@ public class HudsonWar extends MavenArtifact {
         return new URL("http://updates.jenkins-ci.org/download/war/"+version+"/"+ getFileName());
     }
 
+    /**
+     * Returns the Maven artifact representing the correpsonding core jar file.
+     */
+    public MavenArtifact getCoreArtifact() {
+        return new MavenArtifact(repository,new ArtifactInfo(
+                artifact.repository,
+                artifact.groupId,
+                artifact.artifactId.replace("war","core"),
+                artifact.version,
+                artifact.classifier
+        ));
+    }
+
     public String getFileName() {
         String fileName;
         if (new VersionNumber(version).compareTo(MavenRepositoryImpl.CUT_OFF)<=0)

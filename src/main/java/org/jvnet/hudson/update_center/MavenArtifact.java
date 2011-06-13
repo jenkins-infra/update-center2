@@ -191,4 +191,8 @@ public class MavenArtifact {
     public String toString() {
         return artifact.toString();
     }
+
+    public String getGavId() {
+        return artifact.groupId+':'+artifact.artifactId+':'+artifact.version;
+    }
 }
