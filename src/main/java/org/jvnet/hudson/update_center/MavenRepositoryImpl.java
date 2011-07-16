@@ -78,6 +78,7 @@ public class MavenRepositoryImpl extends MavenRepository {
     protected ArtifactRepository local;
     protected ArtifactRepositoryFactory arf;
     private PlexusContainer plexus;
+    private Integer maxPlugins;
 
     public MavenRepositoryImpl() throws Exception {
         ClassWorld classWorld = new ClassWorld( "plexus.core", MavenRepositoryImpl.class.getClassLoader() );
@@ -99,6 +100,10 @@ public class MavenRepositoryImpl extends MavenRepository {
         local = arf.createArtifactRepository("local",
                 new File(new File(System.getProperty("user.home")), ".m2/repository").toURI().toURL().toExternalForm(),
                 new DefaultRepositoryLayout(), POLICY, POLICY);
+    }
+
+    public void setMaxPlugins(Integer maxPlugins) {
+        this.maxPlugins = maxPlugins;
     }
 
     /**
@@ -171,7 +176,7 @@ public class MavenRepositoryImpl extends MavenRepository {
 
     protected File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException {
         Artifact artifact = af.createArtifactWithClassifier(a.groupId, a.artifactId, a.version, type, classifier);
-        ar.resolve(artifact,remoteRepositories,local);
+        ar.resolve(artifact, remoteRepositories, local);
         return artifact.getFile();
     }
 
@@ -196,8 +201,16 @@ public class MavenRepositoryImpl extends MavenRepository {
             p.addArtifact(createHpiArtifact(a, p));
             p.groupId.add(a.groupId);
         }
+        return reduceToMaxPluginsIfSpecified(plugins.values());
+    }
 
-        return plugins.values();
+    private Collection<PluginHistory> reduceToMaxPluginsIfSpecified(Collection<PluginHistory> values) {
+        if (maxPlugins == null) {
+            return values;
+        }
+        System.out.println("Limiting the number of plugins handled to " + maxPlugins);
+        List<PluginHistory> result = new ArrayList<PluginHistory>(values);
+        return result.subList(0, maxPlugins);
     }
 
     public TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException {

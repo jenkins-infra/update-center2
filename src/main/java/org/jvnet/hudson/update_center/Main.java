@@ -102,6 +102,9 @@ public class Main {
     @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
     public String id;
 
+    @Option(name="-maxPlugins",usage="For testing purposes. Limit the number of plugins managed to the specified number.")
+    public Integer maxPlugins;
+
     @Option(name="-connectionCheckUrl",
             usage="Specify an URL of the 'always up' server for performing connection check.")
     public String connectionCheckUrl;
@@ -203,7 +206,7 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance();
+        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance(maxPlugins);
         if (cap!=null)
             repo = new VersionCappedMavenRepository(repo,new VersionNumber(cap));
         return repo;

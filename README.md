@@ -64,6 +64,6 @@ If you want to run the generator from within your development environment,
 you can try to use the appassembler plugin as described below. The exec:java plugin won't work.
 
     # to generate the files in a standard layout
-    # warning this may take quite a bit of time!
+    # warning this may take quite a bit of time, so you might want to add the -maxPlugins 1 option
     mvn package appassembler:assemble
     sh target/appassembler/bin/app -id com.example.jenkins -www www

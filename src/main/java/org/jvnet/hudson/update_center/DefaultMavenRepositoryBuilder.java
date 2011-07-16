@@ -42,11 +42,25 @@ public class DefaultMavenRepositoryBuilder {
         return this;
     }
 
+    private DefaultMavenRepositoryBuilder withMaxPlugins(Integer maxPlugins) {
+        instance.setMaxPlugins(maxPlugins);
+        return this;
+    }
+
     public MavenRepository getInstance() {
         return instance;
     }
 
+    /**
+     * @param maxPlugins can be null.
+     * @return
+     * @throws Exception
+     */
+    public static MavenRepositoryImpl createStandardInstance(Integer maxPlugins) throws Exception {
+        return new DefaultMavenRepositoryBuilder().withRemoteRepositories().withMaxPlugins(maxPlugins).instance;
+    }
+
     public static MavenRepositoryImpl createStandardInstance() throws Exception {
-        return new DefaultMavenRepositoryBuilder().withRemoteRepositories().instance;
+        return createStandardInstance(null);
     }
 }
