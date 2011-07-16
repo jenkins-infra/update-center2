@@ -160,7 +160,7 @@ public class MavenArtifact {
         return timestamp;
     }
 
-    private Manifest getManifest() throws IOException {
+    public Manifest getManifest() throws IOException {
         if (manifest==null) {
             File f = resolve();
             try {

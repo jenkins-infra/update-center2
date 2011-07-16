@@ -44,7 +44,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.security.DigestOutputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -176,11 +175,7 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepositoryImpl r = new MavenRepositoryImpl();
-        r.addRemoteRepository("java.net2",
-                new URL("http://updates.jenkins-ci.org/.index/nexus-maven-repository-index.zip"),
-                new URL("http://maven.glassfish.org/content/groups/public/"));
-        return r;
+        return DefaultMavenRepositoryBuilder.createStandardInstance();
     }
 
     /**
