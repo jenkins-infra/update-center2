@@ -90,6 +90,9 @@ public class Main {
     @Option(name="-index.html",usage="Update the version number of the latest jenkins.war in jenkins-ci.org/index.html")
     public File indexHtml = null;
 
+    @Option(name="-latestCore.txt",usage="Update the version number of the latest jenkins.war in latestCore.txt")
+    public File latestCoreTxt = null;
+
     @Option(name="-key",usage="Private key to sign the update center. Must be used in conjunction with -certificate.")
     public File privateKey = null;
 
@@ -138,6 +141,7 @@ public class Main {
         htaccess = new File(www,"latest/.htaccess");
         indexHtml = new File(www,"index.html");
         releaseHistory = new File(www,"release-history.json");
+        latestCoreTxt = new File(www,"latestCore.txt");
     }
 
     public void run() throws Exception {
@@ -457,6 +461,9 @@ public class Main {
         redirect.printf("Redirect 302 /latest/debian/jenkins.deb http://pkg.jenkins-ci.org/debian/binary/jenkins_%s_all.deb\n", latest.getVersion());
         redirect.printf("Redirect 302 /latest/redhat/jenkins.rpm http://pkg.jenkins-ci.org/redhat/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
         redirect.printf("Redirect 302 /latest/opensuse/jenkins.rpm http://pkg.jenkins-ci.org/opensuse/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
+
+        if (latestCoreTxt !=null)
+            writeToFile(latest.getVersion().toString(), latestCoreTxt);
 
         if (download!=null) {
             // build the download server layout

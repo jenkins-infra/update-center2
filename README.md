@@ -14,6 +14,7 @@ The generator can:
 * generate a static navigation site for the update center site including
     * index.html files for the core and the plugins. Each index.html points to the latest release and all known versions identified by their number
     * .htaccess files containing 302 redirects for managing latest versions of the core and the plugins
+    * a txt file containing the latest version of the core
     * json files:
         * the core release history
         * the plugins release history
