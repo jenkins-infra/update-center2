@@ -45,7 +45,7 @@
 
   <properties>
     <keyName>${project.basedir}/test</keyName>
-    <args4j.version>2.0.11</args4.version>
+    <args4j.version>2.0.16</args4j.version>
   </properties>
 
   <dependencies>
