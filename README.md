@@ -10,6 +10,7 @@ The generator
 -------------
 
 The generator can:
+
 * generate a static navigation site for the update center site including
     * index.html files for the core and the plugins. Each index.html points to the latest release and all known versions identified by their number
     * .htaccess files containing 302 redirects for managing latest versions of the core and the plugins
@@ -21,10 +22,12 @@ The generator can:
 * sign the json files
 
 Extra features:
+
 * allow to blacklist plugins to ignore. See src/main/resources/artifact-ignores.properties
 * temporary override of the plugins wiki page. src/main/resources/wiki-overrides.properties
 
-The generator pulls information from
+The generator pulls information from:
+
 * a nexus index site
 * remote and local maven repositories
 * confluence
