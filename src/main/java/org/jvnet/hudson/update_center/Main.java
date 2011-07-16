@@ -109,6 +109,8 @@ public class Main {
     @Option(name="-cap",usage="Cap the version number and only report data that's compatible with ")
     public String cap = null;
 
+    public static final String EOL = System.getProperty("line.separator");
+
     public static void main(String[] args) throws Exception {
         System.exit(new Main().run(args));
     }
@@ -119,10 +121,7 @@ public class Main {
             p.parseArgument(args);
 
             if (www!=null) {
-                output = new File(www,"update-center.json");
-                htaccess = new File(www,"latest/.htaccess");
-                indexHtml = new File(www,"index.html");
-                releaseHistory = new File(www,"release-history.json");
+                prepareStandardDirectoryLayout();
             }
 
             run();
@@ -134,16 +133,41 @@ public class Main {
         }
     }
 
+    private void prepareStandardDirectoryLayout() {
+        output = new File(www,"update-center.json");
+        htaccess = new File(www,"latest/.htaccess");
+        indexHtml = new File(www,"index.html");
+        releaseHistory = new File(www,"release-history.json");
+    }
+
     public void run() throws Exception {
 
         MavenRepository repo = createRepository();
-        if (cap!=null)
-            repo = new VersionCappedMavenRepository(repo,new VersionNumber(cap));
 
+        PrintWriter latestRedirect = createHtaccessWriter();
+
+        JSONObject ucRoot = buildUpdateCenterJson(repo, latestRedirect);
+        String uc = updateCenterPostCallJson(ucRoot);
+        writeToFile(uc, output);
+
+        JSONObject rhRoot = buildFullReleaseHistory(repo);
+        String rh = prettyPrintJson(rhRoot);
+        writeToFile(rh, releaseHistory);
+
+        latestRedirect.close();
+    }
+
+    String updateCenterPostCallJson(JSONObject ucRoot) {
+        return "updateCenter.post(" + EOL + prettyPrintJson(ucRoot) + EOL + ");";
+    }
+
+    private PrintWriter createHtaccessWriter() throws IOException {
         File p = htaccess.getParentFile();
         if (p!=null)        p.mkdirs();
-        PrintWriter latestRedirect = new PrintWriter(new FileWriter(htaccess), true);
+        return new PrintWriter(new FileWriter(htaccess), true);
+    }
 
+    private JSONObject buildUpdateCenterJson(MavenRepository repo, PrintWriter latestRedirect) throws Exception {
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
         JSONObject core = buildCore(repo, latestRedirect);
@@ -161,21 +185,24 @@ public class Main {
                 throw new Exception("private key and certificate must be both specified");
         }
 
-        PrintWriter pw = new PrintWriter(new FileWriter(output));
-        pw.println("updateCenter.post(");
-        pw.println(prettyPrint?root.toString(2):root.toString());
-        pw.println(");");
-        pw.close();
-        JSONObject rhRoot = new JSONObject();
-        rhRoot.put("releaseHistory", buildReleaseHistory(repo));
-        PrintWriter rhpw = new PrintWriter(new FileWriter(releaseHistory));
-        rhpw.println(prettyPrint?rhRoot.toString(2):rhRoot.toString());
+        return root;
+    }
+
+    private static void writeToFile(String string, final File file) throws IOException {
+        PrintWriter rhpw = new PrintWriter(new FileWriter(file));
+        rhpw.println(string);
         rhpw.close();
-        latestRedirect.close();
+    }
+
+    private String prettyPrintJson(JSONObject json) {
+        return prettyPrint? json.toString(2): json.toString();
     }
 
     protected MavenRepository createRepository() throws Exception {
-        return DefaultMavenRepositoryBuilder.createStandardInstance();
+        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance();
+        if (cap!=null)
+            repo = new VersionCappedMavenRepository(repo,new VersionNumber(cap));
+        return repo;
     }
 
     /**
@@ -335,8 +362,14 @@ public class Main {
 
     /**
      * Build JSON for the release history list.
-     * @param repository
+     * @param repo
      */
+    protected JSONObject buildFullReleaseHistory(MavenRepository repo) throws Exception {
+        JSONObject rhRoot = new JSONObject();
+        rhRoot.put("releaseHistory", buildReleaseHistory(repo));
+        return rhRoot;
+    }
+
     protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
         ConfluencePluginList cpl = new ConfluencePluginList();
 
@@ -409,7 +442,8 @@ public class Main {
     }
 
     /**
-     * Build JSON for the core Jenkins.
+     * Identify the latest core, populates the htaccess redirect file, optionally download the core wars and build the index.html
+     * @return the JSON for the core Jenkins
      */
     protected JSONObject buildCore(MavenRepository repository, PrintWriter redirect) throws Exception {
         TreeMap<VersionNumber,HudsonWar> wars = repository.getHudsonWar();
