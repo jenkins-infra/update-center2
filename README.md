@@ -39,18 +39,19 @@ of [the arg4js annotated Main class](blob/master/src/main/java/org/jvnet/hudson/
 Standard www layout (without hpis and wars)
 -------------------------------------------
 
+    www/latestCore.txt
     www/release-history.json
     www/update-center.json
-    www/latest
+    www/latest/
     www/latest/.htaccess
     www/download
-    www/download/plugins
-    www/download/plugins/checkstyle
+    www/download/plugins/
+    www/download/plugins/checkstyle/
     www/download/plugins/checkstyle/index.html
-    www/download/plugins/cccc
+    www/download/plugins/cccc/
     www/download/plugins/cccc/index.html
     [...]
-    www/download/war
+    www/download/war/
     www/download/war/index.html
 
 Running the generator
