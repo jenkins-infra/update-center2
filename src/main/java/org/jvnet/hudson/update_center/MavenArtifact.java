@@ -24,13 +24,17 @@
 package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONObject;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -113,6 +117,24 @@ public class MavenArtifact {
         }
     }
 
+    /**
+     * Computes the SHA1 signature of the file.
+     */
+    public String getDigest() throws IOException {
+        try {
+            MessageDigest sig = MessageDigest.getInstance("SHA1");
+            FileInputStream fin = new FileInputStream(resolve());
+            byte[] buf = new byte[2048];
+            int len;
+            while ((len=fin.read(buf,0,buf.length))>=0)
+                sig.update(buf,0,len);
+
+            return new String(Base64.encodeBase64(sig.digest()));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException(e);
+        }
+    }
+
     public JSONObject toJSON(String name) throws IOException {
         JSONObject o = new JSONObject();
         o.put("name", name);
@@ -120,6 +142,7 @@ public class MavenArtifact {
 
         o.put("url", getURL().toExternalForm());
         o.put("buildDate", getTimestampAsString());
+        o.put("sha1",getDigest());
 
         return o;
     }
@@ -160,7 +183,7 @@ public class MavenArtifact {
         return timestamp;
     }
 
-    private Manifest getManifest() throws IOException {
+    public Manifest getManifest() throws IOException {
         if (manifest==null) {
             File f = resolve();
             try {

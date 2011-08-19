@@ -88,7 +88,7 @@ public class ConfluencePluginList {
         pluginArtifactId = pluginArtifactId.toLowerCase();
 
         String nearest = EditDistance.findNearest(pluginArtifactId, normalizedTitles);
-        if(EditDistance.editDistance(nearest,pluginArtifactId)<4) {
+        if (EditDistance.editDistance(nearest,pluginArtifactId) <= 1) {
             System.out.println("** No wiki page specified.. picking one with similar name."
                                + "\nUsing '"+nearest+"' for "+pluginArtifactId);
             return service.getPage("","JENKINS",children.get(nearest).getTitle());

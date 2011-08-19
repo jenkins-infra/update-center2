@@ -143,6 +143,12 @@ public class HPI extends MavenArtifact {
         return r;
     }
 
+    boolean isEqualsTo(String groupId, String artifactId, String version) {
+        return artifact.artifactId.equals(artifactId)
+            && artifact.groupId.equals(groupId)
+            && artifact.version.equals(version);
+    }
+
     public static class Dependency {
         public final String name;
         public final String version;

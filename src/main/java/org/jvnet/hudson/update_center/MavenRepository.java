@@ -54,6 +54,23 @@ public abstract class MavenRepository {
     }
 
     /**
+     * find the HPI for the specified plugin
+     * @return the found HPI or null
+     */
+    public HPI findPlugin(String groupId, String artifactId, String version) throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
+        Collection<PluginHistory> all = listHudsonPlugins();
+
+        for (PluginHistory p : all) {
+            for (HPI h : p.artifacts.values()) {
+                if (h.isEqualsTo(groupId, artifactId, version))
+                  return h;
+            }
+        }
+        return null;
+    }
+
+
+    /**
      * Discover all hudson.war versions.
      */
     public abstract TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException;
