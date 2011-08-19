@@ -19,7 +19,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>org.jvnet.hudson.update_center.Main</mainClass>
+              <mainClass>${main.class}}</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -40,11 +40,27 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.1.1</version>
+        <configuration>
+          <programs>
+            <program>
+              <mainClass>${main.class}</mainClass>
+              <name>app</name>
+            </program>
+          </programs>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
   <properties>
     <keyName>${project.basedir}/test</keyName>
+    <args4j.version>2.0.16</args4j.version>
+    <main.class>org.jvnet.hudson.update_center.Main</main.class>
   </properties>
 
   <dependencies>
@@ -86,7 +102,7 @@
     <dependency>
       <groupId>args4j</groupId>
       <artifactId>args4j</artifactId>
-      <version>2.0.11</version>
+      <version>${args4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
@@ -131,7 +147,7 @@
       <url>http://maven.glassfish.org/content/groups/public/</url>
     </repository>
   </repositories>
-
+  
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/backend-update-center2.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/backend-update-center2.git</developerConnection>
