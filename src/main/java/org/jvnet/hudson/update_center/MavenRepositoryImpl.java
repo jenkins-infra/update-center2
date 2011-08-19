@@ -43,6 +43,7 @@ import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.ClassWorld;
+import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.sonatype.nexus.index.ArtifactInfo;
 import org.sonatype.nexus.index.FlatSearchRequest;
@@ -77,13 +78,18 @@ public class MavenRepositoryImpl extends MavenRepository {
     protected ArtifactRepository local;
     protected ArtifactRepositoryFactory arf;
     private PlexusContainer plexus;
+    private Integer maxPlugins;
 
     public MavenRepositoryImpl() throws Exception {
         ClassWorld classWorld = new ClassWorld( "plexus.core", MavenRepositoryImpl.class.getClassLoader() );
         ContainerConfiguration configuration = new DefaultContainerConfiguration().setClassWorld( classWorld );
         plexus = new DefaultPlexusContainer( configuration );
-        plexus.getComponentDescriptor(ArtifactTransformationManager.class,
-                ArtifactTransformationManager.class.getName(),"default").setImplementationClass(DefaultArtifactTransformationManager.class);
+        ComponentDescriptor<ArtifactTransformationManager> componentDescriptor = plexus.getComponentDescriptor(ArtifactTransformationManager.class,
+            ArtifactTransformationManager.class.getName(), "default");
+        if (componentDescriptor == null) {
+            throw new IllegalArgumentException("Unable to find maven default ArtifactTransformationManager component. You might get this if you run the program from within the exec:java mojo.");
+        }
+        componentDescriptor.setImplementationClass(DefaultArtifactTransformationManager.class);
 
         indexer = plexus.lookup( NexusIndexer.class );
 
@@ -94,6 +100,10 @@ public class MavenRepositoryImpl extends MavenRepository {
         local = arf.createArtifactRepository("local",
                 new File(new File(System.getProperty("user.home")), ".m2/repository").toURI().toURL().toExternalForm(),
                 new DefaultRepositoryLayout(), POLICY, POLICY);
+    }
+
+    public void setMaxPlugins(Integer maxPlugins) {
+        this.maxPlugins = maxPlugins;
     }
 
     /**
@@ -166,7 +176,7 @@ public class MavenRepositoryImpl extends MavenRepository {
 
     protected File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException {
         Artifact artifact = af.createArtifactWithClassifier(a.groupId, a.artifactId, a.version, type, classifier);
-        ar.resolve(artifact,remoteRepositories,local);
+        ar.resolve(artifact, remoteRepositories, local);
         return artifact.getFile();
     }
 
@@ -191,8 +201,16 @@ public class MavenRepositoryImpl extends MavenRepository {
             p.addArtifact(createHpiArtifact(a, p));
             p.groupId.add(a.groupId);
         }
+        return reduceToMaxPluginsIfSpecified(plugins.values());
+    }
 
-        return plugins.values();
+    private Collection<PluginHistory> reduceToMaxPluginsIfSpecified(Collection<PluginHistory> values) {
+        if (maxPlugins == null) {
+            return values;
+        }
+        System.out.println("Limiting the number of plugins handled to " + maxPlugins);
+        List<PluginHistory> result = new ArrayList<PluginHistory>(values);
+        return result.subList(0, maxPlugins);
     }
 
     public TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException {
