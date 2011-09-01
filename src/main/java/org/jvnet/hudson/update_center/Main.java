@@ -217,7 +217,7 @@ public class Main {
      * Because it mutates the signed object itself, validating the signature needs a bit of work,
      * but this enables a signature to be added transparently.
      */
-    private void sign(JSONObject o) throws GeneralSecurityException, IOException {
+    protected void sign(JSONObject o) throws GeneralSecurityException, IOException {
         JSONObject sign = new JSONObject();
 
 
@@ -265,7 +265,7 @@ public class Main {
     /**
      * Loads a certificate chain and makes sure it's valid.
      */
-    private List<X509Certificate> getCertificateChain() throws FileNotFoundException, GeneralSecurityException {
+    protected List<X509Certificate> getCertificateChain() throws FileNotFoundException, GeneralSecurityException {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         List<X509Certificate> certs = new ArrayList<X509Certificate>();
         for (File f : certificates) {
