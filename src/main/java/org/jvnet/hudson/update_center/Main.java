@@ -197,7 +197,7 @@ public class Main {
 
     private static void writeToFile(String string, final File file) throws IOException {
         PrintWriter rhpw = new PrintWriter(new FileWriter(file));
-        rhpw.println(string);
+        rhpw.print(string);
         rhpw.close();
     }
 
