@@ -250,12 +250,7 @@ public class Main {
             raw = new FileOutputStream(canonical);
         }
 
-        OutputStreamWriter writer = new OutputStreamWriter(new TeeOutputStream(new TeeOutputStream(dos, sos), new TeeOutputStream(raw, vos)), "UTF-8");
-        try {
-            o.writeCanonical(writer);
-        } finally {
-            writer.close();
-        }
+        o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(new TeeOutputStream(dos,sos),new TeeOutputStream(raw,vos)),"UTF-8")).close();
 
         // digest
         byte[] digest = sha1.digest();
