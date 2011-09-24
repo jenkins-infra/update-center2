@@ -39,9 +39,11 @@ import org.kohsuke.args4j.Option;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.security.DigestOutputStream;
@@ -98,6 +100,10 @@ public class Main {
 
     @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option")
     public List<File> certificates = new ArrayList<File>();
+
+    // debug option. spits out the canonical update center file used to compute the signature
+    @Option(name="-canonical")
+    public File canonical = null;
 
     @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
     public String id;
@@ -239,7 +245,17 @@ public class Main {
         verifier.initVerify(signer.getPublicKey());
         SignatureOutputStream vos = new SignatureOutputStream(verifier);
 
-        o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(new TeeOutputStream(dos,sos),vos),"UTF-8"));
+        OutputStream raw = new NullOutputStream();
+        if (canonical!=null) {
+            raw = new FileOutputStream(canonical);
+        }
+
+        OutputStreamWriter writer = new OutputStreamWriter(new TeeOutputStream(new TeeOutputStream(dos, sos), new TeeOutputStream(raw, vos)), "UTF-8");
+        try {
+            o.writeCanonical(writer);
+        } finally {
+            writer.close();
+        }
 
         // digest
         byte[] digest = sha1.digest();
