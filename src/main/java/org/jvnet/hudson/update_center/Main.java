@@ -226,39 +226,25 @@ public class Main {
     protected void sign(JSONObject o) throws GeneralSecurityException, IOException {
         JSONObject sign = new JSONObject();
 
-
         List<X509Certificate> certs = getCertificateChain();
         X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
 
-        // this is for computing a digest
-        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-        DigestOutputStream dos = new DigestOutputStream(new NullOutputStream(),sha1);
-
-        // this is for computing a signature
         PrivateKey key = ((KeyPair)new PEMReader(new FileReader(privateKey)).readObject()).getPrivate();
-        Signature sig = Signature.getInstance("SHA1withRSA");
-        sig.initSign(key);
-        SignatureOutputStream sos = new SignatureOutputStream(sig);
 
-        // this is for verifying that signature validates
-        Signature verifier = Signature.getInstance("SHA1withRSA");
-        verifier.initVerify(signer.getPublicKey());
-        SignatureOutputStream vos = new SignatureOutputStream(verifier);
+        // first, backward compatible signature for <1.433 Jenkins that forgets to flush the stream.
+        // we generate this in the original names that those Jenkins understands.
+        SignatureGenerator sg = new SignatureGenerator(signer, key);
+        o.writeCanonical(new OutputStreamWriter(sg.getOut(),"UTF-8"));
+        sg.addRecord(sign,"");
 
+        // then the correct signature, into names that don't collide.
         OutputStream raw = new NullOutputStream();
         if (canonical!=null) {
             raw = new FileOutputStream(canonical);
         }
-
-        o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(new TeeOutputStream(dos,sos),new TeeOutputStream(raw,vos)),"UTF-8")).close();
-
-        // digest
-        byte[] digest = sha1.digest();
-        sign.put("digest",new String(Base64.encodeBase64(digest)));
-
-        // signature
-        byte[] s = sig.sign();
-        sign.put("signature",new String(Base64.encodeBase64(s)));
+        sg = new SignatureGenerator(signer, key);
+        o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(sg.getOut(),raw),"UTF-8")).close();
+        sg.addRecord(sign,"correct_");
 
         // and certificate chain
         JSONArray a = new JSONArray();
@@ -266,11 +252,53 @@ public class Main {
             a.add(new String(Base64.encodeBase64(cert.getEncoded())));
         sign.put("certificates",a);
 
-        // did the signature validate?
-        if (!verifier.verify(s))
-            throw new GeneralSecurityException("Signature failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
-
         o.put("signature",sign);
+    }
+
+    /**
+     * Generates a digest and signature. Can be only used once, and then it needs to be thrown away.
+     */
+    static class SignatureGenerator {
+        private final MessageDigest sha1;
+        private final Signature sig;
+        private final TeeOutputStream out;
+        private final Signature verifier;
+
+        SignatureGenerator(X509Certificate signer, PrivateKey key) throws GeneralSecurityException, IOException {
+            // this is for computing a digest
+            sha1 = MessageDigest.getInstance("SHA1");
+            DigestOutputStream dos = new DigestOutputStream(new NullOutputStream(), sha1);
+
+            // this is for computing a signature
+            sig = Signature.getInstance("SHA1withRSA");
+            sig.initSign(key);
+            SignatureOutputStream sos = new SignatureOutputStream(sig);
+
+            // this is for verifying that signature validates
+            verifier = Signature.getInstance("SHA1withRSA");
+            verifier.initVerify(signer.getPublicKey());
+            SignatureOutputStream vos = new SignatureOutputStream(verifier);
+
+            out = new TeeOutputStream(new TeeOutputStream(dos, sos), vos);
+        }
+
+        public TeeOutputStream getOut() {
+            return out;
+        }
+
+        public void addRecord(JSONObject sign, String prefix) throws GeneralSecurityException, IOException {
+            // digest
+            byte[] digest = sha1.digest();
+            sign.put(prefix+"digest",new String(Base64.encodeBase64(digest)));
+
+            // signature
+            byte[] s = sig.sign();
+            sign.put(prefix+"signature",new String(Base64.encodeBase64(s)));
+
+            // did the signature validate?
+            if (!verifier.verify(s))
+                throw new GeneralSecurityException("Signature failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
+        }
     }
 
     /**
