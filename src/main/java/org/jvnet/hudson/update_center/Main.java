@@ -38,7 +38,6 @@ import org.kohsuke.args4j.Option;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -52,6 +51,7 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.Signature;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
@@ -98,8 +98,11 @@ public class Main {
     @Option(name="-key",usage="Private key to sign the update center. Must be used in conjunction with -certificate.")
     public File privateKey = null;
 
-    @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option")
+    @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option. Specify additional -certificate options to pass in intermediate certificates, if any.")
     public List<File> certificates = new ArrayList<File>();
+
+    @Option(name="-root-certificate",usage="Additional root certificates")
+    public List<File> rootCA = new ArrayList<File>();
 
     // debug option. spits out the canonical update center file used to compute the signature
     @Option(name="-canonical")
@@ -304,17 +307,18 @@ public class Main {
     /**
      * Loads a certificate chain and makes sure it's valid.
      */
-    protected List<X509Certificate> getCertificateChain() throws FileNotFoundException, GeneralSecurityException {
+    protected List<X509Certificate> getCertificateChain() throws IOException, GeneralSecurityException {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         List<X509Certificate> certs = new ArrayList<X509Certificate>();
         for (File f : certificates) {
-            X509Certificate c = (X509Certificate) cf.generateCertificate(new FileInputStream(f));
-            c.checkValidity();
-            certs.add(c);
+            certs.add(loadCertificate(cf, f));
         }
         
         Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
         rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/hudson-community.cert")),null));
+        for (File f : rootCA) {
+            rootCAs.add(new TrustAnchor(loadCertificate(cf, f),null));
+        }
 
         try {
             CertificateUtil.validatePath(certs,rootCAs);
@@ -322,6 +326,17 @@ public class Main {
             e.printStackTrace();
         }
         return certs;
+    }
+
+    private X509Certificate loadCertificate(CertificateFactory cf, File f) throws CertificateException, IOException {
+        FileInputStream in = new FileInputStream(f);
+        try {
+            X509Certificate c = (X509Certificate) cf.generateCertificate(in);
+            c.checkValidity();
+            return c;
+        } finally {
+            in.close();
+        }
     }
 
     /**
