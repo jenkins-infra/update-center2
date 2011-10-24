@@ -23,6 +23,8 @@
  */
 package org.jvnet.hudson.update_center;
 
+import hudson.util.VersionNumber;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;

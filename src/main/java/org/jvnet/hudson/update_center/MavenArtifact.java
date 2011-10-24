@@ -23,6 +23,7 @@
  */
 package org.jvnet.hudson.update_center;
 
+import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;

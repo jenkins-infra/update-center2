@@ -23,6 +23,7 @@
  */
 package org.jvnet.hudson.update_center;
 
+import hudson.util.VersionNumber;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.net.URL;

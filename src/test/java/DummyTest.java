@@ -1,5 +1,5 @@
+import hudson.util.VersionNumber;
 import junit.framework.TestCase;
-import org.jvnet.hudson.update_center.VersionNumber;
 
 /**
  * @author Kohsuke Kawaguchi

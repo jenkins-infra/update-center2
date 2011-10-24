@@ -1,5 +1,6 @@
 package org.jvnet.hudson.update_center;
 
+import hudson.util.VersionNumber;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;

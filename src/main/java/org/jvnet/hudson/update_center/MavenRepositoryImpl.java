@@ -23,6 +23,7 @@
  */
 package org.jvnet.hudson.update_center;
 
+import hudson.util.VersionNumber;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.search.BooleanClause.Occur;
