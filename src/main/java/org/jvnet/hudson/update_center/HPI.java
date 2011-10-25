@@ -155,7 +155,7 @@ public class HPI extends MavenArtifact {
         public final String version;
         public final boolean optional;
 
-        Dependency(String token) {
+        public Dependency(String token) {
             this.optional = token.endsWith(OPTIONAL);
             if(optional)
                 token = token.substring(0, token.length()-OPTIONAL.length());
@@ -181,7 +181,7 @@ public class HPI extends MavenArtifact {
         public final String developerId;
         public final String email;
 
-        Developer(String name, String developerId, String email) {
+        public Developer(String name, String developerId, String email) {
             this.name = name;
             this.developerId = developerId;
             this.email = email;
