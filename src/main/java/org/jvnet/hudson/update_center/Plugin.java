@@ -333,6 +333,13 @@ public class Plugin {
             json.put("scm", scm);
         }
 
+        if (!json.has("excerpt")) {
+            // fall back to <description>, which is plain text but still better than nothing.
+            String description = plainText2html(selectSingleValue(pom, "/project/description"));
+            if (description!=null)
+                json.put("excerpt",description);
+        }
+
         HPI hpi = latest;
         json.put("requiredCore", hpi.getRequiredJenkinsVersion());
 
@@ -361,6 +368,10 @@ public class Plugin {
         json.put("developers", devs);
 
         return json;
+    }
+
+    private String plainText2html(String plainText) {
+        return plainText.replace("&","&amp;").replace("<","&lt;");
     }
 
     private static final Properties OVERRIDES = new Properties();
