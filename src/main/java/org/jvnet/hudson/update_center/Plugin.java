@@ -354,7 +354,9 @@ public class Plugin {
             for (HPI.Developer dev : devList)
                 devs.add(dev.toJSON());
         } else {
-            devs.add(new HPI.Developer("", latest.getBuiltBy(), "").toJSON());
+            String builtBy = latest.getBuiltBy();
+            if (builtBy!=null)
+                devs.add(new HPI.Developer("", builtBy, "").toJSON());
         }
         json.put("developers", devs);
 
