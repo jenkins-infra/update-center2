@@ -371,6 +371,9 @@ public class Plugin {
     }
 
     private String plainText2html(String plainText) {
+        if (plainText == null || plainText.length() == 0) {
+            return "";
+        }
         return plainText.replace("&","&amp;").replace("<","&lt;");
     }
 
