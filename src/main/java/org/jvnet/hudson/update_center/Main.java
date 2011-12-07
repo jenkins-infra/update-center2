@@ -348,6 +348,8 @@ public class Main {
     protected JSONObject buildPlugins(MavenRepository repository, PrintWriter redirect) throws Exception {
         ConfluencePluginList cpl = new ConfluencePluginList();
 
+        int total = 0;
+
         JSONObject plugins = new JSONObject();
         for( PluginHistory hpi : repository.listHudsonPlugins() ) {
             try {
@@ -377,12 +379,15 @@ public class Main {
 
                 if (www!=null)
                     buildIndex(new File(www,"download/plugins/"+hpi.artifactId),hpi.artifactId,hpi.artifacts.values(),permalink);
+
+                total++;
             } catch (IOException e) {
                 e.printStackTrace();
                 // move on to the next plugin
             }
         }
 
+        System.out.println("Total "+total+" plugins listed.");
         return plugins;
     }
 
