@@ -189,11 +189,11 @@ public class HPI extends MavenArtifact {
 
         public JSONObject toJSON() {
             JSONObject o = new JSONObject();
-            if (!name.equals(""))
+            if (has(name))
                 o.put("name", name);
-            if (!developerId.equals(""))
+            if (has(developerId))
                 o.put("developerId", developerId);
-            if (!email.equals(""))
+            if (has(email))
                 o.put("email", email);
 
             if (!o.isEmpty()) {
@@ -201,6 +201,10 @@ public class HPI extends MavenArtifact {
             } else {
                 return null;
             }
+        }
+
+        private boolean has(String s) {
+            return s!=null && s.length()>0;
         }
     }
 
