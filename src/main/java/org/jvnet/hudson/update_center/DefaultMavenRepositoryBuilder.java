@@ -38,7 +38,7 @@ public class DefaultMavenRepositoryBuilder {
     public DefaultMavenRepositoryBuilder withRemoteRepositories() throws IOException, UnsupportedExistingLuceneIndexException {
         instance.addRemoteRepository("java.net2",
                 new URL("http://updates.jenkins-ci.org/.index/nexus-maven-repository-index.zip"),
-                new URL("http://maven.glassfish.org/content/groups/public/"));
+                new URL("http://repo.jenkins-ci.org/public/"));
         return this;
     }
 

@@ -208,7 +208,7 @@ public class MavenArtifact {
      * Where to download from?
      */
     public URL getURL() throws MalformedURLException {
-        return new URL("maven.glassfish.org/content/groups/public/"+artifact.groupId.replace('.','/')+"/"+artifact.artifactId+"/"+artifact.version+"/"+artifact.artifactId+"-"+artifact.version+"."+artifact.packaging);
+        return new URL("repo.jenkins-ci.org/public/"+artifact.groupId.replace('.','/')+"/"+artifact.artifactId+"/"+artifact.version+"/"+artifact.artifactId+"-"+artifact.version+"."+artifact.packaging);
     }
 
     @Override
