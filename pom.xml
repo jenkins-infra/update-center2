@@ -7,7 +7,7 @@
   </parent>
   <artifactId>update-center2</artifactId>
   
-  <version>1.15-SNAPSHOT</version>
+  <version>1.15</version>
   <name>Update center generator for jenkins-ci.org</name>
   <description>Generates update center script</description>
 
