@@ -28,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -50,9 +51,16 @@ import org.sonatype.nexus.index.ArtifactInfo;
 import org.sonatype.nexus.index.FlatSearchRequest;
 import org.sonatype.nexus.index.FlatSearchResponse;
 import org.sonatype.nexus.index.NexusIndexer;
+import org.sonatype.nexus.index.context.DefaultIndexingContext;
+import org.sonatype.nexus.index.context.IndexUtils;
+import org.sonatype.nexus.index.context.NexusAnalyzer;
+import org.sonatype.nexus.index.context.NexusIndexWriter;
 import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
+import org.sonatype.nexus.index.updater.IndexDataReader;
+import org.sonatype.nexus.index.updater.IndexDataReader.IndexDataReadResult;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -130,16 +138,19 @@ public class MavenRepositoryImpl extends MavenRepository {
     }
 
     public void addRemoteRepository(String id, URL repository) throws IOException, UnsupportedExistingLuceneIndexException {
-        addRemoteRepository(id,new URL(repository,".index/nexus-maven-repository-index.zip"), repository);
+        addRemoteRepository(id,new URL(repository,".index/nexus-maven-repository-index.gz"), repository);
     }
 
     public void addRemoteRepository(String id, URL remoteIndex, URL repository) throws IOException, UnsupportedExistingLuceneIndexException {
-        addRemoteRepository(id,load(id,remoteIndex), repository);
+        addRemoteRepository(id,loadIndex(id,remoteIndex), repository);
     }
 
-    private static File load(String id, URL url) throws IOException {
+    /**
+     * Loads a remote repository index (.zip or .gz), convert it to Lucene index and return it.
+     */
+    private static File loadIndex(String id, URL url) throws IOException, UnsupportedExistingLuceneIndexException {
         File dir = new File(new File(System.getProperty("java.io.tmpdir")), "maven-index/" + id);
-        File zip = new File(dir,"index.zip");
+        File local = new File(dir,"index"+getExtension(url));
         File expanded = new File(dir,"expanded");
 
         URLConnection con = url.openConnection();
@@ -147,11 +158,11 @@ public class MavenRepositoryImpl extends MavenRepository {
             con.setRequestProperty("Authorization","Basic "+new sun.misc.BASE64Encoder().encode(url.getUserInfo().getBytes()));
         }
 
-        if (!expanded.exists() || !zip.exists() || zip.lastModified()!=con.getLastModified()) {
+        if (!expanded.exists() || !local.exists() || local.lastModified()!=con.getLastModified()) {
             System.out.println("Downloading "+url);
             // if the download fail in the middle, only leave a broken tmp file
             dir.mkdirs();
-            File tmp = new File(dir,"index.zi_");
+            File tmp = new File(dir,"index_"+getExtension(url));
             FileOutputStream o = new FileOutputStream(tmp);
             IOUtils.copy(con.getInputStream(), o);
             o.close();
@@ -160,19 +171,44 @@ public class MavenRepositoryImpl extends MavenRepository {
                 FileUtils.deleteDirectory(expanded);
             expanded.mkdirs();
 
-            Expand e = new Expand();
-            e.setSrc(tmp);
-            e.setDest(expanded);
-            e.execute();
+            if (url.toExternalForm().endsWith(".gz")) {
+                FSDirectory directory = FSDirectory.getDirectory(expanded);
+                NexusIndexWriter w = new NexusIndexWriter(directory, new NexusAnalyzer(), true);
+                FileInputStream in = new FileInputStream(tmp);
+                try {
+                    IndexDataReader dr = new IndexDataReader(in);
+                    IndexDataReadResult result = dr.readIndex(w,
+                            new DefaultIndexingContext(id,id,null,expanded,null,null,NexusIndexer.DEFAULT_INDEX,true));
+                } finally {
+                    IndexUtils.close(w);
+                    IOUtils.closeQuietly(in);
+                    directory.close();
+                }
+            } else
+            if (url.toExternalForm().endsWith(".zip")) {
+                Expand e = new Expand();
+                e.setSrc(tmp);
+                e.setDest(expanded);
+                e.execute();
+            } else {
+                throw new UnsupportedOperationException("Unsupported index format: "+url);
+            }
 
             // as a proof that the expansion was properly completed
-            tmp.renameTo(zip);
-            zip.setLastModified(con.getLastModified());
+            tmp.renameTo(local);
+            local.setLastModified(con.getLastModified());
         } else {
-            System.out.println("Reusing the locally cached "+url+" at "+zip);
+            System.out.println("Reusing the locally cached "+url+" at "+local);
         }
 
         return expanded;
+    }
+
+    private static String getExtension(URL url) {
+        String s = url.toExternalForm();
+        int idx = s.lastIndexOf('.');
+        if (idx<0)  return "";
+        else        return s.substring(idx);
     }
 
     protected File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException {
