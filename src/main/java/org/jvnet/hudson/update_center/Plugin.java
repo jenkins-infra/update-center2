@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,7 +106,16 @@ public class Plugin {
 
     public Plugin(PluginHistory hpi, ConfluencePluginList cpl) throws IOException {
         this.artifactId = hpi.artifactId;
-        List<HPI> versions = new ArrayList<HPI>(hpi.artifacts.values());
+        List<HPI> versions = new ArrayList<HPI>();
+        for (HPI h : hpi.artifacts.values()) {
+            try {
+                h.getManifest();
+                versions.add(h);
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Failed to resolve "+h+". Dropping this version.",e);
+            }
+        }
+        
         this.latest = versions.get(0);
         this.previous = versions.size()>1 ? versions.get(1) : null;
 
@@ -128,7 +139,7 @@ public class Plugin {
         return new SAXReader(factory);
     }
 
-    private static void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
+    private void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
         TreeMap<Long,HPI> artifactsByDate = new TreeMap<Long,HPI>();
         for (HPI h : artifacts)
             artifactsByDate.put(h.getTimestamp(), h);
@@ -386,4 +397,6 @@ public class Plugin {
             throw new Error(e);
         }
     }
+
+    private static final Logger LOGGER = Logger.getLogger(Plugin.class.getName());
 }
