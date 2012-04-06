@@ -119,6 +119,11 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency><!-- this version doesn't have ugly snapshot Google collection dependency -->
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-container-default</artifactId>
+      <version>1.5.5</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.maven.wagon</groupId>
       <artifactId>wagon-http</artifactId>
