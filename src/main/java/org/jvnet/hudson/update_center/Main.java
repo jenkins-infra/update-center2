@@ -217,7 +217,9 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance(maxPlugins);
+        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance();
+        if (maxPlugins!=null)
+            repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (cap!=null)
             repo = new VersionCappedMavenRepository(repo,new VersionNumber(cap));
         return repo;
