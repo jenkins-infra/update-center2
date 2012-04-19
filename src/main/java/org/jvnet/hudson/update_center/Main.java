@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import static java.security.Security.addProvider;
 
@@ -312,7 +313,9 @@ public class Main {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         List<X509Certificate> certs = new ArrayList<X509Certificate>();
         for (File f : certificates) {
-            certs.add(loadCertificate(cf, f));
+            X509Certificate c = loadCertificate(cf, f);
+            c.checkValidity(new Date(System.currentTimeMillis()+TimeUnit.DAYS.toMicros(30)));
+            certs.add(c);
         }
         
         Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
