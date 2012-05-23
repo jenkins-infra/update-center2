@@ -88,6 +88,7 @@ public class MavenRepositoryImpl extends MavenRepository {
     protected ArtifactRepositoryFactory arf;
     private PlexusContainer plexus;
     private Integer maxPlugins;
+    private boolean offlineIndex;
 
     public MavenRepositoryImpl() throws Exception {
         ClassWorld classWorld = new ClassWorld( "plexus.core", MavenRepositoryImpl.class.getClassLoader() );
@@ -113,6 +114,14 @@ public class MavenRepositoryImpl extends MavenRepository {
 
     public void setMaxPlugins(Integer maxPlugins) {
         this.maxPlugins = maxPlugins;
+    }
+
+    /**
+     * Set to true to force reusing locally cached index and not download new versions.
+     * Useful for debugging.
+     */
+    public void setOfflineIndex(boolean offline) {
+        this.offlineIndex = offline;
     }
 
     /**
@@ -148,7 +157,7 @@ public class MavenRepositoryImpl extends MavenRepository {
     /**
      * Loads a remote repository index (.zip or .gz), convert it to Lucene index and return it.
      */
-    private static File loadIndex(String id, URL url) throws IOException, UnsupportedExistingLuceneIndexException {
+    private File loadIndex(String id, URL url) throws IOException, UnsupportedExistingLuceneIndexException {
         File dir = new File(new File(System.getProperty("java.io.tmpdir")), "maven-index/" + id);
         File local = new File(dir,"index"+getExtension(url));
         File expanded = new File(dir,"expanded");
@@ -158,7 +167,7 @@ public class MavenRepositoryImpl extends MavenRepository {
             con.setRequestProperty("Authorization","Basic "+new sun.misc.BASE64Encoder().encode(url.getUserInfo().getBytes()));
         }
 
-        if (!expanded.exists() || !local.exists() || local.lastModified()!=con.getLastModified()) {
+        if (!expanded.exists() || !local.exists() || (local.lastModified()!=con.getLastModified() && !offlineIndex)) {
             System.out.println("Downloading "+url);
             // if the download fail in the middle, only leave a broken tmp file
             dir.mkdirs();
