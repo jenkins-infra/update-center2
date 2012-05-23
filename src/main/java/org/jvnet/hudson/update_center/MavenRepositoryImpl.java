@@ -172,6 +172,7 @@ public class MavenRepositoryImpl extends MavenRepository {
             expanded.mkdirs();
 
             if (url.toExternalForm().endsWith(".gz")) {
+                System.out.println("Reconstructing index from "+url);
                 FSDirectory directory = FSDirectory.getDirectory(expanded);
                 NexusIndexWriter w = new NexusIndexWriter(directory, new NexusAnalyzer(), true);
                 FileInputStream in = new FileInputStream(tmp);
