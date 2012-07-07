@@ -34,7 +34,7 @@ The generator pulls information from:
 * confluence
 
 The generator doesn't have a full usage page yet. Meanwhile you can read the code
-of [the arg4js annotated Main class](blob/master/src/main/java/org/jvnet/hudson/update_center/Main.java "the Main class")
+of [the arg4js annotated Main class](backend-update-center2/blob/master/src/main/java/org/jvnet/hudson/update_center/Main.java "the Main class")
 
 Standard www layout (without hpis and wars)
 -------------------------------------------
