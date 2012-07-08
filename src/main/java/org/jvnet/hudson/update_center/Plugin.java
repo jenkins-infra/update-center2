@@ -377,6 +377,7 @@ public class Plugin {
                 devs.add(new HPI.Developer("", builtBy, "").toJSON());
         }
         json.put("developers", devs);
+        json.put("gav", hpi.getGavId());
 
         return json;
     }
