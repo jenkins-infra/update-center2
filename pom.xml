@@ -59,7 +59,7 @@
 
   <properties>
     <keyName>${project.basedir}/test</keyName>
-    <args4j.version>2.0.16</args4j.version>
+    <args4j.version>2.0.19</args4j.version>
     <main.class>org.jvnet.hudson.update_center.Main</main.class>
   </properties>
 
