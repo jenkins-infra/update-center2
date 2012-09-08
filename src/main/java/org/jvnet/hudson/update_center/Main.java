@@ -26,7 +26,6 @@ package org.jvnet.hudson.update_center;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -44,8 +43,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import static java.security.Security.*;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -91,7 +88,7 @@ public class Main {
     @Option(name="-cap",usage="Cap the version number and only report data that's compatible with ")
     public String cap = null;
 
-    public Signer signer;
+    public Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
 
