@@ -389,8 +389,4 @@ public class Main {
 
         return core;
     }
-
-    static {
-        addProvider(new BouncyCastleProvider());
-    }
 }

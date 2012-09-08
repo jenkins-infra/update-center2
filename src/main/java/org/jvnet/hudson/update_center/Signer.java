@@ -5,6 +5,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.TeeOutputStream;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.jvnet.hudson.crypto.CertificateUtil;
 import org.jvnet.hudson.crypto.SignatureOutputStream;
@@ -36,6 +37,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static java.security.Security.addProvider;
+
 /**
  * @author Kohsuke Kawaguchi
  */
@@ -59,7 +62,7 @@ public class Signer {
     public Signer configureFromEnvironment() throws CmdLineException {
         List<String> args = new ArrayList<String>();
 
-        QuotedStringTokenizer qst = new QuotedStringTokenizer(System.getenv("JENKINS_SIGNER"));
+        QuotedStringTokenizer qst = new QuotedStringTokenizer(System.getenv("JENKINS_SIGNER")," ");
         while (qst.hasMoreTokens()) {
             args.add(qst.nextToken());
         }
@@ -206,5 +209,9 @@ public class Signer {
         } finally {
             in.close();
         }
+    }
+
+    static {
+        addProvider(new BouncyCastleProvider());
     }
 }
