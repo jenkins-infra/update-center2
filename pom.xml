@@ -171,11 +171,11 @@
   <distributionManagement>
     <repository>
       <id>maven.jenkins-ci.org</id>
-      <url>http://maven.jenkins-ci.org:8082/content/repositories/releases</url>
+      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases</url>
     </repository>
     <snapshotRepository>
       <id>maven.jenkins-ci.org</id> 
-      <url>http://maven.jenkins-ci.org:8082/content/repositories/snapshots</url>
+      <url>http://maven.jenkins-ci.org:8081/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
 
