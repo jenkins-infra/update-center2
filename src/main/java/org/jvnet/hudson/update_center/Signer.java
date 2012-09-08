@@ -9,7 +9,9 @@ import org.bouncycastle.openssl.PEMReader;
 import org.jvnet.hudson.crypto.CertificateUtil;
 import org.jvnet.hudson.crypto.SignatureOutputStream;
 import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.mortbay.util.QuotedStringTokenizer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,19 +53,45 @@ public class Signer {
     @Option(name="-canonical")
     public File canonical = null;
 
-    public boolean isConfigured() throws Exception {
+    /**
+     * Parses JENKINS_SIGNER environment variable as the argument list and configure the instance.
+     */
+    public Signer configureFromEnvironment() throws CmdLineException {
+        List<String> args = new ArrayList<String>();
+
+        QuotedStringTokenizer qst = new QuotedStringTokenizer(System.getenv("JENKINS_SIGNER"));
+        while (qst.hasMoreTokens()) {
+            args.add(qst.nextToken());
+        }
+        new CmdLineParser(this).parseArgument(args);
+        return this;
+    }
+
+    /**
+     * Checks if the signer is properly configured to generate a signature
+     *
+     * @throws CmdLineException
+     *      If the configuration is partial and it's not clear whether the user intended to sign or not to sign.
+     */
+    public boolean isConfigured() throws CmdLineException {
         if(privateKey!=null && !certificates.isEmpty())
             return true;
         if (privateKey!=null || !certificates.isEmpty())
             throw new CmdLineException("private key and certificate must be both specified");
         return false;
     }
+
     /**
      * Generates a canonicalized JSON format of the given object, and put the signature in it.
      * Because it mutates the signed object itself, validating the signature needs a bit of work,
      * but this enables a signature to be added transparently.
+     *
+     * @return
+     *      The same value passed as the argument so that the method can be used like a filter.
      */
-    public void sign(JSONObject o) throws GeneralSecurityException, IOException {
+    public JSONObject sign(JSONObject o) throws GeneralSecurityException, IOException, CmdLineException {
+        if (!isConfigured())    return o;
+
         JSONObject sign = new JSONObject();
 
         List<X509Certificate> certs = getCertificateChain();
@@ -93,6 +121,8 @@ public class Signer {
         sign.put("certificates",a);
 
         o.put("signature",sign);
+
+        return o;
     }
 
     /**
