@@ -130,8 +130,8 @@ public class Main {
         PrintWriter latestRedirect = createHtaccessWriter();
 
         JSONObject ucRoot = buildUpdateCenterJson(repo, latestRedirect);
-        String uc = updateCenterPostCallJson(ucRoot);
-        writeToFile(uc, output);
+        writeToFile(updateCenterPostCallJson(ucRoot), output);
+        writeToFile(updateCenterPostMessageHtml(ucRoot), new File(output.getPath()+".html"));
 
         JSONObject rhRoot = buildFullReleaseHistory(repo);
         String rh = prettyPrintJson(rhRoot);
@@ -142,6 +142,10 @@ public class Main {
 
     String updateCenterPostCallJson(JSONObject ucRoot) {
         return "updateCenter.post(" + EOL + prettyPrintJson(ucRoot) + EOL + ");";
+    }
+
+    String updateCenterPostMessageHtml(JSONObject ucRoot) {
+        return "<html><body><script>window.onload = function () { window.parent.postMessage(" + EOL + prettyPrintJson(ucRoot) + EOL + ",'*'); };</script></body></html>";
     }
 
     private PrintWriter createHtaccessWriter() throws IOException {
