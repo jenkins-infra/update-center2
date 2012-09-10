@@ -57,6 +57,10 @@ public final class PluginHistory {
         return artifacts.get(artifacts.firstKey());
     }
 
+    public HPI first() {
+        return artifacts.get(artifacts.lastKey());
+    }
+
     /**
      * Adding a plugin carefully.
      *

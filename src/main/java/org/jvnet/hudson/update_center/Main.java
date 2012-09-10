@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -290,6 +291,11 @@ public class Main {
     protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
         ConfluencePluginList cpl = new ConfluencePluginList();
 
+        Map<String,PluginHistory> historyByArtifactId = new HashMap<String, PluginHistory>();
+        for (PluginHistory ph : repository.listHudsonPlugins()) {
+            historyByArtifactId.put(ph.artifactId,ph);
+        }
+
         JSONArray releaseHistory = new JSONArray();
         for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet() ) {
             String relDate = MavenArtifact.getDateFormat().format(relsOnDate.getKey());
@@ -313,6 +319,13 @@ public class Main {
                     o.put("timestamp", h.getTimestamp());
                     o.put("wiki", plugin.getWiki());
                     o.put("version", h.version);
+
+                    PluginHistory history = historyByArtifactId.get(h.artifact.artifactId);
+                    if (history.latest()==h)
+                        o.put("latestRelease",true);
+                    if (history.first()==h)
+                        o.put("firstRelease",true);
+
                     System.out.println("\t" + title + ":" + h.version);
                 } catch (IOException e) {
                     System.out.println("Failed to resolve plugin " + h.artifact.artifactId + " so using defaults");
