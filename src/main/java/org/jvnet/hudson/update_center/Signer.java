@@ -62,7 +62,10 @@ public class Signer {
     public Signer configureFromEnvironment() throws CmdLineException {
         List<String> args = new ArrayList<String>();
 
-        QuotedStringTokenizer qst = new QuotedStringTokenizer(System.getenv("JENKINS_SIGNER")," ");
+        String env = System.getenv("JENKINS_SIGNER");
+        if (env==null)      return this;
+
+        QuotedStringTokenizer qst = new QuotedStringTokenizer(env," ");
         while (qst.hasMoreTokens()) {
             args.add(qst.nextToken());
         }
