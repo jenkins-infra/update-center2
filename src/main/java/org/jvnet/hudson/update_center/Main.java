@@ -145,7 +145,8 @@ public class Main {
     }
 
     String updateCenterPostMessageHtml(JSONObject ucRoot) {
-        return "<html><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + prettyPrintJson(ucRoot) + EOL + "),'*'); };</script></body></html>";
+        // needs the DOCTYPE to make JSON.stringify work on IE8
+        return "<!DOCTYPE html><html><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + prettyPrintJson(ucRoot) + EOL + "),'*'); };</script></body></html>";
     }
 
     private PrintWriter createHtaccessWriter() throws IOException {
