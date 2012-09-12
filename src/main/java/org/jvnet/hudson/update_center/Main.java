@@ -32,8 +32,10 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -146,7 +148,7 @@ public class Main {
 
     String updateCenterPostMessageHtml(JSONObject ucRoot) {
         // needs the DOCTYPE to make JSON.stringify work on IE8
-        return "<!DOCTYPE html><html><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + prettyPrintJson(ucRoot) + EOL + "),'*'); };</script></body></html>";
+        return "\uFEFF<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + prettyPrintJson(ucRoot) + EOL + "),'*'); };</script></body></html>";
     }
 
     private PrintWriter createHtaccessWriter() throws IOException {
@@ -173,7 +175,7 @@ public class Main {
     }
 
     private static void writeToFile(String string, final File file) throws IOException {
-        PrintWriter rhpw = new PrintWriter(new FileWriter(file));
+        PrintWriter rhpw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file),"UTF-8"));
         rhpw.print(string);
         rhpw.close();
     }
