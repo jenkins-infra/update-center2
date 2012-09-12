@@ -145,7 +145,7 @@ public class Main {
     }
 
     String updateCenterPostMessageHtml(JSONObject ucRoot) {
-        return "<html><body><script>window.onload = function () { window.parent.postMessage(" + EOL + prettyPrintJson(ucRoot) + EOL + ",'*'); };</script></body></html>";
+        return "<html><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + prettyPrintJson(ucRoot) + EOL + "),'*'); };</script></body></html>";
     }
 
     private PrintWriter createHtaccessWriter() throws IOException {
