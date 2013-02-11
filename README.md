@@ -141,4 +141,7 @@ So, run in following steps...
 2. Modify app.bat as following:
 	1. Modify "set CLASSPATH=..." to set empty.
 		Don't comment out, for even it results in "input line is too long"...REMOVE IT.
-	2. add -Djava.ext.dirs=%REPO%.flat to EXTRA_JVM_ARGUMENTS.
+	2. set EXTRA_JVM_ARGUMENTS as following
+		set JRE_HOME=%JAVA_HOME%
+		if exist "%JAVA_HOME%\jre" set JRE_HOME=%JAVA_HOME%\jre
+		set EXTRA_JVM_ARGUMENTS="-Djava.ext.dirs=%REPO%.flat;%JRE_HOME%\lib\ext"

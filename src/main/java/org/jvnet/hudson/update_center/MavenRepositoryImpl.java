@@ -52,6 +52,7 @@ import org.sonatype.nexus.index.FlatSearchRequest;
 import org.sonatype.nexus.index.FlatSearchResponse;
 import org.sonatype.nexus.index.NexusIndexer;
 import org.sonatype.nexus.index.context.DefaultIndexingContext;
+import org.sonatype.nexus.index.context.IndexCreator;
 import org.sonatype.nexus.index.context.IndexUtils;
 import org.sonatype.nexus.index.context.NexusAnalyzer;
 import org.sonatype.nexus.index.context.NexusIndexWriter;
@@ -135,7 +136,10 @@ public class MavenRepositoryImpl extends MavenRepository {
      *      URL of the Maven repository. Used to resolve artifacts.
      */
     public void addRemoteRepository(String id, File indexDirectory, URL repository) throws IOException, UnsupportedExistingLuceneIndexException {
-        indexer.addIndexingContext(id, id,null, indexDirectory,null,null, NexusIndexer.DEFAULT_INDEX);
+        List<IndexCreator> indexCreatorList = new ArrayList<IndexCreator>(NexusIndexer.DEFAULT_INDEX);
+        indexCreatorList.add(new HpiFixupIndexCreator());
+        indexCreatorList.add(new RepositoryIndexCreator(repository));
+        indexer.addIndexingContext(id, id,null, indexDirectory,repository.toString(),null, indexCreatorList);
         remoteRepositories.add(
                 arf.createArtifactRepository(id, repository.toExternalForm(),
                         new DefaultRepositoryLayout(), POLICY, POLICY));
