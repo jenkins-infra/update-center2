@@ -77,6 +77,15 @@ public class Main {
     @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
     public String id;
 
+    @Option(name="-repository",usage="Alternate repository for plugins.")
+    public String repository;
+
+    @Option(name="-remoteIndex",usage="Nexus index file in repository.")
+    public String remoteIndex;
+
+    @Option(name="-repositoryName",usage="Name of repository. This is a value for n opition of nexus-indexer-cli.")
+    public String repositoryName;
+
     @Option(name="-maxPlugins",usage="For testing purposes. Limit the number of plugins managed to the specified number.")
     public Integer maxPlugins;
 
@@ -185,7 +194,7 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance();
+        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance(repositoryName, repository, remoteIndex);
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (cap!=null)

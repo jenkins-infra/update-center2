@@ -67,3 +67,78 @@ you can try to use the appassembler plugin as described below. The exec:java plu
     # warning this may take quite a bit of time, so you might want to add the -maxPlugins 1 option
     mvn package appassembler:assemble
     sh target/appassembler/bin/app -id com.example.jenkins -www www
+
+Arguments
+---------
+* -id
+	* Required
+	* Uniquely identifies this update center.
+	* We recommend you use a dot-separated name like "com.sun.wts.jenkins".
+	* This value is not exposed to users, but instead internally used by Jenkins.
+	* Used as "id" field in update-center.json
+* -repository
+	* Alternate repository for plugins.
+	* If not specified, http://repo.jenkins-ci.org/public/ is used.
+	* Default: null
+* -repositoryName
+	* Name of repository. This is a value for n opition of nexus-indexer-cli.
+	* If not specified, "public" is used.
+	* Default: null
+* -remoteIndex
+	* Nexus index file in repository.
+	* If not specified, .index/nexus-maven-repository-index.gz is used.
+	* Default: null
+* -download
+	* Build download server layout
+	* Default: null
+* -www
+	* Built jenkins-ci.org layout
+	* Default: null
+* -r
+	* release history JSON file
+	* When -www is specified, $(www)/release-history.json is used.
+	* Default: release-history.json
+* -h
+	* htaccess file
+	* When -www is specified, $(www)/latest/.htaccess is used.
+	* Default: .htaccess
+* -o
+	* json file(update-center.json)
+	* When -www is specified, $(www)/update-center.json is used.
+	* Default: output.json
+* -index.html
+	* Update the version number of the latest jenkins.war in jenkins-ci.org/index.html
+	* When -www is specified, $(www)/index.html is used.
+	* Default: null
+* -latestCore.txt
+	* Update the version number of the latest jenkins.war in latestCore.txt
+	* When -www is specified, $(www)/latestCore.txt is used. 
+	* Default: null
+* -maxPlugins
+	* For testing purposes.
+	* Limit the number of plugins managed to the specified number.
+	* Default: null
+* -connectionCheckUrl
+	* Specify an URL of the 'always up' server for performing connection check.
+	* Used as "connectionCheckUrl" field in update-center.json
+	* Default: null
+* -pretty
+	* Pretty-print the result
+	* Default: false
+* -cap
+	* Cap the version number and only report data that's compatible with
+
+How to work with windows
+------------------------
+In windows, app.bat results in following fucking output:
+	input line is too long
+
+So, run in following steps...
+
+1. Flatten all jar files to a directory.
+	mkdir target\appassembler\repo.flat
+	for /f %A in ('dir /S /b target\appassembler\repo\*.jar') do copy /Y "%A" target\appassembler\repo.flat
+2. Modify app.bat as following:
+	1. Modify "set CLASSPATH=..." to set empty.
+		Don't comment out, for even it results in "input line is too long"...REMOVE IT.
+	2. add -Djava.ext.dirs=%REPO%.flat to EXTRA_JVM_ARGUMENTS.
