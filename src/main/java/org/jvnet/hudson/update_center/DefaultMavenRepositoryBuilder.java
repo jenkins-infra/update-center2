@@ -27,11 +27,11 @@ import java.net.URL;
 
 public class DefaultMavenRepositoryBuilder {
     public static MavenRepositoryImpl createStandardInstance() throws Exception {
-        return createStandardInstance(null, null, null);
+        return createStandardInstance(null, null, null, false);
     }
     
-    public static MavenRepositoryImpl createStandardInstance(String repositoryName, String repository, String remoteIndex) throws Exception {
-        MavenRepositoryImpl instance = new MavenRepositoryImpl();
+    public static MavenRepositoryImpl createStandardInstance(String repositoryName, String repository, String remoteIndex, boolean directLink) throws Exception {
+        MavenRepositoryImpl instance = new MavenRepositoryImpl(directLink);
         
         if(repositoryName == null)
         {

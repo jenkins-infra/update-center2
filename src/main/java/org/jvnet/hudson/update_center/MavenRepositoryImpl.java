@@ -89,8 +89,14 @@ public class MavenRepositoryImpl extends MavenRepository {
     protected ArtifactRepositoryFactory arf;
     private PlexusContainer plexus;
     private boolean offlineIndex;
+    private boolean directLink;
 
     public MavenRepositoryImpl() throws Exception {
+        this(false);
+    }
+    
+    public MavenRepositoryImpl(boolean directLink) throws Exception {
+        this.directLink = directLink;
         ClassWorld classWorld = new ClassWorld( "plexus.core", MavenRepositoryImpl.class.getClassLoader() );
         ContainerConfiguration configuration = new DefaultContainerConfiguration().setClassWorld( classWorld );
         plexus = new DefaultPlexusContainer( configuration );
@@ -282,7 +288,7 @@ public class MavenRepositoryImpl extends MavenRepository {
  */
 
     protected HPI createHpiArtifact(ArtifactInfo a, PluginHistory p) throws AbstractArtifactResolutionException {
-        return new HPI(this,p,a);
+        return directLink?new DirectHPI(this, p, a):new HPI(this,p,a);
     }
 
     protected HudsonWar createHudsonWarArtifact(ArtifactInfo a) {

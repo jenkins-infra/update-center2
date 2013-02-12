@@ -88,6 +88,8 @@ Arguments
 	* Nexus index file in repository.
 	* If not specified, .index/nexus-maven-repository-index.gz is used.
 	* Default: null
+* -directLink
+	* Use the links into the maven repository as the plugin URL.
 * -download
 	* Build download server layout
 	* Default: null
@@ -100,6 +102,7 @@ Arguments
 	* Default: release-history.json
 * -h
 	* htaccess file
+	* /dev/null indicates not to write(works also in Windows).
 	* When -www is specified, $(www)/latest/.htaccess is used.
 	* Default: .htaccess
 * -o

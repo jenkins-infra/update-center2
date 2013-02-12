@@ -26,6 +26,8 @@ package org.jvnet.hudson.update_center;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import org.apache.commons.io.output.NullWriter;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -85,6 +87,9 @@ public class Main {
 
     @Option(name="-repositoryName",usage="Name of repository. This is a value for n opition of nexus-indexer-cli.")
     public String repositoryName;
+
+    @Option(name="-directLink", usage="links to the hpi in repository directly.")
+    public boolean directLink;
 
     @Option(name="-maxPlugins",usage="For testing purposes. Limit the number of plugins managed to the specified number.")
     public Integer maxPlugins;
@@ -161,6 +166,10 @@ public class Main {
     }
 
     private PrintWriter createHtaccessWriter() throws IOException {
+        if("/dev/null".equals(htaccess.getPath()))
+        {
+            return new PrintWriter(new NullWriter());
+        }
         File p = htaccess.getParentFile();
         if (p!=null)        p.mkdirs();
         return new PrintWriter(new FileWriter(htaccess), true);
@@ -194,7 +203,7 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance(repositoryName, repository, remoteIndex);
+        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance(repositoryName, repository, remoteIndex, directLink);
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (cap!=null)
