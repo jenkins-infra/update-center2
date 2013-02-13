@@ -65,8 +65,8 @@ you can try to use the appassembler plugin as described below. The exec:java plu
 
     # to generate the files in a standard layout
     # warning this may take quite a bit of time, so you might want to add the -maxPlugins 1 option
-    mvn package appassembler:assemble
-    sh target/appassembler/bin/app -id com.example.jenkins -www www
+    mvn compile
+    mvn exec:java -id com.example.jenkins -www www
 
 Arguments
 ---------
