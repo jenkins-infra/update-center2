@@ -66,7 +66,7 @@ you can try to use the appassembler plugin as described below. The exec:java plu
     # to generate the files in a standard layout
     # warning this may take quite a bit of time, so you might want to add the -maxPlugins 1 option
     mvn compile
-    mvn exec:java -id com.example.jenkins -www www
+    mvn exec:java -Dexec.args="-id com.example.jenkins -www www"
 
 Arguments
 ---------
@@ -74,6 +74,8 @@ Arguments
 	* Required
 	* Uniquely identifies this update center.
 	* We recommend you use a dot-separated name like "com.sun.wts.jenkins".
+		* This text is from the original source code of backend-update-center2.
+		* But it seems that the name containing dots does not works correctly (caused NPE in PluginManager.class)
 	* This value is not exposed to users, but instead internally used by Jenkins.
 	* Used as "id" field in update-center.json
 * -repository
