@@ -132,21 +132,3 @@ Arguments
 	* Default: false
 * -cap
 	* Cap the version number and only report data that's compatible with
-
-How to work with windows
-------------------------
-In windows, app.bat results in following fucking output:
-	input line is too long
-
-So, run in following steps...
-
-1. Flatten all jar files to a directory.
-	mkdir target\appassembler\repo.flat
-	for /f %A in ('dir /S /b target\appassembler\repo\*.jar') do copy /Y "%A" target\appassembler\repo.flat
-2. Modify app.bat as following:
-	1. Modify "set CLASSPATH=..." to set empty.
-		Don't comment out, for even it results in "input line is too long"...REMOVE IT.
-	2. set EXTRA_JVM_ARGUMENTS as following
-		set JRE_HOME=%JAVA_HOME%
-		if exist "%JAVA_HOME%\jre" set JRE_HOME=%JAVA_HOME%\jre
-		set EXTRA_JVM_ARGUMENTS="-Djava.ext.dirs=%REPO%.flat;%JRE_HOME%\lib\ext"
