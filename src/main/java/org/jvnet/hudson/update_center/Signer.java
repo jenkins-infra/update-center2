@@ -191,6 +191,7 @@ public class Signer {
 
         Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
         rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/hudson-community.cert")),null));
+        rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/jenkins-update-center-root-ca.cert")),null));
         for (File f : rootCA) {
             rootCAs.add(new TrustAnchor(loadCertificate(cf, f),null));
         }
