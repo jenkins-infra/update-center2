@@ -333,7 +333,7 @@ public class Plugin {
         if (page!=null) {
             json.put("wiki",page.getUrl());
             String excerpt = getExcerptInHTML();
-            if (excerpt!=null)
+            if (excerpt!=null && !excerpt.startsWith("{"))
                 json.put("excerpt",excerpt);
             String[] labelList = getLabels();
             if (labelList!=null)
