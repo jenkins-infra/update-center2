@@ -34,6 +34,7 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.sonatype.nexus.index.ArtifactInfo;
 
+import java.io.File;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
@@ -153,7 +154,8 @@ public class Plugin {
 
     private Document readPOM() throws IOException {
         try {
-            return xmlReader.read(latest.resolvePOM());
+            File pomFile = latest.resolvePOM();
+            return pomFile != null?xmlReader.read(pomFile):null;
         } catch (DocumentException e) {
             System.err.println("** Can't parse POM for "+artifactId);
             e.printStackTrace();
@@ -346,9 +348,12 @@ public class Plugin {
 
         if (!json.has("excerpt")) {
             // fall back to <description>, which is plain text but still better than nothing.
-            String description = plainText2html(selectSingleValue(pom, "/project/description"));
-            if (description!=null)
-                json.put("excerpt",description);
+            if(pom != null)
+            {
+                String description = plainText2html(selectSingleValue(pom, "/project/description"));
+                if (description!=null)
+                    json.put("excerpt",description);
+            }
         }
 
         HPI hpi = latest;

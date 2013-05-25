@@ -39,6 +39,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -90,6 +91,12 @@ public class Main {
 
     @Option(name="-directLink", usage="links to the hpi in repository directly.")
     public boolean directLink;
+
+    @Option(name="-hpiDirectory",usage="Directory containing HPI files.")
+    public String hpiDirectoryPath;
+
+    @Option(name="-nowiki", usage="Do not refer wiki.jenkins-ci.org to retrieve plugin information.")
+    public boolean nowiki;
 
     @Option(name="-maxPlugins",usage="For testing purposes. Limit the number of plugins managed to the specified number.")
     public Integer maxPlugins;
@@ -203,12 +210,43 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance(repositoryName, repository, remoteIndex, directLink);
+        MavenRepository repo;
+        if(hpiDirectoryPath != null)
+        {
+            repo = createLocalDirectoryRepository();
+        }
+        else
+        {
+            repo = DefaultMavenRepositoryBuilder.createStandardInstance(repositoryName, repository, remoteIndex, directLink);
+        }
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (cap!=null)
             repo = new VersionCappedMavenRepository(repo,new VersionNumber(cap));
         return repo;
+    }
+
+    protected MavenRepository createLocalDirectoryRepository() throws Exception
+    {
+        // Parameter validation
+        if(hpiDirectoryPath == null)
+        {
+            throw new Exception("-hpiDirectoryPath must be specified.");
+        }
+        File hpiDirectory = new File(hpiDirectoryPath);
+        if(!hpiDirectory.isDirectory())
+        {
+            throw new Exception(String.format("Not a directory: %s", hpiDirectoryPath));
+        }
+        
+        if(repository == null)
+        {
+            throw new Exception("-repository must be specified when using hpiDiretoryPath.");
+        }
+        
+        URL baseUrl = new URL(repository.endsWith("/")?repository:String.format("%s/", repository));
+        
+        return new LocalDirectoryRepository(hpiDirectory, baseUrl);
     }
 
     /**
@@ -217,7 +255,7 @@ public class Main {
      * @param redirect
      */
     protected JSONObject buildPlugins(MavenRepository repository, PrintWriter redirect) throws Exception {
-        ConfluencePluginList cpl = new ConfluencePluginList();
+        ConfluencePluginList cpl = nowiki?new NoConfluencePluginList():new ConfluencePluginList();
 
         int total = 0;
 
@@ -309,7 +347,7 @@ public class Main {
     }
 
     protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
-        ConfluencePluginList cpl = new ConfluencePluginList();
+        ConfluencePluginList cpl = nowiki?new NoConfluencePluginList():new ConfluencePluginList();
 
         JSONArray releaseHistory = new JSONArray();
         for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet() ) {

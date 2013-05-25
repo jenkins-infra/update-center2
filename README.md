@@ -92,6 +92,15 @@ Arguments
 	* Default: null
 * -directLink
 	* Use the links into the maven repository as the plugin URL.
+* -hpiDirectory
+	* Build update center files from hpi files contained in this directory.
+	* When specified this option...
+		* Specified directory must be placed to the path specified with -repository.
+		* Nexus index file is not needed.
+		* repositoryName and remoteIndex is ignored.
+* -nowiki
+	* Does not refer http://wiki.jenkins-ci.org/
+	* Information in pom files are trusted.
 * -download
 	* Build download server layout
 	* Default: null
@@ -132,3 +141,19 @@ Arguments
 	* Default: false
 * -cap
 	* Cap the version number and only report data that's compatible with
+
+Typical Usage
+-------------
+
+### When you use nexus index
+
+```
+mvn exec:java -Dexec.args="-id UPDATE-CENTER-ID -h /dev/null -o PATH_TO_WRITE_update-center.json -repository http://YOURSERVER/PATH_TO_REPOSITORY/ -remoteIndex REL_PATH_TO_nexus-maven-repository-index.gz -repositoryName 'REPOSITORY_NAME' -directLink -nowiki -key PATH_TO_KEY_FILE -certificate PATH_TO_CERTIFICATE_FILE -root-certificate PATH_TO_CERTIFICATE_FILE"
+```
+
+### When you do not use nexus index
+
+```
+mvn exec:java -Dexec.args="-id UPDATE-CENTER-ID -h /dev/null -o PATH_TO_WRITE_update-center.json -repository http://YOURSERVER/PATH_TO_REPOSITORY/ -hpiDirectory PATH_TO_LOCAL_REPOSITORY -nowiki -key PATH_TO_KEY_FILE -certificate PATH_TO_CERTIFICATE_FILE -root-certificate PATH_TO_CERTIFICATE_FILE"
+```
+

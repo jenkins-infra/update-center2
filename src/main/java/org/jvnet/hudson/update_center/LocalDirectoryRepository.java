@@ -1,0 +1,161 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2013 IKEDA Yasuyuki
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package org.jvnet.hudson.update_center;
+
+import hudson.util.VersionNumber;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+
+import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
+import org.apache.tools.ant.DirectoryScanner;
+import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.sonatype.nexus.index.ArtifactAvailablility;
+import org.sonatype.nexus.index.ArtifactInfo;
+import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
+
+/**
+ * Use a local repository containing HPI files as a plugin repository.
+ * It must not be a maven repository.
+ * This class acts as a fake maven repository.
+ */
+public class LocalDirectoryRepository extends MavenRepository
+{
+    private File dir;
+    private URL baseUrl;
+    
+    /**
+     * @param dir a directory containing HPI files.
+     */
+    public LocalDirectoryRepository(File dir, URL baseUrl)
+    {
+        this.dir = dir;
+        this.baseUrl = baseUrl;
+    }
+    
+    /**
+     * Return all plugins contained in the directory.
+     * 
+     * @return a collection of histories of plugins contained in the directory.
+     * @see org.jvnet.hudson.update_center.MavenRepository#listHudsonPlugins()
+     */
+    @Override
+    public Collection<PluginHistory> listHudsonPlugins()
+            throws PlexusContainerException, ComponentLookupException,
+            IOException, UnsupportedExistingLuceneIndexException,
+            AbstractArtifactResolutionException
+    {
+        // Search all files *.hpi contained in the directory.
+        DirectoryScanner ds = new DirectoryScanner();
+        ds.setBasedir(dir);
+        ds.setIncludes(new String[]{"**/*.hpi"});
+        ds.scan();
+        
+        // build plugin history.
+        Map<String, PluginHistory> plugins =
+                new TreeMap<String, PluginHistory>(String.CASE_INSENSITIVE_ORDER);
+        
+        for(String filename: ds.getIncludedFiles())
+        {
+            File hpiFile = new File(dir, filename);
+            JarFile jar = new JarFile(hpiFile);
+            Manifest manifest = jar.getManifest();
+            long lastModified = jar.getEntry("META-INF/MANIFEST.MF").getTime();
+            jar.close();
+            
+            ArtifactInfo a = new ArtifactInfo(
+                    null,  // fname
+                    "hpi",  // fextension
+                    manifest.getMainAttributes().getValue("Group-Id"), // groupId,
+                    manifest.getMainAttributes().getValue("Extension-Name"),    // artifactId
+                        // maybe Short-Name or Implementation-Title is more proper.
+                    manifest.getMainAttributes().getValue("Plugin-Version"),    // version
+                        // maybe Implementation-Version is more proper.
+                    null,  // classifier
+                    "hpi",  // packaging
+                    manifest.getMainAttributes().getValue("Long-Name"),    // name
+                    manifest.getMainAttributes().getValue("Specification-Title"),    // description
+                    lastModified,   // lastModified
+                    hpiFile.length(),   // size
+                    null,   // md5
+                    null,   // sha1
+                    ArtifactAvailablility.NOT_PRESENT, // sourcesExists
+                    ArtifactAvailablility.NOT_PRESENT, //javadocExists,
+                    ArtifactAvailablility.NOT_PRESENT, //signatureExists,
+                    null    // repository
+            );
+            
+            if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
+            PluginHistory p = plugins.get(a.artifactId);
+            if (p==null)
+                plugins.put(a.artifactId, p=new PluginHistory(a.artifactId));
+            
+            String path = filename;
+            if(File.separatorChar != '/')
+            {
+                // fix path separate character to /
+                path = filename.replace(File.separatorChar, '/');
+            }
+            p.addArtifact(new LocalHPI(this, p, a, hpiFile, new URL(baseUrl, path)));
+            p.groupId.add(a.groupId);
+        }
+        
+        return plugins.values();
+    }
+    
+    /**
+     * Returns empty list.
+     * 
+     * @return empty tree map.
+     * @see org.jvnet.hudson.update_center.MavenRepository#getHudsonWar()
+     */
+    @Override
+    public TreeMap<VersionNumber, HudsonWar> getHudsonWar() throws IOException,
+            AbstractArtifactResolutionException
+    {
+        TreeMap<VersionNumber,HudsonWar> r = new TreeMap<VersionNumber, HudsonWar>(VersionNumber.DESCENDING);
+        return r;
+    }
+    
+    /**
+     * Return a file specified by artifact information.
+     * 
+     * @see org.jvnet.hudson.update_center.MavenRepository#resolve(org.sonatype.nexus.index.ArtifactInfo, java.lang.String, java.lang.String)
+     */
+    @Override
+    protected File resolve(ArtifactInfo a, String type, String classifier)
+            throws AbstractArtifactResolutionException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+}
