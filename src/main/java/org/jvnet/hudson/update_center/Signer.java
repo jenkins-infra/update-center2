@@ -205,13 +205,19 @@ public class Signer {
     }
 
     private X509Certificate loadCertificate(CertificateFactory cf, File f) throws CertificateException, IOException {
-        FileInputStream in = new FileInputStream(f);
         try {
-            X509Certificate c = (X509Certificate) cf.generateCertificate(in);
-            c.checkValidity();
-            return c;
-        } finally {
-            in.close();
+            FileInputStream in = new FileInputStream(f);
+            try {
+                X509Certificate c = (X509Certificate) cf.generateCertificate(in);
+                c.checkValidity();
+                return c;
+            } finally {
+                in.close();
+            }
+        } catch (CertificateException e) {
+            throw (IOException)new IOException("Failed to load certificate "+f).initCause(e);
+        } catch (IOException e) {
+            throw (IOException)new IOException("Failed to load certificate "+f).initCause(e);
         }
     }
 
