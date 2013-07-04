@@ -95,6 +95,9 @@ public class Main {
     @Option(name="-hpiDirectory",usage="Directory containing HPI files.")
     public String hpiDirectoryPath;
 
+    @Option(name="-includeSnapshots",usage="Include SNAPSHOT builds.")
+    public boolean includeSnapshots;
+
     @Option(name="-nowiki", usage="Do not refer wiki.jenkins-ci.org to retrieve plugin information.")
     public boolean nowiki;
 
@@ -246,7 +249,7 @@ public class Main {
         
         URL baseUrl = new URL(repository.endsWith("/")?repository:String.format("%s/", repository));
         
-        return new LocalDirectoryRepository(hpiDirectory, baseUrl);
+        return new LocalDirectoryRepository(hpiDirectory, baseUrl, includeSnapshots);
     }
 
     /**
