@@ -54,11 +54,22 @@ public class HPI extends MavenArtifact {
         this.history = history;
     }
 
+    public String getShortVersion() {
+        return version.replaceFirst("(-SNAPSHOT).*$", "$1");
+    }
+
+    /**
+     * Relative path to be used in URL as well as in filename
+     */
+    public String getRelativePath() {
+        return String.format("plugins/%s/%s/%1$s.hpi", artifact.artifactId, getShortVersion());
+    }
+
     /**
      * Download a plugin via more intuitive URL. This also helps us track download counts.
      */
     public URL getURL() throws MalformedURLException {
-        return new URL("http://updates.jenkins-ci.org/download/plugins/"+artifact.artifactId+"/"+version+"/"+artifact.artifactId+".hpi");
+        return new URL("http://updates.jenkins-ci.org/download/" + getRelativePath());
     }
 
     /**

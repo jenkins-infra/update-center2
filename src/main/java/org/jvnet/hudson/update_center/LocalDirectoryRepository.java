@@ -121,13 +121,7 @@ public class LocalDirectoryRepository extends MavenRepository
             if (p==null)
                 plugins.put(a.artifactId, p=new PluginHistory(a.artifactId));
             
-            String path = filename;
-            if(File.separatorChar != '/')
-            {
-                // fix path separate character to /
-                path = filename.replace(File.separatorChar, '/');
-            }
-            p.addArtifact(new LocalHPI(this, p, a, hpiFile, new URL(baseUrl, path)));
+            p.addArtifact(new LocalHPI(this, p, a, hpiFile, baseUrl));
             p.groupId.add(a.groupId);
         }
         
