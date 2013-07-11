@@ -51,14 +51,17 @@ public class LocalDirectoryRepository extends MavenRepository
 {
     private File dir;
     private URL baseUrl;
+    private final boolean includeSnapshots;
     
     /**
      * @param dir a directory containing HPI files.
+     * @param includeSnapshots 
      */
-    public LocalDirectoryRepository(File dir, URL baseUrl)
+    public LocalDirectoryRepository(File dir, URL baseUrl, boolean includeSnapshots)
     {
         this.dir = dir;
         this.baseUrl = baseUrl;
+        this.includeSnapshots = includeSnapshots;
     }
     
     /**
@@ -113,7 +116,7 @@ public class LocalDirectoryRepository extends MavenRepository
                     null    // repository
             );
             
-            if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
+            if (!includeSnapshots && a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
             PluginHistory p = plugins.get(a.artifactId);
             if (p==null)
                 plugins.put(a.artifactId, p=new PluginHistory(a.artifactId));

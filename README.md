@@ -98,6 +98,8 @@ Arguments
 		* Specified directory must be placed to the path specified with -repository.
 		* Nexus index file is not needed.
 		* repositoryName and remoteIndex is ignored.
+* -includeSnapshots
+        * Include releases as well as snapshots found in hpiDirectory.
 * -nowiki
 	* Does not refer http://wiki.jenkins-ci.org/
 	* Information in pom files are trusted.
