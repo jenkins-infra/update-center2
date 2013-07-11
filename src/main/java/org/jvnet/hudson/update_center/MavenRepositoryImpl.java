@@ -234,6 +234,7 @@ public class MavenRepositoryImpl extends MavenRepository {
 
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
+            if (a.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
             if (IGNORE.containsKey(a.artifactId) || IGNORE.containsKey(a.artifactId + "-" + a.version))
                 continue;       // artifactIds or particular versions to omit
 
@@ -263,6 +264,7 @@ public class MavenRepositoryImpl extends MavenRepository {
 
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
+            if (a.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
             if (!a.artifactId.equals("jenkins-war")
              && !a.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
             if (a.classifier!=null)  continue;          // just pick up the main war
