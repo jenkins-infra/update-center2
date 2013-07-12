@@ -80,8 +80,13 @@ public class Main {
     @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
     public String id;
 
+    private String repository;
     @Option(name="-repository",usage="Alternate repository for plugins.")
-    public String repository;
+    public void setRepository(String repo) {
+        repository = repo;
+        if (!repo.endsWith("/"))
+            repository += "/";
+    }
 
     @Option(name="-remoteIndex",usage="Nexus index file in repository.")
     public String remoteIndex;
@@ -247,9 +252,7 @@ public class Main {
             throw new Exception("-repository must be specified when using hpiDiretoryPath.");
         }
         
-        URL baseUrl = new URL(repository.endsWith("/")?repository:String.format("%s/", repository));
-        
-        return new LocalDirectoryRepository(hpiDirectory, baseUrl, includeSnapshots);
+        return new LocalDirectoryRepository(hpiDirectory, new URL(repository), includeSnapshots);
     }
 
     /**
@@ -278,7 +281,7 @@ public class Main {
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
-                String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
+                String permalink = new URL(String.format("%slatest/%s.hpi", this.repository, plugin.artifactId)).getPath();
                 redirect.printf("Redirect 302 %s %s\n", permalink, plugin.latest.getURL().getPath());
 
                 if (download!=null) {
