@@ -43,7 +43,7 @@ import org.sonatype.nexus.index.ArtifactInfo;
 public class LocalHPI extends HPI
 {
     private File jarFile;
-    private URL baseUrl;
+    private URL url;
     
     public LocalHPI(
             MavenRepository repository,
@@ -55,13 +55,13 @@ public class LocalHPI extends HPI
     {
         super(repository, history, artifact);
         this.jarFile = jarFile;
-        this.baseUrl = url;
+        this.url = url;
     }
     
     @Override
     public URL getURL() throws MalformedURLException
     {
-        return new URL(baseUrl, "download/" + getRelativePath());
+        return url;
     }
     
     @Override

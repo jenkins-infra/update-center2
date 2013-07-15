@@ -52,16 +52,18 @@ public class LocalDirectoryRepository extends MavenRepository
     private File dir;
     private URL baseUrl;
     private final boolean includeSnapshots;
+    private final File downloadDir;
     
     /**
      * @param dir a directory containing HPI files.
      * @param includeSnapshots 
      */
-    public LocalDirectoryRepository(File dir, URL baseUrl, boolean includeSnapshots)
+    public LocalDirectoryRepository(File dir, URL baseUrl, boolean includeSnapshots, File downloadDir)
     {
         this.dir = dir;
         this.baseUrl = baseUrl;
         this.includeSnapshots = includeSnapshots;
+        this.downloadDir = downloadDir;
     }
     
     /**
@@ -121,7 +123,23 @@ public class LocalDirectoryRepository extends MavenRepository
             if (p==null)
                 plugins.put(a.artifactId, p=new PluginHistory(a.artifactId));
             
-            p.addArtifact(new LocalHPI(this, p, a, hpiFile, baseUrl));
+            URL url;
+            if (downloadDir == null) {
+
+                String path = filename;
+                if(File.separatorChar != '/')
+                {
+                    // fix path separate character to /
+                    path = filename.replace(File.separatorChar, '/');
+                }
+                url = new URL(baseUrl, path);
+            } else {
+
+                // Build path using artifact metadata
+                final String path = new LocalHPI(this, p, a, hpiFile, null).getRelativePath();
+                url = new URL(baseUrl, "download/" + path);
+            }
+            p.addArtifact(new LocalHPI(this, p, a, hpiFile, url));
             p.groupId.add(a.groupId);
         }
         

@@ -251,8 +251,8 @@ public class Main {
         {
             throw new Exception("-repository must be specified when using hpiDiretoryPath.");
         }
-        
-        return new LocalDirectoryRepository(hpiDirectory, new URL(repository), includeSnapshots);
+
+        return new LocalDirectoryRepository(hpiDirectory, new URL(repository), includeSnapshots, download);
     }
 
     /**
