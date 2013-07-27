@@ -141,7 +141,7 @@ Arguments
 	* Used as "connectionCheckUrl" field in update-center.json
 	* Default: null
 * -pretty
-	* Pretty-print the result
+	* Pretty-print the json
 	* Default: false
 * -cap
 	* Cap the version number and only report data that's compatible with
