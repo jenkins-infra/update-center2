@@ -125,7 +125,8 @@ public class LocalDirectoryRepository extends MavenRepository
             
             URL url;
             if (downloadDir == null) {
-
+                // No downloadDir specified.
+                // Just link to packages where they are located.
                 String path = filename;
                 if(File.separatorChar != '/')
                 {
@@ -134,10 +135,10 @@ public class LocalDirectoryRepository extends MavenRepository
                 }
                 url = new URL(baseUrl, path);
             } else {
-
-                // Build path using artifact metadata
+                // downloadDir is specified.
+                // Packages are deployed into downloadDir, based on its plugin name and version.
                 final String path = new LocalHPI(this, p, a, hpiFile, null).getRelativePath();
-                url = new URL(baseUrl, "download/" + path);
+                url = new URL(new URL(baseUrl, "download/"), path);
             }
             p.addArtifact(new LocalHPI(this, p, a, hpiFile, url));
             p.groupId.add(a.groupId);

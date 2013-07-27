@@ -104,7 +104,9 @@ Arguments
 	* Does not refer http://wiki.jenkins-ci.org/
 	* Information in pom files are trusted.
 * -download
-	* Build download server layout
+	* Specify a directory to build download server layout.
+	* Packages will be deployed into the directory.
+	* It is refered as "http://updates.jenkins-ci.org/download/", or ${repository}/download used with -repository.
 	* Default: null
 * -www
 	* Built jenkins-ci.org layout

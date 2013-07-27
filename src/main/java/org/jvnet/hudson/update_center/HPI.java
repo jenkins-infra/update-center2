@@ -54,6 +54,14 @@ public class HPI extends MavenArtifact {
         this.history = history;
     }
 
+    /**
+     * Get short version name.
+     * 
+     * For snapshot builds, the version gets like "1.00-SNAPSHOT (private-MM/dd/yyyy HH:mm-BUILDER)".
+     * return 1.00-SNAPSHOT instead.
+     * 
+     * @return shot version number
+     */
     public String getShortVersion() {
         return version.replaceFirst("(-SNAPSHOT).*$", "$1");
     }
@@ -69,7 +77,7 @@ public class HPI extends MavenArtifact {
      * Download a plugin via more intuitive URL. This also helps us track download counts.
      */
     public URL getURL() throws MalformedURLException {
-        return new URL("http://updates.jenkins-ci.org/download/" + getRelativePath());
+        return new URL(new URL("http://updates.jenkins-ci.org/download/"), getRelativePath());
     }
 
     /**
