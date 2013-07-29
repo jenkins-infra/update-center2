@@ -95,11 +95,18 @@ public class LocalDirectoryRepository extends MavenRepository
             Manifest manifest = jar.getManifest();
             long lastModified = jar.getEntry("META-INF/MANIFEST.MF").getTime();
             jar.close();
+
+            String groupId = manifest.getMainAttributes().getValue("Group-Id");
+            if (groupId == null) {
+                // Old plugins inheriting from org.jvnet.hudson.plugins do not have
+                // Group-Id field set in manifest. Absence of group id causes NPE in ArtifactInfo.
+                groupId = "org.jvnet.hudson.plugins";
+            }
             
             ArtifactInfo a = new ArtifactInfo(
                     null,  // fname
                     "hpi",  // fextension
-                    manifest.getMainAttributes().getValue("Group-Id"), // groupId,
+                    groupId,
                     manifest.getMainAttributes().getValue("Extension-Name"),    // artifactId
                         // maybe Short-Name or Implementation-Title is more proper.
                     manifest.getMainAttributes().getValue("Plugin-Version"),    // version
