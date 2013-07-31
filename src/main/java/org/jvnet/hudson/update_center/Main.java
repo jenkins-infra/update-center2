@@ -26,6 +26,7 @@ package org.jvnet.hudson.update_center;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.io.FileUtils;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -89,6 +90,9 @@ public class Main {
 
     @Option(name="-cap",usage="Cap the version number and only report data that's compatible with ")
     public String cap = null;
+
+    @Option(name="-pluginCount.txt",usage="Report a number of plugins in a simple text file")
+    public File pluginCountTxt = null;
 
     public Signer signer = new Signer();
 
@@ -240,6 +244,8 @@ public class Main {
             }
         }
 
+        if (pluginCountTxt!=null)
+            FileUtils.writeStringToFile(pluginCountTxt,String.valueOf(total));
         System.out.println("Total "+total+" plugins listed.");
         return plugins;
     }
