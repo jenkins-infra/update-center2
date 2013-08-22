@@ -93,13 +93,13 @@ Arguments
 * -directLink
 	* Use the links into the maven repository as the plugin URL.
 * -hpiDirectory
-	* Build update center files from hpi files contained in this directory.
+	* Build update center files from plugin files (hpi and jpi) contained in this directory.
 	* When specified this option...
 		* Specified directory must be placed to the path specified with -repository.
 		* Nexus index file is not needed.
 		* repositoryName and remoteIndex is ignored.
 * -includeSnapshots
-        * Include releases as well as snapshots found in hpiDirectory.
+	* Include releases as well as snapshots found in hpiDirectory.
 * -nowiki
 	* Does not refer http://wiki.jenkins-ci.org/
 	* Information in pom files are trusted.

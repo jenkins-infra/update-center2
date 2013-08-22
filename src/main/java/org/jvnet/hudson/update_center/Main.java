@@ -281,11 +281,12 @@ public class Main {
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
-                String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
+
+                String permalink = String.format("/latest/%s.%s", plugin.artifactId, plugin.latest.artifact.fextension);
                 if(this.repository != null) {
                     // when -repository specified,
                     // put latest/ directory in that path.
-                    permalink = new URL(new URL(this.repository), String.format("latest/%s.hpi", plugin.artifactId)).getPath();
+                    permalink = new URL(new URL(this.repository), permalink.substring(1)).getPath();
                 }
                 redirect.printf("Redirect 302 %s %s\n", permalink, plugin.latest.getURL().getPath());
 

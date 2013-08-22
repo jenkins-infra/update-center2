@@ -78,10 +78,10 @@ public class LocalDirectoryRepository extends MavenRepository
             IOException, UnsupportedExistingLuceneIndexException,
             AbstractArtifactResolutionException
     {
-        // Search all files *.hpi contained in the directory.
+        // Search all plugins contained in the directory.
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(dir);
-        ds.setIncludes(new String[]{"**/*.hpi"});
+        ds.setIncludes(new String[]{"**/*.hpi", "**/*.jpi"});
         ds.scan();
         
         // build plugin history.
@@ -103,16 +103,18 @@ public class LocalDirectoryRepository extends MavenRepository
                 groupId = "org.jvnet.hudson.plugins";
             }
             
+            final String extension = filename.substring(filename.length() - 3);
+
             ArtifactInfo a = new ArtifactInfo(
                     null,  // fname
-                    "hpi",  // fextension
+                    extension,
                     groupId,
                     manifest.getMainAttributes().getValue("Extension-Name"),    // artifactId
                         // maybe Short-Name or Implementation-Title is more proper.
                     manifest.getMainAttributes().getValue("Plugin-Version"),    // version
                         // maybe Implementation-Version is more proper.
                     null,  // classifier
-                    "hpi",  // packaging
+                    extension,  // packaging
                     manifest.getMainAttributes().getValue("Long-Name"),    // name
                     manifest.getMainAttributes().getValue("Specification-Title"),    // description
                     lastModified,   // lastModified
