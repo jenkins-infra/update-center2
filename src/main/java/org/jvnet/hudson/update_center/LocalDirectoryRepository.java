@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.codehaus.plexus.PlexusContainerException;
@@ -103,7 +104,7 @@ public class LocalDirectoryRepository extends MavenRepository
                 groupId = "org.jvnet.hudson.plugins";
             }
             
-            final String extension = filename.substring(filename.length() - 3);
+            final String extension = FilenameUtils.getExtension(filename);
 
             ArtifactInfo a = new ArtifactInfo(
                     null,  // fname
@@ -114,7 +115,7 @@ public class LocalDirectoryRepository extends MavenRepository
                     manifest.getMainAttributes().getValue("Plugin-Version"),    // version
                         // maybe Implementation-Version is more proper.
                     null,  // classifier
-                    extension,  // packaging
+                    "hpi",  // packaging
                     manifest.getMainAttributes().getValue("Long-Name"),    // name
                     manifest.getMainAttributes().getValue("Specification-Title"),    // description
                     lastModified,   // lastModified
