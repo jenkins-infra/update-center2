@@ -6,3 +6,4 @@ target
 .project
 .settings
 www
+.htaccess
