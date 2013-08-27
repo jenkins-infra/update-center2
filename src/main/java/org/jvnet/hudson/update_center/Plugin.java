@@ -333,6 +333,9 @@ public class Plugin {
         if (page!=null) {
             json.put("wiki",page.getUrl());
             String excerpt = getExcerptInHTML();
+            // TODO also had problems with Emma and Emma Code Coverage excerpts; was
+            // "excerpt": "Allows you to add a column that displays line coverage percentages based on EMMA. {info}This functionality is included and superseeded by the \uFEFF[JENKINS:JaCoCo Plugin] now\\!{info}",
+            // according to one source but the other lacked the anomalous BOM.
             if (excerpt!=null && !excerpt.startsWith("{"))
                 json.put("excerpt",excerpt);
             String[] labelList = getLabels();
