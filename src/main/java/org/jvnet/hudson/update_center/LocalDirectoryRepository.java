@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.codehaus.plexus.PlexusContainerException;
@@ -78,10 +79,10 @@ public class LocalDirectoryRepository extends MavenRepository
             IOException, UnsupportedExistingLuceneIndexException,
             AbstractArtifactResolutionException
     {
-        // Search all files *.hpi contained in the directory.
+        // Search all plugins contained in the directory.
         DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(dir);
-        ds.setIncludes(new String[]{"**/*.hpi"});
+        ds.setIncludes(new String[]{"**/*.hpi", "**/*.jpi"});
         ds.scan();
         
         // build plugin history.
@@ -103,9 +104,11 @@ public class LocalDirectoryRepository extends MavenRepository
                 groupId = "org.jvnet.hudson.plugins";
             }
             
+            final String extension = FilenameUtils.getExtension(filename);
+
             ArtifactInfo a = new ArtifactInfo(
                     null,  // fname
-                    "hpi",  // fextension
+                    extension,
                     groupId,
                     manifest.getMainAttributes().getValue("Extension-Name"),    // artifactId
                         // maybe Short-Name or Implementation-Title is more proper.

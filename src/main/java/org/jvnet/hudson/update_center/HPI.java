@@ -70,7 +70,7 @@ public class HPI extends MavenArtifact {
      * Relative path to be used in URL as well as in filename
      */
     public String getRelativePath() {
-        return String.format("plugins/%s/%s/%1$s.hpi", artifact.artifactId, getShortVersion());
+        return String.format("plugins/%s/%s/%1$s.%s", artifact.artifactId, getShortVersion(), artifact.fextension);
     }
 
     /**

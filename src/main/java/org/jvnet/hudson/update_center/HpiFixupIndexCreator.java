@@ -24,6 +24,7 @@
 package org.jvnet.hudson.update_center;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.lucene.document.Document;
 import org.sonatype.nexus.index.ArtifactContext;
@@ -56,15 +57,12 @@ public class HpiFixupIndexCreator extends AbstractIndexCreator
     public boolean updateArtifactInfo(Document document,
             ArtifactInfo artifactInfo)
     {
-        if(
-                "hpi".equals(artifactInfo.packaging)
-                && !"hpi".equals(artifactInfo.fextension)
-        )
-        {
-            artifactInfo.fextension = "hpi";
-            return true;
-        }
-        return false;
+        if (!"hpi".equals(artifactInfo.packaging)) return false;
+
+        if (Arrays.asList("hpi", "jpi").contains(artifactInfo.fextension)) return false;
+
+        artifactInfo.fextension = "hpi";
+        return true;
     }
     
 }
