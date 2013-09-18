@@ -94,6 +94,12 @@ public class Main {
     @Option(name="-pluginCount.txt",usage="Report a number of plugins in a simple text file")
     public File pluginCountTxt = null;
 
+    @Option(name="-experimental-only",usage="Include alpha/beta releases only")
+    public boolean experimentalOnly;
+
+    @Option(name="-no-experimental",usage="Exclude alpha/beta releases")
+    public boolean noExperimental;
+
     public Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
@@ -194,6 +200,10 @@ public class Main {
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (cap!=null)
             repo = new VersionCappedMavenRepository(repo,new VersionNumber(cap));
+        if (experimentalOnly)
+            repo = new AlphaBetaOnlyRepository(repo,false);
+        if (noExperimental)
+            repo = new AlphaBetaOnlyRepository(repo,true);
         return repo;
     }
 
