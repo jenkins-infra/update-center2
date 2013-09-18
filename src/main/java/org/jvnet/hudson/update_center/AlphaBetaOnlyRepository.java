@@ -9,10 +9,13 @@ import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -49,7 +52,7 @@ public class AlphaBetaOnlyRepository extends MavenRepository {
 
             for (Iterator<Entry<VersionNumber, HPI>> itr = h.artifacts.entrySet().iterator(); itr.hasNext();) {
                 Entry<VersionNumber, HPI> e =  itr.next();
-                if (isAlphaOrBeta(e.getKey())^negative)
+                if (isAlphaOrBeta(e.getValue())^negative)
                     continue;
                 itr.remove();
             }
@@ -61,8 +64,11 @@ public class AlphaBetaOnlyRepository extends MavenRepository {
         return r;
     }
 
-    private boolean isAlphaOrBeta(VersionNumber v) {
-        String s = v.toString().toLowerCase(Locale.ENGLISH);
+    private boolean isAlphaOrBeta(HPI v) {
+        if (HISTORICALLY_BETA_ONLY.contains(v.artifact.artifactId))
+            return false;
+
+        String s = v.version.toLowerCase(Locale.ENGLISH);
         return s.contains("alpha") || s.contains("beta");
     }
 
@@ -71,4 +77,14 @@ public class AlphaBetaOnlyRepository extends MavenRepository {
     public File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException {
         return base.resolve(a, type, classifier);
     }
+
+    /**
+     * Historically these plugins have never released non-experimental versions,
+     * so we always count them as releases even though they have alpha/beta in the version number
+     */
+    private static final Set<String> HISTORICALLY_BETA_ONLY = new HashSet<String>(Arrays.asList(
+            "BlazeMeterJenkinsPlugin",
+            "heroku-jenkins-plugin",
+            "deployit-plugin"
+            ));
 }
