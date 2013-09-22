@@ -152,6 +152,11 @@ public class MavenArtifact {
         return new VersionNumber(version);
     }
 
+    public boolean isAlphaOrBeta() {
+        String s = version.toLowerCase(Locale.ENGLISH);
+        return s.contains("alpha") || s.contains("beta");
+    }
+
     public String getTimestampAsString() throws IOException {
         long lastModified = getTimestamp();
         SimpleDateFormat bdf = getDateFormat();

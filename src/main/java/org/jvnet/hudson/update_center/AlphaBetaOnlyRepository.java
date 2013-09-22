@@ -67,9 +67,7 @@ public class AlphaBetaOnlyRepository extends MavenRepository {
     private boolean isAlphaOrBeta(HPI v) {
         if (HISTORICALLY_BETA_ONLY.contains(v.artifact.artifactId))
             return false;
-
-        String s = v.version.toLowerCase(Locale.ENGLISH);
-        return s.contains("alpha") || s.contains("beta");
+        return v.isAlphaOrBeta();
     }
 
 

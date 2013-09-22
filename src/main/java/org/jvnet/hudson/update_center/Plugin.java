@@ -293,7 +293,10 @@ public class Plugin {
 
         String excerpt = m.group(1);
         String oneLiner = NEWLINE_PATTERN.matcher(excerpt).replaceAll(" ");
-        return HYPERLINK_PATTERN.matcher(oneLiner).replaceAll("<a href='$2'>$1</a>");
+        excerpt = HYPERLINK_PATTERN.matcher(oneLiner).replaceAll("<a href='$2'>$1</a>");
+        if (latest.isAlphaOrBeta())
+            excerpt = "<b>(This version is experimental and may change in backward incompatible way</b> <br><br>"+excerpt;
+        return excerpt;
     }
 
     // Tweaking to ignore leading whitespace after the initial {excerpt}
