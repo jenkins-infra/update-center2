@@ -224,7 +224,9 @@ public class MavenRepositoryImpl extends MavenRepository {
 
     public Collection<PluginHistory> listHudsonPlugins() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
         BooleanQuery q = new BooleanQuery();
-        q.add(indexer.constructQuery(ArtifactInfo.PACKAGING,"hpi"), Occur.MUST);
+        q.setMinimumNumberShouldMatch(1);
+        q.add(indexer.constructQuery(ArtifactInfo.PACKAGING,"hpi"), Occur.SHOULD);
+        q.add(indexer.constructQuery(ArtifactInfo.PACKAGING,"jpi"), Occur.SHOULD);
 
         FlatSearchRequest request = new FlatSearchRequest(q);
         FlatSearchResponse response = indexer.searchFlat(request);
