@@ -24,14 +24,6 @@
 package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.apache.commons.io.output.NullWriter;
-import org.kohsuke.args4j.ClassParser;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,6 +40,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.NullWriter;
+import org.kohsuke.args4j.ClassParser;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -70,6 +72,9 @@ public class Main {
 
     @Option(name="-www",usage="Built jenkins-ci.org layout")
     public File www = null;
+
+    @Option(name="-nosymlinks", usage="Don't add 'latest' symlinks. They won't work on Windows anyway.")
+    public boolean nosymlinks;
 
     @Option(name="-index.html",usage="Update the version number of the latest jenkins.war in jenkins-ci.org/index.html")
     public File indexHtml = null;
@@ -294,7 +299,7 @@ public class Main {
                     for (HPI v : hpi.artifacts.values()) {
                         stage(v, new File(download, v.getRelativePath()));
                     }
-                    if (!hpi.artifacts.isEmpty())
+                    if (!hpi.artifacts.isEmpty() && !nosymlinks)
                         createLatestSymlink(hpi, plugin.latest);
                 }
 
@@ -335,18 +340,23 @@ public class Main {
         if (dst.exists() && dst.lastModified()==src.lastModified() && dst.length()==src.length())
             return;   // already up to date
 
-//        dst.getParentFile().mkdirs();
-//        FileUtils.copyFile(src,dst);
-
-        // TODO: directory and the war file should have the release timestamp
-        dst.getParentFile().mkdirs();
-
-        ProcessBuilder pb = new ProcessBuilder();
-        pb.command("ln","-f", src.getAbsolutePath(), dst.getAbsolutePath());
-        if (pb.start().waitFor()!=0)
-            throw new IOException("ln failed");
-
+        if (isWindows()) {
+	        dst.getParentFile().mkdirs();
+	        FileUtils.copyFile(src,dst);
+        } else {
+        	// TODO: directory and the war file should have the release timestamp
+        	dst.getParentFile().mkdirs();
+        	
+        	ProcessBuilder pb = new ProcessBuilder();
+        	pb.command("ln","-f", src.getAbsolutePath(), dst.getAbsolutePath());
+        	if (pb.start().waitFor()!=0)
+        		throw new IOException("ln failed");
+        }
     }
+
+	private boolean isWindows() {
+		return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
+	}
 
     /**
      * Build JSON for the release history list.

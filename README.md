@@ -111,6 +111,10 @@ Arguments
 * -www
 	* Built jenkins-ci.org layout
 	* Default: null
+* -nosymlinks
+	* Don't create symbolic links pointing to the latest plugin version
+	* They won't work on Windows platforms anyway
+	* Default: false	
 * -r
 	* release history JSON file
 	* When -www is specified, $(www)/release-history.json is used.
