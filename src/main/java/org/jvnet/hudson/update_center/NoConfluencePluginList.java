@@ -36,8 +36,10 @@ import javax.xml.rpc.ServiceException;
  */
 public class NoConfluencePluginList extends ConfluencePluginList
 {
-    public NoConfluencePluginList() throws IOException, ServiceException
-    {
+    
+    @Override
+    public void initialize() throws IOException, ServiceException {
+    	// noop
     }
     
     @Override
