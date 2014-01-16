@@ -73,7 +73,7 @@ public class Main {
     @Option(name="-www",usage="Built jenkins-ci.org layout")
     public File www = null;
 
-    @Option(name="-nosymlinks", usage="Don't add 'latest' symlinks. They won't work on Windows anyway.")
+    @Option(name="-nosymlinks", usage="Don't add 'latest' symlinks. When used together with '-download', copies will be created.")
     public boolean nosymlinks;
 
     @Option(name="-index.html",usage="Update the version number of the latest jenkins.war in jenkins-ci.org/index.html")
@@ -340,7 +340,7 @@ public class Main {
         if (dst.exists() && dst.lastModified()==src.lastModified() && dst.length()==src.length())
             return;   // already up to date
 
-        if (isWindows()) {
+        if (nosymlinks) {
 	        dst.getParentFile().mkdirs();
 	        FileUtils.copyFile(src,dst);
         } else {
@@ -353,10 +353,6 @@ public class Main {
         		throw new IOException("ln failed");
         }
     }
-
-	private boolean isWindows() {
-		return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
-	}
 
     /**
      * Build JSON for the release history list.
