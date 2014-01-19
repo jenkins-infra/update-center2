@@ -112,9 +112,11 @@ Arguments
 	* Built jenkins-ci.org layout
 	* Default: null
 * -nosymlinks
+	* Used with -download.
 	* Don't create symbolic links pointing to the latest plugin version
+	* Copy files to download server layout instead of create symblic links.
 	* They won't work on Windows platforms anyway
-	* Default: false	
+	* Default: false
 * -r
 	* release history JSON file
 	* When -www is specified, $(www)/release-history.json is used.
