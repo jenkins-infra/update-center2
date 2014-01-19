@@ -266,6 +266,7 @@ public class Main {
      */
     protected JSONObject buildPlugins(MavenRepository repository, PrintWriter redirect) throws Exception {
         ConfluencePluginList cpl = nowiki?new NoConfluencePluginList():new ConfluencePluginList();
+        cpl.initialize();
 
         int total = 0;
 
@@ -365,6 +366,7 @@ public class Main {
 
     protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
         ConfluencePluginList cpl = nowiki?new NoConfluencePluginList():new ConfluencePluginList();
+        cpl.initialize();
 
         JSONArray releaseHistory = new JSONArray();
         for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet() ) {
