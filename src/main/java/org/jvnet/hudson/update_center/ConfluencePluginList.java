@@ -62,6 +62,9 @@ public class ConfluencePluginList {
     private String wikiSessionId;
     private final String WIKI_URL = "https://wiki.jenkins-ci.org/";
 
+    public ConfluencePluginList() throws IOException, ServiceException {
+    }
+
     public void initialize() throws IOException, ServiceException {
         service = Confluence.connect(new URL(WIKI_URL));
         RemotePage page = service.getPage("", "JENKINS", "Plugins");
@@ -72,12 +75,12 @@ public class ConfluencePluginList {
     }
     
     private void checkInitialized() {
-    	if (service == null) {
-    		throw new IllegalStateException("Variable 'service' is not initialized. Call 'initialize()' first.");
-    	}
-    	if (normalizedTitles == null) {
-    		throw new IllegalStateException("Variable 'normalizedTitles' is not initialized. Call 'initialize()' first.");
-    	}
+        if (service == null) {
+            throw new IllegalStateException("Variable 'service' is not initialized. Call 'initialize()' first.");
+        }
+        if (normalizedTitles == null) {
+            throw new IllegalStateException("Variable 'normalizedTitles' is not initialized. Call 'initialize()' first.");
+        }
     }
 
     /**
@@ -93,9 +96,9 @@ public class ConfluencePluginList {
      * Finds the closest match, if any. Otherwise null.
      */
     public RemotePage findNearest(String pluginArtifactId) throws RemoteException {
-    	checkInitialized();
+        checkInitialized();
 
-    	// comparison is case insensitive
+        // comparison is case insensitive
         pluginArtifactId = pluginArtifactId.toLowerCase();
 
         String nearest = EditDistance.findNearest(pluginArtifactId, normalizedTitles);
@@ -108,9 +111,9 @@ public class ConfluencePluginList {
     }
 
     public RemotePage getPage(String url) throws RemoteException {
-    	checkInitialized();
+        checkInitialized();
 
-    	Matcher tinylink = TINYLINK_PATTERN.matcher(url);
+        Matcher tinylink = TINYLINK_PATTERN.matcher(url);
         if (tinylink.matches()) try {
             // Avoid creating lots of sessions on wiki server.. get a session and reuse it.
             if (wikiSessionId == null)
@@ -157,9 +160,9 @@ public class ConfluencePluginList {
     }
 
     public String[] getLabels(RemotePage page) throws RemoteException {
-    	checkInitialized();
+        checkInitialized();
 
-    	String[] r = labelCache.get(page.getId());
+        String[] r = labelCache.get(page.getId());
         if (r==null) {
             RemoteLabel[] labels = service.getLabelsById("", page.getId());
             if (labels==null) return new String[0];
