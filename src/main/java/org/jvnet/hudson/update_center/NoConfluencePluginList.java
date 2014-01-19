@@ -41,6 +41,11 @@ public class NoConfluencePluginList extends ConfluencePluginList
     }
     
     @Override
+    public void initialize() throws IOException, ServiceException {
+        // noop
+    }
+    
+    @Override
     public RemotePage findNearest(String pluginArtifactId)
             throws RemoteException
     {

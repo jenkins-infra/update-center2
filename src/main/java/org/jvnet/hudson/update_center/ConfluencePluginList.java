@@ -52,9 +52,9 @@ import java.util.regex.Pattern;
  * @author Kohsuke Kawaguchi
  */
 public class ConfluencePluginList {
-    private final ConfluenceSoapService service;
+    private ConfluenceSoapService service;
     private final Map<String,RemotePageSummary> children = new HashMap<String, RemotePageSummary>();
-    private final String[] normalizedTitles;
+    private String[] normalizedTitles;
 
     private final Map<String,RemotePage> pageCache = new HashMap<String, RemotePage>();
     private final Map<Long,String[]> labelCache = new HashMap<Long, String[]>();
@@ -63,12 +63,24 @@ public class ConfluencePluginList {
     private final String WIKI_URL = "https://wiki.jenkins-ci.org/";
 
     public ConfluencePluginList() throws IOException, ServiceException {
+    }
+
+    public void initialize() throws IOException, ServiceException {
         service = Confluence.connect(new URL(WIKI_URL));
         RemotePage page = service.getPage("", "JENKINS", "Plugins");
 
         for (RemotePageSummary child : service.getChildren("", page.getId()))
             children.put(normalize(child.getTitle()),child);
         normalizedTitles = children.keySet().toArray(new String[children.size()]);
+    }
+    
+    private void checkInitialized() {
+        if (service == null) {
+            throw new IllegalStateException("Variable 'service' is not initialized. Call 'initialize()' first.");
+        }
+        if (normalizedTitles == null) {
+            throw new IllegalStateException("Variable 'normalizedTitles' is not initialized. Call 'initialize()' first.");
+        }
     }
 
     /**
@@ -84,6 +96,8 @@ public class ConfluencePluginList {
      * Finds the closest match, if any. Otherwise null.
      */
     public RemotePage findNearest(String pluginArtifactId) throws RemoteException {
+        checkInitialized();
+
         // comparison is case insensitive
         pluginArtifactId = pluginArtifactId.toLowerCase();
 
@@ -97,6 +111,8 @@ public class ConfluencePluginList {
     }
 
     public RemotePage getPage(String url) throws RemoteException {
+        checkInitialized();
+
         Matcher tinylink = TINYLINK_PATTERN.matcher(url);
         if (tinylink.matches()) try {
             // Avoid creating lots of sessions on wiki server.. get a session and reuse it.
@@ -144,6 +160,8 @@ public class ConfluencePluginList {
     }
 
     public String[] getLabels(RemotePage page) throws RemoteException {
+        checkInitialized();
+
         String[] r = labelCache.get(page.getId());
         if (r==null) {
             RemoteLabel[] labels = service.getLabelsById("", page.getId());
