@@ -136,12 +136,12 @@ public class MavenArtifact {
         }
     }
 
-    public JSONObject toJSON(String name) throws IOException {
+    public JSONObject toJSON(String name, String connectionCheckUrl) throws IOException {
         JSONObject o = new JSONObject();
         o.put("name", name);
         o.put("version", version);
 
-        o.put("url", getURL().toExternalForm());
+        o.put("url", getURL(connectionCheckUrl).toExternalForm());
         o.put("buildDate", getTimestampAsString());
         o.put("sha1",getDigest());
 
@@ -213,7 +213,11 @@ public class MavenArtifact {
      * Where to download from?
      */
     public URL getURL() throws MalformedURLException {
-        return new URL("repo.jenkins-ci.org/public/"+artifact.groupId.replace('.','/')+"/"+artifact.artifactId+"/"+artifact.version+"/"+artifact.artifactId+"-"+artifact.version+"."+artifact.packaging);
+        return getURL(null);
+    }
+
+    public URL getURL(String connectionCheckUrl) throws MalformedURLException {
+        return new URL((connectionCheckUrl!=null ? connectionCheckUrl : "repo.jenkins-ci.org") + "/public/"+artifact.groupId.replace('.','/')+"/"+artifact.artifactId+"/"+artifact.version+"/"+artifact.artifactId+"-"+artifact.version+"."+artifact.packaging);
     }
 
     @Override
