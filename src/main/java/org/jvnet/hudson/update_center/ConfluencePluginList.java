@@ -28,17 +28,24 @@ import hudson.plugins.jira.soap.ConfluenceSoapService;
 import hudson.plugins.jira.soap.RemoteLabel;
 import hudson.plugins.jira.soap.RemotePage;
 import hudson.plugins.jira.soap.RemotePageSummary;
+import org.apache.commons.io.FileUtils;
 import org.jvnet.hudson.confluence.Confluence;
 
 import javax.xml.rpc.ServiceException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,13 +63,16 @@ public class ConfluencePluginList {
     private final Map<String,RemotePageSummary> children = new HashMap<String, RemotePageSummary>();
     private final String[] normalizedTitles;
 
-    private final Map<String,RemotePage> pageCache = new HashMap<String, RemotePage>();
     private final Map<Long,String[]> labelCache = new HashMap<Long, String[]>();
 
     private String wikiSessionId;
     private final String WIKI_URL = "https://wiki.jenkins-ci.org/";
 
+    private final File cacheDir = new File(System.getProperty("user.home"),".wiki.jenkins-ci.org-cache");
+
     public ConfluencePluginList() throws IOException, ServiceException {
+        cacheDir.mkdirs();
+
         service = Confluence.connect(new URL(WIKI_URL));
         RemotePage page = service.getPage("", "JENKINS", "Plugins");
 
@@ -96,32 +106,66 @@ public class ConfluencePluginList {
             return null;    // too far
     }
 
-    public RemotePage getPage(String url) throws RemoteException {
+    public RemotePage getPage(String url) throws IOException {
         Matcher tinylink = TINYLINK_PATTERN.matcher(url);
-        if (tinylink.matches()) try {
-            // Avoid creating lots of sessions on wiki server.. get a session and reuse it.
-            if (wikiSessionId == null)
-                wikiSessionId = initSession(WIKI_URL);
-            url = checkRedirect(
-                    WIKI_URL + "pages/tinyurl.action?urlIdentifier=" + tinylink.group(1),
-                    wikiSessionId);
-        } catch (IOException e) {
-            throw new RemoteException("Failed to lookup tinylink redirect", e);
+        if (tinylink.matches()) {
+            String id = tinylink.group(1);
+
+            File cache = new File(cacheDir,id+".link");
+            if (cache.exists()) {
+                url = FileUtils.readFileToString(cache);
+            } else {
+                try {
+                    // Avoid creating lots of sessions on wiki server.. get a session and reuse it.
+                    if (wikiSessionId == null)
+                        wikiSessionId = initSession(WIKI_URL);
+                    url = checkRedirect(
+                            WIKI_URL + "pages/tinyurl.action?urlIdentifier=" + id,
+                            wikiSessionId);
+                    FileUtils.writeStringToFile(cache,url);
+                } catch (IOException e) {
+                    throw new RemoteException("Failed to lookup tinylink redirect", e);
+                }
+            }
         }
+
         for( String p : WIKI_PREFIXES ) {
             if (!url.startsWith(p))
                 continue;
 
             String pageName = url.substring(p.length()).replace('+',' '); // poor hack for URL escape
 
-            RemotePage page = pageCache.get(pageName);
-            if (page==null) {
-                page = service.getPage("", "JENKINS", pageName);
-                pageCache.put(pageName,page);
+            File cache = new File(cacheDir,md5(pageName)+".page");
+            if (cache.exists() && cache.lastModified() >= System.currentTimeMillis()-TimeUnit.DAYS.toMillis(1)) {
+                // load from cache
+                try {
+                    FileInputStream f = new FileInputStream(cache);
+                    try {
+                        return (RemotePage)new ObjectInputStream(f).readObject();
+                    } finally {
+                        f.close();
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw (IOException)new IOException("Failed to retrieve from cache: "+cache).initCause(e);
+                }
             }
+
+            RemotePage page = service.getPage("", "JENKINS", pageName);
+
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(cache));
+            try {
+                oos.writeObject(page);
+            } finally {
+                oos.close();
+            }
+
             return page;
         }
         throw new IllegalArgumentException("** Failed to resolve "+url);
+    }
+
+    private String md5(String pageName) {
+        return pageName;    // TODO: md5
     }
 
     private static String checkRedirect(String url, String sessionId) throws IOException {
