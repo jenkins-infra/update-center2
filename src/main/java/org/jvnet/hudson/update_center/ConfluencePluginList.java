@@ -93,7 +93,7 @@ public class ConfluencePluginList {
     /**
      * Finds the closest match, if any. Otherwise null.
      */
-    public RemotePage findNearest(String pluginArtifactId) throws RemoteException {
+    public RemotePage findNearest(String pluginArtifactId) throws IOException {
         // comparison is case insensitive
         pluginArtifactId = pluginArtifactId.toLowerCase();
 
@@ -101,7 +101,7 @@ public class ConfluencePluginList {
         if (EditDistance.editDistance(nearest,pluginArtifactId) <= 1) {
             System.out.println("** No wiki page specified.. picking one with similar name."
                                + "\nUsing '"+nearest+"' for "+pluginArtifactId);
-            return service.getPage("","JENKINS",children.get(nearest).getTitle());
+            return loadPage(children.get(nearest).getTitle());
         } else
             return null;    // too far
     }
@@ -135,33 +135,47 @@ public class ConfluencePluginList {
 
             String pageName = url.substring(p.length()).replace('+',' '); // poor hack for URL escape
 
-            File cache = new File(cacheDir,md5(pageName)+".page");
-            if (cache.exists() && cache.lastModified() >= System.currentTimeMillis()-TimeUnit.DAYS.toMillis(1)) {
-                // load from cache
-                try {
-                    FileInputStream f = new FileInputStream(cache);
-                    try {
-                        return (RemotePage)new ObjectInputStream(f).readObject();
-                    } finally {
-                        f.close();
-                    }
-                } catch (ClassNotFoundException e) {
-                    throw (IOException)new IOException("Failed to retrieve from cache: "+cache).initCause(e);
-                }
-            }
-
-            RemotePage page = service.getPage("", "JENKINS", pageName);
-
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(cache));
-            try {
-                oos.writeObject(page);
-            } finally {
-                oos.close();
-            }
-
-            return page;
+            return loadPage(pageName);
         }
         throw new IllegalArgumentException("** Failed to resolve "+url);
+    }
+
+    /**
+     * Loads the page from Wiki after consulting with the cache.
+     */
+    private RemotePage loadPage(String title) throws IOException {
+        File cache = new File(cacheDir,md5(title)+".page");
+        if (cache.exists() && cache.lastModified() >= System.currentTimeMillis()- TimeUnit.DAYS.toMillis(1)) {
+            // load from cache
+            try {
+                FileInputStream f = new FileInputStream(cache);
+                try {
+                    return (RemotePage)new ObjectInputStream(f).readObject();
+                } finally {
+                    f.close();
+                }
+            } catch (ClassNotFoundException e) {
+                throw (IOException)new IOException("Failed to retrieve from cache: "+cache).initCause(e);
+            }
+        }
+
+        try {
+            RemotePage page = service.getPage("", "JENKINS", title);
+            writeToCache(cache, page);
+            return page;
+        } catch (RemoteException e) {
+            writeToCache(cache, null);
+            throw e;
+        }
+    }
+
+    private void writeToCache(File cache, Object o) throws IOException {
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(cache));
+        try {
+            oos.writeObject(o);
+        } finally {
+            oos.close();
+        }
     }
 
     private String md5(String pageName) {
