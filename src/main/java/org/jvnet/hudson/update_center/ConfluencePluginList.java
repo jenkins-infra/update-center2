@@ -63,8 +63,6 @@ public class ConfluencePluginList {
     private final Map<String,RemotePageSummary> children = new HashMap<String, RemotePageSummary>();
     private final String[] normalizedTitles;
 
-    private final Map<Long,String[]> labelCache = new HashMap<Long, String[]>();
-
     private String wikiSessionId;
     private final String WIKI_URL = "https://wiki.jenkins-ci.org/";
 
@@ -93,7 +91,7 @@ public class ConfluencePluginList {
     /**
      * Finds the closest match, if any. Otherwise null.
      */
-    public RemotePage findNearest(String pluginArtifactId) throws IOException {
+    public WikiPage findNearest(String pluginArtifactId) throws IOException {
         // comparison is case insensitive
         pluginArtifactId = pluginArtifactId.toLowerCase();
 
@@ -106,7 +104,7 @@ public class ConfluencePluginList {
             return null;    // too far
     }
 
-    public RemotePage getPage(String url) throws IOException {
+    public WikiPage getPage(String url) throws IOException {
         Matcher tinylink = TINYLINK_PATTERN.matcher(url);
         if (tinylink.matches()) {
             String id = tinylink.group(1);
@@ -143,14 +141,20 @@ public class ConfluencePluginList {
     /**
      * Loads the page from Wiki after consulting with the cache.
      */
-    private RemotePage loadPage(String title) throws IOException {
+    private WikiPage loadPage(String title) throws IOException {
         File cache = new File(cacheDir,md5(title)+".page");
         if (cache.exists() && cache.lastModified() >= System.currentTimeMillis()- TimeUnit.DAYS.toMillis(1)) {
             // load from cache
             try {
                 FileInputStream f = new FileInputStream(cache);
                 try {
-                    return (RemotePage)new ObjectInputStream(f).readObject();
+                    Object o = new ObjectInputStream(f).readObject();
+                    if (o==null)    return null;
+                    if (o instanceof WikiPage) {
+                        WikiPage p = (WikiPage) o;
+                        return p;
+                    }
+                    // cache invalid. fall through to retrieve the page.
                 } finally {
                     f.close();
                 }
@@ -161,8 +165,10 @@ public class ConfluencePluginList {
 
         try {
             RemotePage page = service.getPage("", "JENKINS", title);
-            writeToCache(cache, page);
-            return page;
+            RemoteLabel[] labels = service.getLabelsById("", page.getId());
+            WikiPage p = new WikiPage(page, labels);
+            writeToCache(cache, p);
+            return p;
         } catch (RemoteException e) {
             writeToCache(cache, null);
             throw e;
@@ -199,21 +205,6 @@ public class ConfluencePluginList {
         InputStream i = huc.getInputStream();
         while (i.read() >= 0) ; // Drain stream
         return huc;
-    }
-
-    public String[] getLabels(RemotePage page) throws RemoteException {
-        String[] r = labelCache.get(page.getId());
-        if (r==null) {
-            RemoteLabel[] labels = service.getLabelsById("", page.getId());
-            if (labels==null) return new String[0];
-            ArrayList<String> result = new ArrayList<String>(labels.length);
-            for (RemoteLabel label : labels)
-                if (label.getName().startsWith("plugin-"))
-                    result.add(label.getName().substring(7));
-            r = result.toArray(new String[result.size()]);
-            labelCache.put(page.getId(),r);
-        }
-        return r;
     }
 
     private static final String[] WIKI_PREFIXES = {

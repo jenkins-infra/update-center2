@@ -23,7 +23,6 @@
  */
 package org.jvnet.hudson.update_center;
 
-import hudson.plugins.jira.soap.RemotePage;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.dom4j.Document;
@@ -72,7 +71,7 @@ public class Plugin {
      * Confluence page of this plugin in Wiki.
      * Null if we couldn't find it.
      */
-    public final RemotePage page;
+    public final WikiPage page;
 
     /**
      * Confluence labels for the plugin wiki page.
@@ -87,7 +86,6 @@ public class Plugin {
     private boolean deprecated = false;
 
     private final SAXReader xmlReader;
-    private final ConfluencePluginList cpl;
 
     /**
      * POM parsed as a DOM.
@@ -101,7 +99,6 @@ public class Plugin {
         this.xmlReader = createXmlReader();
         this.pom = readPOM();
         this.page = findPage(cpl);
-        this.cpl = cpl;
     }
 
     public Plugin(PluginHistory hpi, ConfluencePluginList cpl) throws IOException {
@@ -125,7 +122,6 @@ public class Plugin {
         this.xmlReader = createXmlReader();
         this.pom = readPOM();
         this.page = findPage(cpl);
-        this.cpl = cpl;
     }
 
     public Plugin(HPI hpi, ConfluencePluginList cpl) throws IOException {
@@ -168,7 +164,7 @@ public class Plugin {
      * First we'll try to parse POM and obtain the URL.
      * If that fails, find the nearest name from the children list.
      */
-    private RemotePage findPage(ConfluencePluginList cpl) throws IOException {
+    private WikiPage findPage(ConfluencePluginList cpl) throws IOException {
         try {
             String p = OVERRIDES.getProperty(artifactId);
             if(p!=null)
@@ -264,12 +260,9 @@ public class Plugin {
     }
 
     private void readLabels() {
-        if (page!=null) try {
-            labels = cpl.getLabels(page);
-        } catch (RemoteException e) {
-            System.err.println("Failed to fetch labels for " + page.getUrl());
-            e.printStackTrace();
-        }
+        if (page!=null)
+            labels = page.getLabels();
+
         if (labels != null)
             for (String label : labels)
                 if ("deprecated".equals(label)) {
