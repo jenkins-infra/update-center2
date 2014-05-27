@@ -3,12 +3,13 @@ package org.jvnet.hudson.update_center;
 import hudson.plugins.jira.soap.RemoteLabel;
 import hudson.plugins.jira.soap.RemotePage;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class WikiPage {
+public class WikiPage implements Serializable {
     public final RemotePage page;
     public final RemoteLabel[] labels;
 
