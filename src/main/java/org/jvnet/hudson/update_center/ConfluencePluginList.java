@@ -142,7 +142,7 @@ public class ConfluencePluginList {
      * Loads the page from Wiki after consulting with the cache.
      */
     private WikiPage loadPage(String title) throws IOException {
-        File cache = new File(cacheDir,md5(title)+".page");
+        File cache = new File(cacheDir,title+".page");
         if (cache.exists() && cache.lastModified() >= System.currentTimeMillis()- TimeUnit.DAYS.toMillis(1)) {
             // load from cache
             try {
@@ -151,8 +151,7 @@ public class ConfluencePluginList {
                     Object o = new ObjectInputStream(f).readObject();
                     if (o==null)    return null;
                     if (o instanceof WikiPage) {
-                        WikiPage p = (WikiPage) o;
-                        return p;
+                        return (WikiPage) o;
                     }
                     // cache invalid. fall through to retrieve the page.
                 } finally {
@@ -175,17 +174,22 @@ public class ConfluencePluginList {
         }
     }
 
+    /**
+     * Writes an object to a cache file.
+     *
+     * In case another update center runs concurrently, write to a temporary file and then atomically rename it.
+     */
     private void writeToCache(File cache, Object o) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(cache));
+        File tmp = new File(cache+".tmp");
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tmp));
         try {
             oos.writeObject(o);
         } finally {
             oos.close();
         }
-    }
-
-    private String md5(String pageName) {
-        return pageName;    // TODO: md5
+        cache.delete();
+        tmp.renameTo(cache);
+        tmp.delete();
     }
 
     private static String checkRedirect(String url, String sessionId) throws IOException {
