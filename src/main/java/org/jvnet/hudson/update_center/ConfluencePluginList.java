@@ -133,6 +133,10 @@ public class ConfluencePluginList {
 
             String pageName = url.substring(p.length()).replace('+',' '); // poor hack for URL escape
 
+            // trim off the trailing '/'
+            if (pageName.endsWith("/"))
+                pageName = pageName.substring(0,pageName.length()-1);
+
             return loadPage(pageName);
         }
         throw new IllegalArgumentException("** Failed to resolve "+url);
