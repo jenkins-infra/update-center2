@@ -18,7 +18,7 @@ function generate() {
       "$@"
 }
 
-RULE="$pwd/www2/rules.php"
+RULE="$PWD/www2/rules.php"
 echo '$rules = array( ' > "$RULE"
 
 # generate several update centers for different segments
