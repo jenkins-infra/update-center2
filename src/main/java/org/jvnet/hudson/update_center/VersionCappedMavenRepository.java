@@ -23,18 +23,28 @@ public class VersionCappedMavenRepository extends MavenRepository {
     private final MavenRepository base;
 
     /**
-     * Version number to cap. We only report the portion of data that's compatible with this version.
+     * Version number to cap. We only report plugins that are compatible with this core version.
      */
     private final VersionNumber cap;
 
-    public VersionCappedMavenRepository(MavenRepository base, VersionNumber cap) {
+    /**
+     * Version number to cap core. We only report core versions as high as this.
+     */
+    private final VersionNumber capCore;
+
+    public VersionCappedMavenRepository(MavenRepository base, VersionNumber cap, VersionNumber capCore) {
         this.base = base;
         this.cap = cap;
+        this.capCore = capCore;
+    }
+
+    public VersionCappedMavenRepository(MavenRepository base, VersionNumber cap) {
+        this(base,cap,cap);
     }
 
     @Override
     public TreeMap<VersionNumber, HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException {
-        return new TreeMap<VersionNumber, HudsonWar>(base.getHudsonWar().tailMap(cap,true));
+        return new TreeMap<VersionNumber, HudsonWar>(base.getHudsonWar().tailMap(capCore,true));
     }
 
     @Override

@@ -88,8 +88,11 @@ public class Main {
     @Option(name="-pretty",usage="Pretty-print the result")
     public boolean prettyPrint;
 
-    @Option(name="-cap",usage="Cap the version number and only report data that's compatible with ")
-    public String cap = null;
+    @Option(name="-cap",usage="Cap the version number and only report plugins that are compatible with ")
+    public String capPlugin = null;
+
+    @Option(name="-capCore",usage="Cap the version number and only core that's compatible with. Defaults to -cap")
+    public String capCore = null;
 
     @Option(name="-pluginCount.txt",usage="Report a number of plugins in a simple text file")
     public File pluginCountTxt = null;
@@ -127,6 +130,11 @@ public class Main {
         }
     }
 
+    private String getCapCore() {
+        if (capCore!=null)  return capCore;
+        return capPlugin;
+    }
+
     private void prepareStandardDirectoryLayout() {
         output = new File(www,"update-center.json");
         htaccess = new File(www,"latest/.htaccess");
@@ -148,9 +156,6 @@ public class Main {
         JSONObject rhRoot = buildFullReleaseHistory(repo);
         String rh = prettyPrintJson(rhRoot);
         writeToFile(rh, releaseHistory);
-
-        if (cap!=null)
-            writeToFile(cap, new File(output.getParentFile(),"cap.txt"));
 
         latestRedirect.close();
     }
@@ -201,8 +206,11 @@ public class Main {
         MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance();
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
-        if (cap!=null)
-            repo = new VersionCappedMavenRepository(repo,new VersionNumber(cap));
+        if (capPlugin !=null || getCapCore()!=null) {
+            VersionNumber vp = capPlugin==null ? ANY_VERSION : new VersionNumber(capPlugin);
+            VersionNumber vc = getCapCore()==null ? ANY_VERSION : new VersionNumber(getCapCore());
+            repo = new VersionCappedMavenRepository(repo, vp, vc);
+        }
         if (experimentalOnly)
             repo = new AlphaBetaOnlyRepository(repo,false);
         if (noExperimental)
@@ -419,4 +427,6 @@ public class Main {
 
         return core;
     }
+
+    private static final VersionNumber ANY_VERSION = new VersionNumber("999.999");
 }
