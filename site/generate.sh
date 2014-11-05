@@ -58,7 +58,7 @@ pushd www2
   done
 
   # copy other static resource files
-  rsync -avz "$(dirname "$0")/static/" ./
+  rsync -avz "../site/static/" ./
 popd
 
 
