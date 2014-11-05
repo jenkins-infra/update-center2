@@ -5,6 +5,7 @@ umask
 
 # prepare the www workspace for execution
 rm -rf www2 || true
+mkdir www2
 
 mvn -e clean install
 
