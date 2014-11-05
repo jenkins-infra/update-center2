@@ -149,6 +149,9 @@ public class Main {
         String rh = prettyPrintJson(rhRoot);
         writeToFile(rh, releaseHistory);
 
+        if (cap!=null)
+            writeToFile(cap, new File(output.getParentFile(),"cap.txt"));
+
         latestRedirect.close();
     }
 
