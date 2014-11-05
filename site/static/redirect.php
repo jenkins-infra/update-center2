@@ -27,23 +27,15 @@ function compare_version($lhs,$rhs) {
 
 $v=$_GET['version'];
 
-$out = "1.x";
-foreach(glob("*/cap.txt") as $line) {
-  $target = chop(file_get_contents($line));
-  if (compare_version($v, $target.".999")<0) {
-    $out = dirname($line);
+include("rules.php");
+
+$out = "current";
+foreach(array_keys($rules) as $r) {
+  if (compare_version($v, $r)<0) {
+    $out = $rules[$r];
     break;
   }
 }
-
-#$targets = file("versions.txt", FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
-#$out = "latest";
-#foreach ($targets as $target) {
-#  if (compare_version($v, $target.".999")<0) {
-#    $out = $target;
-#    break;
-#  }
-#}
 
 if ($_SERVER['HTTPS']) {
   $host = 'https://updates.jenkins-ci.org/';
