@@ -20,7 +20,7 @@ function generate() {
 }
 
 RULE="$PWD/www2/rules.php"
-echo '$rules = array( ' > "$RULE"
+echo '<?php $rules = array( ' > "$RULE"
 
 # generate several update centers for different segments
 # so that plugins can aggressively update baseline requirements
@@ -48,7 +48,7 @@ done
 # for the latest without any cap
 generate -www ./www2/current
 
-echo ");" >> "$RULE"
+echo "); ?>" >> "$RULE"
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd www2
