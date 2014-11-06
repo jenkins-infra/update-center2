@@ -38,6 +38,6 @@ public class LatestLinkBuilder implements Closeable {
 
     public void add(String localPath, String target) throws IOException {
         htaccess.printf("RewriteRule ^%s$ %s [R=302,L]\n", localPath.replace(".", "\\."), target);
-        index.add(target, localPath);
+        index.add(localPath, localPath);
     }
 }
