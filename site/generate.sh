@@ -12,7 +12,6 @@ mvn -e clean install
 function generate() {
     java -jar target/update-center2-*-bin*/update-center2-*.jar \
       -id default \
-      -no-experimental \
       -connectionCheckUrl http://www.google.com/ \
       -key $SECRET/update-center.key \
       -certificate $SECRET/update-center.cert \
@@ -35,10 +34,10 @@ echo '<?php $rules = array( ' > "$RULE"
 # TODO: add back 1.532 1.545 once I sufficiently test this
 for v in 1.565 1.580; do
     # for mainline up to $v, which advertises the latest core
-    generate -www ./www2/$v -cap $v.999 -capCore 999
+    generate -no-experimental -www ./www2/$v -cap $v.999 -capCore 999
 
     # for LTS
-    generate -www ./www2/stable-$v -cap $v.999
+    generate -no-experimental -www ./www2/stable-$v -cap $v.999
     lastLTS=$v
 
     echo "'$v' => '$v', " >> "$RULE"
@@ -48,9 +47,12 @@ done
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
-generate -www ./www2/current -www-download ./www2/download -pluginCount.txt ./www2/pluginCount.txt
+generate -no-experimental -www ./www2/current -www-download ./www2/download -pluginCount.txt ./www2/pluginCount.txt
 
 echo "); ?>" >> "$RULE"
+
+# experimental update center. this is not a part of the version-based redirection rules
+generate -www ./www2/experimental
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd www2
@@ -65,5 +67,7 @@ popd
 
 
 # push generated index to the production servers
+# 'updates' come from tool installer generator, so leave that alone, but otherwise
+# delete old sites
 chmod -R a+r www2
-rsync -avz www2/ www-data@updates.jenkins-ci.org:/var/www/updates2.jenkins-ci.org/
+rsync -avz www2/ --exclude=/updates --delete www-data@updates.jenkins-ci.org:/var/www/updates2.jenkins-ci.org/
