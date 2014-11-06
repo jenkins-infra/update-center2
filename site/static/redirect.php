@@ -31,7 +31,7 @@ include("rules.php");
 
 $out = "current";
 foreach(array_keys($rules) as $r) {
-  if (compare_version($v, $r)<0) {
+  if (compare_version($v, $r)<=0) {
     $out = $rules[$r];
     break;
   }
