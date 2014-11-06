@@ -34,7 +34,6 @@ import org.kohsuke.args4j.Option;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -61,8 +60,8 @@ public class Main {
      * This file defines all the convenient symlinks in the form of
      * ./latest/PLUGINNAME.hpi.
      */
-    @Option(name="-h",usage="latest/.htaccess file")
-    public File htaccess = new File(".htaccess");
+    @Option(name="-latest",usage="Build latest symlink directory")
+    public File latest = new File("latest");
 
     /**
      * This option builds the directory image for the download server, which contains all the plugins
@@ -164,7 +163,7 @@ public class Main {
 
     private void prepareStandardDirectoryLayout() {
         output = new File(www,"update-center.json");
-        htaccess = new File(www,"latest/.htaccess");
+        latest = new File(www,"latest");
         indexHtml = new File(www,"index.html");
         releaseHistory = new File(www,"release-history.json");
         latestCoreTxt = new File(www,"latestCore.txt");
@@ -174,13 +173,9 @@ public class Main {
 
         MavenRepository repo = createRepository();
 
-        PrintWriter latestRedirect = createHtaccessWriter();
-        latestRedirect.println("# GENERATED. DO NOT MODIFY.");
-        // Redirect directive doesn't let us write redirect rules relative to the directory .htaccess exists,
-        // so we are back to mod_rewrite
-        latestRedirect.println("RewriteEngine on");
+        LatestLinkBuilder latest = createHtaccessWriter();
 
-        JSONObject ucRoot = buildUpdateCenterJson(repo, latestRedirect);
+        JSONObject ucRoot = buildUpdateCenterJson(repo, latest);
         writeToFile(updateCenterPostCallJson(ucRoot), output);
         writeToFile(updateCenterPostMessageHtml(ucRoot), new File(output.getPath()+".html"));
 
@@ -188,7 +183,7 @@ public class Main {
         String rh = prettyPrintJson(rhRoot);
         writeToFile(rh, releaseHistory);
 
-        latestRedirect.close();
+        latest.close();
     }
 
     String updateCenterPostCallJson(JSONObject ucRoot) {
@@ -200,19 +195,18 @@ public class Main {
         return "\uFEFF<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + prettyPrintJson(ucRoot) + EOL + "),'*'); };</script></body></html>";
     }
 
-    private PrintWriter createHtaccessWriter() throws IOException {
-        File p = htaccess.getParentFile();
-        if (p!=null)        p.mkdirs();
-        return new PrintWriter(new FileWriter(htaccess), true);
+    private LatestLinkBuilder createHtaccessWriter() throws IOException {
+        latest.mkdirs();
+        return new LatestLinkBuilder(latest);
     }
 
-    private JSONObject buildUpdateCenterJson(MavenRepository repo, PrintWriter latestRedirect) throws Exception {
+    private JSONObject buildUpdateCenterJson(MavenRepository repo, LatestLinkBuilder latest) throws Exception {
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
-        JSONObject core = buildCore(repo, latestRedirect);
+        JSONObject core = buildCore(repo, latest);
         if (core!=null)
             root.put("core", core);
-        root.put("plugins", buildPlugins(repo, latestRedirect));
+        root.put("plugins", buildPlugins(repo, latest));
         root.put("id",id);
         if (connectionCheckUrl!=null)
             root.put("connectionCheckUrl",connectionCheckUrl);
@@ -252,9 +246,9 @@ public class Main {
     /**
      * Build JSON for the plugin list.
      * @param repository
-     * @param redirect
+     * @param latest
      */
-    protected JSONObject buildPlugins(MavenRepository repository, PrintWriter redirect) throws Exception {
+    protected JSONObject buildPlugins(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
         ConfluencePluginList cpl = new ConfluencePluginList();
 
         int total = 0;
@@ -275,7 +269,7 @@ public class Main {
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
-                redirect.printf("RewriteRule ^%s\\.hpi$ %s [R=302,L]\n", plugin.artifactId, plugin.latest.getURL().getPath());
+                latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
 
                 if (download!=null) {
                     for (HPI v : hpi.artifacts.values()) {
@@ -431,7 +425,7 @@ public class Main {
      * Identify the latest core, populates the htaccess redirect file, optionally download the core wars and build the index.html
      * @return the JSON for the core Jenkins
      */
-    protected JSONObject buildCore(MavenRepository repository, PrintWriter redirect) throws Exception {
+    protected JSONObject buildCore(MavenRepository repository, LatestLinkBuilder redirect) throws Exception {
         TreeMap<VersionNumber,HudsonWar> wars = repository.getHudsonWar();
         if (wars.isEmpty())     return null;
 
@@ -439,7 +433,7 @@ public class Main {
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
 
-        redirect.printf("RewriteRule ^jenkins.war$ %s [R=302,L]\n", latest.getURL().getPath());
+        redirect.add("jenkins.war", latest.getURL().getPath());
 
         if (latestCoreTxt !=null)
             writeToFile(latest.getVersion().toString(), latestCoreTxt);
