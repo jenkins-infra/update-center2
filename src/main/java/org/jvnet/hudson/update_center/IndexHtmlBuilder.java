@@ -33,6 +33,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
+ * Generates index.html that has a list of files.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class IndexHtmlBuilder implements Closeable {
