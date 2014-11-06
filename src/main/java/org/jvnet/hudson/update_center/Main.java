@@ -61,12 +61,23 @@ public class Main {
     public File htaccess = new File(".htaccess");
 
     /**
-     * This option builds the directory image for the download server.
+     * This option builds the directory image for the download server, which contains all the plugins
+     * ever released to date in a directory structure.
+     *
+     * This is what we push into http://mirrors.jenkins-ci.org/ and from there it gets rsynced to
+     * our mirror servers (some indirectly through OSUOSL.)
+     *
+     * TODO: it also currently produces war/ directory that we aren't actually using. Maybe remove?
      */
     @Option(name="-download",usage="Build download server layout")
     public File download = null;
 
-    @Option(name="-www",usage="Built jenkins-ci.org layout")
+    /**
+     * This options builds update site. update-center.json(.html) that contains metadata,
+     * latest symlinks, and download/ directories that are referenced from metadata and
+     * redirects to the actual download server.
+     */
+    @Option(name="-www",usage="Build jenkins-ci.org layout")
     public File www = null;
 
     @Option(name="-index.html",usage="Update the version number of the latest jenkins.war in jenkins-ci.org/index.html")
