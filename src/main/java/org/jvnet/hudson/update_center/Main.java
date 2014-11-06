@@ -69,7 +69,7 @@ public class Main {
      *
      * TODO: it also currently produces war/ directory that we aren't actually using. Maybe remove?
      */
-    @Option(name="-download",usage="Build download server layout")
+    @Option(name="-download",usage="Build mirrors.jenkins-ci.org layout")
     public File download = null;
 
     /**
@@ -77,8 +77,20 @@ public class Main {
      * latest symlinks, and download/ directories that are referenced from metadata and
      * redirects to the actual download server.
      */
-    @Option(name="-www",usage="Build jenkins-ci.org layout")
+    @Option(name="-www",usage="Build updates.jenkins-ci.org layout")
     public File www = null;
+
+    /**
+     * This options builds the http://updates.jenkins-ci.org/download files,
+     * which consists of a series of index.html that lists available versions of plugins and cores.
+     *
+     * <p>
+     * This is the URL space that gets referenced by update center metadata, and this is the
+     * entry point of all the inbound download traffic. Actual *.hpi downloads are redirected
+     * to mirrors.jenkins-ci.org via Apache .htaccess.
+     */
+    @Option(name="-www-download",usage="Build updates.jenkins-ci.org/download directory")
+    public File wwwDownload = null;
 
     @Option(name="-index.html",usage="Update the version number of the latest jenkins.war in jenkins-ci.org/index.html")
     public File indexHtml = null;
@@ -266,8 +278,8 @@ public class Main {
                         createLatestSymlink(hpi, plugin.latest);
                 }
 
-                if (www!=null)
-                    buildIndex(new File(www,"download/plugins/"+hpi.artifactId),hpi.artifactId,hpi.artifacts.values(),permalink);
+                if (wwwDownload!=null)
+                    buildIndex(new File(wwwDownload,"plugins/"+hpi.artifactId),hpi.artifactId,hpi.artifacts.values(),permalink);
 
                 total++;
             } catch (IOException e) {
@@ -433,8 +445,8 @@ public class Main {
             }
         }
 
-        if (www!=null)
-            buildIndex(new File(www,"download/war/"),"jenkins.war", wars.values(), "/latest/jenkins.war");
+        if (wwwDownload!=null)
+            buildIndex(new File(wwwDownload,"war/"),"jenkins.war", wars.values(), "/latest/jenkins.war");
 
         return core;
     }
