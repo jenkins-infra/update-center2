@@ -440,10 +440,6 @@ public class Main {
         System.out.println("core\n=> "+ core);
 
         redirect.printf("RewriteRule ^jenkins.war$ %s [R=302,L]\n", latest.getURL().getPath());
-        // TODO: these 3 links doesn't work correctly for LTS. I don't think we are using this, so maybe we should remove them.
-        redirect.printf("RewriteRule ^debian/jenkins.deb$ http://pkg.jenkins-ci.org/debian/binary/jenkins_%s_all.deb\n", latest.getVersion());
-        redirect.printf("RewriteRule ^redhat/jenkins.rpm$ http://pkg.jenkins-ci.org/redhat/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
-        redirect.printf("RewriteRule ^opensuse/jenkins.rpm$ http://pkg.jenkins-ci.org/opensuse/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
 
         if (latestCoreTxt !=null)
             writeToFile(latest.getVersion().toString(), latestCoreTxt);
