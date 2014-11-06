@@ -57,7 +57,11 @@ public class Main {
     @Option(name="-r",usage="release history JSON file")
     public File releaseHistory = new File("release-history.json");
 
-    @Option(name="-h",usage="htaccess file")
+    /**
+     * This file defines all the convenient symlinks in the form of
+     * ./latest/PLUGINNAME.hpi.
+     */
+    @Option(name="-h",usage="latest/.htaccess file")
     public File htaccess = new File(".htaccess");
 
     /**
@@ -171,6 +175,10 @@ public class Main {
         MavenRepository repo = createRepository();
 
         PrintWriter latestRedirect = createHtaccessWriter();
+        latestRedirect.println("# GENERATED. DO NOT MODIFY.");
+        // Redirect directive doesn't let us write redirect rules relative to the directory .htaccess exists,
+        // so we are back to mod_rewrite
+        latestRedirect.println("RewriteEngine on");
 
         JSONObject ucRoot = buildUpdateCenterJson(repo, latestRedirect);
         writeToFile(updateCenterPostCallJson(ucRoot), output);
@@ -267,8 +275,7 @@ public class Main {
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
-                String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
-                redirect.printf("Redirect 302 %s %s\n", permalink, plugin.latest.getURL().getPath());
+                redirect.printf("RewriteRule ^%s\\.hpi$ %s [R=302,L]\n", plugin.artifactId, plugin.latest.getURL().getPath());
 
                 if (download!=null) {
                     for (HPI v : hpi.artifacts.values()) {
@@ -278,8 +285,10 @@ public class Main {
                         createLatestSymlink(hpi, plugin.latest);
                 }
 
-                if (wwwDownload!=null)
-                    buildIndex(new File(wwwDownload,"plugins/"+hpi.artifactId),hpi.artifactId,hpi.artifacts.values(),permalink);
+                if (wwwDownload!=null) {
+                    String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
+                    buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
+                }
 
                 total++;
             } catch (IOException e) {
@@ -430,10 +439,11 @@ public class Main {
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
 
-        redirect.printf("Redirect 302 /latest/jenkins.war %s\n", latest.getURL().getPath());
-        redirect.printf("Redirect 302 /latest/debian/jenkins.deb http://pkg.jenkins-ci.org/debian/binary/jenkins_%s_all.deb\n", latest.getVersion());
-        redirect.printf("Redirect 302 /latest/redhat/jenkins.rpm http://pkg.jenkins-ci.org/redhat/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
-        redirect.printf("Redirect 302 /latest/opensuse/jenkins.rpm http://pkg.jenkins-ci.org/opensuse/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
+        redirect.printf("RewriteRule ^jenkins.war$ %s [R=302,L]\n", latest.getURL().getPath());
+        // TODO: these 3 links doesn't work correctly for LTS. I don't think we are using this, so maybe we should remove them.
+        redirect.printf("RewriteRule ^debian/jenkins.deb$ http://pkg.jenkins-ci.org/debian/binary/jenkins_%s_all.deb\n", latest.getVersion());
+        redirect.printf("RewriteRule ^redhat/jenkins.rpm$ http://pkg.jenkins-ci.org/redhat/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
+        redirect.printf("RewriteRule ^opensuse/jenkins.rpm$ http://pkg.jenkins-ci.org/opensuse/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
 
         if (latestCoreTxt !=null)
             writeToFile(latest.getVersion().toString(), latestCoreTxt);
