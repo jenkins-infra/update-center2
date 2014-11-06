@@ -37,7 +37,7 @@ foreach(array_keys($rules) as $r) {
   }
 }
 
-if ($_SERVER['HTTPS']) {
+if (array_key_exists('HTTPS', $_SERVER)) {
   $host = 'https://updates.jenkins-ci.org/';
 } else {
   $host = 'http://mirrors.jenkins-ci.org/updates/';
