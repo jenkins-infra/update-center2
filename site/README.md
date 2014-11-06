@@ -68,9 +68,15 @@ and the value is the directory name of the update site.
 
 ## Generated files
 
-TBD
+The generated update center image contains the following pieces.
 
- * `download` tree: TODO: links are still broken
- * `latest` tree: TODO: redirects are still broken
- * `latestCore.txt`
- * `release-history.json`
+### Per site
+ * `latest` tree ([example](http://updates.jenkins-ci.org/current/latest/)) is a collection of permalinks to the latest version of every plugin.
+ * `latestCore.txt` contains the latest version of the core in this update center.
+ * `release-history.json` contains the release history of all the plugins available in this update site.
+ * `update-center.json` and `update-center.json.html` contain actual update center metadata.
+
+### Global
+ * [`/download` tree](http://updates.jenkins-ci.org/download) is an URL space that covers all the versions of all the plugins released to date. Thoes URLs are then redirected to `mirrors.jenkins-ci.org`
+ * For compatibility with the v2 layout, files from the 'current' update site is copied over into the top level directory.
+
