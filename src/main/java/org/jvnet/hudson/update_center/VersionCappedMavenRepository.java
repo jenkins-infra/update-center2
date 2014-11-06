@@ -25,16 +25,16 @@ public class VersionCappedMavenRepository extends MavenRepository {
     /**
      * Version number to cap. We only report plugins that are compatible with this core version.
      */
-    private final VersionNumber cap;
+    private final VersionNumber capPlugin;
 
     /**
      * Version number to cap core. We only report core versions as high as this.
      */
     private final VersionNumber capCore;
 
-    public VersionCappedMavenRepository(MavenRepository base, VersionNumber cap, VersionNumber capCore) {
+    public VersionCappedMavenRepository(MavenRepository base, VersionNumber capPlugin, VersionNumber capCore) {
         this.base = base;
-        this.cap = cap;
+        this.capPlugin = capPlugin;
         this.capCore = capCore;
     }
 
@@ -57,7 +57,7 @@ public class VersionCappedMavenRepository extends MavenRepository {
                 Entry<VersionNumber, HPI> e =  itr.next();
                 try {
                     VersionNumber v = new VersionNumber(e.getValue().getRequiredJenkinsVersion());
-                    if (v.compareTo(cap)<=0)
+                    if (v.compareTo(capPlugin)<=0)
                         continue;
                 } catch (IOException x) {
                     x.printStackTrace();
