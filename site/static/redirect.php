@@ -40,7 +40,7 @@ foreach(array_keys($rules) as $r) {
 if ($_SERVER['HTTPS']) {
   $host = 'https://updates.jenkins-ci.org/';
 } else {
-  $host = 'http://mirrors.jenkins-ci.org/';
+  $host = 'http://mirrors.jenkins-ci.org/updates/';
 }
 
 header('Location: ' . $host . $out . '/' . $_GET['path'] )
