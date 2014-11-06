@@ -31,8 +31,7 @@ echo '<?php $rules = array( ' > "$RULE"
 #
 # Looking at statistics like http://stats.jenkins-ci.org/jenkins-stats/svg/201409-jenkins.svg,
 # I think three or four should be sufficient
-# TODO: add back 1.532 1.545 once I sufficiently test this
-for v in 1.565 1.580; do
+for v in 1.532 1.545 1.565 1.580; do
     # for mainline up to $v, which advertises the latest core
     generate -no-experimental -www ./www2/$v -cap $v.999 -capCore 999
 
