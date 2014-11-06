@@ -48,14 +48,14 @@ done
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
-generate -www ./www2/current -www-download ./www2/download
+generate -www ./www2/current -www-download ./www2/download -pluginCount.txt ./www2/pluginCount.txt
 
 echo "); ?>" >> "$RULE"
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd www2
   ln -s stable-$lastLTS stable
-  for f in latest latestCore.txt pluginCount.txt release-history.json update-center.json update-center.json.html; do
+  for f in latest latestCore.txt release-history.json update-center.json update-center.json.html; do
     ln -s current/$f .
   done
 
