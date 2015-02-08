@@ -64,7 +64,7 @@ public class Plugin {
      */
     public final HPI latest;
     /**
-     * Latest version of this plugin.
+     * Previous version of this plugin.
      */
     public final HPI previous;
     /**
