@@ -18,6 +18,15 @@ function generate() {
       "$@"
 }
 
+function sanity-check() {
+    dir="$1"
+    file="$dir/update-center.json"
+    if [ 800000 -ge $(wc -c "$file" | cut -f 1 -d ' ') ]; then
+        echo $file looks too small
+        exit 1
+    fi
+}
+
 RULE="$PWD/www2/rules.php"
 echo '<?php $rules = array( ' > "$RULE"
 
@@ -34,9 +43,11 @@ echo '<?php $rules = array( ' > "$RULE"
 for v in 1.532 1.554 1.565 1.580; do
     # for mainline up to $v, which advertises the latest core
     generate -no-experimental -www ./www2/$v -cap $v.999 -capCore 999
+    sanity-check ./www2/$v
 
     # for LTS
     generate -no-experimental -www ./www2/stable-$v -cap $v.999
+    sanity-check ./www2/stable-$v
     lastLTS=$v
 
     echo "'$v' => '$v', " >> "$RULE"
