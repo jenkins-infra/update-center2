@@ -39,11 +39,16 @@ public class HudsonWar extends MavenArtifact {
 
     @Override
     public URL getURL() throws MalformedURLException {
-        return new URL("http://updates.jenkins-ci.org/download/war/"+version+"/"+ getFileName());
+        return getURL(null);
+    }
+
+    @Override
+    public URL getURL(String connectionCheckUrl) throws MalformedURLException {
+        return new URL((connectionCheckUrl!=null ? connectionCheckUrl : "http://updates.jenkins-ci.org") + "/download/war/"+version+"/"+ getFileName());
     }
 
     /**
-     * Returns the Maven artifact representing the correpsonding core jar file.
+     * Returns the Maven artifact representing the corresponding core jar file.
      */
     public MavenArtifact getCoreArtifact() {
         return new MavenArtifact(repository,new ArtifactInfo(

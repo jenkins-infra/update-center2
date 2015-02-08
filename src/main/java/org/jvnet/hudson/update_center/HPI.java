@@ -57,8 +57,14 @@ public class HPI extends MavenArtifact {
     /**
      * Download a plugin via more intuitive URL. This also helps us track download counts.
      */
+    @Override
     public URL getURL() throws MalformedURLException {
-        return new URL("http://updates.jenkins-ci.org/download/plugins/"+artifact.artifactId+"/"+version+"/"+artifact.artifactId+".hpi");
+        return getURL(null);
+    }
+
+    @Override
+    public URL getURL(String connectionCheckUrl) throws MalformedURLException {
+        return new URL((connectionCheckUrl!=null ? connectionCheckUrl : "http://updates.jenkins-ci.org") + "/download/plugins/"+artifact.artifactId+"/"+version+"/"+artifact.artifactId+".hpi");
     }
 
     /**

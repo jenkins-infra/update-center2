@@ -314,8 +314,8 @@ public class Plugin {
         return wiki;
     }
     
-    public JSONObject toJSON() throws IOException {
-        JSONObject json = latest.toJSON(artifactId);
+    public JSONObject toJSON(String connectionCheckUrl) throws IOException {
+        JSONObject json = latest.toJSON(artifactId, connectionCheckUrl);
 
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
         fisheyeDateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));

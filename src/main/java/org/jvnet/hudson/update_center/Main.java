@@ -266,7 +266,7 @@ public class Main {
 
                 System.out.println(
                   plugin.page!=null ? "=> "+plugin.page.getTitle() : "** No wiki page found");
-                JSONObject json = plugin.toJSON();
+                JSONObject json = plugin.toJSON(connectionCheckUrl);
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
                 latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
@@ -430,7 +430,7 @@ public class Main {
         if (wars.isEmpty())     return null;
 
         HudsonWar latest = wars.get(wars.firstKey());
-        JSONObject core = latest.toJSON("core");
+        JSONObject core = latest.toJSON("core", connectionCheckUrl);
         System.out.println("core\n=> "+ core);
 
         redirect.add("jenkins.war", latest.getURL().getPath());
