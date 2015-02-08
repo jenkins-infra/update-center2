@@ -1,0 +1,27 @@
+# THIS FILE IS MANAGED BY PUPPET
+#
+# direct the actual download traffic to mirrors,
+# since this is starting to eat the bandwidth
+RewriteEngine on
+
+ReadmeName readme.html
+IndexIgnore readme.html *.php
+
+# TODO: properly handle HTTPS in redirector
+
+# handle the redirect with test.php.
+# "L" flag causes the match to terminate, and internal redirect will be used to dispatch the request.
+# "QSA" flag is used to preserve the 'version' query parameter in the request.
+RewriteRule ^([^/]*\.json(\.html)?)$ redirect.php?path=$1 [L,QSA]
+
+# For other tool installations under updates/
+# HTTPS clients need to be served from HTTPS servers to avoid the error, so only send traffic to mirror for regular HTTP traffic
+RewriteCond %{HTTPS} !=on
+RewriteRule (.*\.json(\.html)?)$ http://mirrors.jenkins-ci.org/updates/$1
+
+
+
+# download/* directories contain virtual URL spaces for redirecting download traffic to mirrors.
+RedirectMatch 302 /download/war/([0-9]*\.[0-9]*\.[0-9]*/jenkins)\.war$ http://mirrors.jenkins-ci.org/war-stable/$1.war
+RedirectMatch 302 /download/war/(.*)\.war$ http://mirrors.jenkins-ci.org/war/$1.war
+RedirectMatch 302 /download/plugins/(.*)\.hpi$ http://mirrors.jenkins-ci.org/plugins/$1.hpi

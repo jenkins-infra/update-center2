@@ -34,7 +34,6 @@ import org.kohsuke.args4j.Option;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -57,17 +56,44 @@ public class Main {
     @Option(name="-r",usage="release history JSON file")
     public File releaseHistory = new File("release-history.json");
 
-    @Option(name="-h",usage="htaccess file")
-    public File htaccess = new File(".htaccess");
+    /**
+     * This file defines all the convenient symlinks in the form of
+     * ./latest/PLUGINNAME.hpi.
+     */
+    @Option(name="-latest",usage="Build latest symlink directory")
+    public File latest = new File("latest");
 
     /**
-     * This option builds the directory image for the download server.
+     * This option builds the directory image for the download server, which contains all the plugins
+     * ever released to date in a directory structure.
+     *
+     * This is what we push into http://mirrors.jenkins-ci.org/ and from there it gets rsynced to
+     * our mirror servers (some indirectly through OSUOSL.)
+     *
+     * TODO: it also currently produces war/ directory that we aren't actually using. Maybe remove?
      */
-    @Option(name="-download",usage="Build download server layout")
+    @Option(name="-download",usage="Build mirrors.jenkins-ci.org layout")
     public File download = null;
 
-    @Option(name="-www",usage="Built jenkins-ci.org layout")
+    /**
+     * This options builds update site. update-center.json(.html) that contains metadata,
+     * latest symlinks, and download/ directories that are referenced from metadata and
+     * redirects to the actual download server.
+     */
+    @Option(name="-www",usage="Build updates.jenkins-ci.org layout")
     public File www = null;
+
+    /**
+     * This options builds the http://updates.jenkins-ci.org/download files,
+     * which consists of a series of index.html that lists available versions of plugins and cores.
+     *
+     * <p>
+     * This is the URL space that gets referenced by update center metadata, and this is the
+     * entry point of all the inbound download traffic. Actual *.hpi downloads are redirected
+     * to mirrors.jenkins-ci.org via Apache .htaccess.
+     */
+    @Option(name="-www-download",usage="Build updates.jenkins-ci.org/download directory")
+    public File wwwDownload = null;
 
     @Option(name="-index.html",usage="Update the version number of the latest jenkins.war in jenkins-ci.org/index.html")
     public File indexHtml = null;
@@ -137,7 +163,7 @@ public class Main {
 
     private void prepareStandardDirectoryLayout() {
         output = new File(www,"update-center.json");
-        htaccess = new File(www,"latest/.htaccess");
+        latest = new File(www,"latest");
         indexHtml = new File(www,"index.html");
         releaseHistory = new File(www,"release-history.json");
         latestCoreTxt = new File(www,"latestCore.txt");
@@ -147,9 +173,9 @@ public class Main {
 
         MavenRepository repo = createRepository();
 
-        PrintWriter latestRedirect = createHtaccessWriter();
+        LatestLinkBuilder latest = createHtaccessWriter();
 
-        JSONObject ucRoot = buildUpdateCenterJson(repo, latestRedirect);
+        JSONObject ucRoot = buildUpdateCenterJson(repo, latest);
         writeToFile(updateCenterPostCallJson(ucRoot), output);
         writeToFile(updateCenterPostMessageHtml(ucRoot), new File(output.getPath()+".html"));
 
@@ -157,7 +183,7 @@ public class Main {
         String rh = prettyPrintJson(rhRoot);
         writeToFile(rh, releaseHistory);
 
-        latestRedirect.close();
+        latest.close();
     }
 
     String updateCenterPostCallJson(JSONObject ucRoot) {
@@ -169,19 +195,18 @@ public class Main {
         return "\uFEFF<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + prettyPrintJson(ucRoot) + EOL + "),'*'); };</script></body></html>";
     }
 
-    private PrintWriter createHtaccessWriter() throws IOException {
-        File p = htaccess.getParentFile();
-        if (p!=null)        p.mkdirs();
-        return new PrintWriter(new FileWriter(htaccess), true);
+    private LatestLinkBuilder createHtaccessWriter() throws IOException {
+        latest.mkdirs();
+        return new LatestLinkBuilder(latest);
     }
 
-    private JSONObject buildUpdateCenterJson(MavenRepository repo, PrintWriter latestRedirect) throws Exception {
+    private JSONObject buildUpdateCenterJson(MavenRepository repo, LatestLinkBuilder latest) throws Exception {
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
-        JSONObject core = buildCore(repo, latestRedirect);
+        JSONObject core = buildCore(repo, latest);
         if (core!=null)
             root.put("core", core);
-        root.put("plugins", buildPlugins(repo, latestRedirect));
+        root.put("plugins", buildPlugins(repo, latest));
         root.put("id",id);
         if (connectionCheckUrl!=null)
             root.put("connectionCheckUrl",connectionCheckUrl);
@@ -221,9 +246,9 @@ public class Main {
     /**
      * Build JSON for the plugin list.
      * @param repository
-     * @param redirect
+     * @param latest
      */
-    protected JSONObject buildPlugins(MavenRepository repository, PrintWriter redirect) throws Exception {
+    protected JSONObject buildPlugins(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
         ConfluencePluginList cpl = new ConfluencePluginList();
 
         int total = 0;
@@ -244,8 +269,7 @@ public class Main {
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
-                String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
-                redirect.printf("Redirect 302 %s %s\n", permalink, plugin.latest.getURL().getPath());
+                latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
 
                 if (download!=null) {
                     for (HPI v : hpi.artifacts.values()) {
@@ -255,8 +279,10 @@ public class Main {
                         createLatestSymlink(hpi, plugin.latest);
                 }
 
-                if (www!=null)
-                    buildIndex(new File(www,"download/plugins/"+hpi.artifactId),hpi.artifactId,hpi.artifacts.values(),permalink);
+                if (wwwDownload!=null) {
+                    String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
+                    buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
+                }
 
                 total++;
             } catch (IOException e) {
@@ -399,7 +425,7 @@ public class Main {
      * Identify the latest core, populates the htaccess redirect file, optionally download the core wars and build the index.html
      * @return the JSON for the core Jenkins
      */
-    protected JSONObject buildCore(MavenRepository repository, PrintWriter redirect) throws Exception {
+    protected JSONObject buildCore(MavenRepository repository, LatestLinkBuilder redirect) throws Exception {
         TreeMap<VersionNumber,HudsonWar> wars = repository.getHudsonWar();
         if (wars.isEmpty())     return null;
 
@@ -407,10 +433,7 @@ public class Main {
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
 
-        redirect.printf("Redirect 302 /latest/jenkins.war %s\n", latest.getURL().getPath());
-        redirect.printf("Redirect 302 /latest/debian/jenkins.deb http://pkg.jenkins-ci.org/debian/binary/jenkins_%s_all.deb\n", latest.getVersion());
-        redirect.printf("Redirect 302 /latest/redhat/jenkins.rpm http://pkg.jenkins-ci.org/redhat/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
-        redirect.printf("Redirect 302 /latest/opensuse/jenkins.rpm http://pkg.jenkins-ci.org/opensuse/RPMS/noarch/jenkins-%s-1.1.noarch.rpm\n", latest.getVersion());
+        redirect.add("jenkins.war", latest.getURL().getPath());
 
         if (latestCoreTxt !=null)
             writeToFile(latest.getVersion().toString(), latestCoreTxt);
@@ -422,8 +445,8 @@ public class Main {
             }
         }
 
-        if (www!=null)
-            buildIndex(new File(www,"download/war/"),"jenkins.war", wars.values(), "/latest/jenkins.war");
+        if (wwwDownload!=null)
+            buildIndex(new File(wwwDownload,"war/"),"jenkins.war", wars.values(), "/latest/jenkins.war");
 
         return core;
     }

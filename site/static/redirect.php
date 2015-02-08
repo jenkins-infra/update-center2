@@ -30,17 +30,19 @@ $v=$_GET['version'];
 include("rules.php");
 
 $out = "current";
-foreach(array_keys($rules) as $r) {
-  if (compare_version($v, $r)<=0) {
-    $out = $rules[$r];
-    break;
+if (isset($v) && !is_null($v)) {
+  foreach(array_keys($rules) as $r) {
+    if (compare_version($v, $r)<=0) {
+      $out = $rules[$r];
+      break;
+    }
   }
 }
 
-if ($_SERVER['HTTPS']) {
+if (array_key_exists('HTTPS', $_SERVER)) {
   $host = 'https://updates.jenkins-ci.org/';
 } else {
-  $host = 'http://mirrors.jenkins-ci.org/';
+  $host = 'http://mirrors.jenkins-ci.org/updates/';
 }
 
 header('Location: ' . $host . $out . '/' . $_GET['path'] )
