@@ -40,7 +40,7 @@ echo '<?php $rules = array( ' > "$RULE"
 #
 # Looking at statistics like http://stats.jenkins-ci.org/jenkins-stats/svg/201409-jenkins.svg,
 # I think three or four should be sufficient
-for v in 1.532 1.554 1.565 1.580; do
+for v in 1.554 1.565 1.580 1.596; do
     # for mainline up to $v, which advertises the latest core
     generate -no-experimental -www ./www2/$v -cap $v.999 -capCore 999
     sanity-check ./www2/$v
