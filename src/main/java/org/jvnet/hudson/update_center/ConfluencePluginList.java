@@ -23,15 +23,11 @@
  */
 package org.jvnet.hudson.update_center;
 
-import com.sun.xml.bind.v2.util.EditDistance;
 import hudson.plugins.jira.soap.ConfluenceSoapService;
 import hudson.plugins.jira.soap.RemoteLabel;
 import hudson.plugins.jira.soap.RemotePage;
 import hudson.plugins.jira.soap.RemotePageSummary;
-import org.apache.commons.io.FileUtils;
-import org.jvnet.hudson.confluence.Confluence;
 
-import javax.xml.rpc.ServiceException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -49,34 +45,57 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.rpc.ServiceException;
+
+import org.apache.commons.io.FileUtils;
+import org.jvnet.hudson.confluence.Confluence;
+
+import com.sun.xml.bind.v2.util.EditDistance;
+
 /**
  * List of plugins from confluence. Primarily serve as a cache.
  *
  * <p>
- * See http://confluence.atlassian.com/display/DOC/Remote+API+Specification
- * for the confluence API.
+ * See http://confluence.atlassian.com/display/DOC/Remote+API+Specification for the confluence API.
  *
  * @author Kohsuke Kawaguchi
  */
 public class ConfluencePluginList {
-    private final ConfluenceSoapService service;
-    private final Map<String,RemotePageSummary> children = new HashMap<String, RemotePageSummary>();
-    private final String[] normalizedTitles;
+    protected ConfluenceSoapService service;
+
+    private final Map<String, RemotePageSummary> children = new HashMap<String, RemotePageSummary>();
+
+    private String[] normalizedTitles;
 
     private String wikiSessionId;
+
     private final String WIKI_URL = "https://wiki.jenkins-ci.org/";
 
-    private final File cacheDir = new File(System.getProperty("user.home"),".wiki.jenkins-ci.org-cache");
+    private final Map<Long, String[]> labelCache = new HashMap<Long, String[]>();
+
+    private final File cacheDir = new File(System.getProperty("user.home"), ".wiki.jenkins-ci.org-cache");
 
     public ConfluencePluginList() throws IOException, ServiceException {
         cacheDir.mkdirs();
+    }
 
+    public void initialize() throws IOException, ServiceException {
         service = Confluence.connect(new URL(WIKI_URL));
         RemotePage page = service.getPage("", "JENKINS", "Plugins");
 
-        for (RemotePageSummary child : service.getChildren("", page.getId()))
-            children.put(normalize(child.getTitle()),child);
+        for (RemotePageSummary child : service.getChildren("", page.getId())) {
+            children.put(normalize(child.getTitle()), child);
+        }
         normalizedTitles = children.keySet().toArray(new String[children.size()]);
+    }
+
+    private void checkInitialized() {
+        if (service == null) {
+            throw new IllegalStateException("Variable 'service' is not initialized. Call 'initialize()' first.");
+        }
+        if (normalizedTitles == null) {
+            throw new IllegalStateException("Variable 'normalizedTitles' is not initialized. Call 'initialize()' first.");
+        }
     }
 
     /**
@@ -84,76 +103,88 @@ public class ConfluencePluginList {
      */
     private String normalize(String title) {
         title = title.toLowerCase().trim();
-        if(title.endsWith("plugin"))    title=title.substring(0,title.length()-6).trim();
-        return title.replace(" ","-");
+        if (title.endsWith("plugin")) {
+            title = title.substring(0, title.length() - 6).trim();
+        }
+        return title.replace(" ", "-");
     }
 
     /**
      * Finds the closest match, if any. Otherwise null.
      */
     public WikiPage findNearest(String pluginArtifactId) throws IOException {
+        checkInitialized();
+
         // comparison is case insensitive
         pluginArtifactId = pluginArtifactId.toLowerCase();
 
         String nearest = EditDistance.findNearest(pluginArtifactId, normalizedTitles);
-        if (EditDistance.editDistance(nearest,pluginArtifactId) <= 1) {
+        if (EditDistance.editDistance(nearest, pluginArtifactId) <= 1) {
             System.out.println("** No wiki page specified.. picking one with similar name."
-                               + "\nUsing '"+nearest+"' for "+pluginArtifactId);
+                    + "\nUsing '" + nearest + "' for " + pluginArtifactId);
             return loadPage(children.get(nearest).getTitle());
-        } else
-            return null;    // too far
+        } else {
+            return null; // too far
+        }
     }
 
     public WikiPage getPage(String url) throws IOException {
+        checkInitialized();
+
         Matcher tinylink = TINYLINK_PATTERN.matcher(url);
         if (tinylink.matches()) {
             String id = tinylink.group(1);
 
-            File cache = new File(cacheDir,id+".link");
+            File cache = new File(cacheDir, id + ".link");
             if (cache.exists()) {
                 url = FileUtils.readFileToString(cache);
             } else {
                 try {
                     // Avoid creating lots of sessions on wiki server.. get a session and reuse it.
-                    if (wikiSessionId == null)
+                    if (wikiSessionId == null) {
                         wikiSessionId = initSession(WIKI_URL);
+                    }
                     url = checkRedirect(
                             WIKI_URL + "pages/tinyurl.action?urlIdentifier=" + id,
                             wikiSessionId);
-                    FileUtils.writeStringToFile(cache,url);
+                    FileUtils.writeStringToFile(cache, url);
                 } catch (IOException e) {
                     throw new RemoteException("Failed to lookup tinylink redirect", e);
                 }
             }
         }
 
-        for( String p : WIKI_PREFIXES ) {
-            if (!url.startsWith(p))
+        for (String p : WIKI_PREFIXES) {
+            if (!url.startsWith(p)) {
                 continue;
+            }
 
-            String pageName = url.substring(p.length()).replace('+',' '); // poor hack for URL escape
+            String pageName = url.substring(p.length()).replace('+', ' '); // poor hack for URL escape
 
             // trim off the trailing '/'
-            if (pageName.endsWith("/"))
-                pageName = pageName.substring(0,pageName.length()-1);
+            if (pageName.endsWith("/")) {
+                pageName = pageName.substring(0, pageName.length() - 1);
+            }
 
             return loadPage(pageName);
         }
-        throw new IllegalArgumentException("** Failed to resolve "+url);
+        throw new IllegalArgumentException("** Failed to resolve " + url);
     }
 
     /**
      * Loads the page from Wiki after consulting with the cache.
      */
     private WikiPage loadPage(String title) throws IOException {
-        File cache = new File(cacheDir,title+".page");
-        if (cache.exists() && cache.lastModified() >= System.currentTimeMillis()- TimeUnit.DAYS.toMillis(1)) {
+        File cache = new File(cacheDir, title + ".page");
+        if (cache.exists() && cache.lastModified() >= System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)) {
             // load from cache
             try {
                 FileInputStream f = new FileInputStream(cache);
                 try {
                     Object o = new ObjectInputStream(f).readObject();
-                    if (o==null)    return null;
+                    if (o == null) {
+                        return null;
+                    }
                     if (o instanceof WikiPage) {
                         return (WikiPage) o;
                     }
@@ -162,7 +193,7 @@ public class ConfluencePluginList {
                     f.close();
                 }
             } catch (ClassNotFoundException e) {
-                throw (IOException)new IOException("Failed to retrieve from cache: "+cache).initCause(e);
+                throw (IOException) new IOException("Failed to retrieve from cache: " + cache).initCause(e);
             }
         }
 
@@ -184,7 +215,7 @@ public class ConfluencePluginList {
      * In case another update center runs concurrently, write to a temporary file and then atomically rename it.
      */
     private void writeToCache(File cache, Object o) throws IOException {
-        File tmp = new File(cache+".tmp");
+        File tmp = new File(cache + ".tmp");
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tmp));
         try {
             oos.writeObject(o);
@@ -206,20 +237,45 @@ public class ConfluencePluginList {
     }
 
     private static HttpURLConnection connect(String url, String sessionId) throws IOException {
-        HttpURLConnection huc = (HttpURLConnection)new URL(url).openConnection();
+        HttpURLConnection huc = (HttpURLConnection) new URL(url).openConnection();
         huc.setInstanceFollowRedirects(false);
         huc.setDoOutput(false);
-        if (sessionId != null) huc.addRequestProperty("Cookie", sessionId);
+        if (sessionId != null) {
+            huc.addRequestProperty("Cookie", sessionId);
+        }
         InputStream i = huc.getInputStream();
-        while (i.read() >= 0) ; // Drain stream
+        while (i.read() >= 0) {
+            ;
+        } // Drain stream
         return huc;
     }
 
+    public String[] getLabels(RemotePage page) throws RemoteException {
+        checkInitialized();
+
+        String[] r = labelCache.get(page.getId());
+        if (r == null) {
+            RemoteLabel[] labels = service.getLabelsById("", page.getId());
+            if (labels == null) {
+                return new String[0];
+            }
+            ArrayList<String> result = new ArrayList<String>(labels.length);
+            for (RemoteLabel label : labels) {
+                if (label.getName().startsWith("plugin-")) {
+                    result.add(label.getName().substring(7));
+                }
+            }
+            r = result.toArray(new String[result.size()]);
+            labelCache.put(page.getId(), r);
+        }
+        return r;
+    }
+
     private static final String[] WIKI_PREFIXES = {
-        "https://wiki.jenkins-ci.org/display/JENKINS/",
-        "http://wiki.jenkins-ci.org/display/JENKINS/",
-        "http://wiki.hudson-ci.org/display/HUDSON/",
-        "http://hudson.gotdns.com/wiki/display/HUDSON/",
+            "https://wiki.jenkins-ci.org/display/JENKINS/",
+            "http://wiki.jenkins-ci.org/display/JENKINS/",
+            "http://wiki.hudson-ci.org/display/HUDSON/",
+            "http://hudson.gotdns.com/wiki/display/HUDSON/",
     };
 
     private static final Pattern TINYLINK_PATTERN = Pattern.compile(".*/x/(\\w+)");
