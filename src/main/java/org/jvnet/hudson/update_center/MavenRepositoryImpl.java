@@ -1,18 +1,18 @@
 /*
  * The MIT License
- *
+ * 
  * Copyright (c) 2004-2009, Sun Microsystems, Inc.
- *
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -100,12 +100,15 @@ public class MavenRepositoryImpl extends MavenRepository {
 
     private boolean directLink;
 
+    private boolean includeSnapshots;
+
     public MavenRepositoryImpl() throws Exception {
-        this(false);
+        this(false, false);
     }
 
-    public MavenRepositoryImpl(boolean directLink) throws Exception {
+    public MavenRepositoryImpl(boolean directLink, boolean includeSnapshots) throws Exception {
         this.directLink = directLink;
+        this.includeSnapshots = includeSnapshots;
         ClassWorld classWorld = new ClassWorld("plexus.core", MavenRepositoryImpl.class.getClassLoader());
         ContainerConfiguration configuration = new DefaultContainerConfiguration().setClassWorld(classWorld);
         plexus = new DefaultPlexusContainer(configuration);
@@ -181,13 +184,6 @@ public class MavenRepositoryImpl extends MavenRepository {
         if (url.getUserInfo() != null) {
             con.setRequestProperty("Authorization", "Basic " + new sun.misc.BASE64Encoder().encode(url.getUserInfo().getBytes()));
         }
-
-        long lastMod = local.lastModified();
-        long remoteMod = con.getLastModified();
-        boolean test = offlineIndex;
-
-        boolean testExpandedexists = expanded.exists();
-        boolean localexists = local.exists();
 
         if (!expanded.exists() || !local.exists() || (local.lastModified() != con.getLastModified() && !offlineIndex)) {
             System.out.println("Downloading " + url);
@@ -268,7 +264,7 @@ public class MavenRepositoryImpl extends MavenRepository {
                 new TreeMap<String, PluginHistory>(String.CASE_INSENSITIVE_ORDER);
 
         for (ArtifactInfo a : response.getResults()) {
-            if (a.version.contains("SNAPSHOT"))
+            if (a.version.contains("SNAPSHOT") && !includeSnapshots)
             {
                 continue; // ignore snapshots
             }
@@ -308,7 +304,7 @@ public class MavenRepositoryImpl extends MavenRepository {
         FlatSearchResponse response = indexer.searchFlat(request);
 
         for (ArtifactInfo a : response.getResults()) {
-            if (a.version.contains("SNAPSHOT"))
+            if (a.version.contains("SNAPSHOT") && !includeSnapshots)
             {
                 continue; // ignore snapshots
             }
