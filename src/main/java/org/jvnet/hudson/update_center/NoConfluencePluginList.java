@@ -23,7 +23,6 @@
  */
 package org.jvnet.hudson.update_center;
 
-import hudson.plugins.jira.soap.RemoteLabel;
 import hudson.plugins.jira.soap.RemotePage;
 
 import java.io.IOException;
@@ -64,10 +63,6 @@ public class NoConfluencePluginList extends ConfluencePluginList
     public WikiPage getPage(String url) throws RemoteException
     {
 
-        RemotePage page = new RemotePage();
-        page.setUrl(url);
-        RemoteLabel[] labels = service.getLabelsById("", page.getId());
-        WikiPage p = new WikiPage(page, labels);
-        return p;
+        return null;
     }
 }
