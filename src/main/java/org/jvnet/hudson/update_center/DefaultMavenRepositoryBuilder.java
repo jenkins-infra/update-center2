@@ -34,6 +34,13 @@ public class DefaultMavenRepositoryBuilder {
             boolean includeSnapshots) throws Exception {
         MavenRepositoryImpl instance = new MavenRepositoryImpl(directLink, includeSnapshots);
 
+        addRemoteRepository(instance, repositoryName, repository, remoteIndex, directLink);
+
+        return instance;
+    }
+
+    public static MavenRepositoryImpl addRemoteRepository(MavenRepositoryImpl instance, String repositoryName, String repository, String remoteIndex,
+            boolean directLink) throws Exception {
         if (repositoryName == null)
         {
             repositoryName = "public";
@@ -53,7 +60,6 @@ public class DefaultMavenRepositoryBuilder {
         {
             instance.addRemoteRepository(repositoryName, repositoryUrl);
         }
-
         return instance;
     }
 }
