@@ -72,7 +72,7 @@ public abstract class MavenRepository {
 
 
     /**
-     * Discover all hudson.war versions.
+     * Discover all hudson.war versions. Map must be sorted by version number, descending.
      */
     public abstract TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException;
 

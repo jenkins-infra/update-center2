@@ -67,9 +67,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -234,11 +236,21 @@ public class MavenRepositoryImpl extends MavenRepository {
         Map<String, PluginHistory> plugins =
             new TreeMap<String, PluginHistory>(String.CASE_INSENSITIVE_ORDER);
 
+        Set<String> excluded = new HashSet<String>();
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
             if (a.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
-            if (IGNORE.containsKey(a.artifactId) || IGNORE.containsKey(a.artifactId + "-" + a.version))
-                continue;       // artifactIds or particular versions to omit
+            // Don't add blacklisted artifacts
+            if (IGNORE.containsKey(a.artifactId)) {
+                if (excluded.add(a.artifactId)) {
+                    System.out.println("=> Ignoring " + a.artifactId + " because this artifact is blacklisted");
+                }
+                continue;
+            }
+            if (IGNORE.containsKey(a.artifactId + "-" + a.version)) {
+                System.out.println("=> Ignoring " + a.artifactId + ", version " + a.version + " because this version is blacklisted");
+                continue;
+            }
 
             PluginHistory p = plugins.get(a.artifactId);
             if (p==null)

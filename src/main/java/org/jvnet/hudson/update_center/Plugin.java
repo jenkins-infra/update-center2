@@ -39,8 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -112,7 +112,7 @@ public class Plugin {
                 LOGGER.log(Level.WARNING, "Failed to resolve "+h+". Dropping this version.",e);
             }
         }
-        
+
         this.latest = versions.get(0);
         this.previous = versions.size()>1 ? versions.get(1) : null;
 
@@ -157,6 +157,18 @@ public class Plugin {
         }
     }
 
+    /** @return The wiki URL as specified in the POM, or the overrides file. */
+    public String getPomWikiUrl() {
+        // Check whether the wiki URL should be overridden
+        String url = OVERRIDES.getProperty(artifactId);
+
+        // Otherwise read the wiki URL from the POM, if any
+        if (url == null && pom != null) {
+            url = selectSingleValue(pom, "/project/url");
+        }
+        return url;
+    }
+
     /**
      * Locates the page for this plugin on Wiki.
      *
@@ -165,37 +177,24 @@ public class Plugin {
      * If that fails, find the nearest name from the children list.
      */
     private WikiPage findPage(ConfluencePluginList cpl) throws IOException {
+        // Check whether the plugin has a URL defined
+        String url = getPomWikiUrl();
+        if (url == null) {
+            System.out.println("** No wiki URL found in POM");
+            return null;
+        }
+
+        // If so, download the wiki page
         try {
-            String p = OVERRIDES.getProperty(artifactId);
-            if(p!=null)
-                return cpl.getPage(p);
+            return cpl.getPage(url);
         } catch (RemoteException e) {
-            System.err.println("** Override failed for "+artifactId);
+            System.err.println("** Failed to fetch "+ url);
             e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
         }
 
-        if (pom != null) {
-            String wikiPage = selectSingleValue(pom, "/project/url");
-            if (wikiPage != null) {
-                try {
-                    return cpl.getPage(wikiPage); // found the confluence page successfully
-                } catch (RemoteException e) {
-                    System.err.println("** Failed to fetch "+wikiPage);
-                    e.printStackTrace();
-                } catch (IllegalArgumentException e) {
-                    System.err.println(e.getMessage());
-                }
-            }
-        }
-
-        // try to guess the Wiki page
-        try {
-            return cpl.findNearest(artifactId);
-        } catch (RemoteException e) {
-            System.err.println("** Failed to locate nearest");
-            e.printStackTrace();
-        }
-
+        // Fetching the wiki page failed
         return null;
     }
 
@@ -254,6 +253,7 @@ public class Plugin {
         return labels;
     }
 
+    /** @return {@code true} if the plugin's wiki page has the "plugin-deprecated" label. */
     public boolean isDeprecated() {
         if (!labelsRead) readLabels();
         return deprecated;
@@ -288,7 +288,7 @@ public class Plugin {
         String oneLiner = NEWLINE_PATTERN.matcher(excerpt).replaceAll(" ");
         excerpt = HYPERLINK_PATTERN.matcher(oneLiner).replaceAll("<a href='$2'>$1</a>");
         if (latest.isAlphaOrBeta())
-            excerpt = "<b>(This version is experimental and may change in backward incompatible way</b> <br><br>"+excerpt;
+            excerpt = "<b>(This version is experimental and may change in backward-incompatible ways)</b> <br><br>"+excerpt;
         return excerpt;
     }
 
@@ -306,14 +306,15 @@ public class Plugin {
         return title;
     }
 
-    public String getWiki() {
+    /** @return The wiki page URL; may be empty, never {@code null}. */
+    public String getWikiUrl() {
         String wiki = "";
         if (page!=null) {
             wiki = page.getUrl();
         }
         return wiki;
     }
-    
+
     public JSONObject toJSON() throws IOException {
         JSONObject json = latest.toJSON(artifactId);
 
