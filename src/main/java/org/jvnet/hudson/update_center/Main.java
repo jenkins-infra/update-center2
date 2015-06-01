@@ -251,6 +251,8 @@ public class Main {
     protected JSONObject buildPlugins(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
         ConfluencePluginList cpl = new ConfluencePluginList();
 
+        final boolean isVersionCappedRepository = isVersionCappedRepository(repository);
+
         int validCount = 0;
         int deprecatedCount = 0;
         int missingWikiUrlCount = 0;
@@ -275,15 +277,25 @@ public class Main {
                 final String givenUrl = plugin.getPomWikiUrl();
                 final String actualUrl = plugin.getWikiUrl();
                 if (actualUrl.isEmpty()) {
-                    System.out.println(String.format("=> Excluding %s due to unknown/missing wiki URL: \"%s\"", hpi.artifactId, givenUrl));
-                    missingWikiUrlCount++;
-                    continue;
+                    // When building older Update Centres (e.g. LTS releases), there will be a number of plugins which
+                    // do not have wiki pages, even if the latest versions of those plugins *do* have wiki pages.
+                    // So here we keep the old behaviour: plugins without wiki pages are still kept.
+                    // This behaviour can be removed once we no longer generate UC files for LTS 1.596.x and older
+                    if (isVersionCappedRepository) {
+                        System.out.println(String.format("=> Keeping %s despite unknown/missing wiki URL: \"%s\"", hpi.artifactId, givenUrl));
+                    } else {
+                        System.out.println(String.format("=> Excluding %s due to unknown/missing wiki URL: \"%s\"", hpi.artifactId, givenUrl));
+                        missingWikiUrlCount++;
+                        continue;
+                    }
                 }
                 if (!actualUrl.equals(givenUrl)) {
                     System.out.println(String.format("=> Wiki URL was rewritten from \"%s\" to \"%s\"", givenUrl, actualUrl));
                 }
 
-                System.out.println("=> " + plugin.page.getTitle());
+                if (plugin.page != null) {
+                    System.out.println("=> " + plugin.page.getTitle());
+                }
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
@@ -470,6 +482,17 @@ public class Main {
             buildIndex(new File(wwwDownload,"war/"),"jenkins.war", wars.values(), "/latest/jenkins.war");
 
         return core;
+    }
+
+    /** @return {@code true} iff the given repository, or one of the repositories it wraps, is version-capped. */
+    private static boolean isVersionCappedRepository(MavenRepository repository) {
+        if (repository instanceof VersionCappedMavenRepository) {
+            return true;
+        }
+        if (repository.getBaseRepository() == null) {
+            return false;
+        }
+        return isVersionCappedRepository(repository.getBaseRepository());
     }
 
     private static final VersionNumber ANY_VERSION = new VersionNumber("999.999");

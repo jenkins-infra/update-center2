@@ -22,11 +22,10 @@ import java.util.TreeMap;
  * @author Kohsuke Kawaguchi
  */
 public class TruncatedMavenRepository extends MavenRepository {
-    private final MavenRepository base;
     private final int cap;
 
     public TruncatedMavenRepository(MavenRepository base, int cap) {
-        this.base = base;
+        setBaseRepository(base);
         this.cap = cap;
     }
 

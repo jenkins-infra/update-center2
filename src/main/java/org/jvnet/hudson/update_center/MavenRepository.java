@@ -20,6 +20,9 @@ import java.util.TreeMap;
  * @author Kohsuke Kawaguchi
  */
 public abstract class MavenRepository {
+
+    protected MavenRepository base;
+
     /**
      * Discover all plugins from this Maven repository.
      */
@@ -81,4 +84,15 @@ public abstract class MavenRepository {
     }
 
     protected abstract File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException;
+
+    /** Should be called by subclasses who are decorating an existing MavenRepository instance. */
+    protected void setBaseRepository(MavenRepository base) {
+        this.base = base;
+    }
+
+    /** @return The base instance that this repository is wrapping; or {@code null} if this is the base instance. */
+    public MavenRepository getBaseRepository() {
+        return base;
+    }
+
 }
