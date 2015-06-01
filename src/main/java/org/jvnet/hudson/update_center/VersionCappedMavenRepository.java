@@ -20,7 +20,6 @@ import java.util.TreeMap;
  * @author Kohsuke Kawaguchi
  */
 public class VersionCappedMavenRepository extends MavenRepository {
-    private final MavenRepository base;
 
     /**
      * Version number to cap. We only report plugins that are compatible with this core version.
@@ -33,7 +32,7 @@ public class VersionCappedMavenRepository extends MavenRepository {
     private final VersionNumber capCore;
 
     public VersionCappedMavenRepository(MavenRepository base, VersionNumber capPlugin, VersionNumber capCore) {
-        this.base = base;
+        setBaseRepository(base);
         this.capPlugin = capPlugin;
         this.capCore = capCore;
     }

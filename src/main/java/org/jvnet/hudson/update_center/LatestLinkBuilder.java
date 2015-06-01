@@ -18,6 +18,8 @@ public class LatestLinkBuilder implements Closeable {
     private final PrintWriter htaccess;
 
     public LatestLinkBuilder(File dir) throws IOException {
+        System.out.println(String.format("Writing plugin symlinks and redirects to dir: %s", dir));
+
         index = new IndexHtmlBuilder(dir,"Permalinks to latest files");
         htaccess = new PrintWriter(new FileWriter(new File(dir,".htaccess")),true);
 

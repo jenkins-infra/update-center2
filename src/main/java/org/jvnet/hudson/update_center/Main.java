@@ -251,21 +251,51 @@ public class Main {
     protected JSONObject buildPlugins(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
         ConfluencePluginList cpl = new ConfluencePluginList();
 
-        int total = 0;
+        final boolean isVersionCappedRepository = isVersionCappedRepository(repository);
+
+        int validCount = 0;
+        int deprecatedCount = 0;
+        int missingWikiUrlCount = 0;
 
         JSONObject plugins = new JSONObject();
-        for( PluginHistory hpi : repository.listHudsonPlugins() ) {
+        System.out.println("Gathering list of plugins and versions from the maven repo...");
+        for (PluginHistory hpi : repository.listHudsonPlugins()) {
             try {
                 System.out.println(hpi.artifactId);
 
-                Plugin plugin = new Plugin(hpi,cpl);
+                // Gather the plugin properties from the plugin file and the wiki
+                Plugin plugin = new Plugin(hpi, cpl);
+
+                // Exclude plugins flagged as deprecated on the wiki
                 if (plugin.isDeprecated()) {
-                    System.out.println("=> Plugin is deprecated.. skipping.");
+                    System.out.println(String.format("=> Excluding %s as plugin is marked as deprecated on the wiki", hpi.artifactId));
+                    deprecatedCount++;
                     continue;
                 }
 
-                System.out.println(
-                  plugin.page!=null ? "=> "+plugin.page.getTitle() : "** No wiki page found");
+                // Exclude plugins whose POM URL is empty, or doesn't exist on the wiki
+                final String givenUrl = plugin.getPomWikiUrl();
+                final String actualUrl = plugin.getWikiUrl();
+                if (actualUrl.isEmpty()) {
+                    // When building older Update Centres (e.g. LTS releases), there will be a number of plugins which
+                    // do not have wiki pages, even if the latest versions of those plugins *do* have wiki pages.
+                    // So here we keep the old behaviour: plugins without wiki pages are still kept.
+                    // This behaviour can be removed once we no longer generate UC files for LTS 1.596.x and older
+                    if (isVersionCappedRepository) {
+                        System.out.println(String.format("=> Keeping %s despite unknown/missing wiki URL: \"%s\"", hpi.artifactId, givenUrl));
+                    } else {
+                        System.out.println(String.format("=> Excluding %s due to unknown/missing wiki URL: \"%s\"", hpi.artifactId, givenUrl));
+                        missingWikiUrlCount++;
+                        continue;
+                    }
+                }
+                if (!actualUrl.equals(givenUrl)) {
+                    System.out.println(String.format("=> Wiki URL was rewritten from \"%s\" to \"%s\"", givenUrl, actualUrl));
+                }
+
+                if (plugin.page != null) {
+                    System.out.println("=> " + plugin.page.getTitle());
+                }
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
@@ -284,7 +314,7 @@ public class Main {
                     buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
                 }
 
-                total++;
+                validCount++;
             } catch (IOException e) {
                 e.printStackTrace();
                 // move on to the next plugin
@@ -292,8 +322,10 @@ public class Main {
         }
 
         if (pluginCountTxt!=null)
-            FileUtils.writeStringToFile(pluginCountTxt,String.valueOf(total));
-        System.out.println("Total "+total+" plugins listed.");
+            FileUtils.writeStringToFile(pluginCountTxt,String.valueOf(validCount));
+        System.out.println("Total " + validCount + " plugins listed.");
+        System.out.println("Excluded " + deprecatedCount + " plugins marked as deprecated on the wiki.");
+        System.out.println("Excluded " + missingWikiUrlCount + " plugins without a valid wiki URL.");
         return plugins;
     }
 
@@ -367,7 +399,7 @@ public class Main {
                     o.put("title", title);
                     o.put("gav", h.artifact.groupId+':'+h.artifact.artifactId+':'+h.artifact.version);
                     o.put("timestamp", h.getTimestamp());
-                    o.put("wiki", plugin.getWiki());
+                    o.put("wiki", plugin.getWikiUrl());
 
                     System.out.println("\t" + title + ":" + h.version);
                 } catch (IOException e) {
@@ -426,6 +458,7 @@ public class Main {
      * @return the JSON for the core Jenkins
      */
     protected JSONObject buildCore(MavenRepository repository, LatestLinkBuilder redirect) throws Exception {
+        System.out.println("Finding latest Jenkins core WAR...");
         TreeMap<VersionNumber,HudsonWar> wars = repository.getHudsonWar();
         if (wars.isEmpty())     return null;
 
@@ -449,6 +482,17 @@ public class Main {
             buildIndex(new File(wwwDownload,"war/"),"jenkins.war", wars.values(), "/latest/jenkins.war");
 
         return core;
+    }
+
+    /** @return {@code true} iff the given repository, or one of the repositories it wraps, is version-capped. */
+    private static boolean isVersionCappedRepository(MavenRepository repository) {
+        if (repository instanceof VersionCappedMavenRepository) {
+            return true;
+        }
+        if (repository.getBaseRepository() == null) {
+            return false;
+        }
+        return isVersionCappedRepository(repository.getBaseRepository());
     }
 
     private static final VersionNumber ANY_VERSION = new VersionNumber("999.999");

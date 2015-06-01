@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -24,7 +23,6 @@ import java.util.TreeMap;
  * @author Kohsuke Kawaguchi
  */
 public class AlphaBetaOnlyRepository extends MavenRepository {
-    private final MavenRepository base;
 
     /**
      * If true, negate the logic and only find non-alpha/beta releases.
@@ -32,7 +30,7 @@ public class AlphaBetaOnlyRepository extends MavenRepository {
     private boolean negative;
 
     public AlphaBetaOnlyRepository(MavenRepository base, boolean negative) {
-        this.base = base;
+        setBaseRepository(base);
         this.negative = negative;
     }
 
