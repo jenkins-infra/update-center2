@@ -293,9 +293,7 @@ public class Main {
                     System.out.println(String.format("=> Wiki URL was rewritten from \"%s\" to \"%s\"", givenUrl, actualUrl));
                 }
 
-                if (plugin.page != null) {
-                    System.out.println("=> " + plugin.page.getTitle());
-                }
+                System.out.println("=> " + plugin.getTitle());
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);

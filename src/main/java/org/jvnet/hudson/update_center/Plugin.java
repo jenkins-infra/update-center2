@@ -299,6 +299,11 @@ public class Plugin {
 
     public String getTitle() {
         String title = page != null ? page.getTitle() : null;
+        if ("Plugin Documentation Missing".equals(title)) {
+            // Don't overwrite the name just because the wiki page is missing.
+            // This code block can be removed once the associated wiki overrides are removed
+            title = null;
+        }
         if (title == null)
             title = selectSingleValue(pom, "/project/name");
         if (title == null)
