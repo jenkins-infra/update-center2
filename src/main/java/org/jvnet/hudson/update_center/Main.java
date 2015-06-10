@@ -1,18 +1,18 @@
 /*
  * The MIT License
- *
+ * 
  * Copyright (c) 2004-2009, Sun Microsystems, Inc.
- *
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -137,6 +137,33 @@ public class Main {
     @Option(name = "-nowiki", usage = "Do not refer wiki.jenkins-ci.org to retrieve plugin information.")
     public boolean nowiki;
 
+    // TODO use these new options
+    @Option(name = "-customWikiBaseUrl", usage = "Alternate wiki baseUrl.")
+    public String customWikiBaseUrl;
+
+    @Option(name = "-customWikiSpaceName", usage = "Alternate wiki space name.")
+    public String customWikiSpaceName;
+
+    @Option(name = "-customWikiPageTitle", usage = "Alternate wiki page title.")
+    public String customWikiPageTitle;
+
+    @Option(name = "-wikiUser", usage = "Username to access the wiki page.")
+    public String wikiUser;
+
+    @Option(name = "-wikiPassword", usage = "Password to access the wiki page.")
+    public String wikiPassword;
+
+    @Option(name = "-confluenceVersion", usage = "Version of Confluence. 1 or 2 . Default = 1")
+    public int confluenceVersion = 1;
+
+    public void setRepository(int confVersion) {
+        if (confVersion == 1 || confVersion == 2) {
+            confluenceVersion = confVersion;
+        } else {
+            throw new IllegalArgumentException("Confluence version can only be 1 or 2. It is 1 by default");
+        }
+    }
+
     @Option(name = "-maxPlugins", usage = "For testing purposes. Limit the number of plugins managed to the specified number.")
     public Integer maxPlugins;
 
@@ -247,7 +274,12 @@ public class Main {
         if (core != null) {
             root.put("core", core);
         }
-        root.put("plugins", buildPlugins(repo, latest));
+        if (confluenceVersion == 1) {
+            root.put("plugins", buildPluginsV1(repo, latest));
+        } else {
+            root.put("plugins", buildPluginsV2(repo, latest));
+        }
+
         root.put("id", id);
         if (connectionCheckUrl != null) {
             root.put("connectionCheckUrl", connectionCheckUrl);
@@ -326,13 +358,13 @@ public class Main {
      * @param repository
      * @param latest
      */
-    protected JSONObject buildPlugins(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
-        ConfluencePluginList cpl;
+    protected JSONObject buildPluginsV1(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
+        ConfluenceV1PluginList cpl;
 
         if (nowiki) {
-            cpl = new NoConfluencePluginList();
+            cpl = new NoConfluenceV1PluginList();
         } else {
-            cpl = new ConfluencePluginList();
+            cpl = new ConfluenceV1PluginList(customWikiBaseUrl, customWikiSpaceName, customWikiPageTitle, wikiUser, wikiPassword);
         }
         cpl.initialize();
 
@@ -343,7 +375,71 @@ public class Main {
             try {
                 System.out.println(hpi.artifactId);
 
-                Plugin plugin = new Plugin(hpi, cpl);
+                PluginV1 plugin = new PluginV1(hpi, cpl);
+                if (plugin.isDeprecated()) {
+                    System.out.println("=> Plugin is deprecated.. skipping.");
+                    continue;
+                }
+
+                System.out.println(
+                        plugin.page != null ? "=> " + plugin.page.getTitle() : "** No wiki page found");
+                JSONObject json = plugin.toJSON();
+                System.out.println("=> " + json);
+                plugins.put(plugin.artifactId, json);
+                latest.add(plugin.artifactId + ".hpi", plugin.latest.getURL().getPath());
+
+                if (download != null) {
+                    for (HPI v : hpi.artifacts.values()) {
+                        stage(v, new File(download, v.getRelativePath()));
+                    }
+                    if (!hpi.artifacts.isEmpty() && !nosymlinks) {
+                        createLatestSymlink(hpi, plugin.latest);
+                    }
+                }
+
+                if (wwwDownload != null) {
+                    String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
+                    buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
+                }
+
+                total++;
+            } catch (IOException e) {
+                e.printStackTrace();
+                // move on to the next plugin
+            }
+        }
+
+        if (pluginCountTxt != null) {
+            FileUtils.writeStringToFile(pluginCountTxt, String.valueOf(total));
+        }
+        System.out.println("Total " + total + " plugins listed.");
+        return plugins;
+    }
+
+    /**
+     * Build JSON for the plugin list.
+     *
+     * @param repository
+     * @param latest
+     */
+    protected JSONObject buildPluginsV2(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
+        ConfluenceV2PluginList cpl;
+
+        if (nowiki) {
+            cpl = new NoConfluenceV2PluginList();
+        } else {
+            cpl = new ConfluenceV2PluginList(customWikiBaseUrl, customWikiSpaceName, customWikiPageTitle, wikiUser, wikiPassword);
+        }
+        cpl.initialize();
+
+        int total = 0;
+
+        JSONObject plugins = new JSONObject();
+        for (PluginHistory hpi : repository.listHudsonPlugins()) {
+            try {
+                System.out.println(hpi.artifactId);
+
+                PluginV2 plugin = new PluginV2(hpi, cpl);
                 if (plugin.isDeprecated()) {
                     System.out.println("=> Plugin is deprecated.. skipping.");
                     continue;
@@ -431,16 +527,21 @@ public class Main {
      */
     protected JSONObject buildFullReleaseHistory(MavenRepository repo) throws Exception {
         JSONObject rhRoot = new JSONObject();
-        rhRoot.put("releaseHistory", buildReleaseHistory(repo));
+        if (confluenceVersion == 1) {
+            rhRoot.put("releaseHistory", buildReleaseHistoryV1(repo));
+        } else {
+            rhRoot.put("releaseHistory", buildReleaseHistoryV2(repo));
+        }
+
         return rhRoot;
     }
 
-    protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
-        ConfluencePluginList cpl;
+    protected JSONArray buildReleaseHistoryV1(MavenRepository repository) throws Exception {
+        ConfluenceV1PluginList cpl;
         if (nowiki) {
-            cpl = new NoConfluencePluginList();
+            cpl = new NoConfluenceV1PluginList();
         } else {
-            cpl = new ConfluencePluginList();
+            cpl = new ConfluenceV1PluginList(customWikiBaseUrl, customWikiSpaceName, customWikiPageTitle, wikiUser, wikiPassword);
         }
         cpl.initialize();
 
@@ -455,7 +556,66 @@ public class Main {
                 HPI h = rel.getValue();
                 JSONObject o = new JSONObject();
                 try {
-                    Plugin plugin = new Plugin(h, cpl);
+                    PluginV1 plugin = new PluginV1(h, cpl);
+
+                    String title = plugin.getTitle();
+                    if ((title == null) || (title.equals(""))) {
+                        title = h.artifact.artifactId;
+                    }
+
+                    o.put("title", title);
+                    o.put("gav", h.artifact.groupId + ':' + h.artifact.artifactId + ':' + h.artifact.version);
+                    o.put("timestamp", h.getTimestamp());
+                    o.put("wiki", plugin.getWiki());
+
+                    System.out.println("\t" + title + ":" + h.version);
+                } catch (IOException e) {
+                    System.out.println("Failed to resolve plugin " + h.artifact.artifactId + " so using defaults");
+                    o.put("title", h.artifact.artifactId);
+                    o.put("wiki", "");
+                }
+
+                PluginHistory history = h.history;
+                if (history.latest() == h) {
+                    o.put("latestRelease", true);
+                }
+                if (history.first() == h) {
+                    o.put("firstRelease", true);
+                }
+                o.put("version", h.version);
+
+                releases.add(o);
+            }
+            JSONObject d = new JSONObject();
+            d.put("date", relDate);
+            d.put("releases", releases);
+            releaseHistory.add(d);
+        }
+
+        return releaseHistory;
+    }
+
+    protected JSONArray buildReleaseHistoryV2(MavenRepository repository) throws Exception {
+        ConfluenceV2PluginList cpl;
+        if (nowiki) {
+            cpl = new NoConfluenceV2PluginList();
+        } else {
+            cpl = new ConfluenceV2PluginList(customWikiBaseUrl, customWikiSpaceName, customWikiPageTitle, wikiUser, wikiPassword);
+        }
+        cpl.initialize();
+
+        JSONArray releaseHistory = new JSONArray();
+        for (Map.Entry<Date, Map<String, HPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet()) {
+            String relDate = MavenArtifact.getDateFormat().format(relsOnDate.getKey());
+            System.out.println("Releases on " + relDate);
+
+            JSONArray releases = new JSONArray();
+
+            for (Map.Entry<String, HPI> rel : relsOnDate.getValue().entrySet()) {
+                HPI h = rel.getValue();
+                JSONObject o = new JSONObject();
+                try {
+                    PluginV2 plugin = new PluginV2(h, cpl);
 
                     String title = plugin.getTitle();
                     if ((title == null) || (title.equals(""))) {

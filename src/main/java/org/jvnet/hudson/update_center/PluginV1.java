@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
  *
  * @author Kohsuke Kawaguchi
  */
-public class Plugin {
+public class PluginV1 {
     /**
      * Plugin artifact ID.
      */
@@ -72,7 +72,7 @@ public class Plugin {
      * Confluence page of this plugin in Wiki.
      * Null if we couldn't find it.
      */
-    public final WikiPage page;
+    public final WikiV1Page page;
 
     /**
      * Confluence labels for the plugin wiki page.
@@ -93,7 +93,7 @@ public class Plugin {
      */
     private final Document pom;
 
-    public Plugin(String artifactId, HPI latest, HPI previous, ConfluencePluginList cpl) throws IOException {
+    public PluginV1(String artifactId, HPI latest, HPI previous, ConfluenceV1PluginList cpl) throws IOException {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
@@ -102,7 +102,7 @@ public class Plugin {
         this.page = findPage(cpl);
     }
 
-    public Plugin(PluginHistory hpi, ConfluencePluginList cpl) throws IOException {
+    public PluginV1(PluginHistory hpi, ConfluenceV1PluginList cpl) throws IOException {
         this.artifactId = hpi.artifactId;
         List<HPI> versions = new ArrayList<HPI>();
         for (HPI h : hpi.artifacts.values()) {
@@ -125,7 +125,7 @@ public class Plugin {
         this.page = findPage(cpl);
     }
 
-    public Plugin(HPI hpi, ConfluencePluginList cpl) throws IOException {
+    public PluginV1(HPI hpi, ConfluenceV1PluginList cpl) throws IOException {
         this(hpi.artifact.artifactId, hpi,  null, cpl);
     }
 
@@ -166,7 +166,7 @@ public class Plugin {
      * First we'll try to parse POM and obtain the URL.
      * If that fails, find the nearest name from the children list.
      */
-    private WikiPage findPage(ConfluencePluginList cpl) throws IOException {
+    private WikiV1Page findPage(ConfluenceV1PluginList cpl) throws IOException {
         try {
             String p = OVERRIDES.getProperty(artifactId);
             if(p!=null)
@@ -397,11 +397,11 @@ public class Plugin {
 
     static {
         try {
-            OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
+            OVERRIDES.load(PluginV1.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
         } catch (IOException e) {
             throw new Error(e);
         }
     }
 
-    private static final Logger LOGGER = Logger.getLogger(Plugin.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PluginV1.class.getName());
 }

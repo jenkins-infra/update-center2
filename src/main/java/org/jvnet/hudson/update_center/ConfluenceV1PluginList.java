@@ -23,11 +23,6 @@
  */
 package org.jvnet.hudson.update_center;
 
-import hudson.plugins.jira.soap.ConfluenceSoapService;
-import hudson.plugins.jira.soap.RemoteLabel;
-import hudson.plugins.jira.soap.RemotePage;
-import hudson.plugins.jira.soap.RemotePageSummary;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -47,8 +42,14 @@ import java.util.regex.Pattern;
 
 import javax.xml.rpc.ServiceException;
 
+import jenkins.plugins.confluence.soap.v1.ConfluenceSoapService;
+import jenkins.plugins.confluence.soap.v1.ConfluenceSoapServiceServiceLocator;
+import jenkins.plugins.confluence.soap.v1.RemoteLabel;
+import jenkins.plugins.confluence.soap.v1.RemotePage;
+import jenkins.plugins.confluence.soap.v1.RemotePageSummary;
+
+import org.apache.axis.utils.StringUtils;
 import org.apache.commons.io.FileUtils;
-import org.jvnet.hudson.confluence.Confluence;
 
 import com.sun.xml.bind.v2.util.EditDistance;
 
@@ -60,7 +61,7 @@ import com.sun.xml.bind.v2.util.EditDistance;
  *
  * @author Kohsuke Kawaguchi
  */
-public class ConfluencePluginList {
+public class ConfluenceV1PluginList {
     protected ConfluenceSoapService service;
 
     private final Map<String, RemotePageSummary> children = new HashMap<String, RemotePageSummary>();
@@ -71,22 +72,72 @@ public class ConfluencePluginList {
 
     private final String WIKI_URL = "https://wiki.jenkins-ci.org/";
 
+    private final String wikiBaseUrl;
+
+    private final String wikiSpaceName;
+
+    private final String wikiPageTitle;
+
+    private final String wikiUser;
+
+    private final String wikiPassword;
+
     private final Map<Long, String[]> labelCache = new HashMap<Long, String[]>();
 
-    private final File cacheDir = new File(System.getProperty("user.home"), ".wiki.jenkins-ci.org-cache");
+    private final File cacheDir = new File(System.getProperty("user.home"), ".wiki.jenkins-cache");
 
-    public ConfluencePluginList() throws IOException, ServiceException {
+    public ConfluenceV1PluginList() throws IOException, ServiceException {
+        this(null, null, null, null, null);
+    }
+
+    public ConfluenceV1PluginList(String wikiBaseUrl, String wikiSpaceName, String wikiPageTitle, String wikiUser, String wikiPassword) throws IOException,
+            ServiceException {
+        if (wikiBaseUrl == null) {
+            this.wikiBaseUrl = WIKI_URL;
+        } else {
+            this.wikiBaseUrl = wikiBaseUrl;
+        }
+        this.wikiSpaceName = wikiSpaceName;
+        this.wikiPageTitle = wikiPageTitle;
+        this.wikiUser = wikiUser;
+        this.wikiPassword = wikiPassword;
+
         cacheDir.mkdirs();
     }
 
     public void initialize() throws IOException, ServiceException {
-        service = Confluence.connect(new URL(WIKI_URL));
-        RemotePage page = service.getPage("", "JENKINS", "Plugins");
+        if (!StringUtils.isEmpty(wikiBaseUrl)) {
+            service = connectV1(new URL(wikiBaseUrl));
+        } else {
+            service = connectV1(new URL(WIKI_URL));
+        }
+        String token = "";
+        if (!StringUtils.isEmpty(wikiUser) && !StringUtils.isEmpty(wikiPassword)) {
+            token = service.login(wikiUser, wikiPassword);
+        }
+        String wikiSpaceNameLocal = "JENKINS";
+        String wikiPageTitleLocal = "Plugins";
+        if (!StringUtils.isEmpty(wikiSpaceName)) {
+            wikiSpaceNameLocal = wikiSpaceName;
+        }
+        if (!StringUtils.isEmpty(wikiPageTitle)) {
+            wikiPageTitleLocal = wikiPageTitle;
+        }
+
+        RemotePage page = service.getPage(token, wikiSpaceNameLocal, wikiPageTitleLocal);
 
         for (RemotePageSummary child : service.getChildren("", page.getId())) {
             children.put(normalize(child.getTitle()), child);
         }
         normalizedTitles = children.keySet().toArray(new String[children.size()]);
+    }
+
+    /**
+     * Connects to the confluence server.
+     */
+    public static ConfluenceSoapService connectV1(URL confluenceUrl) throws ServiceException, IOException {
+        ConfluenceSoapServiceServiceLocator loc = new ConfluenceSoapServiceServiceLocator();
+        return loc.getConfluenceserviceV1(new URL(confluenceUrl, "rpc/soap-axis/confluenceservice-v1"));
     }
 
     private void checkInitialized() {
@@ -112,7 +163,7 @@ public class ConfluencePluginList {
     /**
      * Finds the closest match, if any. Otherwise null.
      */
-    public WikiPage findNearest(String pluginArtifactId) throws IOException {
+    public WikiV1Page findNearest(String pluginArtifactId) throws IOException {
         checkInitialized();
 
         // comparison is case insensitive
@@ -128,7 +179,7 @@ public class ConfluencePluginList {
         }
     }
 
-    public WikiPage getPage(String url) throws IOException {
+    public WikiV1Page getPage(String url) throws IOException {
         checkInitialized();
 
         Matcher tinylink = TINYLINK_PATTERN.matcher(url);
@@ -168,13 +219,33 @@ public class ConfluencePluginList {
 
             return loadPage(pageName);
         }
+        if (!StringUtils.isEmpty(wikiBaseUrl) && !StringUtils.isEmpty(wikiSpaceName)) {
+            String customPrefix = wikiBaseUrl;
+            if (customPrefix.endsWith("/")) {
+                customPrefix = customPrefix + "display/" + wikiSpaceName + "/";
+            } else {
+                customPrefix = customPrefix + "/display/" + wikiSpaceName + "/";
+            }
+            if (url.startsWith(customPrefix)) {
+
+                String pageName = url.substring(customPrefix.length()).replace('+', ' '); // poor hack for URL escape
+
+                // trim off the trailing '/'
+                if (pageName.endsWith("/")) {
+                    pageName = pageName.substring(0, pageName.length() - 1);
+                }
+
+                return loadPage(pageName);
+            }
+        }
+
         throw new IllegalArgumentException("** Failed to resolve " + url);
     }
 
     /**
      * Loads the page from Wiki after consulting with the cache.
      */
-    private WikiPage loadPage(String title) throws IOException {
+    private WikiV1Page loadPage(String title) throws IOException {
         File cache = new File(cacheDir, title + ".page");
         if (cache.exists() && cache.lastModified() >= System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)) {
             // load from cache
@@ -185,8 +256,8 @@ public class ConfluencePluginList {
                     if (o == null) {
                         return null;
                     }
-                    if (o instanceof WikiPage) {
-                        return (WikiPage) o;
+                    if (o instanceof WikiV1Page) {
+                        return (WikiV1Page) o;
                     }
                     // cache invalid. fall through to retrieve the page.
                 } finally {
@@ -198,9 +269,19 @@ public class ConfluencePluginList {
         }
 
         try {
-            RemotePage page = service.getPage("", "JENKINS", title);
-            RemoteLabel[] labels = service.getLabelsById("", page.getId());
-            WikiPage p = new WikiPage(page, labels);
+            String token = "";
+            if (!StringUtils.isEmpty(wikiUser) && !StringUtils.isEmpty(wikiPassword)) {
+                token = service.login(wikiUser, wikiPassword);
+            }
+            String wikiSpaceNameLocal = "JENKINS";
+            if (!StringUtils.isEmpty(wikiSpaceName)) {
+                wikiSpaceNameLocal = wikiSpaceName;
+            }
+
+            RemotePage page = service.getPage(token, wikiSpaceNameLocal, title);
+
+            RemoteLabel[] labels = service.getLabelsById(token, page.getId());
+            WikiV1Page p = new WikiV1Page(page, labels);
             writeToCache(cache, p);
             return p;
         } catch (RemoteException e) {
@@ -253,9 +334,14 @@ public class ConfluencePluginList {
     public String[] getLabels(RemotePage page) throws RemoteException {
         checkInitialized();
 
+        String token = "";
+        if (!StringUtils.isEmpty(wikiUser) && !StringUtils.isEmpty(wikiPassword)) {
+            token = service.login(wikiUser, wikiPassword);
+        }
+
         String[] r = labelCache.get(page.getId());
         if (r == null) {
-            RemoteLabel[] labels = service.getLabelsById("", page.getId());
+            RemoteLabel[] labels = service.getLabelsById(token, page.getId());
             if (labels == null) {
                 return new String[0];
             }

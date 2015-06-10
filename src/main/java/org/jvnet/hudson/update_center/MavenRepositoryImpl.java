@@ -346,7 +346,7 @@ public class MavenRepositoryImpl extends MavenRepository {
 
     static {
         try {
-            IGNORE.load(Plugin.class.getClassLoader().getResourceAsStream("artifact-ignores.properties"));
+            IGNORE.load(PluginV1.class.getClassLoader().getResourceAsStream("artifact-ignores.properties"));
         } catch (IOException e) {
             throw new Error(e);
         }
