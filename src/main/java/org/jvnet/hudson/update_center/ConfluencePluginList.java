@@ -140,7 +140,7 @@ public class ConfluencePluginList {
 
         // Reject the URL if it's not on the wiki at all
         if (!url.startsWith(WIKI_URL)) {
-            System.out.println("** Wiki URLs should start with "+ WIKI_URL);
+            System.out.println("** Wiki URLs should start with "+ WIKI_URL+" but got "+url);
             return null;
         }
 
