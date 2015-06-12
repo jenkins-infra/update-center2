@@ -34,7 +34,6 @@ import org.dom4j.io.SAXReader;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,6 +71,8 @@ public class Plugin {
      * Null if we couldn't find it.
      */
     public final WikiPage page;
+
+    private boolean pageDownloadFailed;
 
     /**
      * Confluence labels for the plugin wiki page.
@@ -187,14 +188,13 @@ public class Plugin {
         // If so, download the wiki page
         try {
             return cpl.getPage(url);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             System.err.println("** Failed to fetch "+ url);
             e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            System.err.println(e.getMessage());
         }
 
-        // Fetching the wiki page failed
+        // An exception was thrown while fetching the wiki page; this is likely to be a transient failure
+        pageDownloadFailed = true;
         return null;
     }
 
@@ -318,6 +318,11 @@ public class Plugin {
             wiki = page.getUrl();
         }
         return wiki;
+    }
+
+    /** @return {@code true} if a wiki page exists for this plugin, but downloading it failed. */
+    public boolean didWikiPageDownloadFail() {
+        return pageDownloadFailed;
     }
 
     public JSONObject toJSON() throws IOException {

@@ -140,7 +140,7 @@ public class ConfluencePluginList {
 
         // Reject the URL if it's not on the wiki at all
         if (!url.startsWith(WIKI_URL)) {
-            System.out.println("** Wiki URLs should start with "+ WIKI_URL+" but got "+url);
+            System.out.println("** Wiki URLs should start with "+ WIKI_URL);
             return null;
         }
 
@@ -206,18 +206,18 @@ public class ConfluencePluginList {
                 FileInputStream f = new FileInputStream(cache);
                 try {
                     Object o = new ObjectInputStream(f).readObject();
-                    if (o == null) {
-                        return null;
-                    }
                     if (o instanceof WikiPage) {
                         return (WikiPage) o;
                     }
-                    // cache invalid. fall through to retrieve the page.
+
+                    // Cache file (somehow) has the wrong type; fall through to retrieve the page
+                    System.out.println("** Ignoring cached wiki data with unexpected type: "+ o);
                 } finally {
                     f.close();
                 }
-            } catch (ClassNotFoundException e) {
-                throw (IOException) new IOException("Failed to retrieve from cache: " + cache).initCause(e);
+            } catch (Exception e) {
+                // Fall through to retrieve the page if anything goes wrong with parsing the cache file
+                System.out.println("** Failed to read cached wiki data: "+ e);
             }
         }
 
@@ -225,8 +225,10 @@ public class ConfluencePluginList {
         try {
             RemotePage page;
             if (NumberUtils.isDigits(cacheKey)) {
+                System.out.println("=> Fetching wiki page by ID "+ cacheKey);
                 page = service.getPage("", Long.parseLong(cacheKey));
             } else {
+                System.out.println("=> Fetching wiki page by name: "+ cacheKey);
                 page = service.getPage("", "JENKINS", cacheKey);
             }
             RemoteLabel[] labels = service.getLabelsById("", page.getId());
@@ -234,8 +236,8 @@ public class ConfluencePluginList {
             writeToCache(cache, p);
             return p;
         } catch (RemoteException e) {
-            // Something went wrong; invalidate the cache for this page
-            writeToCache(cache, null);
+            // Something went wrong; delete the cache file
+            cache.delete();
             throw e;
         }
     }

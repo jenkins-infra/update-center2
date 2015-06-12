@@ -275,22 +275,29 @@ public class Main {
 
                 // Exclude plugins whose POM URL is empty, or doesn't exist on the wiki
                 final String givenUrl = plugin.getPomWikiUrl();
-                final String actualUrl = plugin.getWikiUrl();
-                if (actualUrl.isEmpty()) {
-                    // When building older Update Centres (e.g. LTS releases), there will be a number of plugins which
-                    // do not have wiki pages, even if the latest versions of those plugins *do* have wiki pages.
-                    // So here we keep the old behaviour: plugins without wiki pages are still kept.
-                    // This behaviour can be removed once we no longer generate UC files for LTS 1.596.x and older
-                    if (isVersionCappedRepository) {
-                        System.out.println(String.format("=> Keeping %s despite unknown/missing wiki URL: \"%s\"", hpi.artifactId, givenUrl));
-                    } else {
-                        System.out.println(String.format("=> Excluding %s due to unknown/missing wiki URL: \"%s\"", hpi.artifactId, givenUrl));
-                        missingWikiUrlCount++;
-                        continue;
+                if (plugin.didWikiPageDownloadFail()) {
+                    System.out.println(String.format("=> Keeping %s as wiki page exists but there was a download failure: \"%s\"",
+                            hpi.artifactId, givenUrl));
+                } else {
+                    final String actualUrl = plugin.getWikiUrl();
+                    if (actualUrl.isEmpty()) {
+                        // When building older Update Centres (e.g. LTS releases), there will be a number of plugins which
+                        // do not have wiki pages, even if the latest versions of those plugins *do* have wiki pages.
+                        // So here we keep the old behaviour: plugins without wiki pages are still kept.
+                        // This behaviour can be removed once we no longer generate UC files for LTS 1.596.x and older
+                        if (isVersionCappedRepository) {
+                            System.out.println(String.format("=> Keeping %s despite unknown/missing wiki URL: \"%s\"",
+                                    hpi.artifactId, givenUrl));
+                        } else {
+                            System.out.println(String.format("=> Excluding %s due to unknown/missing wiki URL: \"%s\"",
+                                    hpi.artifactId, givenUrl));
+                            missingWikiUrlCount++;
+                            continue;
+                        }
                     }
-                }
-                if (!actualUrl.equals(givenUrl)) {
-                    System.out.println(String.format("=> Wiki URL was rewritten from \"%s\" to \"%s\"", givenUrl, actualUrl));
+                    if (!actualUrl.equals(givenUrl)) {
+                        System.out.println(String.format("=> Wiki URL was rewritten from \"%s\" to \"%s\"", givenUrl, actualUrl));
+                    }
                 }
 
                 System.out.println("=> " + plugin.getTitle());
