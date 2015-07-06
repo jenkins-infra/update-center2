@@ -297,17 +297,20 @@ public class Plugin {
     private static final Pattern HYPERLINK_PATTERN = Pattern.compile("\\[([^|\\]]+)\\|([^|\\]]+)(|([^]])+)?\\]");
     private static final Pattern NEWLINE_PATTERN = Pattern.compile("(?:\\r\\n|\\n)");
 
-    public String getTitle() {
-        String title = page != null ? page.getTitle() : null;
-        if ("Plugin Documentation Missing".equals(title)) {
-            // Don't overwrite the name just because the wiki page is missing.
-            // This code block can be removed once the associated wiki overrides are removed
-            title = null;
+    /** @return The plugin name defined in the POM &lt;name>; falls back to the wiki page title, then artifact ID. */
+    public String getName() {
+        String title = selectSingleValue(pom, "/project/name");
+        if (title == null && page != null) {
+            title = page.getTitle();
+            if ("Plugin Documentation Missing".equals(title)) {
+                // Don't overwrite the name just because the wiki page is missing.
+                // This code block can be removed once the associated wiki overrides are removed
+                title = null;
+            }
         }
-        if (title == null)
-            title = selectSingleValue(pom, "/project/name");
-        if (title == null)
+        if (title == null) {
             title = artifactId;
+        }
         return title;
     }
 
@@ -336,7 +339,7 @@ public class Plugin {
             json.put("previousTimestamp", fisheyeDateFormatter.format(previous.getTimestamp()));
         }
 
-        json.put("title", getTitle());
+        json.put("title", getName());
         if (page!=null) {
             json.put("wiki",page.getUrl());
             String excerpt = getExcerptInHTML();

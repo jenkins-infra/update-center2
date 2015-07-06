@@ -300,7 +300,6 @@ public class Main {
                     }
                 }
 
-                System.out.println("=> " + plugin.getTitle());
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
@@ -396,7 +395,7 @@ public class Main {
                 try {
                     Plugin plugin = new Plugin(h, cpl);
                     
-                    String title = plugin.getTitle();
+                    String title = plugin.getName();
                     if ((title==null) || (title.equals(""))) {
                         title = h.artifact.artifactId;
                     }
