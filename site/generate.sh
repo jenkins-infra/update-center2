@@ -43,7 +43,7 @@ echo '<?php $rules = array( ' > "$RULE"
 
 # make sure the latest baseline version here is available as LTS, 
 # otherwise it'll offer the weekly as update to a running LTS version
-declare -a baselines=( 1.554 1.565 1.580 1.596 1.609 )
+declare -a baselines=( 1.554 1.565 1.580 1.596 1.609 1.625 )
 
 for v in ${baselines[@]}; do
     # for mainline up to $v, which advertises the latest core
