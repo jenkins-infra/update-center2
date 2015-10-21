@@ -41,7 +41,7 @@ echo '<?php $rules = array( ' > "$RULE"
 # Looking at statistics like http://stats.jenkins-ci.org/jenkins-stats/svg/201409-jenkins.svg,
 # I think three or four should be sufficient
 
-# make sure the latest baseline version here is available as LTS, 
+# make sure the latest baseline version here is available as LTS and in the Maven index of the repo, 
 # otherwise it'll offer the weekly as update to a running LTS version
 declare -a baselines=( 1.554 1.565 1.580 1.596 1.609 1.625 )
 
