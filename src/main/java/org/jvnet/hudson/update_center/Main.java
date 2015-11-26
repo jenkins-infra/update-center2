@@ -129,6 +129,9 @@ public class Main {
     @Option(name="-no-experimental",usage="Exclude alpha/beta releases")
     public boolean noExperimental;
 
+    @Option(name="-skip-release-history",usage="Skip generation of release history")
+    public boolean skipReleaseHistory;
+
     public Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
@@ -179,9 +182,11 @@ public class Main {
         writeToFile(updateCenterPostCallJson(ucRoot), output);
         writeToFile(updateCenterPostMessageHtml(ucRoot), new File(output.getPath()+".html"));
 
-        JSONObject rhRoot = buildFullReleaseHistory(repo);
-        String rh = prettyPrintJson(rhRoot);
-        writeToFile(rh, releaseHistory);
+        if (!skipReleaseHistory) {
+            JSONObject rhRoot = buildFullReleaseHistory(repo);
+            String rh = prettyPrintJson(rhRoot);
+            writeToFile(rh, releaseHistory);
+        }
 
         latest.close();
     }
