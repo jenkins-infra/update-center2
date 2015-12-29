@@ -3,12 +3,12 @@ package org.jvnet.hudson.update_center;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import hudson.plugins.jira.soap.ConfluenceSoapService;
-import hudson.plugins.jira.soap.RemotePage;
-import hudson.plugins.jira.soap.RemotePageSummary;
+import jenkins.plugins.confluence.soap.v1.ConfluenceSoapService;
+import jenkins.plugins.confluence.soap.v1.RemotePage;
+import jenkins.plugins.confluence.soap.v1.RemotePageSummary;
 import junit.framework.TestCase;
 
-public class ConfluenceV1PluginListTest extends TestCase {
+public class ConfluencePluginListTest extends TestCase {
 
     private ConfluenceSoapService confluence;
 
@@ -97,7 +97,7 @@ public class ConfluenceV1PluginListTest extends TestCase {
     private void addPluginPages(String... urls) throws Exception {
         RemotePageSummary[] pluginPages = new RemotePageSummary[urls.length];
         for (int i = 0, n = urls.length; i < n; i++) {
-            pluginPages[i] = new RemotePageSummary(0, 0, "", "", urls[i], 0); // we only care about the page URL
+            pluginPages[i] = new RemotePageSummary(0, 0, "", "", urls[i], 0, 0); // we only care about the page URL
         }
         when(confluence.getChildren(any(String.class), any(Long.class))).thenReturn(pluginPages);
     }
