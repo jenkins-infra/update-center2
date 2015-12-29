@@ -25,7 +25,6 @@ package org.jvnet.hudson.update_center;
 
 import java.io.File;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,6 +76,8 @@ public class PluginV2 {
      * Null if we couldn't find it.
      */
     public final WikiV2Page page;
+
+    private boolean pageDownloadFailed;
 
     /**
      * Confluence labels for the plugin wiki page.
@@ -166,6 +167,18 @@ public class PluginV2 {
         }
     }
 
+    /** @return The wiki URL as specified in the POM, or the overrides file. */
+    public String getPomWikiUrl() {
+        // Check whether the wiki URL should be overridden
+        String url = OVERRIDES.getProperty(artifactId);
+
+        // Otherwise read the wiki URL from the POM, if any
+        if (url == null && pom != null) {
+            url = selectSingleValue(pom, "/project/url");
+        }
+        return url;
+    }
+
     /**
      * Locates the page for this plugin on Wiki.
      *
@@ -173,38 +186,23 @@ public class PluginV2 {
      * First we'll try to parse POM and obtain the URL. If that fails, find the nearest name from the children list.
      */
     private WikiV2Page findPage(ConfluenceV2PluginList cpl) throws IOException {
+        // Check whether the plugin has a URL defined
+        String url = getPomWikiUrl();
+        if (url == null) {
+            System.out.println("** No wiki URL found in POM");
+            return null;
+        }
+
+        // If so, download the wiki page
         try {
-            String p = OVERRIDES.getProperty(artifactId);
-            if (p != null) {
-                return cpl.getPage(p);
-            }
-        } catch (RemoteException e) {
-            System.err.println("** Override failed for " + artifactId);
+            return cpl.getPage(url);
+        } catch (Exception e) {
+            System.err.println("** Failed to fetch " + url);
             e.printStackTrace();
         }
 
-        if (pom != null) {
-            String wikiPage = selectSingleValue(pom, "/project/url");
-            if (wikiPage != null) {
-                try {
-                    return cpl.getPage(wikiPage); // found the confluence page successfully
-                } catch (RemoteException e) {
-                    System.err.println("** Failed to fetch " + wikiPage);
-                    e.printStackTrace();
-                } catch (IllegalArgumentException e) {
-                    System.err.println(e.getMessage());
-                }
-            }
-        }
-
-        // try to guess the Wiki page
-        try {
-            return cpl.findNearest(artifactId);
-        } catch (RemoteException e) {
-            System.err.println("** Failed to locate nearest");
-            e.printStackTrace();
-        }
-
+        // An exception was thrown while fetching the wiki page; this is likely to be a transient failure
+        pageDownloadFailed = true;
         return null;
     }
 
@@ -324,10 +322,16 @@ public class PluginV2 {
 
     private static final Pattern NEWLINE_PATTERN = Pattern.compile("(?:\\r\\n|\\n)");
 
-    public String getTitle() {
-        String title = page != null ? page.getTitle() : null;
-        if (title == null) {
-            title = selectSingleValue(pom, "/project/name");
+    /** @return The plugin name defined in the POM &lt;name>; falls back to the wiki page title, then artifact ID. */
+    public String getName() {
+        String title = selectSingleValue(pom, "/project/name");
+        if (title == null && page != null) {
+            title = page.getTitle();
+            if ("Plugin Documentation Missing".equals(title)) {
+                // Don't overwrite the name just because the wiki page is missing.
+                // This code block can be removed once the associated wiki overrides are removed
+                title = null;
+            }
         }
         if (title == null) {
             title = artifactId;
@@ -335,12 +339,18 @@ public class PluginV2 {
         return title;
     }
 
-    public String getWiki() {
+    /** @return The wiki page URL; may be empty, never {@code null}. */
+    public String getWikiUrl() {
         String wiki = "";
         if (page != null) {
             wiki = page.getUrl();
         }
         return wiki;
+    }
+
+    /** @return {@code true} if a wiki page exists for this plugin, but downloading it failed. */
+    public boolean didWikiPageDownloadFail() {
+        return pageDownloadFailed;
     }
 
     public JSONObject toJSON() throws IOException {
@@ -354,7 +364,7 @@ public class PluginV2 {
             json.put("previousTimestamp", fisheyeDateFormatter.format(previous.getTimestamp()));
         }
 
-        json.put("title", getTitle());
+        json.put("title", getName());
         if (page != null) {
             json.put("wiki", page.getUrl());
             String excerpt = getExcerptInHTML();

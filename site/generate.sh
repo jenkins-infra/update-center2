@@ -40,13 +40,18 @@ echo '<?php $rules = array( ' > "$RULE"
 #
 # Looking at statistics like http://stats.jenkins-ci.org/jenkins-stats/svg/201409-jenkins.svg,
 # I think three or four should be sufficient
-for v in 1.554 1.565 1.580 1.596; do
+
+# make sure the latest baseline version here is available as LTS and in the Maven index of the repo, 
+# otherwise it'll offer the weekly as update to a running LTS version
+declare -a baselines=( 1.554 1.565 1.580 1.596 1.609 1.625 )
+
+for v in ${baselines[@]}; do
     # for mainline up to $v, which advertises the latest core
-    generate -no-experimental -www ./www2/$v -cap $v.999 -capCore 999
+    generate -no-experimental -skip-release-history -www ./www2/$v -cap $v.999 -capCore 999
     sanity-check ./www2/$v
 
     # for LTS
-    generate -no-experimental -www ./www2/stable-$v -cap $v.999
+    generate -no-experimental -skip-release-history -www ./www2/stable-$v -cap $v.999 -capCore ${baselines[${#baselines[@]}-1]}.999
     sanity-check ./www2/stable-$v
     lastLTS=$v
 
@@ -59,7 +64,7 @@ done
 #     with symlinks pointing to the 'latest' current versions. So we generate exprimental first, then overwrite current to produce proper symlinks
 
 # experimental update center. this is not a part of the version-based redirection rules
-generate -www ./www2/experimental -download ./download
+generate -skip-release-history -www ./www2/experimental -download ./download
 
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run

@@ -1,18 +1,18 @@
 /*
  * The MIT License
- *
+ * 
  * Copyright (c) 2004-2009, Sun Microsystems, Inc.
- *
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,9 +33,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
@@ -263,6 +265,7 @@ public class MavenRepositoryImpl extends MavenRepository {
         Map<String, PluginHistory> plugins =
                 new TreeMap<String, PluginHistory>(String.CASE_INSENSITIVE_ORDER);
 
+        Set<String> excluded = new HashSet<String>();
         for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT") && !includeSnapshots)
             {
@@ -272,8 +275,14 @@ public class MavenRepositoryImpl extends MavenRepository {
             {
                 continue; // non-public releases for addressing specific bug fixes
             }
-            if (IGNORE.containsKey(a.artifactId) || IGNORE.containsKey(a.artifactId + "-" + a.version))
-            {
+            if (IGNORE.containsKey(a.artifactId)) {
+                if (excluded.add(a.artifactId)) {
+                    System.out.println("=> Ignoring " + a.artifactId + " because this artifact is blacklisted");
+                }
+                continue;
+            }
+            if (IGNORE.containsKey(a.artifactId + "-" + a.version)) {
+                System.out.println("=> Ignoring " + a.artifactId + ", version " + a.version + " because this version is blacklisted");
                 continue; // artifactIds or particular versions to omit
             }
 
