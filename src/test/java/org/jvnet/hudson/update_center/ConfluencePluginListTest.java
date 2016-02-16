@@ -1,13 +1,12 @@
 package org.jvnet.hudson.update_center;
 
-import hudson.plugins.jira.soap.ConfluenceSoapService;
-import hudson.plugins.jira.soap.RemotePage;
-import hudson.plugins.jira.soap.RemotePageSummary;
-import junit.framework.TestCase;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import jenkins.plugins.confluence.soap.v1.ConfluenceSoapService;
+import jenkins.plugins.confluence.soap.v1.RemotePage;
+import jenkins.plugins.confluence.soap.v1.RemotePageSummary;
+import junit.framework.TestCase;
 
 public class ConfluencePluginListTest extends TestCase {
 
@@ -24,11 +23,10 @@ public class ConfluencePluginListTest extends TestCase {
         // Given a list of plugin pages that exist on the wiki
         addPluginPages(
                 "https://wiki.jenkins-ci.org/display/JENKINS/Foo+Plugin",
-                "https://wiki.jenkins-ci.org/display/JENKINS/Bar+Plugin"
-        );
+                "https://wiki.jenkins-ci.org/display/JENKINS/Bar+Plugin");
 
         // When we retrieve plugin info from Confluence
-        ConfluencePluginList pluginList = new ConfluencePluginList(confluence);
+        ConfluenceV1PluginList pluginList = new ConfluenceV1PluginList(confluence);
 
         // Then we should not match URLs that don't exist on the wiki
         assertNull(pluginList.resolveWikiUrl(""));
@@ -44,11 +42,10 @@ public class ConfluencePluginListTest extends TestCase {
         // Given a list of plugin pages that exist on the wiki
         addPluginPages(
                 "https://wiki.jenkins-ci.org/display/JENKINS/Foo+Plugin",
-                "https://wiki.jenkins-ci.org/display/JENKINS/Bar+Plugin"
-        );
+                "https://wiki.jenkins-ci.org/display/JENKINS/Bar+Plugin");
 
         // When we retrieve plugin info from Confluence
-        ConfluencePluginList pluginList = new ConfluencePluginList(confluence);
+        ConfluenceV1PluginList pluginList = new ConfluenceV1PluginList(confluence);
 
         // Then we should get the canonical URL for items that can be found on the wiki
         final String expected = "https://wiki.jenkins-ci.org/display/JENKINS/Foo+Plugin";
@@ -62,11 +59,10 @@ public class ConfluencePluginListTest extends TestCase {
         // Given some URLs that have URL-encoded characters
         addPluginPages(
                 "https://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Speaks%21+Plugin",
-                "https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Usage+Plugin+%28Community%29"
-        );
+                "https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Usage+Plugin+%28Community%29");
 
         // When we retrieve plugin info from Confluence
-        ConfluencePluginList pluginList = new ConfluencePluginList(confluence);
+        ConfluenceV1PluginList pluginList = new ConfluenceV1PluginList(confluence);
 
         // Then we should match POM URLs which may be differently encoded
         assertNotNull(pluginList.resolveWikiUrl("http://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Speaks!+Plugin"));
@@ -78,7 +74,7 @@ public class ConfluencePluginListTest extends TestCase {
         addPluginPages("https://wiki.jenkins-ci.org/pages/viewpage.action?pageId=60915753");
 
         // When we retrieve plugin info from the wiki
-        ConfluencePluginList pluginList = new ConfluencePluginList(confluence);
+        ConfluenceV1PluginList pluginList = new ConfluenceV1PluginList(confluence);
 
         // Then the page should be found, even although it doesn't fit into the usual /display/JENKINS/<name> format
         assertNotNull(pluginList.resolveWikiUrl("https://wiki.jenkins-ci.org/pages/viewpage.action?pageId=60915753"));
@@ -89,7 +85,7 @@ public class ConfluencePluginListTest extends TestCase {
         addPluginPages("https://wiki.jenkins-ci.org/display/JENKINS/Foo+Plugin");
 
         // When we retrieve plugin info from Confluence
-        ConfluencePluginList pluginList = new ConfluencePluginList(confluence);
+        ConfluenceV1PluginList pluginList = new ConfluenceV1PluginList(confluence);
 
         // Then we should reject bizarre URLs in the POM, but not crash
         assertNull(pluginList.resolveWikiUrl("file:///etc/passwd"));
@@ -101,7 +97,7 @@ public class ConfluencePluginListTest extends TestCase {
     private void addPluginPages(String... urls) throws Exception {
         RemotePageSummary[] pluginPages = new RemotePageSummary[urls.length];
         for (int i = 0, n = urls.length; i < n; i++) {
-            pluginPages[i] = new RemotePageSummary(0, 0, "", "", urls[i], 0); // we only care about the page URL
+            pluginPages[i] = new RemotePageSummary(0, 0, "", "", urls[i], 0, 0); // we only care about the page URL
         }
         when(confluence.getChildren(any(String.class), any(Long.class))).thenReturn(pluginPages);
     }

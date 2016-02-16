@@ -65,5 +65,105 @@ you can try to use the appassembler plugin as described below. The exec:java plu
 
     # to generate the files in a standard layout
     # warning this may take quite a bit of time, so you might want to add the -maxPlugins 1 option
-    mvn package appassembler:assemble
-    sh target/appassembler/bin/app -id com.example.jenkins -www www
+    mvn compile
+    mvn exec:java -Dexec.args="-id com.example.jenkins -www www"
+
+Arguments
+---------
+* -id
+	* Required
+	* Uniquely identifies this update center.
+	* We recommend you use a dot-separated name like "com.sun.wts.jenkins".
+		* This text is from the original source code of backend-update-center2.
+		* But it seems that the name containing dots does not works correctly (caused NPE in PluginManager.class)
+	* This value is not exposed to users, but instead internally used by Jenkins.
+	* Used as "id" field in update-center.json
+* -repository
+	* Alternate repository for plugins.
+	* If not specified, http://repo.jenkins-ci.org/public/ is used.
+	* Default: null
+* -repositoryName
+	* Name of repository. This is a value for n opition of nexus-indexer-cli.
+	* If not specified, "public" is used.
+	* Default: null
+* -remoteIndex
+	* Nexus index file in repository.
+	* If not specified, .index/nexus-maven-repository-index.gz is used.
+	* Default: null
+* -directLink
+	* Use the links into the maven repository as the plugin URL.
+* -hpiDirectory
+	* Build update center files from plugin files (hpi and jpi) contained in this directory.
+	* When specified this option...
+		* Specified directory must be placed to the path specified with -repository.
+		* Nexus index file is not needed.
+		* repositoryName and remoteIndex is ignored.
+* -includeSnapshots
+	* Include releases as well as snapshots found in hpiDirectory.
+* -nowiki
+	* Does not refer http://wiki.jenkins-ci.org/
+	* Information in pom files are trusted.
+* -download
+	* Specify a directory to build download server layout.
+	* Packages will be deployed into the directory.
+	* It is refered as "http://updates.jenkins-ci.org/download/", or ${repository}/download used with -repository.
+	* Default: null
+* -www
+	* Built jenkins-ci.org layout
+	* Default: null
+* -nosymlinks
+	* Used with -download.
+	* Don't create symbolic links pointing to the latest plugin version
+	* Copy files to download server layout instead of create symblic links.
+	* They won't work on Windows platforms anyway
+	* Default: false
+* -r
+	* release history JSON file
+	* When -www is specified, $(www)/release-history.json is used.
+	* Default: release-history.json
+* -h
+	* htaccess file
+	* /dev/null indicates not to write(works also in Windows).
+	* When -www is specified, $(www)/latest/.htaccess is used.
+	* Default: .htaccess
+* -o
+	* json file(update-center.json)
+	* When -www is specified, $(www)/update-center.json is used.
+	* Default: output.json
+* -index.html
+	* Update the version number of the latest jenkins.war in jenkins-ci.org/index.html
+	* When -www is specified, $(www)/index.html is used.
+	* Default: null
+* -latestCore.txt
+	* Update the version number of the latest jenkins.war in latestCore.txt
+	* When -www is specified, $(www)/latestCore.txt is used. 
+	* Default: null
+* -maxPlugins
+	* For testing purposes.
+	* Limit the number of plugins managed to the specified number.
+	* Default: null
+* -connectionCheckUrl
+	* Specify an URL of the 'always up' server for performing connection check.
+	* Used as "connectionCheckUrl" field in update-center.json
+	* Default: null
+* -pretty
+	* Pretty-print the json
+	* Default: false
+* -cap
+	* Cap the version number and only report data that's compatible with
+
+Typical Usage
+-------------
+
+### When you use nexus index
+
+```
+mvn exec:java -Dexec.args="-id UPDATE-CENTER-ID -h /dev/null -o PATH_TO_WRITE_update-center.json -repository http://YOURSERVER/PATH_TO_REPOSITORY/ -remoteIndex REL_PATH_TO_nexus-maven-repository-index.gz -repositoryName 'REPOSITORY_NAME' -directLink -nowiki -key PATH_TO_KEY_FILE -certificate PATH_TO_CERTIFICATE_FILE -root-certificate PATH_TO_CERTIFICATE_FILE"
+```
+
+### When you do not use nexus index
+
+```
+mvn exec:java -Dexec.args="-id UPDATE-CENTER-ID -h /dev/null -o PATH_TO_WRITE_update-center.json -repository http://YOURSERVER/PATH_TO_REPOSITORY/ -hpiDirectory PATH_TO_LOCAL_REPOSITORY -nowiki -key PATH_TO_KEY_FILE -certificate PATH_TO_CERTIFICATE_FILE -root-certificate PATH_TO_CERTIFICATE_FILE"
+```
+

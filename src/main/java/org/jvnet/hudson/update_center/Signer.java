@@ -1,18 +1,6 @@
 package org.jvnet.hudson.update_center;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.output.NullOutputStream;
-import org.apache.commons.io.output.TeeOutputStream;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMReader;
-import org.jvnet.hudson.crypto.CertificateUtil;
-import org.jvnet.hudson.crypto.SignatureOutputStream;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
-import org.mortbay.util.QuotedStringTokenizer;
+import static java.security.Security.addProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,23 +25,36 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static java.security.Security.addProvider;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.io.output.TeeOutputStream;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMReader;
+import org.jvnet.hudson.crypto.CertificateUtil;
+import org.jvnet.hudson.crypto.SignatureOutputStream;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+import org.mortbay.util.QuotedStringTokenizer;
 
 /**
  * @author Kohsuke Kawaguchi
  */
 public class Signer {
-    @Option(name="-key",usage="Private key to sign the update center. Must be used in conjunction with -certificate.")
+    @Option(name = "-key", usage = "Private key to sign the update center. Must be used in conjunction with -certificate.")
     public File privateKey = null;
 
-    @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option. Specify additional -certificate options to pass in intermediate certificates, if any.")
+    @Option(name = "-certificate", usage = "X509 certificate for the private key given by the -key option. Specify additional -certificate options to pass in intermediate certificates, if any.")
     public List<File> certificates = new ArrayList<File>();
 
-    @Option(name="-root-certificate",usage="Additional root certificates")
+    @Option(name = "-root-certificate", usage = "Additional root certificates")
     public List<File> rootCA = new ArrayList<File>();
 
     // debug option. spits out the canonical update center file used to compute the signature
-    @Option(name="-canonical")
+    @Option(name = "-canonical")
     public File canonical = null;
 
     /**
@@ -63,9 +64,11 @@ public class Signer {
         List<String> args = new ArrayList<String>();
 
         String env = System.getenv("JENKINS_SIGNER");
-        if (env==null)      return this;
+        if (env == null) {
+            return this;
+        }
 
-        QuotedStringTokenizer qst = new QuotedStringTokenizer(env," ");
+        QuotedStringTokenizer qst = new QuotedStringTokenizer(env, " ");
         while (qst.hasMoreTokens()) {
             args.add(qst.nextToken());
         }
@@ -77,13 +80,15 @@ public class Signer {
      * Checks if the signer is properly configured to generate a signature
      *
      * @throws CmdLineException
-     *      If the configuration is partial and it's not clear whether the user intended to sign or not to sign.
+     *             If the configuration is partial and it's not clear whether the user intended to sign or not to sign.
      */
     public boolean isConfigured() throws CmdLineException {
-        if(privateKey!=null && !certificates.isEmpty())
+        if (privateKey != null && !certificates.isEmpty()) {
             return true;
-        if (privateKey!=null || !certificates.isEmpty())
+        }
+        if (privateKey != null || !certificates.isEmpty()) {
             throw new CmdLineException("private key and certificate must be both specified");
+        }
         return false;
     }
 
@@ -93,40 +98,49 @@ public class Signer {
      * but this enables a signature to be added transparently.
      *
      * @return
-     *      The same value passed as the argument so that the method can be used like a filter.
+     *         The same value passed as the argument so that the method can be used like a filter.
      */
     public JSONObject sign(JSONObject o) throws GeneralSecurityException, IOException, CmdLineException {
-        if (!isConfigured())    return o;
+        if (!isConfigured()) {
+            return o;
+        }
 
         JSONObject sign = new JSONObject();
 
         List<X509Certificate> certs = getCertificateChain();
         X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
 
-        PrivateKey key = ((KeyPair)new PEMReader(new FileReader(privateKey)).readObject()).getPrivate();
+        FileReader keyReader = new FileReader(privateKey);
+        PEMReader pemReader = new PEMReader(keyReader);
+        KeyPair pair = (KeyPair) pemReader.readObject();
+
+        PrivateKey key = pair.getPrivate();
+
+        // PrivateKey key = ((KeyPair)new PEMReader(new FileReader(privateKey)).readObject()).getPrivate();
 
         // first, backward compatible signature for <1.433 Jenkins that forgets to flush the stream.
         // we generate this in the original names that those Jenkins understands.
         SignatureGenerator sg = new SignatureGenerator(signer, key);
-        o.writeCanonical(new OutputStreamWriter(sg.getOut(),"UTF-8"));
-        sg.addRecord(sign,"");
+        o.writeCanonical(new OutputStreamWriter(sg.getOut(), "UTF-8"));
+        sg.addRecord(sign, "");
 
         // then the correct signature, into names that don't collide.
         OutputStream raw = new NullOutputStream();
-        if (canonical!=null) {
+        if (canonical != null) {
             raw = new FileOutputStream(canonical);
         }
         sg = new SignatureGenerator(signer, key);
-        o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(sg.getOut(),raw),"UTF-8")).close();
-        sg.addRecord(sign,"correct_");
+        o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(sg.getOut(), raw), "UTF-8")).close();
+        sg.addRecord(sign, "correct_");
 
         // and certificate chain
         JSONArray a = new JSONArray();
-        for (X509Certificate cert : certs)
+        for (X509Certificate cert : certs) {
             a.add(new String(Base64.encodeBase64(cert.getEncoded())));
-        sign.put("certificates",a);
+        }
+        sign.put("certificates", a);
 
-        o.put("signature",sign);
+        o.put("signature", sign);
 
         return o;
     }
@@ -136,8 +150,11 @@ public class Signer {
      */
     static class SignatureGenerator {
         private final MessageDigest sha1;
+
         private final Signature sig;
+
         private final TeeOutputStream out;
+
         private final Signature verifier;
 
         SignatureGenerator(X509Certificate signer, PrivateKey key) throws GeneralSecurityException, IOException {
@@ -165,15 +182,17 @@ public class Signer {
         public void addRecord(JSONObject sign, String prefix) throws GeneralSecurityException, IOException {
             // digest
             byte[] digest = sha1.digest();
-            sign.put(prefix+"digest",new String(Base64.encodeBase64(digest)));
+            sign.put(prefix + "digest", new String(Base64.encodeBase64(digest)));
 
             // signature
             byte[] s = sig.sign();
-            sign.put(prefix+"signature",new String(Base64.encodeBase64(s)));
+            sign.put(prefix + "signature", new String(Base64.encodeBase64(s)));
 
             // did the signature validate?
-            if (!verifier.verify(s))
-                throw new GeneralSecurityException("Signature failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
+            if (!verifier.verify(s)) {
+                throw new GeneralSecurityException(
+                        "Signature failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
+            }
         }
     }
 
@@ -185,19 +204,19 @@ public class Signer {
         List<X509Certificate> certs = new ArrayList<X509Certificate>();
         for (File f : certificates) {
             X509Certificate c = loadCertificate(cf, f);
-            c.checkValidity(new Date(System.currentTimeMillis()+ TimeUnit.DAYS.toMillis(30)));
+            c.checkValidity(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30)));
             certs.add(c);
         }
 
         Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
-        rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/hudson-community.cert")),null));
-        rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/jenkins-update-center-root-ca.cert")),null));
+        rootCAs.add(new TrustAnchor((X509Certificate) cf.generateCertificate(getClass().getResourceAsStream("/hudson-community.cert")), null));
+        rootCAs.add(new TrustAnchor((X509Certificate) cf.generateCertificate(getClass().getResourceAsStream("/jenkins-update-center-root-ca.cert")), null));
         for (File f : rootCA) {
-            rootCAs.add(new TrustAnchor(loadCertificate(cf, f),null));
+            rootCAs.add(new TrustAnchor(loadCertificate(cf, f), null));
         }
 
         try {
-            CertificateUtil.validatePath(certs,rootCAs);
+            CertificateUtil.validatePath(certs, rootCAs);
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
@@ -215,9 +234,9 @@ public class Signer {
                 in.close();
             }
         } catch (CertificateException e) {
-            throw (IOException)new IOException("Failed to load certificate "+f).initCause(e);
+            throw (IOException) new IOException("Failed to load certificate " + f).initCause(e);
         } catch (IOException e) {
-            throw (IOException)new IOException("Failed to load certificate "+f).initCause(e);
+            throw (IOException) new IOException("Failed to load certificate " + f).initCause(e);
         }
     }
 

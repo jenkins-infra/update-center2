@@ -27,9 +27,39 @@ import java.net.URL;
 
 public class DefaultMavenRepositoryBuilder {
     public static MavenRepositoryImpl createStandardInstance() throws Exception {
-        MavenRepositoryImpl instance = new MavenRepositoryImpl();
-        instance.addRemoteRepository("public", new URL("http://repo.jenkins-ci.org/public/"));
+        return createStandardInstance(null, null, null, false, false);
+    }
 
+    public static MavenRepositoryImpl createStandardInstance(String repositoryName, String repository, String remoteIndex, boolean directLink,
+            boolean includeSnapshots) throws Exception {
+        MavenRepositoryImpl instance = new MavenRepositoryImpl(directLink, includeSnapshots);
+
+        addRemoteRepository(instance, repositoryName, repository, remoteIndex, directLink);
+
+        return instance;
+    }
+
+    public static MavenRepositoryImpl addRemoteRepository(MavenRepositoryImpl instance, String repositoryName, String repository, String remoteIndex,
+            boolean directLink) throws Exception {
+        if (repositoryName == null)
+        {
+            repositoryName = "public";
+        }
+
+        if (repository == null)
+        {
+            repository = "http://repo.jenkins-ci.org/public/";
+        }
+
+        URL repositoryUrl = new URL(repository);
+        if (remoteIndex != null)
+        {
+            instance.addRemoteRepository(repositoryName, new URL(repositoryUrl, remoteIndex), repositoryUrl);
+        }
+        else
+        {
+            instance.addRemoteRepository(repositoryName, repositoryUrl);
+        }
         return instance;
     }
 }

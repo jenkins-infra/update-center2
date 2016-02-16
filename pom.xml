@@ -54,6 +54,15 @@
           </programs>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2</version>
+        <configuration>
+          <executable>java</executable>
+          <mainClass>${main.class}</mainClass>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -64,6 +73,11 @@
   </properties>
 
   <dependencies>
+  <dependency>
+  	<groupId>org.jenkins-ci.plugins</groupId>
+  	 <artifactId>confluence-publisher</artifactId>
+    <version>1.8</version>
+  </dependency>
     <dependency>
       <groupId>org.jvnet.hudson</groupId>
       <artifactId>crypto-util</artifactId>
