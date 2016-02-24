@@ -64,12 +64,12 @@ done
 #     with symlinks pointing to the 'latest' current versions. So we generate exprimental first, then overwrite current to produce proper symlinks
 
 # experimental update center. this is not a part of the version-based redirection rules
-generate -skip-release-history -www ./www2/experimental -download ./download
+generate -skip-release-history -capCore 1.999 -www ./www2/experimental -download ./download
 
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
-generate -no-experimental -www ./www2/current -www-download ./www2/download -download ./download -pluginCount.txt ./www2/pluginCount.txt
+generate -no-experimental -capCore 1.999 -www ./www2/current -www-download ./www2/download -download ./download -pluginCount.txt ./www2/pluginCount.txt
 
 echo "); ?>" >> "$RULE"
 
