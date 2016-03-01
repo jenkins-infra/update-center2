@@ -72,6 +72,7 @@ public class HPI extends MavenArtifact {
      * @deprecated
      *      Most probably you should be using {@link #getRequiredJenkinsVersion()}
      */
+    @Deprecated
     public String getRequiredHudsonVersion() throws IOException {
         return getManifestAttributes().getValue("Hudson-Version");
     }

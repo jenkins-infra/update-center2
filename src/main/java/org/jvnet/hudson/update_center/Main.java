@@ -132,7 +132,7 @@ public class Main {
     @Option(name="-skip-release-history",usage="Skip generation of release history")
     public boolean skipReleaseHistory;
 
-    public Signer signer = new Signer();
+    private Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
 
