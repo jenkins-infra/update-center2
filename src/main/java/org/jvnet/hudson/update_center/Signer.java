@@ -123,7 +123,7 @@ public class Signer {
         // and certificate chain
         JSONArray a = new JSONArray();
         for (X509Certificate cert : certs)
-            a.add(new String(Base64.encodeBase64(cert.getEncoded())));
+            a.add(new String(Base64.encodeBase64(cert.getEncoded()), "UTF-8"));
         sign.put("certificates",a);
 
         o.put("signature",sign);
@@ -165,11 +165,11 @@ public class Signer {
         public void addRecord(JSONObject sign, String prefix) throws GeneralSecurityException, IOException {
             // digest
             byte[] digest = sha1.digest();
-            sign.put(prefix+"digest",new String(Base64.encodeBase64(digest)));
+            sign.put(prefix+"digest",new String(Base64.encodeBase64(digest), "UTF-8"));
 
             // signature
             byte[] s = sig.sign();
-            sign.put(prefix+"signature",new String(Base64.encodeBase64(s)));
+            sign.put(prefix+"signature",new String(Base64.encodeBase64(s), "UTF-8"));
 
             // did the signature validate?
             if (!verifier.verify(s))

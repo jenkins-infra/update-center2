@@ -130,7 +130,7 @@ public class MavenArtifact {
             while ((len=fin.read(buf,0,buf.length))>=0)
                 sig.update(buf,0,len);
 
-            return new String(Base64.encodeBase64(sig.digest()));
+            return new String(Base64.encodeBase64(sig.digest()), "UTF-8");
         } catch (NoSuchAlgorithmException e) {
             throw new IOException(e);
         }
