@@ -2,7 +2,6 @@ package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -117,10 +116,8 @@ public class Signer {
         if (canonical!=null) {
             raw = new FileOutputStream(canonical);
         }
-        sg = new SignatureGenerator(signer, key);        
-        try(OutputStreamWriter osw = new OutputStreamWriter(new TeeOutputStream(sg.getOut(),raw),"UTF-8")) {            
-            o.writeCanonical(osw);
-        }
+        sg = new SignatureGenerator(signer, key);
+        o.writeCanonical(new OutputStreamWriter(new TeeOutputStream(sg.getOut(),raw),"UTF-8")).close();
         sg.addRecord(sign,"correct_");
 
         // and certificate chain
