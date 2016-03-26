@@ -121,10 +121,9 @@ public class MavenArtifact {
     /**
      * Computes the SHA1 signature of the file.
      */
-    public String getDigest() throws IOException {
-        try {
-            MessageDigest sig = MessageDigest.getInstance("SHA1");
-            FileInputStream fin = new FileInputStream(resolve());
+    public String getDigest() throws IOException {        
+        try (FileInputStream fin = new FileInputStream(resolve())) {
+            MessageDigest sig = MessageDigest.getInstance("SHA1");            
             byte[] buf = new byte[2048];
             int len;
             while ((len=fin.read(buf,0,buf.length))>=0)
