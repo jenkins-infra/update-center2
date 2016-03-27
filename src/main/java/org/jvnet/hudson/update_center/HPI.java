@@ -156,16 +156,16 @@ public class HPI extends MavenArtifact {
         public final boolean optional;
 
         public Dependency(String token) {
-            this.optional = token.endsWith(OPTIONAL);
+            this.optional = token.endsWith(OPTIONAL_RESOLUTION);
             if(optional)
-                token = token.substring(0, token.length()-OPTIONAL.length());
+                token = token.substring(0, token.length()-OPTIONAL_RESOLUTION.length());
 
             String[] pieces = token.split(":");
             name = pieces[0];
             version = pieces[1];
         }
 
-        private static final String OPTIONAL = ";resolution:=optional";
+        private static final String OPTIONAL_RESOLUTION = ";resolution:=optional";
 
         public JSONObject toJSON() {
             JSONObject o = new JSONObject();

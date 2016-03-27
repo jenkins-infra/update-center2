@@ -45,7 +45,7 @@ public class DefaultArtifactTransformationManager
 	public void initialize() throws InitializationException {
 		// TODO this is a hack until plexus can fix the ordering of the arrays
         artifactTransformations = new ArrayList(artifactTransformations);
-		Object obj[] = artifactTransformations.toArray();
+		Object[] obj = artifactTransformations.toArray();
 		for (int x = 0; x < obj.length; x++)
 		{
 			if (obj[x].getClass().getName().indexOf("Snapshot") != -1) {
