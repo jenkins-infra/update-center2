@@ -43,7 +43,7 @@ echo '<?php $rules = array( ' > "$RULE"
 
 # make sure the latest baseline version here is available as LTS and in the Maven index of the repo, 
 # otherwise it'll offer the weekly as update to a running LTS version
-declare -a baselines=( 1.554 1.565 1.580 1.596 1.609 1.625 1.642 )
+declare -a baselines=( 1.554 1.565 1.580 1.596 1.609 1.625 1.642 1.651 )
 
 for v in ${baselines[@]}; do
     # for mainline up to $v, which advertises the latest core
