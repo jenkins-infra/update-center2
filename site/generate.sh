@@ -89,10 +89,10 @@ popd
 
 # push plugins to mirrors.jenkins-ci.org
 chmod -R a+r download
-rsync -avz download/plugins/ www-data@${UPDATE_SITE}:/srv/releases/jenkins/plugins
+rsync -avz download/plugins/ www-data@${UPDATES_SITE}:/srv/releases/jenkins/plugins
 
 # push generated index to the production servers
 # 'updates' come from tool installer generator, so leave that alone, but otherwise
 # delete old sites
 chmod -R a+r www2
-rsync -avz www2/ --exclude=/updates --delete www-data@${UPDATE_SITE}:/var/www/${UPDATE_SITE}
+rsync -avz www2/ --exclude=/updates --delete www-data@${UPDATES_SITE}:/var/www/${UPDATE_SITE}
