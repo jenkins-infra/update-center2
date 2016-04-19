@@ -1,6 +1,9 @@
 #!/bin/bash -ex
 # used from ci.jenkins-ci.org to actually generate the production OSS update center
 
+# Used later for rsyncing updates
+UPDATES_SITE="updates.jenkins.io"
+
 umask
 
 # prepare the www workspace for execution
@@ -86,10 +89,10 @@ popd
 
 # push plugins to mirrors.jenkins-ci.org
 chmod -R a+r download
-rsync -avz download/plugins/ www-data@localhost:/srv/releases/jenkins/plugins
+rsync -avz download/plugins/ www-data@${UPDATES_SITE}:/srv/releases/jenkins/plugins
 
 # push generated index to the production servers
 # 'updates' come from tool installer generator, so leave that alone, but otherwise
 # delete old sites
 chmod -R a+r www2
-rsync -avz www2/ --exclude=/updates --delete www-data@updates.jenkins-ci.org:/var/www/updates2.jenkins-ci.org/
+rsync -avz www2/ --exclude=/updates --delete www-data@${UPDATES_SITE}:/var/www/${UPDATES_SITE}
