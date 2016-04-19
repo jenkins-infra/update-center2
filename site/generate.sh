@@ -95,4 +95,4 @@ rsync -avz download/plugins/ www-data@${UPDATES_SITE}:/srv/releases/jenkins/plug
 # 'updates' come from tool installer generator, so leave that alone, but otherwise
 # delete old sites
 chmod -R a+r www2
-rsync -avz www2/ --exclude=/updates --delete www-data@${UPDATES_SITE}:/var/www/${UPDATE_SITE}
+rsync -avz www2/ --exclude=/updates --delete www-data@${UPDATES_SITE}:/var/www/${UPDATES_SITE}
