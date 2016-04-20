@@ -46,6 +46,8 @@ RewriteRule ^update\-center\.[json|html]+ /1\.651%{REQUEST_URI}? [NC,L,R=301]
 # If that all failed, but we have an update center, let's go to current
 RewriteRule ^update\-center\.[json|html]+ /current%{REQUEST_URI}? [NC,L,R=301]
 
+RewriteRule ^release\-history\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
+
 
 
 ReadmeName readme.html
