@@ -1,7 +1,6 @@
-# THIS FILE IS MANAGED BY PUPPET
+# THIS FILE IS GENERATED
 #
-# direct the actual download traffic to mirrors,
-# since this is starting to eat the bandwidth
+# See: <https://github.com/jenkinsci/backend-update-center2>
 RewriteEngine on
 
 # If we have a match that looks like an LTS version, e.g. 1.554.1, redirect to stable-1.554
@@ -9,44 +8,16 @@ RewriteCond %{QUERY_STRING} ^.*version=([0-9]*\.[0-9]*)\.[0-9]*$ [NC]
 RewriteCond %{DOCUMENT_ROOT}/stable\-%1%{REQUEST_URI} -f
 RewriteRule ^update\-center\.[json|html]+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
 
-# Lower than 554 and you get the 554 UC
-RewriteCond %{QUERY_STRING} ^.*version=1\.(\d+)$ [NC]
-RewriteCond %1 <=554
-RewriteRule ^update\-center\.[json|html]+ /1\.554%{REQUEST_URI}? [NC,L,R=301]
-  
-RewriteCond %{QUERY_STRING} ^.*version=1\.(\d+)$ [NC]
-RewriteCond %1 <=565
-RewriteRule ^update\-center\.[json|html]+ /1\.565%{REQUEST_URI}? [NC,L,R=301]
-  
-RewriteCond %{QUERY_STRING} ^.*version=1\.(\d+)$ [NC]
-RewriteCond %1 <=580
-RewriteRule ^update\-center\.[json|html]+ /1\.580%{REQUEST_URI}? [NC,L,R=301]
-
-RewriteCond %{QUERY_STRING} ^.*version=1\.(\d+)$ [NC]
-RewriteCond %1 <=596      
-RewriteRule ^update\-center\.[json|html]+ /1\.596%{REQUEST_URI}? [NC,L,R=301]
-  
-RewriteCond %{QUERY_STRING} ^.*version=1\.(\d+)$ [NC]
-RewriteCond %1 <=609
-RewriteRule ^update\-center\.[json|html]+ /1\.609%{REQUEST_URI}? [NC,L,R=301]
-
-RewriteCond %{QUERY_STRING} ^.*version=1\.(\d+)$ [NC]
-RewriteCond %1 <=625
-RewriteRule ^update\-center\.[json|html]+ /1\.625%{REQUEST_URI}? [NC,L,R=301]
-
-RewriteCond %{QUERY_STRING} ^.*version=1\.(\d+)$ [NC]
-RewriteCond %1 <=642
-RewriteRule ^update\-center\.[json|html]+ /1\.642%{REQUEST_URI}? [NC,L,R=301]
-
-RewriteCond %{QUERY_STRING} ^.*version=1\.(\d+)$ [NC]
-RewriteCond %1 <=651
-RewriteRule ^update\-center\.[json|html]+ /1\.651%{REQUEST_URI}? [NC,L,R=301]
-
+##LEGACY_UPDATECENTERS_TOKEN##
 
 # If that all failed, but we have an update center, let's go to current
 RewriteRule ^update\-center\.[json|html]+ /current%{REQUEST_URI}? [NC,L,R=301]
 
+# Ensure /release-history.json goes to the right place
 RewriteRule ^release\-history\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
+
+# Ensure /latestCore.txt goes to /current/latestCore.txt
+RewriteRule ^latestCore\.txt+ /current%{REQUEST_URI}? [NC,L,R=301]
 
 
 
