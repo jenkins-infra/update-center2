@@ -50,7 +50,7 @@ declare -a baselines=( 1.554 1.565 1.580 1.596 1.609 1.625 1.642 1.651 )
 
 for v in ${baselines[@]}; do
     # for mainline up to $v, which advertises the latest core
-    generate -no-experimental -skip-release-history -www ./www2/$v -cap $v.999 -capCore 1.656
+    generate -no-experimental -skip-release-history -www ./www2/$v -cap $v.999 -capCore 1.999
     sanity-check ./www2/$v
 
     # for LTS
@@ -67,12 +67,12 @@ done
 #     with symlinks pointing to the 'latest' current versions. So we generate exprimental first, then overwrite current to produce proper symlinks
 
 # experimental update center. this is not a part of the version-based redirection rules
-generate -skip-release-history -capCore 1.656 -www ./www2/experimental -download ./download
+generate -skip-release-history -capCore 1.999 -www ./www2/experimental -download ./download
 
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
-generate -no-experimental -capCore 1.656 -www ./www2/current -www-download ./www2/download -download ./download -pluginCount.txt ./www2/pluginCount.txt
+generate -no-experimental -capCore 1.999 -www ./www2/current -www-download ./www2/download -download ./download -pluginCount.txt ./www2/pluginCount.txt
 
 echo "); ?>" >> "$RULE"
 
