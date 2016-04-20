@@ -98,15 +98,18 @@ generate -no-experimental -capCore ${CAP_CORE} -www ./www2/current -www-download
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd www2
-  #ln -s latest current/latest
+    ln -s stable-$lastLTS stable
+    for f in latest latestCore.txt release-history.json update-center.json update-center.json.html; do
+        ln -s current/$f .
+    done
 
-  # copy other static resource files
-  rsync -avz "../site/static/" ./
+    # copy other static resource files
+    rsync -avz "../site/static/" ./
 
-  # Rewrite our generated .htaccess containing our version rules
-  htaccess=$(<.htaccess)
-  generated=$(<../${HTACCESS})
-  echo "${htaccess//##LEGACY_UPDATECENTERS_TOKEN##/$generated}" > .htaccess
+    # Rewrite our generated .htaccess containing our version rules
+    htaccess=$(<.htaccess)
+    generated=$(<../${HTACCESS})
+    echo "${htaccess//##LEGACY_UPDATECENTERS_TOKEN##/$generated}" > .htaccess
 popd
 
 
