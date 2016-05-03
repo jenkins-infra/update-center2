@@ -285,6 +285,10 @@ public class Plugin {
             return null;
 
         String excerpt = m.group(1);
+
+        // escape malicious HTML
+        excerpt = excerpt.replace("<", "&lt;").replace(">", "&gt;");
+
         String oneLiner = NEWLINE_PATTERN.matcher(excerpt).replaceAll(" ");
         excerpt = HYPERLINK_PATTERN.matcher(oneLiner).replaceAll("<a href='$2'>$1</a>");
         if (latest.isAlphaOrBeta())
