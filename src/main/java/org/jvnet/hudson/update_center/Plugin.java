@@ -25,6 +25,7 @@ package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -287,7 +288,7 @@ public class Plugin {
         String excerpt = m.group(1);
 
         // escape malicious HTML
-        excerpt = excerpt.replace("<", "&lt;").replace(">", "&gt;");
+        excerpt = StringEscapeUtils.escapeHtml(excerpt);
 
         String oneLiner = NEWLINE_PATTERN.matcher(excerpt).replaceAll(" ");
         excerpt = HYPERLINK_PATTERN.matcher(oneLiner).replaceAll("<a href='$2'>$1</a>");
