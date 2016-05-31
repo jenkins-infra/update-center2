@@ -100,7 +100,7 @@ public class Plugin {
         this.previous = previous;
         this.xmlReader = createXmlReader();
         this.pom = readPOM();
-        this.page = findPage(cpl);
+        this.page = cpl != null ? findPage(cpl) : null;
     }
 
     public Plugin(PluginHistory hpi, ConfluencePluginList cpl) throws IOException {
@@ -123,7 +123,7 @@ public class Plugin {
 
         this.xmlReader = createXmlReader();
         this.pom = readPOM();
-        this.page = findPage(cpl);
+        this.page = cpl != null ? findPage(cpl) : null;
     }
 
     public Plugin(HPI hpi, ConfluencePluginList cpl) throws IOException {
