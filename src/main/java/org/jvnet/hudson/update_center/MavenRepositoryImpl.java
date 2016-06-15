@@ -253,8 +253,10 @@ public class MavenRepositoryImpl extends MavenRepository {
             }
 
             PluginHistory p = plugins.get(a.artifactId);
-            if (p==null)
-                plugins.put(a.artifactId, p=new PluginHistory(a.artifactId));
+            if (p==null) {
+                p=new PluginHistory(a.artifactId);
+                plugins.put(a.artifactId, p);
+            }
             p.addArtifact(createHpiArtifact(a, p));
             p.groupId.add(a.groupId);
         }
