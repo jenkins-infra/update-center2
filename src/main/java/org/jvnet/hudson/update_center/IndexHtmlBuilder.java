@@ -24,7 +24,9 @@
 package org.jvnet.hudson.update_center;
 
 import java.io.Closeable;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -48,7 +50,7 @@ public class IndexHtmlBuilder implements Closeable {
         if (dir==null)  return new PrintWriter(new ByteArrayOutputStream()); // ignore output
         
         dir.mkdirs();
-        return new PrintWriter(new FileWriter(new File(dir,"index.html")));
+        return new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,"index.html")), "UTF-8"));
     }
 
     public IndexHtmlBuilder(PrintWriter out, String title) {

@@ -2,8 +2,10 @@ package org.jvnet.hudson.update_center;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 /**
@@ -21,7 +23,7 @@ public class LatestLinkBuilder implements Closeable {
         System.out.println(String.format("Writing plugin symlinks and redirects to dir: %s", dir));
 
         index = new IndexHtmlBuilder(dir,"Permalinks to latest files");
-        htaccess = new PrintWriter(new FileWriter(new File(dir,".htaccess")),true);
+        htaccess = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,".htaccess"), true), "UTF-8"));
 
         htaccess.println("# GENERATED. DO NOT MODIFY.");
         // Redirect directive doesn't let us write redirect rules relative to the directory .htaccess exists,
