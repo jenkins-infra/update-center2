@@ -132,6 +132,9 @@ public class Main {
     @Option(name="-skip-release-history",usage="Skip generation of release history")
     public boolean skipReleaseHistory;
 
+    @Option(name="-verify-plugin",usage="For debugging - just process plugins with artifact name containing this string.")
+    public String verifyPluginStr;
+
     private Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
@@ -179,13 +182,16 @@ public class Main {
         LatestLinkBuilder latest = createHtaccessWriter();
 
         JSONObject ucRoot = buildUpdateCenterJson(repo, latest);
-        writeToFile(updateCenterPostCallJson(ucRoot), output);
-        writeToFile(updateCenterPostMessageHtml(ucRoot), new File(output.getPath()+".html"));
+        // Don't actually write anything if we're only verifying a plugin string.
+        if (verifyPluginStr == null) {
+            writeToFile(updateCenterPostCallJson(ucRoot), output);
+            writeToFile(updateCenterPostMessageHtml(ucRoot), new File(output.getPath() + ".html"));
 
-        if (!skipReleaseHistory) {
-            JSONObject rhRoot = buildFullReleaseHistory(repo);
-            String rh = prettyPrintJson(rhRoot);
-            writeToFile(rh, releaseHistory);
+            if (!skipReleaseHistory) {
+                JSONObject rhRoot = buildFullReleaseHistory(repo);
+                String rh = prettyPrintJson(rhRoot);
+                writeToFile(rh, releaseHistory);
+            }
         }
 
         latest.close();
@@ -208,9 +214,12 @@ public class Main {
     private JSONObject buildUpdateCenterJson(MavenRepository repo, LatestLinkBuilder latest) throws Exception {
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
-        JSONObject core = buildCore(repo, latest);
-        if (core!=null)
-            root.put("core", core);
+        // Don't bother with core when we're just verifying a plugin string.
+        if (verifyPluginStr == null) {
+            JSONObject core = buildCore(repo, latest);
+            if (core != null)
+                root.put("core", core);
+        }
         root.put("plugins", buildPlugins(repo, latest));
         root.put("id",id);
         if (connectionCheckUrl!=null)
@@ -266,75 +275,91 @@ public class Main {
         System.out.println("Gathering list of plugins and versions from the maven repo...");
         for (PluginHistory hpi : repository.listHudsonPlugins()) {
             try {
-                System.out.println(hpi.artifactId);
+                // Only bother processing a plugin if either we're not verifying a plugin string, or if the artifact id
+                // of the plugin contains the plugin string we're verifying.
+                if (verifyPluginStr == null || hpi.artifactId.contains(verifyPluginStr)) {
+                    System.out.println(hpi.artifactId);
 
-                // Gather the plugin properties from the plugin file and the wiki
-                Plugin plugin = new Plugin(hpi, cpl);
+                    // Gather the plugin properties from the plugin file and the wiki
+                    Plugin plugin = new Plugin(hpi, cpl);
 
-                // Exclude plugins flagged as deprecated on the wiki
-                if (plugin.isDeprecated()) {
-                    System.out.println(String.format("=> Excluding %s as plugin is marked as deprecated on the wiki", hpi.artifactId));
-                    deprecatedCount++;
-                    continue;
-                }
+                    // Exclude plugins flagged as deprecated on the wiki
+                    if (plugin.isDeprecated()) {
+                        System.out.println(String.format("=> Excluding %s as plugin is marked as deprecated on the wiki", hpi.artifactId));
+                        deprecatedCount++;
+                        continue;
+                    }
 
-                // Exclude plugins whose POM URL is empty, or doesn't exist on the wiki
-                final String givenUrl = plugin.getPomWikiUrl();
-                if (plugin.didWikiPageDownloadFail()) {
-                    System.out.println(String.format("=> Keeping %s as wiki page exists but there was a download failure: \"%s\"",
-                            hpi.artifactId, givenUrl));
-                } else {
-                    final String actualUrl = plugin.getWikiUrl();
-                    if (actualUrl.isEmpty()) {
-                        // When building older Update Centres (e.g. LTS releases), there will be a number of plugins which
-                        // do not have wiki pages, even if the latest versions of those plugins *do* have wiki pages.
-                        // So here we keep the old behaviour: plugins without wiki pages are still kept.
-                        // This behaviour can be removed once we no longer generate UC files for LTS 1.596.x and older
-                        if (isVersionCappedRepository) {
-                            System.out.println(String.format("=> Keeping %s despite unknown/missing wiki URL: \"%s\"",
-                                    hpi.artifactId, givenUrl));
-                        } else {
-                            System.out.println(String.format("=> Excluding %s due to unknown/missing wiki URL: \"%s\"",
-                                    hpi.artifactId, givenUrl));
-                            missingWikiUrlCount++;
-                            continue;
+                    // Exclude plugins whose POM URL is empty, or doesn't exist on the wiki
+                    final String givenUrl = plugin.getPomWikiUrl();
+                    if (plugin.didWikiPageDownloadFail()) {
+                        System.out.println(String.format("=> Keeping %s as wiki page exists but there was a download failure: \"%s\"",
+                                hpi.artifactId, givenUrl));
+                    } else {
+                        final String actualUrl = plugin.getWikiUrl();
+                        if (actualUrl.isEmpty()) {
+                            // When building older Update Centres (e.g. LTS releases), there will be a number of plugins which
+                            // do not have wiki pages, even if the latest versions of those plugins *do* have wiki pages.
+                            // So here we keep the old behaviour: plugins without wiki pages are still kept.
+                            // This behaviour can be removed once we no longer generate UC files for LTS 1.596.x and older
+                            if (isVersionCappedRepository) {
+                                System.out.println(String.format("=> Keeping %s despite unknown/missing wiki URL: \"%s\"",
+                                        hpi.artifactId, givenUrl));
+                            } else {
+                                System.out.println(String.format("=> Excluding %s due to unknown/missing wiki URL: \"%s\"",
+                                        hpi.artifactId, givenUrl));
+                                missingWikiUrlCount++;
+                                continue;
+                            }
+                        }
+                        if (!actualUrl.equals(givenUrl)) {
+                            System.out.println(String.format("=> Wiki URL was rewritten from \"%s\" to \"%s\"", givenUrl, actualUrl));
                         }
                     }
-                    if (!actualUrl.equals(givenUrl)) {
-                        System.out.println(String.format("=> Wiki URL was rewritten from \"%s\" to \"%s\"", givenUrl, actualUrl));
+
+                    JSONObject json = plugin.toJSON();
+                    System.out.println("=> " + json);
+                    plugins.put(plugin.artifactId, json);
+                    // Only actually act on anything if we're not verifying a plugin string.
+                    if (verifyPluginStr == null) {
+                        latest.add(plugin.artifactId + ".hpi", plugin.latest.getURL().getPath());
+
+                        if (download != null) {
+                            for (HPI v : hpi.artifacts.values()) {
+                                stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
+                            }
+                            if (!hpi.artifacts.isEmpty())
+                                createLatestSymlink(hpi, plugin.latest);
+                        }
+
+                        if (wwwDownload != null) {
+                            String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
+                            buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
+                        }
                     }
+
+                    validCount++;
                 }
-
-                JSONObject json = plugin.toJSON();
-                System.out.println("=> " + json);
-                plugins.put(plugin.artifactId, json);
-                latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
-
-                if (download!=null) {
-                    for (HPI v : hpi.artifacts.values()) {
-                        stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
-                    }
-                    if (!hpi.artifacts.isEmpty())
-                        createLatestSymlink(hpi, plugin.latest);
-                }
-
-                if (wwwDownload!=null) {
-                    String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
-                    buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
-                }
-
-                validCount++;
             } catch (IOException e) {
                 e.printStackTrace();
                 // move on to the next plugin
             }
         }
 
-        if (pluginCountTxt!=null)
+        if (pluginCountTxt!=null && verifyPluginStr == null)
             FileUtils.writeStringToFile(pluginCountTxt,String.valueOf(validCount));
         System.out.println("Total " + validCount + " plugins listed.");
         System.out.println("Excluded " + deprecatedCount + " plugins marked as deprecated on the wiki.");
         System.out.println("Excluded " + missingWikiUrlCount + " plugins without a valid wiki URL.");
+
+        // If we are verifying a plugin string, check whether the missing wiki URL count is greater than 0.
+        if (verifyPluginStr != null && missingWikiUrlCount > 0) {
+            // If so, notify the user and exit out with an exit code of 1.
+            System.out.println("ERROR IN VERIFICATION: " + missingWikiUrlCount + " plugins found matching string "
+                    + "but without valid wiki URLs.");
+            System.exit(1);
+        }
+
         return plugins;
     }
 
