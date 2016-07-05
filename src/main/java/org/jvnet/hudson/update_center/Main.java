@@ -352,12 +352,20 @@ public class Main {
         System.out.println("Excluded " + deprecatedCount + " plugins marked as deprecated on the wiki.");
         System.out.println("Excluded " + missingWikiUrlCount + " plugins without a valid wiki URL.");
 
-        // If we are verifying a plugin string, check whether the missing wiki URL count is greater than 0.
-        if (verifyPluginStr != null && missingWikiUrlCount > 0) {
-            // If so, notify the user and exit out with an exit code of 1.
-            System.out.println("ERROR IN VERIFICATION: " + missingWikiUrlCount + " plugins found matching string "
-                    + "but without valid wiki URLs.");
-            System.exit(1);
+        // If we're verifying a plugin string, check if the counts match expectations.
+        if (verifyPluginStr != null) {
+            // If no plugins, valid, invalid or deprecated, were found matching the string, exit out.
+            if (validCount == 0 && deprecatedCount == 0 && missingWikiUrlCount == 0) {
+                System.out.println("ERROR IN VERIFICATION: No plugins found matching string '" + verifyPluginStr + "'");
+                System.exit(1);
+            }
+            // If the missing wiki URL count is greater than 0, exit out.
+            else if (missingWikiUrlCount > 0) {
+                System.out.println("ERROR IN VERIFICATION: " + missingWikiUrlCount + " plugins found matching string '"
+                        + verifyPluginStr + "' but without valid wiki URLs.");
+                System.exit(1);
+            }
+            // Otherwise, we're all good and will just continue as normal.
         }
 
         return plugins;
