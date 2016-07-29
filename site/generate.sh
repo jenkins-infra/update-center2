@@ -54,10 +54,12 @@ for v in ${BASELINES[@]}; do
     # for mainline up to $v, which advertises the latest core
     generate -no-experimental -skip-release-history -www ./www2/$v -cap $v.999
     sanity-check ./www2/$v
+    ln -sf ../updates ./www2/$v/updates
 
     # for LTS
     generate -no-experimental -skip-release-history -www ./www2/stable-$v -cap $v.999 -capCore ${BASELINES[${#BASELINES[@]}-1]}.999
     sanity-check ./www2/stable-$v
+    ln -sf ../updates ./www2/stable-$v/updates
     lastLTS=$v
 
     # Split our version up into an array for rewriting
@@ -89,11 +91,13 @@ EOF
 
 # experimental update center. this is not a part of the version-based redirection rules
 generate -skip-release-history -www ./www2/experimental -download ./download
+ln -sf ../updates ./www2/experimental/updates
 
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
 generate -no-experimental -www ./www2/current -www-download ./www2/download -download ./download -pluginCount.txt ./www2/pluginCount.txt
+ln -sf ../updates ./www2/current/updates
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd www2
