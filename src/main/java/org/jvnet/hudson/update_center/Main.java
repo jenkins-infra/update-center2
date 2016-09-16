@@ -50,8 +50,11 @@ import java.util.TreeMap;
  * @author Kohsuke Kawaguchi
  */
 public class Main {
-    @Option(name="-o",usage="json file")
-    public File output = new File("output.json");
+    @Option(name="-o",usage="JSONP file")
+    public File jsonp = new File("output.json");
+
+    @Option(name="-json",usage="JSON file")
+    public File json = new File("actual.json");
 
     @Option(name="-r",usage="release history JSON file")
     public File releaseHistory = new File("release-history.json");
@@ -165,7 +168,8 @@ public class Main {
     }
 
     private void prepareStandardDirectoryLayout() {
-        output = new File(www,"update-center.json");
+        json = new File(www,"update-center.js");
+        jsonp = new File(www,"update-center.json");
         latest = new File(www,"latest");
         indexHtml = new File(www,"index.html");
         releaseHistory = new File(www,"release-history.json");
@@ -179,8 +183,9 @@ public class Main {
         LatestLinkBuilder latest = createHtaccessWriter();
 
         JSONObject ucRoot = buildUpdateCenterJson(repo, latest);
-        writeToFile(updateCenterPostCallJson(ucRoot), output);
-        writeToFile(updateCenterPostMessageHtml(ucRoot), new File(output.getPath()+".html"));
+        writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
+        writeToFile(prettyPrintJson(ucRoot), json);
+        writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath()+".html"));
 
         if (!skipReleaseHistory) {
             JSONObject rhRoot = buildFullReleaseHistory(repo);
