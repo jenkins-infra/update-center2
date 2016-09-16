@@ -57,14 +57,11 @@ LTS branch points to create 6 or 8 ranges.
 
 ## Redirection logic
 
-[A batch task](https://ci.jenkins-ci.org/job/infra_update_center_v3/) generates all the different
-sites as static files, and deploys the directory into Apache.
+[generate.sh](generate.sh) is run by [a CI job](https://trusted.ci.jenkins.io/job/update_center/)
+and generates all the different sites as static files, and deploys the directory into Apache.
 
-As it generates update centers, it generates `rules.php` that contains this version range and
-the redirection target. It is an associative array where the key is the inclusive end of the range,
-and the value is the directory name of the update site.
-
-`redirect.php` implements the redirection logic.
+A part of this is [.htaccess](static/.htaccess) that uses `mod_rewrite` to
+redirect inbound requests to the right version specific website.
 
 ## Generated files
 
