@@ -31,10 +31,6 @@ public class LatestLinkBuilder implements Closeable {
         htaccess.println("RewriteEngine on");
     }
 
-    public void add() {
-
-    }
-
     public void close() throws IOException {
         index.close();
         htaccess.close();
