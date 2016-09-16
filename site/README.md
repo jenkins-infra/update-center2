@@ -57,26 +57,11 @@ LTS branch points to create 6 or 8 ranges.
 
 ## Redirection logic
 
-[A batch task](https://ci.jenkins-ci.org/job/infra_update_center_v3/) generates all the different
-sites as static files, and deploys the directory into Apache.
+[generate.sh](generate.sh) is run by [a CI job](https://trusted.ci.jenkins.io/job/update_center/)
+and generates all the different sites as static files, and deploys the directory into Apache.
 
-As it generates update centers, it generates `rules.php` that contains this version range and
-the redirection target. It is an associative array where the key is the inclusive end of the range,
-and the value is the directory name of the update site.
+A part of this is [.htaccess](static/.htaccess) that uses `mod_rewrite` to
+redirect inbound requests to the right version specific website.
 
-`redirect.php` implements the redirection logic.
-
-## Generated files
-
-The generated update center image contains the following pieces.
-
-### Per site
- * `latest` tree ([example](http://updates.jenkins-ci.org/current/latest/)) is a collection of permalinks to the latest version of every plugin.
- * `latestCore.txt` contains the latest version of the core in this update center.
- * `release-history.json` contains the release history of all the plugins available in this update site.
- * `update-center.json` and `update-center.json.html` contain actual update center metadata.
-
-### Global
- * [`/download` tree](http://updates.jenkins-ci.org/download) is an URL space that covers all the versions of all the plugins released to date. Thoes URLs are then redirected to `mirrors.jenkins-ci.org`
- * For compatibility with the v2 layout, files from the 'current' update site is copied over into the top level directory.
-
+## Layout
+See [a separate doc](LAYOUT.md) for the layout of the generated update site.
