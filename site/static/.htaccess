@@ -1,6 +1,6 @@
 # THIS FILE IS GENERATED
 #
-# See: <https://github.com/jenkinsci/backend-update-center2>
+# See: <https://github.com/jenkinsci/backend-update-center2/site/static/.htaccess>
 RewriteEngine on
 
 # If we have a match that looks like an LTS version, e.g. 1.554.1, redirect to stable-1.554
