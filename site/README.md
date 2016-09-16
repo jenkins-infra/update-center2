@@ -63,17 +63,5 @@ and generates all the different sites as static files, and deploys the directory
 A part of this is [.htaccess](static/.htaccess) that uses `mod_rewrite` to
 redirect inbound requests to the right version specific website.
 
-## Generated files
-
-The generated update center image contains the following pieces.
-
-### Per site
- * `latest` tree ([example](http://updates.jenkins-ci.org/current/latest/)) is a collection of permalinks to the latest version of every plugin.
- * `latestCore.txt` contains the latest version of the core in this update center.
- * `release-history.json` contains the release history of all the plugins available in this update site.
- * `update-center.json` and `update-center.json.html` contain actual update center metadata.
-
-### Global
- * [`/download` tree](http://updates.jenkins-ci.org/download) is an URL space that covers all the versions of all the plugins released to date. Thoes URLs are then redirected to `mirrors.jenkins-ci.org`
- * For compatibility with the v2 layout, files from the 'current' update site is copied over into the top level directory.
-
+## Layout
+See [a separate doc](LAYOUT.md) for the layout of the generated update site.
