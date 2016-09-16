@@ -168,7 +168,7 @@ public class Main {
     }
 
     private void prepareStandardDirectoryLayout() {
-        json = new File(www,"update-center.js");
+        json = new File(www,"update-center.actual.json");
         jsonp = new File(www,"update-center.json");
         latest = new File(www,"latest");
         indexHtml = new File(www,"index.html");
