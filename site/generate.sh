@@ -118,7 +118,7 @@ popd
 
 # push plugins to mirrors.jenkins-ci.org
 chmod -R a+r download
-rsync -acvz download/plugins/ ${RSYNC_USER}@${UPDATES_SITE}:/srv/releases/jenkins/plugins
+rsync -avz --size-only download/plugins/ ${RSYNC_USER}@${UPDATES_SITE}:/srv/releases/jenkins/plugins
 
 # push generated index to the production servers
 # 'updates' come from tool installer generator, so leave that alone, but otherwise
