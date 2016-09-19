@@ -71,7 +71,7 @@ for v in ${BASELINES[@]}; do
 
 RewriteCond %{QUERY_STRING} ^.*version=${major}\.(\d+)$ [NC]
 RewriteCond %1 <=${minor}
-RewriteRule ^update\-center\.[json|html]+ /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^update\-center.*\.[json|html]+ /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 EOF
 
 done

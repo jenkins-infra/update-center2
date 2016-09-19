@@ -11,7 +11,7 @@ RewriteRule ^update\-center\.[json|html]+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301
 ##LEGACY_UPDATECENTERS_TOKEN##
 
 # If that all failed, but we have an update center, let's go to current
-RewriteRule ^update\-center\.[json|html]+ /current%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^update\-center.*\.[json|html]+ /current%{REQUEST_URI}? [NC,L,R=301]
 
 # Ensure /release-history.json goes to the right place
 RewriteRule ^release\-history\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
