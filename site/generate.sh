@@ -4,7 +4,7 @@
 # Used later for rsyncing updates
 UPDATES_SITE="updates.jenkins.io"
 RSYNC_USER="www-data"
-declare -a BASELINES=( 1.554 1.565 1.580 1.596 1.609 1.625 1.642 1.651 2.7 )
+declare -a BASELINES=( 1.554 1.565 1.580 1.596 1.609 1.625 1.642 1.651 2.7 2.19 )
 
 umask
 
