@@ -316,10 +316,6 @@ public class Plugin {
         if (title == null) {
             title = artifactId;
         }
-
-        // escape malicious HTML
-        title = StringEscapeUtils.escapeHtml(title);
-
         return title;
     }
 
