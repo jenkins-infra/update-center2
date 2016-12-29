@@ -188,7 +188,7 @@ public class Signer {
         List<X509Certificate> certs = new ArrayList<X509Certificate>();
         for (File f : certificates) {
             X509Certificate c = loadCertificate(cf, f);
-            c.checkValidity(new Date(System.currentTimeMillis()+ TimeUnit.DAYS.toMillis(30)));
+            c.checkValidity(new Date(System.currentTimeMillis()+ TimeUnit.DAYS.toMillis(15)));
             certs.add(c);
         }
 
