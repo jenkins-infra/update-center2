@@ -4,7 +4,7 @@
     "type": "plugin",
     "name": "google-login",
     "message": "Authentication bypass vulnerability",
-    "uri": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2015-10-12",
+    "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2015-10-12",
     "versions": [
       {
         "lastVersion": "1.1",
@@ -17,7 +17,7 @@
     "type": "plugin",
     "name": "extra-columns",
     "message": "Stored XSS vulnerability",
-    "uri": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-04-11",
+    "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-04-11",
     "versions": [
       {
         "lastVersion": "1.16",
@@ -30,7 +30,7 @@
     "type": "plugin",
     "name": "extra-columns",
     "message": "Groovy sandbox protection incomplete",
-    "uri": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-04-11",
+    "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-04-11",
     "versions": [
       {
         "lastVersion": "1.18",
@@ -43,7 +43,7 @@
     "type": "plugin",
     "name": "tap",
     "message": "Path traversal vulnerability",
-    "uri": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-06-20",
+    "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-06-20",
     "versions": [
       {
         "lastVersion": "1.24",
@@ -56,7 +56,7 @@
     "type": "plugin",
     "name": "image-gallery",
     "message": "Path traversal vulnerability",
-    "uri": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-06-20",
+    "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-06-20",
     "versions": [
       {
         "lastVersion": "1.3",
@@ -69,7 +69,7 @@
     "type": "plugin",
     "name": "build-failure-analyzer",
     "message": "Cross-site scripting vulnerability",
-    "uri": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-06-20",
+    "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-06-20",
     "versions": [
       {
         "lastVersion": "1.15.0",
@@ -82,7 +82,7 @@
     "type": "plugin",
     "name": "async-http-client",
     "message": "Improper certificate validation",
-    "uri": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-06-20",
+    "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-06-20",
     "versions": [
       {
         "lastVersion": "1.7.24",
@@ -95,7 +95,7 @@
     "type": "plugin",
     "name": "cucumber-reports",
     "message": "Plugin disables Content-Security-Policy for files served by Jenkins",
-    "uri": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-07-27",
+    "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-07-27",
     "versions": [
       {
         "firstVersion": "1.3.0",
