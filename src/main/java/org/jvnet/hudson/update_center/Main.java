@@ -229,14 +229,10 @@ public class Main {
         return root;
     }
 
-    private JSONArray buildWarnings() {
-        try {
-            String warningsText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("warnings.json"));
-            JSONArray warnings = JSONArray.fromObject(warningsText);
-            return warnings;
-        } catch (IOException e) {
-            return new JSONArray();
-        }
+    private JSONArray buildWarnings() throws IOException {
+        String warningsText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("warnings.json"));
+        JSONArray warnings = JSONArray.fromObject(warningsText);
+        return warnings;
     }
 
     private static void writeToFile(String string, final File file) throws IOException {
