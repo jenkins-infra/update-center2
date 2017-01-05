@@ -28,7 +28,7 @@
   {
     "id": "SECURITY-258",
     "type": "plugin",
-    "name": "extra-columns",
+    "name": "script-security",
     "message": "Groovy sandbox protection incomplete",
     "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2016-04-11",
     "versions": [
