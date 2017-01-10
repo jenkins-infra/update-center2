@@ -27,6 +27,7 @@ import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -216,6 +217,7 @@ public class Main {
         JSONObject core = buildCore(repo, latest);
         if (core!=null)
             root.put("core", core);
+        root.put("warnings", buildWarnings());
         root.put("plugins", buildPlugins(repo, latest));
         root.put("id",id);
         if (connectionCheckUrl!=null)
@@ -225,6 +227,12 @@ public class Main {
             signer.sign(root);
 
         return root;
+    }
+
+    private JSONArray buildWarnings() throws IOException {
+        String warningsText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("warnings.json"));
+        JSONArray warnings = JSONArray.fromObject(warningsText);
+        return warnings;
     }
 
     private static void writeToFile(String string, final File file) throws IOException {
