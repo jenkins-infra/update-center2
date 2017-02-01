@@ -103,5 +103,18 @@
         "pattern": "(1[.][34]|2[.][012345])(|[.-].*)"
       }
     ]
+  },
+  {
+    "id": "core-2.44",
+    "type": "core",
+    "name": "core",
+    "message": "Multiple security vulnerabilities in Jenkins",
+    "url": "https://wiki.jenkins-ci.org/display/SECURITY/Jenkins+Security+Advisory+2017-02-01",
+    "versions": [
+      {
+        "lastVersion": "2.43",
+        "pattern": "(1[.].*|2[.]\\d|2[.][123]\\d|2[.]4[0123])(|[-].*)"
+      }
+    ]
   }
 ]
