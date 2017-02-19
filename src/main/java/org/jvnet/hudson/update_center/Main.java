@@ -272,7 +272,6 @@ public class Main {
         final boolean isVersionCappedRepository = isVersionCappedRepository(repository);
 
         int validCount = 0;
-        int deprecatedCount = 0;
         int missingWikiUrlCount = 0;
 
         JSONObject plugins = new JSONObject();
@@ -283,13 +282,6 @@ public class Main {
 
                 // Gather the plugin properties from the plugin file and the wiki
                 Plugin plugin = new Plugin(hpi, cpl);
-
-                // Exclude plugins flagged as deprecated on the wiki
-                if (plugin.isDeprecated()) {
-                    System.out.println(String.format("=> Excluding %s as plugin is marked as deprecated on the wiki", hpi.artifactId));
-                    deprecatedCount++;
-                    continue;
-                }
 
                 // Exclude plugins whose POM URL is empty, or doesn't exist on the wiki
                 final String givenUrl = plugin.getPomWikiUrl();
@@ -346,7 +338,6 @@ public class Main {
         if (pluginCountTxt!=null)
             FileUtils.writeStringToFile(pluginCountTxt,String.valueOf(validCount));
         System.out.println("Total " + validCount + " plugins listed.");
-        System.out.println("Excluded " + deprecatedCount + " plugins marked as deprecated on the wiki.");
         System.out.println("Excluded " + missingWikiUrlCount + " plugins without a valid wiki URL.");
         return plugins;
     }
