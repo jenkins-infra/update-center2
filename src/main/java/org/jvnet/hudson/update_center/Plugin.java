@@ -254,22 +254,9 @@ public class Plugin {
         return labels;
     }
 
-    /** @return {@code true} if the plugin's wiki page has the "plugin-deprecated" label. */
-    public boolean isDeprecated() {
-        if (!labelsRead) readLabels();
-        return deprecated;
-    }
-
     private void readLabels() {
         if (page!=null)
             labels = page.getLabels();
-
-        if (labels != null)
-            for (String label : labels)
-                if ("deprecated".equals(label)) {
-                    deprecated = true;
-                    break;
-                }
         this.labelsRead = true;
     }
 
