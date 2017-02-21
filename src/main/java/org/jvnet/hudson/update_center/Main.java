@@ -301,9 +301,12 @@ public class Main {
                     if (actualUrl.isEmpty()) {
                         // When building older Update Centres (e.g. LTS releases), there will be a number of plugins which
                         // do not have wiki pages, even if the latest versions of those plugins *do* have wiki pages.
-                        // So here we keep the old behaviour: plugins without wiki pages are still kept.
+                        //
+                        // To allow for this, when building a capped UC, plugins without wiki pages will be permitted.
+                        // However, newly hosted plugins should know better, and *will* be excluded if missing a wiki URL.
+                        //
                         // This behaviour can be removed once we no longer generate UC files for LTS 1.596.x and older
-                        if (isVersionCappedRepository) {
+                        if (isVersionCappedRepository && hpi.latest().getTimestamp() < 1475280000000L /*2016-10-01*/) {
                             System.out.println(String.format("=> Keeping %s despite unknown/missing wiki URL: \"%s\"",
                                     hpi.artifactId, givenUrl));
                         } else {
