@@ -25,7 +25,6 @@ package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -67,17 +66,9 @@ public class Plugin {
      * Previous version of this plugin.
      */
     public final HPI previous;
+    
     /**
-     * Confluence page of this plugin in Wiki.
-     * Null if we couldn't find it.
-     */
-    public final WikiPage page;
-
-    private boolean pageDownloadFailed;
-
-    /**
-     * Confluence labels for the plugin wiki page.
-     * Null if wiki page wasn't found.
+     * Plugin labels (categories)
      */
     private String[] labels;
     private boolean labelsRead = false;
@@ -94,16 +85,15 @@ public class Plugin {
      */
     private final Document pom;
 
-    public Plugin(String artifactId, HPI latest, HPI previous, ConfluencePluginList cpl) throws IOException {
+    public Plugin(String artifactId, HPI latest, HPI previous) throws IOException {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
         this.xmlReader = createXmlReader();
         this.pom = readPOM();
-        this.page = findPage(cpl);
     }
 
-    public Plugin(PluginHistory hpi, ConfluencePluginList cpl) throws IOException {
+    public Plugin(PluginHistory hpi) throws IOException {
         this.artifactId = hpi.artifactId;
         List<HPI> versions = new ArrayList<HPI>();
         for (HPI h : hpi.artifacts.values()) {
@@ -123,11 +113,10 @@ public class Plugin {
 
         this.xmlReader = createXmlReader();
         this.pom = readPOM();
-        this.page = findPage(cpl);
     }
 
-    public Plugin(HPI hpi, ConfluencePluginList cpl) throws IOException {
-        this(hpi.artifact.artifactId, hpi,  null, cpl);
+    public Plugin(HPI hpi) throws IOException {
+        this(hpi.artifact.artifactId, hpi,  null);
     }
 
     private SAXReader createXmlReader() {
@@ -159,44 +148,16 @@ public class Plugin {
         }
     }
 
-    /** @return The wiki URL as specified in the POM, or the overrides file. */
-    public String getPomWikiUrl() {
+    /** @return The URL as specified in the POM, or the overrides file. */
+    public String getPluginUrl() {
         // Check whether the wiki URL should be overridden
-        String url = OVERRIDES.getProperty(artifactId);
+        String url = URL_OVERRIDES.getProperty(artifactId);
 
         // Otherwise read the wiki URL from the POM, if any
         if (url == null && pom != null) {
             url = selectSingleValue(pom, "/project/url");
         }
         return url;
-    }
-
-    /**
-     * Locates the page for this plugin on Wiki.
-     *
-     * <p>
-     * First we'll try to parse POM and obtain the URL.
-     * If that fails, find the nearest name from the children list.
-     */
-    private WikiPage findPage(ConfluencePluginList cpl) throws IOException {
-        // Check whether the plugin has a URL defined
-        String url = getPomWikiUrl();
-        if (url == null) {
-            System.out.println("** No wiki URL found in POM");
-            return null;
-        }
-
-        // If so, download the wiki page
-        try {
-            return cpl.getPage(url);
-        } catch (Exception e) {
-            System.err.println("** Failed to fetch "+ url);
-            e.printStackTrace();
-        }
-
-        // An exception was thrown while fetching the wiki page; this is likely to be a transient failure
-        pageDownloadFailed = true;
-        return null;
     }
 
     private static Node selectSingleNode(Document pom, String path) {
@@ -250,87 +211,26 @@ public class Plugin {
     }
 
     public String[] getLabels() {
-        if (!labelsRead) readLabels();
-        return labels;
+        Object ret = LABEL_DEFINITIONS.get(artifactId);
+        if (ret == null) {
+            // handle missing entry in properties file
+            return new String[0];
+        }
+        String labels = ret.toString();
+        if (labels.trim().length() == 0) {
+            // handle empty entry in properties file
+            return new String[0];
+        }
+        return labels.split("\\s+");
     }
-
-    /** @return {@code true} if the plugin's wiki page has the "plugin-deprecated" label. */
-    public boolean isDeprecated() {
-        if (!labelsRead) readLabels();
-        return deprecated;
-    }
-
-    private void readLabels() {
-        if (page!=null)
-            labels = page.getLabels();
-
-        if (labels != null)
-            for (String label : labels)
-                if ("deprecated".equals(label)) {
-                    deprecated = true;
-                    break;
-                }
-        this.labelsRead = true;
-    }
-
-    /**
-     * Obtains the excerpt of this wiki page in HTML. Otherwise null.
-     */
-    public String getExcerptInHTML() {
-        String content = page.getContent();
-        if(content==null)
-            return null;
-
-        Matcher m = EXCERPT_PATTERN.matcher(content);
-        if(!m.find())
-            return null;
-
-        String excerpt = m.group(1);
-
-        // escape malicious HTML
-        excerpt = StringEscapeUtils.escapeHtml(excerpt);
-
-        String oneLiner = NEWLINE_PATTERN.matcher(excerpt).replaceAll(" ");
-        excerpt = HYPERLINK_PATTERN.matcher(oneLiner).replaceAll("<a href='$2'>$1</a>");
-        if (latest.isAlphaOrBeta())
-            excerpt = "<b>(This version is experimental and may change in backward-incompatible ways)</b> <br><br>"+excerpt;
-        return excerpt;
-    }
-
-    // Tweaking to ignore leading whitespace after the initial {excerpt}
-    private static final Pattern EXCERPT_PATTERN = Pattern.compile("\\{excerpt(?::hidden(?:=true)?)?\\}\\s*(.+)\\{excerpt\\}", Pattern.DOTALL);
-    private static final Pattern HYPERLINK_PATTERN = Pattern.compile("\\[([^|\\]]+)\\|([^|\\]]+)(|([^]])+)?\\]");
-    private static final Pattern NEWLINE_PATTERN = Pattern.compile("(?:\\r\\n|\\n)");
 
     /** @return The plugin name defined in the POM &lt;name>; falls back to the wiki page title, then artifact ID. */
-    public String getName() {
+    public String getName() {                                                                                                                                                   
         String title = selectSingleValue(pom, "/project/name");
-        if (title == null && page != null) {
-            title = page.getTitle();
-            if ("Plugin Documentation Missing".equals(title)) {
-                // Don't overwrite the name just because the wiki page is missing.
-                // This code block can be removed once the associated wiki overrides are removed
-                title = null;
-            }
-        }
         if (title == null) {
             title = artifactId;
         }
         return title;
-    }
-
-    /** @return The wiki page URL; may be empty, never {@code null}. */
-    public String getWikiUrl() {
-        String wiki = "";
-        if (page!=null) {
-            wiki = page.getUrl();
-        }
-        return wiki;
-    }
-
-    /** @return {@code true} if a wiki page exists for this plugin, but downloading it failed. */
-    public boolean didWikiPageDownloadFail() {
-        return pageDownloadFailed;
     }
 
     public JSONObject toJSON() throws IOException {
@@ -345,28 +245,21 @@ public class Plugin {
         }
 
         json.put("title", getName());
-        if (page!=null) {
-            json.put("wiki",page.getUrl());
-            String excerpt = getExcerptInHTML();
-            // TODO also had problems with Emma and Emma Code Coverage excerpts; was
-            // "excerpt": "Allows you to add a column that displays line coverage percentages based on EMMA. {info}This functionality is included and superseeded by the \uFEFF[JENKINS:JaCoCo Plugin] now\\!{info}",
-            // according to one source but the other lacked the anomalous BOM.
-            if (excerpt!=null && !excerpt.startsWith("{"))
-                json.put("excerpt",excerpt);
-            String[] labelList = getLabels();
-            if (labelList!=null)
-                json.put("labels",labelList);
-        }
         String scm = getScmHost();
         if (scm!=null) {
             json.put("scm", scm);
         }
 
-        if (!json.has("excerpt")) {
-            // fall back to <description>, which is plain text but still better than nothing.
-            String description = plainText2html(selectSingleValue(pom, "/project/description"));
-            if (description!=null)
-                json.put("excerpt",description);
+        json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
+
+        json.put("labels", getLabels());
+
+        String description = plainText2html(selectSingleValue(pom, "/project/description"));
+        if (latest.isAlphaOrBeta()) {
+            description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
+        }
+        if (description!=null) {
+            json.put("excerpt",description);
         }
 
         HPI hpi = latest;
@@ -407,11 +300,13 @@ public class Plugin {
         return plainText.replace("&","&amp;").replace("<","&lt;");
     }
 
-    private static final Properties OVERRIDES = new Properties();
+    private static final Properties URL_OVERRIDES = new Properties();
+    private static final Properties LABEL_DEFINITIONS = new Properties();
 
     static {
         try {
-            OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
+            URL_OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
+            LABEL_DEFINITIONS.load(Plugin.class.getClassLoader().getResourceAsStream("label-definitions.properties"));
         } catch (IOException e) {
             throw new Error(e);
         }
