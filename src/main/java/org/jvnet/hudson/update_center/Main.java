@@ -272,7 +272,7 @@ public class Main {
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (capPlugin !=null || getCapCore()!=null) {
-            VersionNumber vp = capPlugin==null ? ANY_VERSION : new VersionNumber(capPlugin);
+            VersionNumber vp = capPlugin==null ? null : new VersionNumber(capPlugin);
             VersionNumber vc = getCapCore()==null ? ANY_VERSION : new VersionNumber(getCapCore());
             repo = new VersionCappedMavenRepository(repo, vp, vc);
         }

@@ -54,6 +54,10 @@ public class VersionCappedMavenRepository extends MavenRepository {
 
             for (Iterator<Entry<VersionNumber, HPI>> itr = h.artifacts.entrySet().iterator(); itr.hasNext();) {
                 Entry<VersionNumber, HPI> e =  itr.next();
+                if (capPlugin == null) {
+                    // no cap
+                    continue;
+                }
                 try {
                     VersionNumber v = new VersionNumber(e.getValue().getRequiredJenkinsVersion());
                     if (v.compareTo(capPlugin)<=0)

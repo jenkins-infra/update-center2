@@ -38,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -95,21 +96,35 @@ public class Plugin {
 
     public Plugin(PluginHistory hpi) throws IOException {
         this.artifactId = hpi.artifactId;
+        HPI previous = null, latest = null;
         List<HPI> versions = new ArrayList<HPI>();
-        for (HPI h : hpi.artifacts.values()) {
+
+        Iterator<HPI> it = hpi.artifacts.values().iterator();
+
+        while (latest == null && it.hasNext()) {
+            HPI h = it.next();
             try {
                 h.getManifest();
-                versions.add(h);
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Failed to resolve "+h+". Dropping this version.",e);
+                continue;
             }
+            latest = h;
         }
 
-        this.latest = versions.get(0);
-        this.previous = versions.size()>1 ? versions.get(1) : null;
+        while (previous == null && it.hasNext()) {
+            HPI h = it.next();
+            try {
+                h.getManifest();
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Failed to resolve "+h+". Dropping this version.",e);
+                continue;
+            }
+            previous = h;
+        }
 
-        // Doublecheck that latest-by-version is also latest-by-date:
-        checkLatestDate(versions, latest);
+        this.latest = latest;
+        this.previous = previous == latest ? null : previous;
 
         this.xmlReader = createXmlReader();
         this.pom = readPOM();
@@ -124,18 +139,6 @@ public class Plugin {
         factory.setXPathNamespaceURIs(
                 Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
         return new SAXReader(factory);
-    }
-
-    private void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
-        TreeMap<Long,HPI> artifactsByDate = new TreeMap<Long,HPI>();
-        for (HPI h : artifacts)
-            artifactsByDate.put(h.getTimestamp(), h);
-        HPI latestByDate = artifactsByDate.get(artifactsByDate.lastKey());
-        if (latestByDate != latestByVersion)
-            System.out.println(
-                "** Latest-by-version (" + latestByVersion.version + ','
-                + latestByVersion.getTimestampAsString() + ") doesn't match latest-by-date ("
-                + latestByDate.version + ',' + latestByDate.getTimestampAsString() + ')');
     }
 
     private Document readPOM() throws IOException {
