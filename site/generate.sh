@@ -26,7 +26,7 @@ function generate() {
 function sanity-check() {
     dir="$1"
     file="$dir/update-center.json"
-    if [ 800000 -ge $(wc -c "$file" | cut -f 1 -d ' ') ]; then
+    if [ 700000 -ge $(wc -c "$file" | cut -f 1 -d ' ') ]; then
         echo $file looks too small
         exit 1
     fi
