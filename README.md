@@ -26,6 +26,7 @@ Extra features:
 
 * allow to blacklist plugins to ignore. See src/main/resources/artifact-ignores.properties
 * temporary override of the plugins wiki page. src/main/resources/wiki-overrides.properties
+* definition of labels, or categories, for plugins. See src/main/resources/label-definitions.properties
 
 The generator pulls information from:
 
