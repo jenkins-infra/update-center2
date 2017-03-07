@@ -102,7 +102,7 @@ ln -sf ../updates ./www2/current/updates
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd www2
     ln -s stable-$lastLTS stable
-    for f in latest latestCore.txt release-history.json update-center.*; do
+    for f in latest latestCore.txt plugin-documentation-urls.json release-history.json update-center.*; do
         ln -s current/$f .
     done
 
