@@ -122,7 +122,7 @@
     "id": "SECURITY-441",
     "type": "plugin",
     "name": "pipeline-maven",
-    "message": "Arbitrary files from Jenkins master available in Pipeline",
+    "message": "Arbitrary files from Jenkins master available in Pipeline by using the withMaven step",
     "url": "https://jenkins.io/security/advisory/2017-03-07/",
     "versions": [
       {
