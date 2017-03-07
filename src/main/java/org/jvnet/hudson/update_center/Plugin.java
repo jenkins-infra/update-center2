@@ -157,6 +157,17 @@ public class Plugin {
         if (url == null && pom != null) {
             url = selectSingleValue(pom, "/project/url");
         }
+
+        String originalUrl = url;
+
+        if (url != null) {
+            url = url.replace("wiki.hudson-ci.org/display/HUDSON/", "wiki.jenkins-ci.org/display/JENKINS/");
+            url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins-ci.org");
+        }
+
+        if (url != null && !url.equals(originalUrl)) {
+            LOGGER.info("Rewrote URL for plugin " + artifactId + " from " + originalUrl + " to " + url);
+        }
         return url;
     }
 
