@@ -116,5 +116,23 @@
         "pattern": "(1[.].*|2[.]\\d|2[.][123]\\d|2[.]4[0123])(|[-].*)"
       }
     ]
+  },
+
+  {
+    "id": "SECURITY-441",
+    "type": "plugin",
+    "name": "pipeline-maven",
+    "message": "Arbitrary files from Jenkins master available in Pipeline",
+    "url": "https://jenkins.io/security/advisory/2017-03-07/",
+    "versions": [
+      {
+        "lastVersion": "0.5",
+        "pattern": "0[.][12345](|[.-].*)"
+      },
+      {
+        "lastVersion": "2.0-beta-5",
+        "pattern": "2[.]0[-]beta[-][345](|[.-].*)"
+      }
+    ]
   }
 ]
