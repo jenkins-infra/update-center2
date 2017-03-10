@@ -123,11 +123,11 @@
     "type": "plugin",
     "name": "pipeline-maven",
     "message": "Arbitrary files from Jenkins master available in Pipeline by using the withMaven step",
-    "url": "https://jenkins.io/security/advisory/2017-03-07/",
+    "url": "https://jenkins.io/security/advisory/2017-03-09/",
     "versions": [
       {
-        "lastVersion": "0.5",
-        "pattern": "0[.][12345](|[.-].*)"
+        "lastVersion": "0.6",
+        "pattern": "0[.][123456](|[.-].*)"
       },
       {
         "lastVersion": "2.0-beta-5",
