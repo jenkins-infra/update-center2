@@ -409,6 +409,7 @@ public class Main {
                     o.put("gav", h.artifact.groupId+':'+h.artifact.artifactId+':'+h.artifact.version);
                     o.put("timestamp", h.getTimestamp());
                     o.put("wiki", plugin.getPluginUrl());
+                    o.put("url", "https://plugins.jenkins.io/" + h.artifact.artifactId);
 
                     System.out.println("\t" + title + ":" + h.version);
                 } catch (IOException e) {
