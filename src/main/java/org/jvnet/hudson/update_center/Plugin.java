@@ -248,7 +248,6 @@ public class Plugin {
         JSONObject json = latest.toJSON(artifactId);
 
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
-        fisheyeDateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));
         if (previous!=null) {
             json.put("previousVersion", previous.version);
