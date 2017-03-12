@@ -37,6 +37,6 @@ node('linux') {
     }
 
     stage('Archive Update Site') {
-        archive 'output'
+        archive 'output/**'
     }
 }
