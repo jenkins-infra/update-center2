@@ -271,15 +271,15 @@ public class Main {
         MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance();
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
-        if (capPlugin !=null || getCapCore()!=null) {
-            VersionNumber vp = capPlugin==null ? ANY_VERSION : new VersionNumber(capPlugin);
-            VersionNumber vc = getCapCore()==null ? ANY_VERSION : new VersionNumber(getCapCore());
-            repo = new VersionCappedMavenRepository(repo, vp, vc);
-        }
         if (experimentalOnly)
             repo = new AlphaBetaOnlyRepository(repo,false);
         if (noExperimental)
             repo = new AlphaBetaOnlyRepository(repo,true);
+        if (capPlugin !=null || getCapCore()!=null) {
+            VersionNumber vp = capPlugin==null ? null : new VersionNumber(capPlugin);
+            VersionNumber vc = getCapCore()==null ? ANY_VERSION : new VersionNumber(getCapCore());
+            repo = new VersionCappedMavenRepository(repo, vp, vc);
+        }
         return repo;
     }
 

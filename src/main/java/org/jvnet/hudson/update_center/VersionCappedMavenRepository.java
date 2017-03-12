@@ -9,8 +9,10 @@ import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -49,20 +51,38 @@ public class VersionCappedMavenRepository extends MavenRepository {
     @Override
     public Collection<PluginHistory> listHudsonPlugins() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
         Collection<PluginHistory> r = base.listHudsonPlugins();
+
         for (Iterator<PluginHistory> jtr = r.iterator(); jtr.hasNext();) {
             PluginHistory h = jtr.next();
 
+
+            Map<VersionNumber, HPI> versionNumberHPIMap = new TreeMap<>(VersionNumber.DESCENDING);
+
             for (Iterator<Entry<VersionNumber, HPI>> itr = h.artifacts.entrySet().iterator(); itr.hasNext();) {
                 Entry<VersionNumber, HPI> e =  itr.next();
+                if (capPlugin == null) {
+                    // no cap
+                    versionNumberHPIMap.put(e.getKey(), e.getValue());
+                    if (versionNumberHPIMap.size() >= 2) {
+                        break;
+                    }
+                    continue;
+                }
                 try {
                     VersionNumber v = new VersionNumber(e.getValue().getRequiredJenkinsVersion());
-                    if (v.compareTo(capPlugin)<=0)
+                    if (v.compareTo(capPlugin)<=0) {
+                        versionNumberHPIMap.put(e.getKey(), e.getValue());
+                        if (versionNumberHPIMap.size() >= 2) {
+                            break;
+                        }
                         continue;
+                    }
                 } catch (IOException x) {
                     x.printStackTrace();
                 }
-                itr.remove();
             }
+
+            h.artifacts.entrySet().retainAll(versionNumberHPIMap.entrySet());
 
             if (h.artifacts.isEmpty())
                 jtr.remove();
