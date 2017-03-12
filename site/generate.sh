@@ -17,7 +17,7 @@ mvn -e clean install
 function generate() {
     java -jar target/update-center2-*-bin*/update-center2-*.jar \
       -id default \
-      -connectionCheckUrl http://www.google.com/ \
+      -connectionCheckUrl https://www.google.com/ \
       -key $SECRET/update-center.key \
       -certificate $SECRET/update-center.cert \
       "$@"
