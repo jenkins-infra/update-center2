@@ -93,6 +93,8 @@ public class WarningsTest {
                     versions.replace(p, true);
                     // written to target/surefire-reports/org.jvnet.hudson.update_center.WarningsTest-output.txt
                     System.out.println("Warning " + warning.id + " matches " + gav);
+                } else {
+                    System.out.println("Warning " + warning.id + " does NOT match " + gav);
                 }
             }
         }
