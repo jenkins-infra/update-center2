@@ -36,14 +36,11 @@ import org.sonatype.nexus.index.ArtifactInfo;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -189,37 +186,158 @@ public class Plugin {
     private static final Pattern HOSTNAME_PATTERN =
         Pattern.compile("(?:://|scm:git:(?!\\w+://))(?:\\w*@)?([\\w.-]+)[/:]");
 
+    private String filterKnownObsoleteUrls(String scm) {
+        if (scm == null) {
+            // couldn't be determined from /project/scm/url in pom or parent pom
+            return null;
+        }
+        if (scm.contains("fisheye.jenkins-ci.org")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("svn.jenkins-ci.org")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("svn.java.net")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("svn.dev.java.net")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("hudson.dev.java.net")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        return scm;
+    }
+
+    private String getScmUrl(Document pom) {
+        if (pom != null) {
+            String scm = selectSingleValue(pom, "/project/scm/url");
+            // Try parent pom
+            if (scm == null) {
+                System.out.println("** No SCM URL found in POM");
+                Element parent = (Element) selectSingleNode(pom, "/project/parent");
+                if (parent != null) {
+                    try {
+                        Document parentPom = xmlReader.read(
+                                latest.repository.resolve(
+                                        new ArtifactInfo("",
+                                                parent.element("groupId").getTextTrim(),
+                                                parent.element("artifactId").getTextTrim(),
+                                                parent.element("version").getTextTrim(),
+                                                ""), "pom", null));
+                        scm = selectSingleValue(parentPom, "/project/scm/url");
+                        if (scm == null) {
+                            System.out.println("** No SCM URL found in parent POM");
+                            // grandparent is pointless, no additional hits
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("** Failed to read parent pom");
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            if (scm == null) {
+                return null;
+            }
+            if (filterKnownObsoleteUrls(scm) == null) {
+                System.out.println("** Filtered obsolete URL in SCM URL");
+                return null;
+            }
+            return scm;
+        }
+        return null;
+    }
+
+    private String getScmUrlFromDeveloperConnection(Document pom) {
+        if (pom != null) {
+            String scm = selectSingleValue(pom, "/project/scm/developerConnection");
+            // Try parent pom
+            if (scm == null) {
+                System.out.println("** No SCM developerConnection found in POM");
+                Element parent = (Element) selectSingleNode(pom, "/project/parent");
+                if (parent != null) {
+                    try {
+                        Document parentPom = xmlReader.read(
+                                latest.repository.resolve(
+                                        new ArtifactInfo("",
+                                                parent.element("groupId").getTextTrim(),
+                                                parent.element("artifactId").getTextTrim(),
+                                                parent.element("version").getTextTrim(),
+                                                ""), "pom", null));
+                        scm = selectSingleValue(parentPom, "/project/scm/developerConnection");
+                        if (scm == null) {
+                            System.out.println("** No SCM developerConnection found in parent POM");
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("** Failed to read parent pom");
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            if (scm == null) {
+                return null;
+            }
+            if (filterKnownObsoleteUrls(scm) == null) {
+                System.out.println("** Filtered obsolete URL in SCM developerConnection");
+                return null;
+            }
+            return scm;
+        }
+        return null;
+    }
+
+    private String interpolateProjectName(String str) {
+        if (str == null) {
+            return null;
+        }
+        str = str.replace("${project.artifactId}", artifactId);
+        str = str.replace("${artifactId}", artifactId);
+        return str;
+    }
+
+    private String requireHttpsGitHubJenkinsciUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        if (url.contains("github.com:jenkinsci/") || url.contains("github.com/jenkinsci/")) {
+            // We're only doing weird thing for GitHub URLs that map somewhat cleanly from developerConnection to browsable URL.
+            // Also limit to jenkinsci because that's what people should be using anyway.
+            String githubUrl = url.substring(url.indexOf("github.com"));
+            githubUrl = githubUrl.replace(":", "/");
+            if (githubUrl.endsWith(".git")) {
+                // all should, but not all do
+                githubUrl = githubUrl.substring(0, githubUrl.lastIndexOf(".git"));
+            }
+            return "https://" + githubUrl;
+        }
+        return null;
+    }
+
     /**
      * Get hostname of SCM specified in POM of latest release, or null.
      * Used to determine if source lives in github or svn.
      */
-    public String getScmHost() {
+    public String getScmUrl() throws IOException {
         if (pom != null) {
-            String scm = selectSingleValue(pom, "/project/scm/connection");
+            String scm = getScmUrl(pom);
             if (scm == null) {
-                // Try parent pom
-                Element parent = (Element)selectSingleNode(pom, "/project/parent");
-                if (parent != null) try {
-                    Document parentPom = xmlReader.read(
-                            latest.repository.resolve(
-                                    new ArtifactInfo("",
-                                            parent.element("groupId").getTextTrim(),
-                                            parent.element("artifactId").getTextTrim(),
-                                            parent.element("version").getTextTrim(),
-                                            ""), "pom", null));
-                    scm = selectSingleValue(parentPom, "/project/scm/connection");
-                } catch (Exception ex) {
-                    System.out.println("** Failed to read parent pom");
-                    ex.printStackTrace();
-                }
+                scm = getScmUrlFromDeveloperConnection(pom);
             }
-            if (scm != null) {
-                Matcher m = HOSTNAME_PATTERN.matcher(scm);
-                if (m.find())
-                    return m.group(1);
-                else System.out.println("** Unable to parse scm/connection: " + scm);
+            if (scm == null) {
+                System.out.println("** Failed to determine SCM URL from POM or parent POM of " + artifactId);
             }
-            else System.out.println("** No scm/connection found in pom");
+            scm = interpolateProjectName(scm);
+            String originalScm = scm;
+            scm = requireHttpsGitHubJenkinsciUrl(scm);
+            if (originalScm != null && scm == null) {
+                System.out.println("** Rejecting URL outside GitHub.com/jenkinsci for " + artifactId + ": " + originalScm);
+            }
+            return scm;
         }
         return null;
     }
@@ -258,7 +376,7 @@ public class Plugin {
         }
 
         json.put("title", getName());
-        String scm = getScmHost();
+        String scm = getScmUrl();
         if (scm!=null) {
             json.put("scm", scm);
         }
