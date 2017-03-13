@@ -38,8 +38,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -59,8 +62,6 @@ public class MavenArtifact {
     public final String version;
     private File hpi;
 
-    // lazily computed
-    private long timestamp;
     private Manifest manifest;
 
     public MavenArtifact(MavenRepository repository, ArtifactInfo artifact) {
@@ -165,27 +166,26 @@ public class MavenArtifact {
 
     public Date getTimestampAsDate() throws IOException {
         long lastModified = getTimestamp();
-        SimpleDateFormat bdf = getDateFormat();
-
-        Date tsDate;
         
-        try {
-            tsDate = bdf.parse(bdf.format(new Date(lastModified)));
-        } catch (ParseException pe) {
-            throw new IOException(pe.getMessage());
-        }
 
-        return tsDate;
+        Date lastModifiedDate = new Date(lastModified);
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(lastModifiedDate);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
     }
     
     public static SimpleDateFormat getDateFormat() {
-        return new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf;
     }
         
     public long getTimestamp() throws IOException {
-        if (timestamp==0)
-            getManifest();
-        return timestamp;
+        return artifact.lastModified;
     }
 
     public Manifest getManifest() throws IOException {
@@ -194,7 +194,6 @@ public class MavenArtifact {
             try {
                 JarFile jar = new JarFile(f);
                 ZipEntry e = jar.getEntry("META-INF/MANIFEST.MF");
-                timestamp = e.getTime();
                 manifest = jar.getManifest();
                 jar.close();
             } catch (IOException x) {

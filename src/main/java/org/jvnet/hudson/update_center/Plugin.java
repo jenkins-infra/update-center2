@@ -84,14 +84,13 @@ public class Plugin {
     /**
      * POM parsed as a DOM.
      */
-    private final Document pom;
+    private Document pom;
 
     public Plugin(String artifactId, HPI latest, HPI previous) throws IOException {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
         this.xmlReader = createXmlReader();
-        this.pom = readPOM();
     }
 
     public Plugin(PluginHistory hpi) throws IOException {
@@ -127,11 +126,17 @@ public class Plugin {
         this.previous = previous == latest ? null : previous;
 
         this.xmlReader = createXmlReader();
-        this.pom = readPOM();
     }
 
     public Plugin(HPI hpi) throws IOException {
         this(hpi.artifact.artifactId, hpi,  null);
+    }
+
+    private Document getPom() throws IOException {
+        if (pom == null) {
+            pom = readPOM();
+        }
+        return pom;
     }
 
     private SAXReader createXmlReader() {
@@ -152,13 +157,13 @@ public class Plugin {
     }
 
     /** @return The URL as specified in the POM, or the overrides file. */
-    public String getPluginUrl() {
+    public String getPluginUrl() throws IOException {
         // Check whether the wiki URL should be overridden
         String url = URL_OVERRIDES.getProperty(artifactId);
 
         // Otherwise read the wiki URL from the POM, if any
         if (url == null && pom != null) {
-            url = selectSingleValue(pom, "/project/url");
+            url = selectSingleValue(getPom(), "/project/url");
         }
 
         String originalUrl = url;
@@ -193,12 +198,12 @@ public class Plugin {
      * Get hostname of SCM specified in POM of latest release, or null.
      * Used to determine if source lives in github or svn.
      */
-    public String getScmHost() {
-        if (pom != null) {
-            String scm = selectSingleValue(pom, "/project/scm/connection");
+    public String getScmHost() throws IOException {
+        if (getPom() != null) {
+            String scm = selectSingleValue(getPom(), "/project/scm/connection");
             if (scm == null) {
                 // Try parent pom
-                Element parent = (Element)selectSingleNode(pom, "/project/parent");
+                Element parent = (Element)selectSingleNode(getPom(), "/project/parent");
                 if (parent != null) try {
                     Document parentPom = xmlReader.read(
                             latest.repository.resolve(
@@ -239,8 +244,8 @@ public class Plugin {
     }
 
     /** @return The plugin name defined in the POM &lt;name>; falls back to the wiki page title, then artifact ID. */
-    public String getName() {                                                                                                                                                   
-        String title = selectSingleValue(pom, "/project/name");
+    public String getName() throws IOException {
+        String title = selectSingleValue(getPom(), "/project/name");
         if (title == null) {
             title = artifactId;
         }
@@ -267,7 +272,7 @@ public class Plugin {
 
         json.put("labels", getLabels());
 
-        String description = plainText2html(selectSingleValue(pom, "/project/description"));
+        String description = plainText2html(selectSingleValue(getPom(), "/project/description"));
         if (latest.isAlphaOrBeta()) {
             description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
         }
