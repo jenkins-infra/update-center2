@@ -25,6 +25,8 @@ package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -43,7 +45,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -318,6 +319,21 @@ public class Plugin {
         return null;
     }
 
+    private String requireGitHubRepoExistence(String url) {
+        try {
+            HttpClient client = new HttpClient();
+            GetMethod get = new GetMethod(url);
+            get.setFollowRedirects(true);
+            if (client.executeMethod(get) >= 400) {
+                return null;
+            }
+        } catch (Exception e) {
+            // that didn't work
+            return null;
+        }
+        return url;
+    }
+
     /**
      * Get hostname of SCM specified in POM of latest release, or null.
      * Used to determine if source lives in github or svn.
@@ -336,6 +352,19 @@ public class Plugin {
             scm = requireHttpsGitHubJenkinsciUrl(scm);
             if (originalScm != null && scm == null) {
                 System.out.println("** Rejecting URL outside GitHub.com/jenkinsci for " + artifactId + ": " + originalScm);
+            }
+
+            if (scm == null) {
+                // Last resort: check whether a ${artifactId}-plugin repo in jenkinsci exists, if so, use that
+                scm = "https://github.com/jenkinsci/" + artifactId + "-plugin";
+                System.out.println("** Falling back to default repo for " + artifactId + ": " + scm);
+            }
+
+            String checkedScm = scm;
+            // Check whether the specified repo actually exists, if not, don't publish the repo name
+            scm = requireGitHubRepoExistence(scm);
+            if (scm == null) {
+                System.out.println("** Repository does not actually exist: " + checkedScm);
             }
             return scm;
         }
