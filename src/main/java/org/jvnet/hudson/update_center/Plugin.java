@@ -358,14 +358,15 @@ public class Plugin {
                 // Last resort: check whether a ${artifactId}-plugin repo in jenkinsci exists, if so, use that
                 scm = "https://github.com/jenkinsci/" + artifactId + "-plugin";
                 System.out.println("** Falling back to default repo for " + artifactId + ": " + scm);
+
+                String checkedScm = scm;
+                // Check whether the fallback repo actually exists, if not, don't publish the repo name
+                scm = requireGitHubRepoExistence(scm);
+                if (scm == null) {
+                    System.out.println("** Repository does not actually exist: " + checkedScm);
+                }
             }
 
-            String checkedScm = scm;
-            // Check whether the specified repo actually exists, if not, don't publish the repo name
-            scm = requireGitHubRepoExistence(scm);
-            if (scm == null) {
-                System.out.println("** Repository does not actually exist: " + checkedScm);
-            }
             return scm;
         }
         return null;
