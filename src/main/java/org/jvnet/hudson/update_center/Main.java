@@ -39,10 +39,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -387,6 +389,9 @@ public class Main {
 
     protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
 
+        Calendar oldestDate = new GregorianCalendar();
+        oldestDate.add(Calendar.DAY_OF_MONTH, -31);
+
         JSONArray releaseHistory = new JSONArray();
         for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet() ) {
             String relDate = MavenArtifact.getDateFormat().format(relsOnDate.getKey());
@@ -399,19 +404,21 @@ public class Main {
                 JSONObject o = new JSONObject();
                 try {
                     Plugin plugin = new Plugin(h);
-                    
-                    String title = plugin.getName();
-                    if ((title==null) || (title.equals(""))) {
-                        title = h.artifact.artifactId;
+
+                    if (h.getTimestampAsDate().after(oldestDate.getTime())) {
+                        String title = plugin.getName();
+                        if ((title==null) || (title.equals(""))) {
+                            title = h.artifact.artifactId;
+                        }
+
+                        o.put("title", title);
+                        o.put("wiki", plugin.getPluginUrl());
                     }
-                    
-                    o.put("title", title);
-                    o.put("gav", h.artifact.groupId+':'+h.artifact.artifactId+':'+h.artifact.version);
+                    o.put("gav", h.getGavId());
                     o.put("timestamp", h.getTimestamp());
-                    o.put("wiki", plugin.getPluginUrl());
                     o.put("url", "https://plugins.jenkins.io/" + h.artifact.artifactId);
 
-                    System.out.println("\t" + title + ":" + h.version);
+                    System.out.println("\t" + h.getGavId());
                 } catch (IOException e) {
                     System.out.println("Failed to resolve plugin " + h.artifact.artifactId + " so using defaults");
                     o.put("title", h.artifact.artifactId);
