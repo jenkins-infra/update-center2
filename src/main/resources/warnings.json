@@ -157,8 +157,8 @@
     "url": "https://jenkins.io/security/advisory/2017-03-20/",
     "versions": [
       {
-        "lastVersion": "2.0",
-        "pattern": "1[.].*|2[.]0"
+        "lastVersion": "2.2",
+        "pattern": "1[.].*|2[.][012](|[.-].*)"
       }
     ]
   },
@@ -208,8 +208,8 @@
     "url": "https://jenkins.io/security/advisory/2017-03-20/",
     "versions": [
       {
-        "lastVersion": "1.4.1",
-        "pattern": "1[.][01234](|[.-].*)"
+        "lastVersion": "1.5.0",
+        "pattern": "1[.][012345](|[.-].*)"
       }
     ]
   }
