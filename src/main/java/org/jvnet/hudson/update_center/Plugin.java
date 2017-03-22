@@ -162,7 +162,7 @@ public class Plugin {
         String url = URL_OVERRIDES.getProperty(artifactId);
 
         // Otherwise read the wiki URL from the POM, if any
-        if (url == null && pom != null) {
+        if (url == null) {
             url = selectSingleValue(getPom(), "/project/url");
         }
 
