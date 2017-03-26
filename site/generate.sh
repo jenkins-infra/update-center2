@@ -4,7 +4,7 @@
 # Used later for rsyncing updates
 UPDATES_SITE="updates.jenkins.io"
 RSYNC_USER="www-data"
-declare -a BASELINES=( 1.554 1.565 1.580 1.596 1.609 1.625 1.642 1.651 2.7 2.19 2.32 2.46 )
+declare -a BASELINES=( 1.609 1.625 1.642 1.651 2.7 2.19 2.32 2.46 )
 
 umask
 
@@ -26,7 +26,7 @@ function generate() {
 function sanity-check() {
     dir="$1"
     file="$dir/update-center.json"
-    if [ 800000 -ge $(wc -c "$file" | cut -f 1 -d ' ') ]; then
+    if [ 700000 -ge $(wc -c "$file" | cut -f 1 -d ' ') ]; then
         echo $file looks too small
         exit 1
     fi
@@ -102,7 +102,7 @@ ln -sf ../updates ./www2/current/updates
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd www2
     ln -s stable-$lastLTS stable
-    for f in latest latestCore.txt release-history.json update-center.*; do
+    for f in latest latestCore.txt plugin-documentation-urls.json release-history.json update-center.*; do
         ln -s current/$f .
     done
 

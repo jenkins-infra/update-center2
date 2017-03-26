@@ -39,10 +39,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -59,6 +62,11 @@ public class Main {
 
     @Option(name="-r",usage="release history JSON file")
     public File releaseHistory = new File("release-history.json");
+
+    @Option(name="-urlmap", usage="plugin to URL mapping file")
+    public File urlmap = new File("plugin-to-documentation-url.json");
+
+    private Map<String, String> pluginToDocumentationUrl = new HashMap<>();
 
     /**
      * This file defines all the convenient symlinks in the form of
@@ -171,6 +179,7 @@ public class Main {
     private void prepareStandardDirectoryLayout() {
         json = new File(www,"update-center.actual.json");
         jsonp = new File(www,"update-center.json");
+        urlmap = new File(www, "plugin-documentation-urls.json");
         latest = new File(www,"latest");
         indexHtml = new File(www,"index.html");
         releaseHistory = new File(www,"release-history.json");
@@ -184,6 +193,7 @@ public class Main {
         LatestLinkBuilder latest = createHtaccessWriter();
 
         JSONObject ucRoot = buildUpdateCenterJson(repo, latest);
+        writeToFile(mapPluginToDocumentationUrl(), urlmap);
         writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
         writeToFile(prettyPrintJson(ucRoot), json);
         writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath()+".html"));
@@ -195,6 +205,20 @@ public class Main {
         }
 
         latest.close();
+    }
+
+    String mapPluginToDocumentationUrl() {
+        if (pluginToDocumentationUrl.isEmpty()) {
+            throw new IllegalStateException("Must run after buildUpdateCenterJson");
+        }
+        // TODO FIXME implement
+        JSONObject root = new JSONObject();
+        for (Map.Entry<String, String> entry : pluginToDocumentationUrl.entrySet()) {
+            JSONObject value = new JSONObject();
+            value.put("url", entry.getValue());
+            root.put(entry.getKey(), value);
+        }
+        return root.toString();
     }
 
     String updateCenterPostCallJson(JSONObject ucRoot) {
@@ -249,15 +273,15 @@ public class Main {
         MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance();
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
-        if (capPlugin !=null || getCapCore()!=null) {
-            VersionNumber vp = capPlugin==null ? ANY_VERSION : new VersionNumber(capPlugin);
-            VersionNumber vc = getCapCore()==null ? ANY_VERSION : new VersionNumber(getCapCore());
-            repo = new VersionCappedMavenRepository(repo, vp, vc);
-        }
         if (experimentalOnly)
             repo = new AlphaBetaOnlyRepository(repo,false);
         if (noExperimental)
             repo = new AlphaBetaOnlyRepository(repo,true);
+        if (capPlugin !=null || getCapCore()!=null) {
+            VersionNumber vp = capPlugin==null ? null : new VersionNumber(capPlugin);
+            VersionNumber vc = getCapCore()==null ? ANY_VERSION : new VersionNumber(getCapCore());
+            repo = new VersionCappedMavenRepository(repo, vp, vc);
+        }
         return repo;
     }
 
@@ -267,13 +291,10 @@ public class Main {
      * @param latest
      */
     protected JSONObject buildPlugins(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
-        ConfluencePluginList cpl = new ConfluencePluginList();
 
         final boolean isVersionCappedRepository = isVersionCappedRepository(repository);
 
         int validCount = 0;
-        int deprecatedCount = 0;
-        int missingWikiUrlCount = 0;
 
         JSONObject plugins = new JSONObject();
         System.out.println("Gathering list of plugins and versions from the maven repo...");
@@ -282,41 +303,12 @@ public class Main {
                 System.out.println(hpi.artifactId);
 
                 // Gather the plugin properties from the plugin file and the wiki
-                Plugin plugin = new Plugin(hpi, cpl);
+                Plugin plugin = new Plugin(hpi);
 
-                // Exclude plugins flagged as deprecated on the wiki
-                if (plugin.isDeprecated()) {
-                    System.out.println(String.format("=> Excluding %s as plugin is marked as deprecated on the wiki", hpi.artifactId));
-                    deprecatedCount++;
-                    continue;
+                if (pluginToDocumentationUrl.containsKey(plugin.artifactId)) {
+                    throw new IllegalStateException("Already contains " + plugin.artifactId);
                 }
-
-                // Exclude plugins whose POM URL is empty, or doesn't exist on the wiki
-                final String givenUrl = plugin.getPomWikiUrl();
-                if (plugin.didWikiPageDownloadFail()) {
-                    System.out.println(String.format("=> Keeping %s as wiki page exists but there was a download failure: \"%s\"",
-                            hpi.artifactId, givenUrl));
-                } else {
-                    final String actualUrl = plugin.getWikiUrl();
-                    if (actualUrl.isEmpty()) {
-                        // When building older Update Centres (e.g. LTS releases), there will be a number of plugins which
-                        // do not have wiki pages, even if the latest versions of those plugins *do* have wiki pages.
-                        // So here we keep the old behaviour: plugins without wiki pages are still kept.
-                        // This behaviour can be removed once we no longer generate UC files for LTS 1.596.x and older
-                        if (isVersionCappedRepository) {
-                            System.out.println(String.format("=> Keeping %s despite unknown/missing wiki URL: \"%s\"",
-                                    hpi.artifactId, givenUrl));
-                        } else {
-                            System.out.println(String.format("=> Excluding %s due to unknown/missing wiki URL: \"%s\"",
-                                    hpi.artifactId, givenUrl));
-                            missingWikiUrlCount++;
-                            continue;
-                        }
-                    }
-                    if (!actualUrl.equals(givenUrl)) {
-                        System.out.println(String.format("=> Wiki URL was rewritten from \"%s\" to \"%s\"", givenUrl, actualUrl));
-                    }
-                }
+                pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
 
                 JSONObject json = plugin.toJSON();
                 System.out.println("=> " + json);
@@ -346,8 +338,6 @@ public class Main {
         if (pluginCountTxt!=null)
             FileUtils.writeStringToFile(pluginCountTxt,String.valueOf(validCount));
         System.out.println("Total " + validCount + " plugins listed.");
-        System.out.println("Excluded " + deprecatedCount + " plugins marked as deprecated on the wiki.");
-        System.out.println("Excluded " + missingWikiUrlCount + " plugins without a valid wiki URL.");
         return plugins;
     }
 
@@ -398,7 +388,9 @@ public class Main {
     }
 
     protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
-        ConfluencePluginList cpl = new ConfluencePluginList();
+
+        Calendar oldestDate = new GregorianCalendar();
+        oldestDate.add(Calendar.DAY_OF_MONTH, -31);
 
         JSONArray releaseHistory = new JSONArray();
         for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet() ) {
@@ -411,19 +403,22 @@ public class Main {
                 HPI h = rel.getValue();
                 JSONObject o = new JSONObject();
                 try {
-                    Plugin plugin = new Plugin(h, cpl);
-                    
-                    String title = plugin.getName();
-                    if ((title==null) || (title.equals(""))) {
-                        title = h.artifact.artifactId;
-                    }
-                    
-                    o.put("title", title);
-                    o.put("gav", h.artifact.groupId+':'+h.artifact.artifactId+':'+h.artifact.version);
-                    o.put("timestamp", h.getTimestamp());
-                    o.put("wiki", plugin.getWikiUrl());
+                    Plugin plugin = new Plugin(h);
 
-                    System.out.println("\t" + title + ":" + h.version);
+                    if (h.getTimestampAsDate().after(oldestDate.getTime())) {
+                        String title = plugin.getName();
+                        if ((title==null) || (title.equals(""))) {
+                            title = h.artifact.artifactId;
+                        }
+
+                        o.put("title", title);
+                        o.put("wiki", plugin.getPluginUrl());
+                    }
+                    o.put("gav", h.getGavId());
+                    o.put("timestamp", h.getTimestamp());
+                    o.put("url", "https://plugins.jenkins.io/" + h.artifact.artifactId);
+
+                    System.out.println("\t" + h.getGavId());
                 } catch (IOException e) {
                     System.out.println("Failed to resolve plugin " + h.artifact.artifactId + " so using defaults");
                     o.put("title", h.artifact.artifactId);

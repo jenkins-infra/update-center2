@@ -116,5 +116,101 @@
         "pattern": "(1[.].*|2[.]\\d|2[.][123]\\d|2[.]4[0123])(|[-].*)"
       }
     ]
+  },
+
+  {
+    "id": "SECURITY-441",
+    "type": "plugin",
+    "name": "pipeline-maven",
+    "message": "Arbitrary files from Jenkins master available in Pipeline by using the withMaven step",
+    "url": "https://jenkins.io/security/advisory/2017-03-09/",
+    "versions": [
+      {
+        "lastVersion": "0.6",
+        "pattern": "0[.][123456](|[.-].*)"
+      },
+      {
+        "lastVersion": "2.0-beta-5",
+        "pattern": "2[.]0[-]beta[-][345](|[.-].*)"
+      }
+    ]
+  },
+
+  {
+    "id": "SECURITY-161",
+    "type": "plugin",
+    "name": "ssh-slaves",
+    "message": "Man-in-the-middle vulnerability due to missing host key verification",
+    "url": "https://jenkins.io/security/advisory/2017-03-20/",
+    "versions": [
+      {
+        "lastVersion": "1.14",
+        "pattern": "0[.].*|1[.][0-9](|[.-].*)|1[.]1[01234](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-251",
+    "type": "plugin",
+    "name": "active-directory",
+    "message": "Man-in-the-middle vulnerability due to missing certificate check",
+    "url": "https://jenkins.io/security/advisory/2017-03-20/",
+    "versions": [
+      {
+        "lastVersion": "2.2",
+        "pattern": "1[.].*|2[.][012](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-336",
+    "type": "plugin",
+    "name": "pipeline-classpath",
+    "message": "Script Security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2017-03-20/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-372-mailer",
+    "type": "plugin",
+    "name": "mailer",
+    "message": "Email notifications could be sent to people who are not users of Jenkins",
+    "url": "https://jenkins.io/security/advisory/2017-03-20/",
+    "versions": [
+      {
+        "lastVersion": "1.19",
+        "pattern": "1[.]([0-9]|1[0-9])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-372-email-ext",
+    "type": "plugin",
+    "name": "email-ext",
+    "message": "Email notifications could be sent to people who are not users of Jenkins",
+    "url": "https://jenkins.io/security/advisory/2017-03-20/",
+    "versions": [
+      {
+        "lastVersion": "2.57",
+        "pattern": "2[.]([0-9]|[1234][0-9]|5[0123456])(|[.-].*)|2.57(|[-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-386",
+    "type": "plugin",
+    "name": "distfork",
+    "message": "Missing permission checks allowed shell access to anonymous users",
+    "url": "https://jenkins.io/security/advisory/2017-03-20/",
+    "versions": [
+      {
+        "lastVersion": "1.5.0",
+        "pattern": "1[.][012345](|[.-].*)"
+      }
+    ]
   }
 ]

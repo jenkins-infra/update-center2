@@ -25,7 +25,8 @@ package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -37,16 +38,13 @@ import org.sonatype.nexus.index.ArtifactInfo;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -67,17 +65,9 @@ public class Plugin {
      * Previous version of this plugin.
      */
     public final HPI previous;
+    
     /**
-     * Confluence page of this plugin in Wiki.
-     * Null if we couldn't find it.
-     */
-    public final WikiPage page;
-
-    private boolean pageDownloadFailed;
-
-    /**
-     * Confluence labels for the plugin wiki page.
-     * Null if wiki page wasn't found.
+     * Plugin labels (categories)
      */
     private String[] labels;
     private boolean labelsRead = false;
@@ -92,42 +82,59 @@ public class Plugin {
     /**
      * POM parsed as a DOM.
      */
-    private final Document pom;
+    private Document pom;
 
-    public Plugin(String artifactId, HPI latest, HPI previous, ConfluencePluginList cpl) throws IOException {
+    public Plugin(String artifactId, HPI latest, HPI previous) throws IOException {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
         this.xmlReader = createXmlReader();
-        this.pom = readPOM();
-        this.page = findPage(cpl);
     }
 
-    public Plugin(PluginHistory hpi, ConfluencePluginList cpl) throws IOException {
+    public Plugin(PluginHistory hpi) throws IOException {
         this.artifactId = hpi.artifactId;
+        HPI previous = null, latest = null;
         List<HPI> versions = new ArrayList<HPI>();
-        for (HPI h : hpi.artifacts.values()) {
+
+        Iterator<HPI> it = hpi.artifacts.values().iterator();
+
+        while (latest == null && it.hasNext()) {
+            HPI h = it.next();
             try {
                 h.getManifest();
-                versions.add(h);
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Failed to resolve "+h+". Dropping this version.",e);
+                continue;
             }
+            latest = h;
         }
 
-        this.latest = versions.get(0);
-        this.previous = versions.size()>1 ? versions.get(1) : null;
+        while (previous == null && it.hasNext()) {
+            HPI h = it.next();
+            try {
+                h.getManifest();
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Failed to resolve "+h+". Dropping this version.",e);
+                continue;
+            }
+            previous = h;
+        }
 
-        // Doublecheck that latest-by-version is also latest-by-date:
-        checkLatestDate(versions, latest);
+        this.latest = latest;
+        this.previous = previous == latest ? null : previous;
 
         this.xmlReader = createXmlReader();
-        this.pom = readPOM();
-        this.page = findPage(cpl);
     }
 
-    public Plugin(HPI hpi, ConfluencePluginList cpl) throws IOException {
-        this(hpi.artifact.artifactId, hpi,  null, cpl);
+    public Plugin(HPI hpi) throws IOException {
+        this(hpi.artifact.artifactId, hpi,  null);
+    }
+
+    private Document getPom() throws IOException {
+        if (pom == null) {
+            pom = readPOM();
+        }
+        return pom;
     }
 
     private SAXReader createXmlReader() {
@@ -135,18 +142,6 @@ public class Plugin {
         factory.setXPathNamespaceURIs(
                 Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
         return new SAXReader(factory);
-    }
-
-    private void checkLatestDate(Collection<HPI> artifacts, HPI latestByVersion) throws IOException {
-        TreeMap<Long,HPI> artifactsByDate = new TreeMap<Long,HPI>();
-        for (HPI h : artifacts)
-            artifactsByDate.put(h.getTimestamp(), h);
-        HPI latestByDate = artifactsByDate.get(artifactsByDate.lastKey());
-        if (latestByDate != latestByVersion)
-            System.out.println(
-                "** Latest-by-version (" + latestByVersion.version + ','
-                + latestByVersion.getTimestampAsString() + ") doesn't match latest-by-date ("
-                + latestByDate.version + ',' + latestByDate.getTimestampAsString() + ')');
     }
 
     private Document readPOM() throws IOException {
@@ -159,44 +154,27 @@ public class Plugin {
         }
     }
 
-    /** @return The wiki URL as specified in the POM, or the overrides file. */
-    public String getPomWikiUrl() {
+    /** @return The URL as specified in the POM, or the overrides file. */
+    public String getPluginUrl() throws IOException {
         // Check whether the wiki URL should be overridden
-        String url = OVERRIDES.getProperty(artifactId);
+        String url = URL_OVERRIDES.getProperty(artifactId);
 
         // Otherwise read the wiki URL from the POM, if any
-        if (url == null && pom != null) {
-            url = selectSingleValue(pom, "/project/url");
+        if (url == null) {
+            url = selectSingleValue(getPom(), "/project/url");
+        }
+
+        String originalUrl = url;
+
+        if (url != null) {
+            url = url.replace("wiki.hudson-ci.org/display/HUDSON/", "wiki.jenkins-ci.org/display/JENKINS/");
+            url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins-ci.org");
+        }
+
+        if (url != null && !url.equals(originalUrl)) {
+            LOGGER.info("Rewrote URL for plugin " + artifactId + " from " + originalUrl + " to " + url);
         }
         return url;
-    }
-
-    /**
-     * Locates the page for this plugin on Wiki.
-     *
-     * <p>
-     * First we'll try to parse POM and obtain the URL.
-     * If that fails, find the nearest name from the children list.
-     */
-    private WikiPage findPage(ConfluencePluginList cpl) throws IOException {
-        // Check whether the plugin has a URL defined
-        String url = getPomWikiUrl();
-        if (url == null) {
-            System.out.println("** No wiki URL found in POM");
-            return null;
-        }
-
-        // If so, download the wiki page
-        try {
-            return cpl.getPage(url);
-        } catch (Exception e) {
-            System.err.println("** Failed to fetch "+ url);
-            e.printStackTrace();
-        }
-
-        // An exception was thrown while fetching the wiki page; this is likely to be a transient failure
-        pageDownloadFailed = true;
-        return null;
     }
 
     private static Node selectSingleNode(Document pom, String path) {
@@ -214,130 +192,218 @@ public class Plugin {
     private static final Pattern HOSTNAME_PATTERN =
         Pattern.compile("(?:://|scm:git:(?!\\w+://))(?:\\w*@)?([\\w.-]+)[/:]");
 
+    private String filterKnownObsoleteUrls(String scm) {
+        if (scm == null) {
+            // couldn't be determined from /project/scm/url in pom or parent pom
+            return null;
+        }
+        if (scm.contains("fisheye.jenkins-ci.org")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("svn.jenkins-ci.org")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("svn.java.net")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("svn.dev.java.net")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("hudson.dev.java.net")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        return scm;
+    }
+
+    private String getScmUrl(Document pom) {
+        if (pom != null) {
+            String scm = selectSingleValue(pom, "/project/scm/url");
+            // Try parent pom
+            if (scm == null) {
+                System.out.println("** No SCM URL found in POM");
+                Element parent = (Element) selectSingleNode(pom, "/project/parent");
+                if (parent != null) {
+                    try {
+                        Document parentPom = xmlReader.read(
+                                latest.repository.resolve(
+                                        new ArtifactInfo("",
+                                                parent.element("groupId").getTextTrim(),
+                                                parent.element("artifactId").getTextTrim(),
+                                                parent.element("version").getTextTrim(),
+                                                ""), "pom", null));
+                        scm = selectSingleValue(parentPom, "/project/scm/url");
+                        if (scm == null) {
+                            System.out.println("** No SCM URL found in parent POM");
+                            // grandparent is pointless, no additional hits
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("** Failed to read parent pom");
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            if (scm == null) {
+                return null;
+            }
+            if (filterKnownObsoleteUrls(scm) == null) {
+                System.out.println("** Filtered obsolete URL in SCM URL");
+                return null;
+            }
+            return scm;
+        }
+        return null;
+    }
+
+    private String getScmUrlFromDeveloperConnection(Document pom) {
+        if (pom != null) {
+            String scm = selectSingleValue(pom, "/project/scm/developerConnection");
+            // Try parent pom
+            if (scm == null) {
+                System.out.println("** No SCM developerConnection found in POM");
+                Element parent = (Element) selectSingleNode(pom, "/project/parent");
+                if (parent != null) {
+                    try {
+                        Document parentPom = xmlReader.read(
+                                latest.repository.resolve(
+                                        new ArtifactInfo("",
+                                                parent.element("groupId").getTextTrim(),
+                                                parent.element("artifactId").getTextTrim(),
+                                                parent.element("version").getTextTrim(),
+                                                ""), "pom", null));
+                        scm = selectSingleValue(parentPom, "/project/scm/developerConnection");
+                        if (scm == null) {
+                            System.out.println("** No SCM developerConnection found in parent POM");
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("** Failed to read parent pom");
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            if (scm == null) {
+                return null;
+            }
+            if (filterKnownObsoleteUrls(scm) == null) {
+                System.out.println("** Filtered obsolete URL in SCM developerConnection");
+                return null;
+            }
+            return scm;
+        }
+        return null;
+    }
+
+    private String interpolateProjectName(String str) {
+        if (str == null) {
+            return null;
+        }
+        str = str.replace("${project.artifactId}", artifactId);
+        str = str.replace("${artifactId}", artifactId);
+        return str;
+    }
+
+    private String requireHttpsGitHubJenkinsciUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        if (url.contains("github.com:jenkinsci/") || url.contains("github.com/jenkinsci/")) {
+            // We're only doing weird thing for GitHub URLs that map somewhat cleanly from developerConnection to browsable URL.
+            // Also limit to jenkinsci because that's what people should be using anyway.
+            String githubUrl = url.substring(url.indexOf("github.com"));
+            githubUrl = githubUrl.replace(":", "/");
+            if (githubUrl.endsWith(".git")) {
+                // all should, but not all do
+                githubUrl = githubUrl.substring(0, githubUrl.lastIndexOf(".git"));
+            }
+            return "https://" + githubUrl;
+        }
+        return null;
+    }
+
+    private String requireGitHubRepoExistence(String url) {
+        try {
+            HttpClient client = new HttpClient();
+            GetMethod get = new GetMethod(url);
+            get.setFollowRedirects(true);
+            if (client.executeMethod(get) >= 400) {
+                return null;
+            }
+        } catch (Exception e) {
+            // that didn't work
+            return null;
+        }
+        return url;
+    }
+
     /**
      * Get hostname of SCM specified in POM of latest release, or null.
      * Used to determine if source lives in github or svn.
      */
-    public String getScmHost() {
-        if (pom != null) {
-            String scm = selectSingleValue(pom, "/project/scm/connection");
+    public String getScmUrl() throws IOException {
+        if (getPom() != null) {
+            String scm = getScmUrl(getPom());
             if (scm == null) {
-                // Try parent pom
-                Element parent = (Element)selectSingleNode(pom, "/project/parent");
-                if (parent != null) try {
-                    Document parentPom = xmlReader.read(
-                            latest.repository.resolve(
-                                    new ArtifactInfo("",
-                                            parent.element("groupId").getTextTrim(),
-                                            parent.element("artifactId").getTextTrim(),
-                                            parent.element("version").getTextTrim(),
-                                            ""), "pom", null));
-                    scm = selectSingleValue(parentPom, "/project/scm/connection");
-                } catch (Exception ex) {
-                    System.out.println("** Failed to read parent pom");
-                    ex.printStackTrace();
+                scm = getScmUrlFromDeveloperConnection(getPom());
+            }
+            if (scm == null) {
+                System.out.println("** Failed to determine SCM URL from POM or parent POM of " + artifactId);
+            }
+            scm = interpolateProjectName(scm);
+            String originalScm = scm;
+            scm = requireHttpsGitHubJenkinsciUrl(scm);
+            if (originalScm != null && scm == null) {
+                System.out.println("** Rejecting URL outside GitHub.com/jenkinsci for " + artifactId + ": " + originalScm);
+            }
+
+            if (scm == null) {
+                // Last resort: check whether a ${artifactId}-plugin repo in jenkinsci exists, if so, use that
+                scm = "https://github.com/jenkinsci/" + artifactId + "-plugin";
+                System.out.println("** Falling back to default repo for " + artifactId + ": " + scm);
+
+                String checkedScm = scm;
+                // Check whether the fallback repo actually exists, if not, don't publish the repo name
+                scm = requireGitHubRepoExistence(scm);
+                if (scm == null) {
+                    System.out.println("** Repository does not actually exist: " + checkedScm);
                 }
             }
-            if (scm != null) {
-                Matcher m = HOSTNAME_PATTERN.matcher(scm);
-                if (m.find())
-                    return m.group(1);
-                else System.out.println("** Unable to parse scm/connection: " + scm);
-            }
-            else System.out.println("** No scm/connection found in pom");
+
+            return scm;
         }
         return null;
     }
 
     public String[] getLabels() {
-        if (!labelsRead) readLabels();
-        return labels;
+        Object ret = LABEL_DEFINITIONS.get(artifactId);
+        if (ret == null) {
+            // handle missing entry in properties file
+            return new String[0];
+        }
+        String labels = ret.toString();
+        if (labels.trim().length() == 0) {
+            // handle empty entry in properties file
+            return new String[0];
+        }
+        return labels.split("\\s+");
     }
-
-    /** @return {@code true} if the plugin's wiki page has the "plugin-deprecated" label. */
-    public boolean isDeprecated() {
-        if (!labelsRead) readLabels();
-        return deprecated;
-    }
-
-    private void readLabels() {
-        if (page!=null)
-            labels = page.getLabels();
-
-        if (labels != null)
-            for (String label : labels)
-                if ("deprecated".equals(label)) {
-                    deprecated = true;
-                    break;
-                }
-        this.labelsRead = true;
-    }
-
-    /**
-     * Obtains the excerpt of this wiki page in HTML. Otherwise null.
-     */
-    public String getExcerptInHTML() {
-        String content = page.getContent();
-        if(content==null)
-            return null;
-
-        Matcher m = EXCERPT_PATTERN.matcher(content);
-        if(!m.find())
-            return null;
-
-        String excerpt = m.group(1);
-
-        // escape malicious HTML
-        excerpt = StringEscapeUtils.escapeHtml(excerpt);
-
-        String oneLiner = NEWLINE_PATTERN.matcher(excerpt).replaceAll(" ");
-        excerpt = HYPERLINK_PATTERN.matcher(oneLiner).replaceAll("<a href='$2'>$1</a>");
-        if (latest.isAlphaOrBeta())
-            excerpt = "<b>(This version is experimental and may change in backward-incompatible ways)</b> <br><br>"+excerpt;
-        return excerpt;
-    }
-
-    // Tweaking to ignore leading whitespace after the initial {excerpt}
-    private static final Pattern EXCERPT_PATTERN = Pattern.compile("\\{excerpt(?::hidden(?:=true)?)?\\}\\s*(.+)\\{excerpt\\}", Pattern.DOTALL);
-    private static final Pattern HYPERLINK_PATTERN = Pattern.compile("\\[([^|\\]]+)\\|([^|\\]]+)(|([^]])+)?\\]");
-    private static final Pattern NEWLINE_PATTERN = Pattern.compile("(?:\\r\\n|\\n)");
 
     /** @return The plugin name defined in the POM &lt;name>; falls back to the wiki page title, then artifact ID. */
-    public String getName() {
-        String title = selectSingleValue(pom, "/project/name");
-        if (title == null && page != null) {
-            title = page.getTitle();
-            if ("Plugin Documentation Missing".equals(title)) {
-                // Don't overwrite the name just because the wiki page is missing.
-                // This code block can be removed once the associated wiki overrides are removed
-                title = null;
-            }
-        }
+    public String getName() throws IOException {
+        String title = selectSingleValue(getPom(), "/project/name");
         if (title == null) {
             title = artifactId;
         }
         return title;
     }
 
-    /** @return The wiki page URL; may be empty, never {@code null}. */
-    public String getWikiUrl() {
-        String wiki = "";
-        if (page!=null) {
-            wiki = page.getUrl();
-        }
-        return wiki;
-    }
-
-    /** @return {@code true} if a wiki page exists for this plugin, but downloading it failed. */
-    public boolean didWikiPageDownloadFail() {
-        return pageDownloadFailed;
-    }
-
     public JSONObject toJSON() throws IOException {
         JSONObject json = latest.toJSON(artifactId);
 
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
-        fisheyeDateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));
         if (previous!=null) {
             json.put("previousVersion", previous.version);
@@ -345,28 +411,21 @@ public class Plugin {
         }
 
         json.put("title", getName());
-        if (page!=null) {
-            json.put("wiki",page.getUrl());
-            String excerpt = getExcerptInHTML();
-            // TODO also had problems with Emma and Emma Code Coverage excerpts; was
-            // "excerpt": "Allows you to add a column that displays line coverage percentages based on EMMA. {info}This functionality is included and superseeded by the \uFEFF[JENKINS:JaCoCo Plugin] now\\!{info}",
-            // according to one source but the other lacked the anomalous BOM.
-            if (excerpt!=null && !excerpt.startsWith("{"))
-                json.put("excerpt",excerpt);
-            String[] labelList = getLabels();
-            if (labelList!=null)
-                json.put("labels",labelList);
-        }
-        String scm = getScmHost();
+        String scm = getScmUrl();
         if (scm!=null) {
             json.put("scm", scm);
         }
 
-        if (!json.has("excerpt")) {
-            // fall back to <description>, which is plain text but still better than nothing.
-            String description = plainText2html(selectSingleValue(pom, "/project/description"));
-            if (description!=null)
-                json.put("excerpt",description);
+        json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
+
+        json.put("labels", getLabels());
+
+        String description = plainText2html(selectSingleValue(getPom(), "/project/description"));
+        if (latest.isAlphaOrBeta()) {
+            description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
+        }
+        if (description!=null) {
+            json.put("excerpt",description);
         }
 
         HPI hpi = latest;
@@ -407,11 +466,13 @@ public class Plugin {
         return plainText.replace("&","&amp;").replace("<","&lt;");
     }
 
-    private static final Properties OVERRIDES = new Properties();
+    private static final Properties URL_OVERRIDES = new Properties();
+    private static final Properties LABEL_DEFINITIONS = new Properties();
 
     static {
         try {
-            OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
+            URL_OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
+            LABEL_DEFINITIONS.load(Plugin.class.getClassLoader().getResourceAsStream("label-definitions.properties"));
         } catch (IOException e) {
             throw new Error(e);
         }
