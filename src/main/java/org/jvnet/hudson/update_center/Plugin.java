@@ -66,17 +66,6 @@ public class Plugin {
      */
     public final HPI previous;
     
-    /**
-     * Plugin labels (categories)
-     */
-    private String[] labels;
-    private boolean labelsRead = false;
-
-    /**
-     * Deprecated plugins should not be included in update center.
-     */
-    private boolean deprecated = false;
-
     private final SAXReader xmlReader;
 
     /**
@@ -94,7 +83,6 @@ public class Plugin {
     public Plugin(PluginHistory hpi) throws IOException {
         this.artifactId = hpi.artifactId;
         HPI previous = null, latest = null;
-        List<HPI> versions = new ArrayList<HPI>();
 
         Iterator<HPI> it = hpi.artifacts.values().iterator();
 
