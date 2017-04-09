@@ -9,7 +9,9 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -45,8 +47,8 @@ public class WarningsTest {
         public Map<Pattern, Boolean> versions = new HashMap<>();
     }
 
-    private Map<String, Warning> loadPluginWarnings() throws IOException {
-        Map<String, Warning> loadedWarnings = new HashMap<>();
+    private Map<String, List<Warning>> loadPluginWarnings() throws IOException {
+        Map<String, List<Warning>> loadedWarnings = new HashMap<>();
 
         String warningsText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("warnings.json"));
         JSONArray warnings = JSONArray.fromObject(warningsText);
@@ -76,25 +78,29 @@ public class WarningsTest {
                 warning.versions.put(p, false);
             }
 
-            loadedWarnings.put(o.getString("name"), warning);
+            if (!loadedWarnings.containsKey(o.getString("name"))) {
+                loadedWarnings.put(o.getString("name"), new ArrayList<Warning>());
+            }
+            loadedWarnings.get(o.getString("name")).add(warning);
         }
         return loadedWarnings;
     }
 
-    private static void testForWarning(String gav, Map<String, Warning> warnings) {
+    private static void testForWarning(String gav, Map<String, List<Warning>> warnings) {
         String[] gavParts = gav.split(":");
         String pluginId = gavParts[1];
         String version = gavParts[2];
         if (warnings.containsKey(pluginId)) {
-            Warning warning = warnings.get(pluginId);
-            Map<Pattern, Boolean> versions = warning.versions;
-            for (Pattern p : versions.keySet()) {
-                if (p.matcher(version).matches()) {
-                    versions.replace(p, true);
-                    // written to target/surefire-reports/org.jvnet.hudson.update_center.WarningsTest-output.txt
-                    System.out.println("Warning " + warning.id + " matches " + gav);
-                } else {
-                    System.out.println("Warning " + warning.id + " does NOT match " + gav);
+            for (Warning warning : warnings.get(pluginId)) {
+                Map<Pattern, Boolean> versions = warning.versions;
+                for (Pattern p : versions.keySet()) {
+                    if (p.matcher(version).matches()) {
+                        versions.replace(p, true);
+                        // written to target/surefire-reports/org.jvnet.hudson.update_center.WarningsTest-output.txt
+                        System.out.println("Warning " + warning.id + " matches " + gav);
+                    } else {
+                        System.out.println("Warning " + warning.id + " does NOT match " + gav);
+                    }
                 }
             }
         }
@@ -102,7 +108,7 @@ public class WarningsTest {
 
     public void testWarningsAgainstReleaseHistory() throws IOException {
 
-        Map<String, Warning> warnings = loadPluginWarnings();
+        Map<String, List<Warning>> warnings = loadPluginWarnings();
 
         HttpClient hc = new HttpClient();
         GetMethod request = new GetMethod("https://updates.jenkins-ci.org/release-history.json");

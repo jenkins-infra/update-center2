@@ -212,5 +212,576 @@
         "pattern": "1[.][012345](|[.-].*)"
       }
     ]
+  },
+
+
+  {
+    "id": "SECURITY-187",
+    "type": "plugin",
+    "name": "extended-choice-parameter",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "0.61",
+        "pattern": "0[.]([12345]|[12345][0-9]|61)(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "JENKINS-15212",
+    "type": "plugin",
+    "name": "groovy-postbuild",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.10",
+        "pattern": "1[.].*"
+      }
+    ]
+  },
+  {
+    "id": "JENKINS-28732",
+    "type": "plugin",
+    "name": "uno-choice",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.4",
+        "pattern": "1[.][01234](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "JENKINS-27535",
+    "type": "plugin",
+    "name": "groovy-label-assignment",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.1.1",
+        "pattern": "TODO"
+      }
+    ]
+  },
+
+  {
+    "id": "SECURITY-123",
+    "type": "plugin",
+    "name": "extensible-choice-parameter",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.3.4",
+        "pattern": "1[.][0123](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-176",
+    "type": "plugin",
+    "name": "integrity-plugin",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-256",
+    "type": "plugin",
+    "name": "envinject",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.93.1",
+        "pattern": "[01][.].*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-257",
+    "type": "plugin",
+    "name": "email-ext",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "2.57.1",
+        "pattern": "2[.]([0-9]|[1234][0-9]|5[0123456])(|[.-].*)|2.57(|[-].*)|2.57.1(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-292",
+    "type": "plugin",
+    "name": "groovy",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.31",
+        "pattern": "1[.].*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-293",
+    "type": "plugin",
+    "name": "build-flow-plugin",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-294",
+    "type": "plugin",
+    "name": "artifactdeployer",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-295",
+    "type": "plugin",
+    "name": "postbuildscript",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-296",
+    "type": "plugin",
+    "name": "claim",
+    "message": "Arbitrary code execution vulnerability in rare circumstances",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-297",
+    "type": "plugin",
+    "name": "warnings",
+    "message": "Arbitrary code execution vulnerability in rare circumstances",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "4.60",
+        "pattern": "[123][.].*|4[.]([0-9]|[12345][0-9]|60)(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-298",
+    "type": "plugin",
+    "name": "svn-tag",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-333",
+    "type": "plugin",
+    "name": "scriptler",
+    "message": "Persistent cross-site scripting vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-334",
+    "type": "plugin",
+    "name": "scriptler",
+    "message": "Cross-site request forgery vulnerabilities in Scriptler script management",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-348",
+    "type": "plugin",
+    "name": "envinject",
+    "message": "Low privilege users are able to read parts of some files on master",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.93.1",
+        "pattern": "[01][.].*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-363",
+    "type": "plugin",
+    "name": "job-dsl",
+    "message": "Permission check bypass for access and modification of Jenkins model objects",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.59",
+        "pattern": "1[.][0-9](|[.-].*)|1[.][12345][0-9](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-365",
+    "type": "plugin",
+    "name": "scriptler",
+    "message": "Any user can add Scriptler scripts to build configurations",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-366",
+    "type": "plugin",
+    "name": "scriptler",
+    "message": "Any Scriptler script can be executed as part of builds",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-367",
+    "type": "plugin",
+    "name": "scriptler",
+    "message": "Arbitrary code execution vulnerability in rare circumstances",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-368",
+    "type": "plugin",
+    "name": "lockable-resources",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.11.2",
+        "pattern": "1[.].*(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-369",
+    "type": "plugin",
+    "name": "job-dsl",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.59",
+        "pattern": "1[.][0-9](|[.-].*)|1[.][12345][0-9](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-379",
+    "type": "plugin",
+    "name": "tcl",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-405",
+    "type": "plugin",
+    "name": "warnings",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "4.60",
+        "pattern": "[123][.].*|4[.]([0-9]|[12345][0-9]|60)(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-410-matrix-auth",
+    "type": "plugin",
+    "name": "matrix-auth",
+    "message": "Dangerous permissions can be configured independently of Administer permission",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "1.4",
+        "pattern": "1[.][01234](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-410-role-strategy",
+    "type": "plugin",
+    "name": "role-strategy",
+    "message": "Dangerous permissions can be configured independently of Administer permission",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "lastVersion": "2.3.2",
+        "pattern": "1[.].*|2[.][0123](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-456",
+    "type": "plugin",
+    "name": "scripttrigger",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-457",
+    "type": "plugin",
+    "name": "AdaptivePlugin",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-458",
+    "type": "plugin",
+    "name": "grails",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-459",
+    "type": "plugin",
+    "name": "cvs-tag",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-460",
+    "type": "plugin",
+    "name": "groovyaxis",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-461",
+    "type": "plugin",
+    "name": "script-scm",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-462",
+    "type": "plugin",
+    "name": "dynamicparameter",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-464",
+    "type": "plugin",
+    "name": "youtrack-plugin",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-479",
+    "type": "plugin",
+    "name": "splunk-devops",
+    "message": "Arbitrary code execution vulnerability in rare circumstances",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-487",
+    "type": "plugin",
+    "name": "reactor-plugin",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-488",
+    "type": "plugin",
+    "name": "cas-plugin",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-489",
+    "type": "plugin",
+    "name": "proc-cleaner-plugin",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-491",
+    "type": "plugin",
+    "name": "cas1",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-492",
+    "type": "plugin",
+    "name": "extreme-notification",
+    "message": "Arbitrary code execution vulnerability in rare circumstances",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-493",
+    "type": "plugin",
+    "name": "shared-objects",
+    "message": "Arbitrary code execution vulnerability in rare circumstances",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-494",
+    "type": "plugin",
+    "name": "app-detector",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-495",
+    "type": "plugin",
+    "name": "ontrack",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-496",
+    "type": "plugin",
+    "name": "splunk-devops-extend",
+    "message": "Arbitrary code execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
   }
 ]
