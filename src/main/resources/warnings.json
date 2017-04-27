@@ -802,4 +802,17 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-445",
+    "type": "plugin",
+    "name": "git-client",
+    "message": "Creation of temporary file with insecure permissions",
+    "url": "https://jenkins.io/security/advisory/2017-04-27/",
+    "versions": [
+      {
+        "pattern": "1[.].*|2[.]([0123][.].*|4[.][012])(|[-].*)"
+      }
+    ]
+  }
 ]
