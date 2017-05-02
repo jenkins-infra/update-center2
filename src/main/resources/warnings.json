@@ -756,6 +756,18 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
+        "pattern": "1[.]0[.][01](|[-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-494-v2",
+    "type": "plugin",
+    "name": "app-detector",
+    "message": "Arbitrary code execution vulnerability in rare circumstances",
+    "url": "https://jenkins.io/security/advisory/2017-04-10/",
+    "versions": [
+      {
         "pattern": ".*"
       }
     ]
