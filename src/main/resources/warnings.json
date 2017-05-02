@@ -756,6 +756,7 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
+        "lastVersion": "1.0.1",
         "pattern": "1[.]0[.][01](|[-].*)"
       }
     ]
