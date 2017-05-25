@@ -672,7 +672,8 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "1.4.3",
+        "pattern": "1[.][01234](|[.-].*)"
       }
     ]
   },
@@ -794,7 +795,8 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "1.4.3",
+        "pattern": "1[.][01234](|[.-].*)"
       }
     ]
   },
