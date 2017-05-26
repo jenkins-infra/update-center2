@@ -57,7 +57,7 @@ for v in ${BASELINES[@]}; do
     ln -sf ../updates ./www2/$v/updates
 
     # for LTS
-    generate -no-experimental -skip-release-history -www ./www2/stable-$v -cap $v.999 -capCore ${BASELINES[${#BASELINES[@]}-1]}.999
+    generate -no-experimental -skip-release-history -www ./www2/stable-$v -cap $v.999 -capCore 2.999 -stableCore
     sanity-check ./www2/stable-$v
     ln -sf ../updates ./www2/stable-$v/updates
     lastLTS=$v

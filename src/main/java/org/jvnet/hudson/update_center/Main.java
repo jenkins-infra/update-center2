@@ -132,6 +132,9 @@ public class Main {
     @Option(name="-capCore",usage="Cap the version number and only core that's compatible with. Defaults to -cap")
     public String capCore = null;
 
+    @Option(name="-stableCore", usage="Limit core releases to stable (LTS) releases (those with three component version numbers)")
+    public boolean stableCore;
+
     @Option(name="-pluginCount.txt",usage="Report a number of plugins in a simple text file")
     public File pluginCountTxt = null;
 
@@ -277,6 +280,9 @@ public class Main {
             repo = new AlphaBetaOnlyRepository(repo,false);
         if (noExperimental)
             repo = new AlphaBetaOnlyRepository(repo,true);
+        if (stableCore) {
+            repo = new StableMavenRepository(repo);
+        }
         if (capPlugin !=null || getCapCore()!=null) {
             VersionNumber vp = capPlugin==null ? null : new VersionNumber(capPlugin);
             VersionNumber vc = getCapCore()==null ? ANY_VERSION : new VersionNumber(getCapCore());
