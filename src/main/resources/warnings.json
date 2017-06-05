@@ -831,5 +831,32 @@
         "pattern": "1[.].*|2[.]([0123][.].*|4[.][012])(|[-].*)"
       }
     ]
+  },
+
+  {
+    "id": "JENKINS-44643",
+    "type": "plugin",
+    "name": "favorite",
+    "message": "Missing permission check allows anyone to change favorites for any other user",
+    "url": "https://jenkins.io/security/advisory/201706-06/",
+    "versions": [
+      {
+        "lastVersion": "2.1.0",
+        "pattern": "1[.].*|2[.]([01])(|[.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-532",
+    "type": "plugin",
+    "name": "favorite",
+    "message": "CSRF vulnerability allows changing another user's favorites",
+    "url": "https://jenkins.io/security/advisory/2017-06-06/",
+    "versions": [
+      {
+        "lastVersion": "2.2.0",
+        "pattern": "1[.].*|2[.]([012])(|[.].*)"
+      }
+    ]
   }
 ]
