@@ -838,7 +838,7 @@
     "type": "plugin",
     "name": "favorite",
     "message": "Missing permission check allows anyone to change favorites for any other user",
-    "url": "https://jenkins.io/security/advisory/201706-06/",
+    "url": "https://jenkins.io/security/advisory/2017-06-06/",
     "versions": [
       {
         "lastVersion": "2.1.0",
