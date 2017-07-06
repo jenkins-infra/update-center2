@@ -378,8 +378,10 @@ public class Main {
 
         ProcessBuilder pb = new ProcessBuilder();
         pb.command("ln","-f", src.getAbsolutePath(), dst.getAbsolutePath());
-        if (pb.start().waitFor()!=0)
-            throw new IOException("ln failed");
+        Process p = pb.start();
+        if (p.waitFor()!=0)
+            throw new IOException("'ln -f " + src.getAbsolutePath() + " " +dst.getAbsolutePath() +
+                    "' failed with code " + p.exitValue() + "\nError: " + IOUtils.toString(p.getErrorStream()) + "\nOutput: " + IOUtils.toString(p.getInputStream()));
 
     }
 
