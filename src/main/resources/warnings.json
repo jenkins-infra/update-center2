@@ -263,7 +263,7 @@
     "versions": [
       {
         "lastVersion": "1.1.1",
-        "pattern": "TODO"
+        "pattern": "1[.][01](|[.-].*)"
       }
     ]
   },
