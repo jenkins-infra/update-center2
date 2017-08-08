@@ -1225,4 +1225,18 @@
       }
     ]
   },
+
+  {
+    "id": "JENKINS-46007",
+    "type": "plugin",
+    "name": "saml",
+    "message": "Keystore and private key passwords stored unencrypted",
+    "url": "https://jenkins.io/security/advisory/2017-08-08/",
+    "versions": [
+      {
+        "lastVersion": "1.0.2",
+        "pattern": "(0|1[.]0[.][12])(|[.-].*)"
+      }
+    ]
+  },
 ]
