@@ -422,6 +422,11 @@ public class Plugin {
         if (hpi.getCompatibleSinceVersion() != null) {
             json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
         }
+
+        if (hpi.getMinimumJavaVersion() != null) {
+            json.put("minimumJavaVersion", hpi.getMinimumJavaVersion());
+        }
+
         if (hpi.getSandboxStatus() != null) {
             json.put("sandboxStatus",hpi.getSandboxStatus());
         }

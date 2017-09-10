@@ -110,6 +110,10 @@ public class HPI extends MavenArtifact {
         return getManifestAttributes().getValue("Compatible-Since-Version");
     }
 
+    public String getMinimumJavaVersion() throws IOException {
+        return getManifestAttributes().getValue("Minimum-Java-Version");
+    }
+
     public String getDisplayName() throws IOException {
         return getManifestAttributes().getValue("Long-Name");
     }
