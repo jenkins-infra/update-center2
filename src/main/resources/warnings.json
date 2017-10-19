@@ -1295,4 +1295,70 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-50",
+    "type": "plugin",
+    "name": "global-build-stats",
+    "message": "CSRF and XSS vulnerabilities",
+    "url": "https://jenkins.io/security/advisory/2017-10-23/",
+    "versions": [
+      {
+        "lastVersion": "1.4",
+        "pattern": "0[.].*|1[.][01234](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-57",
+    "type": "plugin",
+    "name": "depgraph-view",
+    "message": "Missing permission checks",
+    "url": "https://jenkins.io/security/advisory/2017-10-23/",
+    "versions": [
+      {
+        "lastVersion": "0.12",
+        "pattern": "0[.]([1-9]|1[012])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-378",
+    "type": "plugin",
+    "name": "build-publisher",
+    "message": "Insecure credential storage and transmission",
+    "url": "https://jenkins.io/security/advisory/2017-10-23/",
+    "versions": [
+      {
+        "lastVersion": "1.21",
+        "pattern": "(1[.][0-9]|1[.]1[0-9]|1[.]2[01])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-470",
+    "type": "plugin",
+    "name": "uno-choice",
+    "message": "Stored cross-site scripting vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-10-23/",
+    "versions": [
+      {
+        "lastVersion": "1.5.3",
+        "pattern": "1[.].*"
+      }
+    ]
+  },
+  {
+    "id": "JENKINS-36333",
+    "type": "plugin",
+    "name": "jenkins-multijob-plugin",
+    "message": "Missing permission check for Resume Build feature",
+    "url": "https://jenkins.io/security/advisory/2017-10-23/",
+    "versions": [
+      {
+        "lastVersion": "1.26",
+        "pattern": "1[.]([0-9]|1[0-9]|2[0-6])(|[.-].*)"
+      }
+    ]
+  },
 ]
