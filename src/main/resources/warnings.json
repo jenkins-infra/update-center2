@@ -1323,6 +1323,18 @@
     ]
   },
   {
+    "id": "SECURITY-374",
+    "type": "plugin",
+    "name": "scp",
+    "message": "Insecure credential storage and transmission",
+    "url": "https://jenkins.io/security/advisory/2017-10-23/",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
     "id": "SECURITY-378",
     "type": "plugin",
     "name": "build-publisher",
