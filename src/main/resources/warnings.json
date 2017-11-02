@@ -1373,4 +1373,22 @@
       }
     ]
   },
+
+  {
+    "id": "core-2.89",
+    "type": "core",
+    "name": "core",
+    "message": "Multiple security vulnerabilities",
+    "url": "https://jenkins.io/security/advisory/2017-11-08/",
+    "versions": [
+      {
+        "lastVersion": "2.88",
+        "pattern": "(1[.].*|2[.]\\d|2[.][1234567]\\d|2[.]8[012345678])(|[-].*)"
+      },
+      {
+        "lastVersion": "2.73.2",
+        "pattern": "(2[.](32|46|60)[.].+|2[.]73[.][12])(|[-].*)"
+      }
+    ]
+  },
 ]
