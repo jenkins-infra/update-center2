@@ -365,9 +365,8 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
 		{
-			"firstVersion": "0.1",
 			"lastVersion": "0.17",
-			"pattern": "\\b0\\.(\\d|1[1-7])\\b"
+			"pattern": "0[.]([0-9]|1[0-7])"
 		}
     ]
   },
