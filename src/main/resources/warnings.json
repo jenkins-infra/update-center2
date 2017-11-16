@@ -1391,4 +1391,18 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-640",
+    "type": "plugin",
+    "name": "delivery-pipeline-plugin",
+    "message": "Reflected cross-site scripting vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-11-20/",
+    "versions": [
+      {
+        "lastVersion": "1.0.7",
+        "pattern": "(0[.].*|1[.]0[.][0-7])(|[-].*)"
+      }
+    ]
+  },
 ]
