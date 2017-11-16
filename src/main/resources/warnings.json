@@ -1397,7 +1397,7 @@
     "type": "plugin",
     "name": "delivery-pipeline-plugin",
     "message": "Reflected cross-site scripting vulnerability",
-    "url": "https://jenkins.io/security/advisory/2017-11-20/",
+    "url": "https://jenkins.io/security/advisory/2017-11-16/",
     "versions": [
       {
         "lastVersion": "1.0.7",
