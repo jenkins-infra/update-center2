@@ -364,9 +364,10 @@
     "message": "Arbitrary code execution vulnerability",
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
-      {
-        "pattern": ".*"
-      }
+		{
+			"lastVersion": "0.17",
+			"pattern": "0[.]([0-9]|1[0-7])"
+		}
     ]
   },
   {
