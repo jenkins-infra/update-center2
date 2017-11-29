@@ -713,7 +713,8 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "1.6",
+        "pattern": "1[.].*"
       }
     ]
   },
