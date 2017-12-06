@@ -1407,4 +1407,18 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-643",
+    "type": "plugin",
+    "name": "ec2",
+    "message": "Arbitrary shell command execution vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-12-06/",
+    "versions": [
+      {
+        "lastVersion": "1.37",
+        "pattern": "(1[.]([0-9]|[12][0-9]|3[0-7]))(|[-].*)"
+      }
+    ]
+  },
 ]
