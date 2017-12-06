@@ -1422,4 +1422,18 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-663",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Arbitrary file read vulnerability",
+    "url": "https://jenkins.io/security/advisory/2017-12-11/",
+    "versions": [
+      {
+        "lastVersion": "1.36",
+        "pattern": "(1[.]([0-9]|[12][0-9]|3[0-6]))(|[.-].*)"
+      }
+    ]
+  },
 ]
