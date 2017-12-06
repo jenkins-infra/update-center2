@@ -108,7 +108,7 @@
     "id": "core-2.44",
     "type": "core",
     "name": "core",
-    "message": "Multiple security vulnerabilities in Jenkins",
+    "message": "Multiple security vulnerabilities in Jenkins 2.43 and earlier, and LTS 2.32.1 and earlier",
     "url": "https://jenkins.io/security/advisory/2017-02-01/",
     "versions": [
       {
@@ -810,7 +810,7 @@
     "id": "core-2.57",
     "type": "core",
     "name": "core",
-    "message": "Multiple security vulnerabilities",
+    "message": "Multiple security vulnerabilities in Jenkins 2.56 and earlier, and LTS 2.46.1 and earlier",
     "url": "https://jenkins.io/security/advisory/2017-04-26/",
     "versions": [
       {
@@ -1247,7 +1247,7 @@
     "id": "core-2.84",
     "type": "core",
     "name": "core",
-    "message": "Multiple security vulnerabilities",
+    "message": "Multiple security vulnerabilities in Jenkins 2.83 and earlier, and LTS 2.73.1 and earlier",
     "url": "https://jenkins.io/security/advisory/2017-10-11/",
     "versions": [
       {
@@ -1380,7 +1380,7 @@
     "id": "core-2.89",
     "type": "core",
     "name": "core",
-    "message": "Multiple security vulnerabilities",
+    "message": "Multiple security vulnerabilities in Jenkins 2.88 and earlier, and LTS 2.73.2 and earlier",
     "url": "https://jenkins.io/security/advisory/2017-11-08/",
     "versions": [
       {
