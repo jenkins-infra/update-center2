@@ -10,7 +10,7 @@ chmod +x jq || { echo "Failed to make jq executable" >&2 ; exit 1; }
 
 set -o pipefail
 
-RELEASES=$( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | ./jq --raw-output '.results[].version' | head -n 7 | sort --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
+RELEASES=$( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | ./jq --raw-output '.results[].version' | head -n 5 | sort --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
 
 set +o pipefail
 
