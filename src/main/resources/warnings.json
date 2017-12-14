@@ -1436,4 +1436,22 @@
       }
     ]
   },
+
+  {
+    "id": "core-2.95",
+    "type": "core",
+    "name": "core",
+    "message": "Multiple security vulnerabilities in Jenkins 2.94 and earlier, and LTS 2.89.1 and earlier",
+    "url": "https://jenkins.io/security/advisory/2017-12-14/",
+    "versions": [
+      {
+        "lastVersion": "2.94",
+        "pattern": "(1[.].*|2[.]\\d|2[.][1-8]\\d|2[.]9[0-4])(|[-].*)"
+      },
+      {
+        "lastVersion": "2.89.1",
+        "pattern": "(2[.](32|46|60|73)[.].+|2[.]89[.]1)(|[-].*)"
+      }
+    ]
+  },
 ]
