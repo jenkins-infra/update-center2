@@ -284,6 +284,10 @@ public class MavenRepositoryImpl extends MavenRepository {
             if (!a.artifactId.equals("jenkins-war")
              && !a.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
             if (a.classifier!=null)  continue;          // just pick up the main war
+            if (IGNORE.containsKey(a.artifactId + "-" + a.version)) {
+                System.out.println("=> Ignoring " + a.artifactId + ", version " + a.version + " because this version is blacklisted");
+                continue;
+            }
             if (cap!=null && new VersionNumber(a.version).compareTo(cap)>0) continue;
 
             VersionNumber v = new VersionNumber(a.version);

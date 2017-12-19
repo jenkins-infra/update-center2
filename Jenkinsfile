@@ -24,6 +24,18 @@ node('linux') {
         archive 'target/surefire-reports/*-output.txt'
     }
 
+    stage('Weekly Test Run') {
+        withEnv([
+                "JAVA_HOME=${tool 'jdk8'}",
+                "PATH+JAVA=${tool 'jdk8'}/bin"
+        ]) {
+            sh 'java -jar target/update-center2-*-bin*/update-center2-*.jar' +
+                    ' -id default -connectionCheckUrl http://www.google.com/' +
+                    ' -no-experimental -skip-release-history' +
+                    ' -www ./output -cap 2.79.999 -capCore 2.999'
+        }
+    }
+
     stage('LTS Test Run') {
         withEnv([
                 "JAVA_HOME=${tool 'jdk8'}",
@@ -32,7 +44,7 @@ node('linux') {
             sh 'java -jar target/update-center2-*-bin*/update-center2-*.jar' +
                     ' -id default -connectionCheckUrl http://www.google.com/' +
                     ' -no-experimental -skip-release-history' +
-                    ' -www ./output -cap 2.32.999 -capCore 2.999 -stableCore'
+                    ' -www ./output -cap 2.79.999 -capCore 2.999 -stableCore'
         }
     }
 
