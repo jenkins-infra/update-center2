@@ -1455,4 +1455,122 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-507",
+    "type": "plugin",
+    "name": "translation",
+    "message": "Cross-site request forgery (CSRF) vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-01-22/",
+    "versions": [
+      {
+        "lastVersion": "1.15",
+        "pattern": "1[.]([0-9]|1[0-5])(|[-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-607",
+    "type": "plugin",
+    "name": "release",
+    "message": "Cross-site request forgery (CSRF) vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-01-22/",
+    "versions": [
+      {
+        "lastVersion": "2.9",
+        "pattern": "(1[.].*|2[.]([0-9]))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-655",
+    "type": "plugin",
+    "name": "pmd",
+    "message": "XML External Entity (XXE) processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-01-22/",
+    "versions": [
+      {
+        "lastVersion": "3.49",
+        "pattern": "3[.][1-4][0-9](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-656",
+    "type": "plugin",
+    "name": "checkstyle",
+    "message": "XML External Entity (XXE) processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-01-22/",
+    "versions": [
+      {
+        "lastVersion": "3.49",
+        "pattern": "3[.][1-4][0-9](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-657",
+    "type": "plugin",
+    "name": "dry",
+    "message": "XML External Entity (XXE) processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-01-22/",
+    "versions": [
+      {
+        "lastVersion": "2.49",
+        "pattern": "2[.][1-4][0-9](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-658",
+    "type": "plugin",
+    "name": "findbugs",
+    "message": "XML External Entity (XXE) processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-01-22/",
+    "versions": [
+      {
+        "lastVersion": "4.71",
+        "pattern": "4[.]([0-6][0-9]|7[01])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-675",
+    "type": "plugin",
+    "name": "workflow-durable-task-step",
+    "message": "Incorrect permission checks allow executing builds on agents without Computer/Build permission",
+    "url": "https://jenkins.io/security/advisory/2018-01-22/",
+    "versions": [
+      {
+        "lastVersion": "2.17",
+        "pattern": "(1[.].*|2[.]([0-9]|1[0-7]))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-694",
+    "type": "plugin",
+    "name": "ant",
+    "message": "Cross-site scripting (XSS) vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-01-22/",
+    "versions": [
+      {
+        "lastVersion": "1.7",
+        "pattern": "1[.][0-7](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-695",
+    "type": "plugin",
+    "name": "warnings",
+    "message": "XML External Entity (XXE) processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-01-22/",
+    "versions": [
+      {
+        "lastVersion": "4.64",
+        "pattern": "(3[.].*|4[.]([0-9]|[1-5][0-9]|6[0-4]))(|[.-].*)"
+      }
+    ]
+  },
 ]
