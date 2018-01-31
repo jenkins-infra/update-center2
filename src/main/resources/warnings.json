@@ -1573,4 +1573,57 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-659",
+    "type": "plugin",
+    "name": "ccm",
+    "message": "XML External Entity (XXE) processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-02-05/",
+    "versions": [
+      {
+        "lastVersion": "3.1",
+        "pattern": "([12]|3[.][01])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-660",
+    "type": "plugin",
+    "name": "android-lint",
+    "message": "XML External Entity (XXE) processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-02-05/",
+    "versions": [
+      {
+        "lastVersion": "2.5",
+        "pattern": "(1|2[.][0-5])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-698",
+    "type": "plugin",
+    "name": "credentials-binding",
+    "message": "Improper masking of secrets in rare circumstances",
+    "url": "https://jenkins.io/security/advisory/2018-02-05/",
+    "versions": [
+      {
+        "lastVersion": "1.14",
+        "pattern": "1[.]([0-9]|1[0-4])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-699",
+    "type": "plugin",
+    "name": "workflow-support",
+    "message": "Arbitrary code execution due to incomplete sandbox protection",
+    "url": "https://jenkins.io/security/advisory/2018-02-05/",
+    "versions": [
+      {
+        "lastVersion": "2.17",
+        "pattern": "([1]|2[.]([0-9]|1[0-7]))(|[.-].*)"
+      }
+    ]
+  },
 ]
