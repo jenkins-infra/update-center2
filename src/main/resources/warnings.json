@@ -1626,4 +1626,17 @@
       }
     ]
   },
+  {
+    "id": "SECURITY-521",
+    "type": "plugin",
+    "name": "junit",
+    "message": "XML External Entity (XXE) processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-02-05/",
+    "versions": [
+      {
+        "lastVersion": "1.23",
+        "pattern": "(1[.]([0-9]|1[0-9]|2[0-3]))(|[.-].*)"
+      }
+    ]
+  },
 ]
