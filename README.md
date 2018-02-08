@@ -22,17 +22,53 @@ The generator can:
 * download the hpis and wars
 * sign the json files
 
-Extra features:
-
-* allow to blacklist plugins to ignore. See src/main/resources/artifact-ignores.properties
-* temporary override of the plugins wiki page. src/main/resources/wiki-overrides.properties
-* definition of labels, or categories, for plugins. See src/main/resources/label-definitions.properties
-
 The generator pulls information from:
 
 * a nexus index site
 * remote and local maven repositories
-* confluence
+
+Extra features
+--------------
+
+* Removing plugins from distribution
+* temporary override of the plugins wiki page. src/main/resources/wiki-overrides.properties
+* Categorizing plugins
+* Security warnings
+
+
+### Categorizing plugins
+
+Jenkins groups plugins into various categories in the plugin manager.
+
+These categories historically were labels on the plugins' wiki page with Jenkins applying localization on the raw label value, if defined.
+To remove the need to scrape wiki pages in this tool, we've changed this behavior, and plugins now have the labels defined in this repository.
+See the file `src/main/resources/label-definitions.properties` for the plugin/label assignments.
+
+See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides Jenkins applies.
+
+
+### Removing plugins from distribution
+
+The update center generator allows to specify that certain plugins, or plugin releases, should not be included in the output.
+
+There are various reasons to need to do this, such as:
+
+* A plugin release causes major regressions and a fix is not immediately available.
+* A plugin integrates with a service that has been shut down.
+
+Both use cases (entire plugins, or specific versions) are controlled via the file `src/main/resources/artifact-ignores.properties`.
+See that file for usage examples.
+
+
+### Security warnings
+
+Since the releases 2.32.2 and 2.40, Jenkins can display security warnings about core and plugins.
+These warnings are part of the update center metadata downloaded by Jenkins.
+These warnings are defined in the file `src/main/resources/warnings.json`.
+
+
+Usage
+-----
 
 The generator doesn't have a full usage page yet. Meanwhile you can read the code
 of [the arg4js annotated Main class](https://github.com/jenkinsci/backend-update-center2/blob/master/src/main/java/org/jvnet/hudson/update_center/Main.java)
