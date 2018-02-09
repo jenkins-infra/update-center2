@@ -30,12 +30,6 @@ The generator pulls information from:
 Extra features
 --------------
 
-* Removing plugins from distribution
-* temporary override of the plugins wiki page. src/main/resources/wiki-overrides.properties
-* Categorizing plugins
-* Security warnings
-
-
 ### Categorizing plugins
 
 Jenkins groups plugins into various categories in the plugin manager.
@@ -45,6 +39,18 @@ To remove the need to scrape wiki pages in this tool, we've changed this behavio
 See the file `src/main/resources/label-definitions.properties` for the plugin/label assignments.
 
 See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides Jenkins applies.
+
+
+### Wiki Page Override
+
+Plugins are generally expected to provide a `<url>` to their documentation in their POM.
+Historically, these URLs have been pages on the Jenkins wiki, but can point anywhere.
+The wiki page override feature was primarily used when wiki pages were a requirement for plugins to be distributed by this tool at all.
+
+This requirement no longer exists, but it may still be useful to define a documentation URL for plugins that don't do that:
+Due to update center tiers that can result in older releases of a plugin being distributed, it might not be enough to have a URL in the latest release.
+
+The file `src/main/resources/wiki-overrides.properties` defines these wiki page overrides.
 
 
 ### Removing plugins from distribution
