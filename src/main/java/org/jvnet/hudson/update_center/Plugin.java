@@ -386,15 +386,16 @@ public class Plugin {
         if (title == null) {
             title = artifactId;
         } else {
-            title = StringUtils.removeStart(title.trim(), "Jenkins ");
-            title = StringUtils.removeStart(title, "Hudson ");
-            title = StringUtils.removeEnd(title, " for Jenkins");
-            title = StringUtils.removeEnd(title, " Plugin");
-            title = StringUtils.removeEnd(title, " plugin");
-            title = StringUtils.removeEnd(title, " Plug-In");
-            title = StringUtils.removeEnd(title, " Plug-in");
-            title = StringUtils.removeEnd(title, " plug-in");
-            title = StringUtils.removeEnd(title, " Jenkins");
+            title = StringUtils.removeStart(title.trim(), "Jenkins");
+            title = StringUtils.removeStart(title.trim(), "Hudson");
+            title = StringUtils.removeEnd(title.trim(), "for Jenkins");
+            title = StringUtils.removeEnd(title.trim(), "Plugin");
+            title = StringUtils.removeEnd(title.trim(), "plugin");
+            title = StringUtils.removeEnd(title.trim(), "Plug-In");
+            title = StringUtils.removeEnd(title.trim(), "Plug-in");
+            title = StringUtils.removeEnd(title.trim(), "plug-in");
+            title = StringUtils.removeEnd(title.trim(), "Jenkins");
+            title = title.replaceAll("[ -.!]+$", ""); // remove trailing punctuation e.g. for 'Acme Foo - Jenkins Plugin'
         }
         return title;
     }
