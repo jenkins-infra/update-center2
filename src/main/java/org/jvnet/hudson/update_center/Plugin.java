@@ -394,6 +394,7 @@ public class Plugin {
             title = StringUtils.removeEnd(title, " Plug-In");
             title = StringUtils.removeEnd(title, " Plug-in");
             title = StringUtils.removeEnd(title, " plug-in");
+            title = StringUtils.removeEnd(title, " Jenkins");
         }
         return title;
     }
