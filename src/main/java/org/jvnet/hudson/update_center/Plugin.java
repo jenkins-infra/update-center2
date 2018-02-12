@@ -27,6 +27,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -379,11 +380,20 @@ public class Plugin {
         return labels.split("\\s+");
     }
 
-    /** @return The plugin name defined in the POM &lt;name>; falls back to the wiki page title, then artifact ID. */
+    /** @return The plugin name defined in the POM &lt;name> modified by simplication rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
     public String getName() throws IOException {
         String title = selectSingleValue(getPom(), "/project/name");
         if (title == null) {
             title = artifactId;
+        } else {
+            title = StringUtils.removeStart(title.trim(), "Jenkins ");
+            title = StringUtils.removeStart(title, "Hudson ");
+            title = StringUtils.removeEnd(title, " for Jenkins");
+            title = StringUtils.removeEnd(title, " Plugin");
+            title = StringUtils.removeEnd(title, " plugin");
+            title = StringUtils.removeEnd(title, " Plug-In");
+            title = StringUtils.removeEnd(title, " Plug-in");
+            title = StringUtils.removeEnd(title, " plug-in");
         }
         return title;
     }
