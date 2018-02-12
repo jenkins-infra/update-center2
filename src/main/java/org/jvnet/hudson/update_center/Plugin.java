@@ -23,11 +23,12 @@
  */
 package org.jvnet.hudson.update_center;
 
+import com.google.common.annotations.VisibleForTesting;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -38,7 +39,6 @@ import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -386,18 +386,21 @@ public class Plugin {
         if (title == null) {
             title = artifactId;
         } else {
-            title = StringUtils.removeStart(title.trim(), "Jenkins");
-            title = StringUtils.removeStart(title.trim(), "Hudson");
-            title = StringUtils.removeEnd(title.trim(), "for Jenkins");
-            title = StringUtils.removeEnd(title.trim(), "Plugin");
-            title = StringUtils.removeEnd(title.trim(), "plugin");
-            title = StringUtils.removeEnd(title.trim(), "Plug-In");
-            title = StringUtils.removeEnd(title.trim(), "Plug-in");
-            title = StringUtils.removeEnd(title.trim(), "plug-in");
-            title = StringUtils.removeEnd(title.trim(), "Jenkins");
-            title = title.replaceAll("[ -.!]+$", ""); // remove trailing punctuation e.g. for 'Acme Foo - Jenkins Plugin'
+            title = simplifyPluginName(title);
         }
         return title;
+    }
+
+    @VisibleForTesting
+    public static String simplifyPluginName(String name) {
+        name = StringUtils.removeStart(name, "Jenkins ");
+        name = StringUtils.removeStart(name, "Hudson ");
+        name = StringUtils.removeEndIgnoreCase(name, " for Jenkins");
+        name = StringUtils.removeEndIgnoreCase(name, " Jenkins Plugin");
+        name = StringUtils.removeEndIgnoreCase(name, " Plugin");
+        name = StringUtils.removeEndIgnoreCase(name, " Plug-In");
+        name = name.replaceAll("[ -.!]+$", ""); // remove trailing punctuation e.g. for 'Acme Foo - Jenkins Plugin'
+        return name;
     }
 
     public JSONObject toJSON() throws IOException {
