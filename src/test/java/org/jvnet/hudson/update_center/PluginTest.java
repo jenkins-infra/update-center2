@@ -36,6 +36,7 @@ public class PluginTest extends TestCase {
         assertSimpleName("Smart Jenkins", "Smart Jenkins");
 //        assertSimpleName("Testdroid Plugin for CI", "Testdroid");
         assertSimpleName("Use Dumpling from Jenkins groovy scripts", "Use Dumpling from Jenkins groovy scripts");
+        assertSimpleName("JavaScript GUI Lib: jQuery bundles (jQuery and jQuery UI)", "JavaScript GUI Lib: jQuery bundles (jQuery and jQuery UI)");
     }
 
     private static void assertSimpleName(String original, String expected) {
