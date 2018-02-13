@@ -23,10 +23,12 @@
  */
 package org.jvnet.hudson.update_center;
 
+import com.google.common.annotations.VisibleForTesting;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -37,7 +39,6 @@ import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -379,13 +380,27 @@ public class Plugin {
         return labels.split("\\s+");
     }
 
-    /** @return The plugin name defined in the POM &lt;name>; falls back to the wiki page title, then artifact ID. */
+    /** @return The plugin name defined in the POM &lt;name> modified by simplication rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
     public String getName() throws IOException {
         String title = selectSingleValue(getPom(), "/project/name");
         if (title == null) {
             title = artifactId;
+        } else {
+            title = simplifyPluginName(title);
         }
         return title;
+    }
+
+    @VisibleForTesting
+    public static String simplifyPluginName(String name) {
+        name = StringUtils.removeStart(name, "Jenkins ");
+        name = StringUtils.removeStart(name, "Hudson ");
+        name = StringUtils.removeEndIgnoreCase(name, " for Jenkins");
+        name = StringUtils.removeEndIgnoreCase(name, " Jenkins Plugin");
+        name = StringUtils.removeEndIgnoreCase(name, " Plugin");
+        name = StringUtils.removeEndIgnoreCase(name, " Plug-In");
+        name = name.replaceAll("[- .!]+$", ""); // remove trailing punctuation e.g. for 'Acme Foo - Jenkins Plugin'
+        return name;
     }
 
     public JSONObject toJSON() throws IOException {
