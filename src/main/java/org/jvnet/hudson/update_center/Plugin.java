@@ -399,7 +399,7 @@ public class Plugin {
         name = StringUtils.removeEndIgnoreCase(name, " Jenkins Plugin");
         name = StringUtils.removeEndIgnoreCase(name, " Plugin");
         name = StringUtils.removeEndIgnoreCase(name, " Plug-In");
-        name = name.replaceAll("[ -.!]+$", ""); // remove trailing punctuation e.g. for 'Acme Foo - Jenkins Plugin'
+        name = name.replaceAll("[- .!]+$", ""); // remove trailing punctuation e.g. for 'Acme Foo - Jenkins Plugin'
         return name;
     }
 
