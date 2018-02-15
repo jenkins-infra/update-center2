@@ -25,7 +25,11 @@ package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
+import org.apache.commons.codec.BinaryDecoder;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.sonatype.nexus.index.ArtifactInfo;
 
@@ -36,7 +40,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -119,20 +122,30 @@ public class MavenArtifact {
         }
     }
 
-    /**
-     * Computes the SHA1 signature of the file.
-     */
-    public String getDigest() throws IOException {        
+    private static class Digests {
+        String sha1;
+        String sha256;
+        String sha512;
+    }
+
+    public Digests getDigests() throws IOException {
         try (FileInputStream fin = new FileInputStream(resolve())) {
-            MessageDigest sig = MessageDigest.getInstance("SHA1");            
+            MessageDigest sha1 = DigestUtils.getSha1Digest();
+            MessageDigest sha256 = DigestUtils.getSha256Digest();
+            MessageDigest sha512 = DigestUtils.getSha512Digest();
             byte[] buf = new byte[2048];
             int len;
-            while ((len=fin.read(buf,0,buf.length))>=0)
-                sig.update(buf,0,len);
+            while ((len=fin.read(buf,0,buf.length)) >= 0) {
+                sha1.update(buf, 0, len);
+                sha256.update(buf, 0, len);
+                sha512.update(buf, 0, len);
+            }
 
-            return new String(Base64.encodeBase64(sig.digest()), "UTF-8");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IOException(e);
+            Digests ret = new Digests();
+            ret.sha1 = new String(Base64.encodeBase64(sha1.digest()), "UTF-8");
+            ret.sha256 = Hex.encodeHexString(sha256.digest());
+            ret.sha512 = Hex.encodeHexString(sha512.digest());
+            return ret;
         }
     }
 
@@ -143,7 +156,10 @@ public class MavenArtifact {
 
         o.put("url", getURL().toExternalForm());
         o.put("buildDate", getTimestampAsString());
-        o.put("sha1",getDigest());
+        Digests d = getDigests();
+        o.put("sha1", d.sha1);
+        o.put("sha256", d.sha256);
+        o.put("sha512", d.sha512);
 
         return o;
     }
