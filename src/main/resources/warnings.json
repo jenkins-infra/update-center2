@@ -1657,4 +1657,172 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-248",
+    "type": "plugin",
+    "name": "envinject",
+    "message": "Exposure of sensitive build variables stored by EnvInject 1.90 and earlier",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-248",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-260",
+    "type": "plugin",
+    "name": "coverity",
+    "message": "Keystore and private key passwords stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-260",
+    "versions": [
+      {
+        "lastVersion": "1.10.0",
+        "pattern": "1[.]([0-9]|10[.]0)(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-402",
+    "type": "plugin",
+    "name": "gerrit-trigger",
+    "message": "Unauthorized access to some Gerrit Trigger server configuration",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-402",
+    "versions": [
+      {
+        "lastVersion": "2.27.4",
+        "pattern": "2[.]([0-9]|1[0-9]|2[0-6]|27[.][0-4])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-403",
+    "type": "plugin",
+    "name": "gerrit-trigger",
+    "message": "Unauthorized users were able to change Gerrit Trigger server configuration",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-403",
+    "versions": [
+      {
+        "lastVersion": "2.27.4",
+        "pattern": "2[.]([0-9]|1[0-9]|2[0-6]|27[.][0-4])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-498",
+    "type": "plugin",
+    "name": "ownership",
+    "message": "Users without ManageOwnership permissions able to change job and node ownership metadata",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-498",
+    "versions": [
+      {
+        "lastVersion": "0.11.0",
+        "pattern": "0[.]([0-9]|1[01])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-554",
+    "type": "plugin",
+    "name": "azure-slave-plugin",
+    "message": "Bundled httpclient library vulnerable to DoS",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-554",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-712",
+    "type": "plugin",
+    "name": "cppncss",
+    "message": "Reflected cross-site-scripting vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-712",
+    "versions": [
+      {
+        "lastVersion": "1.1",
+        "pattern": "1[.][01](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-715",
+    "type": "plugin",
+    "name": "google-play-android-publisher",
+    "message": "Users with Overall/Read access can enumerate credential IDs",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-715",
+    "versions": [
+      {
+        "lastVersion": "1.6",
+        "pattern": "1[.][0-6](|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-723",
+    "type": "plugin",
+    "name": "git",
+    "message": "Users without Overall/Read are able to access lists of user names and node names",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-723",
+    "versions": [
+      {
+        "lastVersion": "3.7.0",
+        "pattern": "([012][.].*|3[.][0-7])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-724",
+    "type": "plugin",
+    "name": "subversion",
+    "message": "Users without Overall/Read are able to access lists of user names and node names",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-724",
+    "versions": [
+      {
+        "lastVersion": "2.10.2",
+        "pattern": "((1|2[.][0-9]|2[.]10[.][12])(|[-.].*)|2[.]10)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-726",
+    "type": "plugin",
+    "name": "mercurial",
+    "message": "Users without Overall/Read are able to access lists of user names and node names",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-726",
+    "versions": [
+      {
+        "lastVersion": "2.2",
+        "pattern": "(1|2[.][0-2])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-731",
+    "type": "plugin",
+    "name": "testlink",
+    "message": "Stored cross-site scripting vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-731",
+    "versions": [
+      {
+        "lastVersion": "3.12",
+        "pattern": "([12]|3[.][0-9]|3[.]1[0-2])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-746",
+    "type": "plugin",
+    "name": "promoted-builds",
+    "message": "Unauthorized users are able to run some promotion processes",
+    "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-746",
+    "versions": [
+      {
+        "lastVersion": "2.31.1",
+        "pattern": "([12])(|[-.].*)"
+      }
+    ]
+  },
 ]
