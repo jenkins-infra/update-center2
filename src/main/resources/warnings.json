@@ -105,7 +105,7 @@
     ]
   },
   {
-    "id": "core-2.44",
+    "id": "core-2_44",
     "type": "core",
     "name": "core",
     "message": "Multiple security vulnerabilities in Jenkins 2.43 and earlier, and LTS 2.32.1 and earlier",
@@ -809,7 +809,7 @@
   },
 
   {
-    "id": "core-2.57",
+    "id": "core-2_57",
     "type": "core",
     "name": "core",
     "message": "Multiple security vulnerabilities in Jenkins 2.56 and earlier, and LTS 2.46.1 and earlier",
@@ -1246,7 +1246,7 @@
   },
 
   {
-    "id": "core-2.84",
+    "id": "core-2_84",
     "type": "core",
     "name": "core",
     "message": "Multiple security vulnerabilities in Jenkins 2.83 and earlier, and LTS 2.73.1 and earlier",
@@ -1379,7 +1379,7 @@
   },
 
   {
-    "id": "core-2.89",
+    "id": "core-2_89",
     "type": "core",
     "name": "core",
     "message": "Multiple security vulnerabilities in Jenkins 2.88 and earlier, and LTS 2.73.2 and earlier",
@@ -1439,7 +1439,7 @@
   },
 
   {
-    "id": "core-2.95",
+    "id": "core-2_95",
     "type": "core",
     "name": "core",
     "message": "Multiple security vulnerabilities in Jenkins 2.94 and earlier, and LTS 2.89.1 and earlier",
@@ -1641,7 +1641,7 @@
   },
 
   {
-    "id": "core-2.107",
+    "id": "core-2_107",
     "type": "core",
     "name": "core",
     "message": "Multiple security vulnerabilities in Jenkins 2.106 and earlier, and LTS 2.89.3 and earlier",
