@@ -383,6 +383,9 @@ public class Main {
             throw new IOException("'ln -f " + src.getAbsolutePath() + " " +dst.getAbsolutePath() +
                     "' failed with code " + p.exitValue() + "\nError: " + IOUtils.toString(p.getErrorStream()) + "\nOutput: " + IOUtils.toString(p.getInputStream()));
 
+        final File sha1 = new File(dst.getAbsolutePath()+".sha1");
+        FileUtils.writeStringToFile(sha1, a.getSha1());
+
     }
 
     /**
