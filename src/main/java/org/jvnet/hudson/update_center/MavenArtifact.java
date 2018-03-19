@@ -27,6 +27,7 @@ import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.sonatype.nexus.index.ArtifactInfo;
 
@@ -124,31 +125,26 @@ public class MavenArtifact {
      */
     public String getDigest() throws IOException {        
         try (FileInputStream fin = new FileInputStream(resolve())) {
-            MessageDigest sig = MessageDigest.getInstance("SHA1");            
+            MessageDigest sig = DigestUtils.getSha1Digest();
             byte[] buf = new byte[2048];
             int len;
             while ((len=fin.read(buf,0,buf.length))>=0)
                 sig.update(buf,0,len);
 
             return new String(Base64.encodeBase64(sig.digest()), "UTF-8");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IOException(e);
         }
     }
 
-    public String getSha1() throws IOException {
+    public String getSha256() throws IOException {
         try (FileInputStream fin = new FileInputStream(resolve())) {
-            MessageDigest sig = MessageDigest.getInstance("SHA1");
+            MessageDigest sig = DigestUtils.getSha256Digest();
             byte[] buf = new byte[2048];
             int len;
-            while ((len=fin.read(buf,0,buf.length))>=0)
-                sig.update(buf,0,len);
+            while ((len = fin.read(buf, 0, buf.length)) >= 0)
+                sig.update(buf, 0, len);
 
             return Hex.encodeHexString(sig.digest());
-        } catch (NoSuchAlgorithmException e) {
-            throw new IOException(e);
         }
-
     }
 
 
