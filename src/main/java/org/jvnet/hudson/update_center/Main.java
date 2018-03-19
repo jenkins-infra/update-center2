@@ -36,6 +36,7 @@ import org.kohsuke.args4j.Option;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -324,6 +325,11 @@ public class Main {
                 if (download!=null) {
                     for (HPI v : hpi.artifacts.values()) {
                         stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
+
+                        final File manifest = new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/MANIFEST.MF");
+                        try (OutputStream out = new FileOutputStream(manifest)) {
+                            v.getManifest().write(out);
+                        }
                     }
                     if (!hpi.artifacts.isEmpty())
                         createLatestSymlink(hpi, plugin.latest);
