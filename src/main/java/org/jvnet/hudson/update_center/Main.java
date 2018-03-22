@@ -35,10 +35,11 @@ import org.kohsuke.args4j.Option;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -326,9 +327,8 @@ public class Main {
                     for (HPI v : hpi.artifacts.values()) {
                         stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
 
-                        final File manifest = new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/MANIFEST.MF");
-                        try (OutputStream out = new FileOutputStream(manifest)) {
-                            v.getManifest().write(out);
+                        try (Writer w = new FileWriter(new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/metadata.json"))) {
+                            new Plugin(v).toJSON().write(w);
                         }
                     }
                     if (!hpi.artifacts.isEmpty())
@@ -389,8 +389,8 @@ public class Main {
             throw new IOException("'ln -f " + src.getAbsolutePath() + " " +dst.getAbsolutePath() +
                     "' failed with code " + p.exitValue() + "\nError: " + IOUtils.toString(p.getErrorStream()) + "\nOutput: " + IOUtils.toString(p.getInputStream()));
 
-        final File sha1 = new File(dst.getAbsolutePath()+".sha1");
-        FileUtils.writeStringToFile(sha1, a.getSha256());
+        final File sha = new File(dst.getAbsolutePath()+".sha256");
+        FileUtils.writeStringToFile(sha, a.getSha256());
 
     }
 
