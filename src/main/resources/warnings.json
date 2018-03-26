@@ -1666,7 +1666,7 @@
     "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-248",
     "versions": [
       {
-        "pattern": ".*"
+        "pattern": "(Affected even if up to date|.*)"
       }
     ]
   },
@@ -1822,6 +1822,157 @@
       {
         "lastVersion": "2.31.1",
         "pattern": "([12])(|[-.].*)"
+      }
+    ]
+  },
+
+  {
+    "id": "SECURITY-261",
+    "type": "plugin",
+    "name": "ghprb",
+    "message": "GitHub access tokens stored in in build.xml",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-261",
+    "versions": [
+      {
+        "lastVersion": "1.40.0",
+        "pattern": "(Affected even if up to date|.*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-262",
+    "type": "plugin",
+    "name": "ghprb",
+    "message": "Webhook secret stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-262",
+    "versions": [
+      {
+        "lastVersion": "1.32.0",
+        "pattern": "1[.]([0-9]|[12][0-9]|3[01]|32[.]0)(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-308",
+    "type": "plugin",
+    "name": "cucumber-living-documentation",
+    "message": "Plugin disables Jenkins Cross-Site Scripting protection",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-308",
+    "versions": [
+      {
+        "lastVersion": "1.0.12",
+        "pattern": "1[.]0(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-373",
+    "type": "plugin",
+    "name": "perforce",
+    "message": "Ineffective credentials encryption",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-373",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-504",
+    "type": "plugin",
+    "name": "vsphere-cloud",
+    "message": "Plugin disables SSL/TLS certificate validation",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-504",
+    "versions": [
+      {
+        "pattern": "([01]|2[.]([0-9]|1[0-6]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-519",
+    "type": "plugin",
+    "name": "liquibase-runner",
+    "message": "Plugin allows users to load arbitrary Java code into master JVM",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-519",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-536",
+    "type": "plugin",
+    "name": "perforce",
+    "message": "Job-specific credentials can be obtained by users with Job/Extended Read permission",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-536",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-545",
+    "type": "plugin",
+    "name": "copy-to-slave",
+    "message": "Plugin allows access to arbitrary files on the Jenkins master file system",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-545",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-630",
+    "type": "plugin",
+    "name": "ansible",
+    "message": "Host key verification disabled by default",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-630",
+    "versions": [
+      {
+        "lastVersion": "0.8",
+        "pattern": "0(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-736",
+    "type": "plugin",
+    "name": "reverse-proxy-auth-plugin",
+    "message": "Authorities cache persisted on disk",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-736",
+    "versions": [
+      {
+        "lastVersion": "1.5",
+        "pattern": "1[.][0-5](|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-745",
+    "type": "plugin",
+    "name": "vsphere-cloud",
+    "message": "CSRF vulnerability and insufficient permission checks allow capturing credentials, vSphere denial of service",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-745",
+    "versions": [
+      {
+        "pattern": "([01]|2[.]([0-9]|1[0-6]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-774",
+    "type": "plugin",
+    "name": "mailer",
+    "message": "Unauthorized users able to send test emails",
+    "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-774",
+    "versions": [
+      {
+        "lastVersion": "1.20",
+        "pattern": "1[.]([0-9]|1[0-9]|20)(|[-.].*)"
       }
     ]
   },
