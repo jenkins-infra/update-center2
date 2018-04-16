@@ -1994,4 +1994,70 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-442",
+    "type": "plugin",
+    "name": "google-login",
+    "message": "Session fixation vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-04-16/#SECURITY-442",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": "1[.][012](|[-.].*)|1.3"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-684",
+    "type": "plugin",
+    "name": "google-login",
+    "message": "Open redirect vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-04-16/#SECURITY-684",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": "1[.][012](|[-.].*)|1.3"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-729",
+    "type": "plugin",
+    "name": "email-ext",
+    "message": "SMTP password gets transmitted in unencrypted form",
+    "url": "https://jenkins.io/security/advisory/2018-04-16/#SECURITY-729",
+    "versions": [
+      {
+        "lastVersion": "2.61",
+        "pattern": "2[.]([0-9]|[12345][0-9]|6[01])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-730",
+    "type": "plugin",
+    "name": "s3",
+    "message": "Cross-site scripting vulnerability in artifact file names",
+    "url": "https://jenkins.io/security/advisory/2018-04-16/#SECURITY-730",
+    "versions": [
+      {
+        "lastVersion": "0.10.12",
+        "pattern": "0[.]([0-9]|10)(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-784",
+    "type": "plugin",
+    "name": "htmlpublisher",
+    "message": "Path traversal vulnerability allows arbitrary file writing",
+    "url": "https://jenkins.io/security/advisory/2018-04-16/#SECURITY-784",
+    "versions": [
+      {
+        "lastVersion": "1.15",
+        "pattern": "(0|1[.][0-9]|1[.]1[0-5])(|[-.].*)"
+      }
+    ]
+  },
 ]
