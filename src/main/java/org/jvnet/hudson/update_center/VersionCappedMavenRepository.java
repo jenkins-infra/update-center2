@@ -45,7 +45,7 @@ public class VersionCappedMavenRepository extends MavenRepository {
 
     @Override
     public TreeMap<VersionNumber, HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException {
-        return new TreeMap<VersionNumber, HudsonWar>(base.getHudsonWar().tailMap(capCore,true));
+        return new TreeMap<VersionNumber, HudsonWar>(base.getHudsonWar().headMap(capCore,true));
     }
 
     @Override
