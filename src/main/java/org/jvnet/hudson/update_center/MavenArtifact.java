@@ -26,6 +26,8 @@ package org.jvnet.hudson.update_center;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.sonatype.nexus.index.ArtifactInfo;
 
@@ -36,7 +38,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -124,17 +125,28 @@ public class MavenArtifact {
      */
     public String getDigest() throws IOException {        
         try (FileInputStream fin = new FileInputStream(resolve())) {
-            MessageDigest sig = MessageDigest.getInstance("SHA1");            
+            MessageDigest sig = DigestUtils.getSha1Digest();
             byte[] buf = new byte[2048];
             int len;
             while ((len=fin.read(buf,0,buf.length))>=0)
                 sig.update(buf,0,len);
 
             return new String(Base64.encodeBase64(sig.digest()), "UTF-8");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IOException(e);
         }
     }
+
+    public String getSha256() throws IOException {
+        try (FileInputStream fin = new FileInputStream(resolve())) {
+            MessageDigest sig = DigestUtils.getSha256Digest();
+            byte[] buf = new byte[2048];
+            int len;
+            while ((len = fin.read(buf, 0, buf.length)) >= 0)
+                sig.update(buf, 0, len);
+
+            return Hex.encodeHexString(sig.digest());
+        }
+    }
+
 
     public JSONObject toJSON(String name) throws IOException {
         JSONObject o = new JSONObject();
