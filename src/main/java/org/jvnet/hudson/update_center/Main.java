@@ -319,6 +319,12 @@ public class Main {
                 pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
 
                 JSONObject json = plugin.toJSON();
+                final JSONObject versions = new JSONObject();
+                for (VersionNumber version : hpi.artifacts.keySet()) {
+                    versions.accumulate(version.toString(), "http://updates.jenkins-ci.org/download/plugins/" + hpi.artifactId + "/" + version + "/metadata.json");
+                }
+                json.accumulate("versions", versions);
+
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
                 latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
