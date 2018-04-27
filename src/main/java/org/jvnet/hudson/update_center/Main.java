@@ -194,6 +194,7 @@ public class Main {
 
         latest = new File(www,"latest");
         indexHtml = new File(www,"index.html");
+        pluginVersions = new File(www, "plugin-versions.json");
         releaseHistory = new File(www,"release-history.json");
         latestCoreTxt = new File(www,"latestCore.txt");
     }
