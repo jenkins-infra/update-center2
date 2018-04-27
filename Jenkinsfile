@@ -32,7 +32,7 @@ node('linux') {
             sh 'java -jar target/update-center2-*-bin*/update-center2-*.jar' +
                     ' -id default -connectionCheckUrl http://www.google.com/' +
                     ' -no-experimental -skip-release-history' +
-                    ' -www ./output -cap 2.79.999 -capCore 2.999'
+                    ' -www ./output/capped -cap 2.107.999 -capCore 2.999'
         }
     }
 
@@ -44,7 +44,7 @@ node('linux') {
             sh 'java -jar target/update-center2-*-bin*/update-center2-*.jar' +
                     ' -id default -connectionCheckUrl http://www.google.com/' +
                     ' -no-experimental -skip-release-history' +
-                    ' -www ./output -cap 2.79.999 -capCore 2.999 -stableCore'
+                    ' -www ./output/uncapped -stableCore'
         }
     }
 
