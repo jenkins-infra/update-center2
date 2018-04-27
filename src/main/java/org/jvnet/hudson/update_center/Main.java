@@ -320,21 +320,37 @@ public class Main {
         System.out.println("Build plugin versions index from the maven repo...");
 
         for (PluginHistory plugin : repository.listHudsonPlugins()) {
-            try {
                 System.out.println(plugin.artifactId);
 
                 JSONObject versions = new JSONObject();
 
                 // Gather the plugin properties from the plugin file and the wiki
                 for (HPI hpi : plugin.artifacts.values()) {
-                    versions.put(hpi.version, hpi.toJSON(plugin.artifactId));
+                    try {
+                        JSONObject hpiJson = hpi.toJSON(plugin.artifactId);
+
+                        hpiJson.put("requiredCore", hpi.getRequiredJenkinsVersion());
+
+                        if (hpi.getCompatibleSinceVersion() != null) {
+                            hpiJson.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
+                        }
+                        if (hpi.getSandboxStatus() != null) {
+                            hpiJson.put("sandboxStatus",hpi.getSandboxStatus());
+                        }
+
+                        JSONArray deps = new JSONArray();
+                        for (HPI.Dependency d : hpi.getDependencies())
+                            deps.add(d.toJSON());
+                        hpiJson.put("dependencies",deps);
+
+                        versions.put(hpi.version, hpiJson);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        // skip this version
+                    }
                 }
 
                 plugins.put(plugin.artifactId, versions);
-            } catch (IOException e) {
-                e.printStackTrace();
-                // move on to the next plugin
-            }
         }
         return plugins;
     }
