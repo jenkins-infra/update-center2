@@ -57,6 +57,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.NodeList;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -442,7 +443,11 @@ public class Plugin {
                     StringWriter sw = new StringWriter();
                     Transformer transformer = TransformerFactory.newInstance().newTransformer();
                     transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-                    transformer.transform(new DOMSource(doc.getDocumentElement()), new StreamResult(sw));
+                    StreamResult result = new StreamResult(sw);
+                    NodeList nl = doc.getDocumentElement().getChildNodes();
+                    for (int i = 0; i < nl.getLength(); i++) {
+                        transformer.transform(new DOMSource(nl.item(i)), result);
+                    }
                     description = sw.toString().trim();
                 }
             }
