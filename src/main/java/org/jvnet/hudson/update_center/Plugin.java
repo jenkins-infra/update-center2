@@ -38,15 +38,23 @@ import org.dom4j.io.SAXReader;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -403,7 +411,7 @@ public class Plugin {
         return name;
     }
 
-    public JSONObject toJSON() throws IOException {
+    public JSONObject toJSON() throws Exception {
         JSONObject json = latest.toJSON(artifactId);
 
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
@@ -424,6 +432,17 @@ public class Plugin {
         json.put("labels", getLabels());
 
         String description = plainText2html(selectSingleValue(getPom(), "/project/description"));
+        try (JarFile jf = new JarFile(latest.resolveJar())) {
+            ZipEntry indexJelly = jf.getEntry("index.jelly");
+            if (indexJelly != null) {
+                try (InputStream is = jf.getInputStream(indexJelly)) {
+                    org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+                    StringWriter sw = new StringWriter();
+                    TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc.getDocumentElement()), new StreamResult(sw));
+                    description = sw.toString().trim();
+                }
+            }
+        }
         if (latest.isAlphaOrBeta()) {
             description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
         }
