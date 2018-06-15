@@ -52,6 +52,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -438,7 +440,9 @@ public class Plugin {
                 try (InputStream is = jf.getInputStream(indexJelly)) {
                     org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
                     StringWriter sw = new StringWriter();
-                    TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc.getDocumentElement()), new StreamResult(sw));
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                    transformer.transform(new DOMSource(doc.getDocumentElement()), new StreamResult(sw));
                     description = sw.toString().trim();
                 }
             }
