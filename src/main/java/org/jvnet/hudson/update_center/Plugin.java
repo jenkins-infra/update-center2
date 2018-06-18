@@ -57,6 +57,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.owasp.html.HtmlSanitizer;
+import org.owasp.html.HtmlStreamRenderer;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.w3c.dom.NodeList;
 
 /**
@@ -414,6 +418,8 @@ public class Plugin {
         return name;
     }
 
+    private static final PolicyFactory HTML_POLICY = Sanitizers.BLOCKS.and(Sanitizers.FORMATTING).and(Sanitizers.LINKS);
+
     public JSONObject toJSON() throws Exception {
         JSONObject json = latest.toJSON(artifactId);
 
@@ -448,7 +454,10 @@ public class Plugin {
                     for (int i = 0; i < nl.getLength(); i++) {
                         transformer.transform(new DOMSource(nl.item(i)), result);
                     }
-                    description = sw.toString().trim();
+                    StringBuilder b = new StringBuilder();
+                    HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
+                    HtmlSanitizer.sanitize(sw.toString(), HTML_POLICY.apply(renderer));
+                    description = b.toString().trim();
                 }
             }
         }
