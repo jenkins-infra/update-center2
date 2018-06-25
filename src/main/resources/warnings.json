@@ -2264,4 +2264,200 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-440",
+    "type": "plugin",
+    "name": "ssh-credentials",
+    "message": "Arbitrary file read vulnerability with Credentials Binding Plugin 1.13 or newer",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-440",
+    "versions": [
+      {
+        "lastVersion": "1.13",
+        "pattern": "(0|1[.]([0-9]|1[0-3]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-808",
+    "type": "plugin",
+    "name": "openstack-cloud",
+    "message": "CSRF vulnerability and insufficient permission checks allow capturing credentials",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-808",
+    "versions": [
+      {
+        "lastVersion": "2.35",
+        "pattern": "(1|2[.]([0-9]|[12][0-9]|3[0-5]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-819",
+    "type": "plugin",
+    "name": "urltrigger",
+    "message": "Server-side request forgery vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-819",
+    "versions": [
+      {
+        "lastVersion": "0.41",
+        "pattern": "(0[.]([0-9]|[123][0-9]|4[01]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-825",
+    "type": "plugin",
+    "name": "codedeploy",
+    "message": "Serialization of potentially sensitive build variables",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-825",
+    "versions": [
+      {
+        "lastVersion": "1.19",
+        "pattern": "(1[.]([0-9]|1[0-9]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-833",
+    "type": "plugin",
+    "name": "codedeploy",
+    "message": "AWS Secret Key stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-833",
+    "versions": [
+      {
+        "lastVersion": "1.19",
+        "pattern": "(1[.]([0-9]|1[0-9]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-834",
+    "type": "plugin",
+    "name": "aws-codebuild",
+    "message": "AWS Secret Key stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-834",
+    "versions": [
+      {
+        "lastVersion": "0.26",
+        "pattern": "(0[.]([0-9]|1[0-9]|2[0-6]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-870",
+    "type": "plugin",
+    "name": "fortify-cloudscan-jenkins-plugin",
+    "message": "Arbitrary file write vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-870",
+    "versions": [
+      {
+        "lastVersion": "1.5.1",
+        "pattern": "(1[.][0-4]|1[.]5[.][01])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-906",
+    "type": "plugin",
+    "name": "badge",
+    "message": "Persisted cross-site scripting vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-906",
+    "versions": [
+      {
+        "lastVersion": "1.4",
+        "pattern": "(1[.][0-4])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-915",
+    "type": "plugin",
+    "name": "github",
+    "message": "CSRF vulnerability and insufficient permission checks allow capturing credentials",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-915",
+    "versions": [
+      {
+        "lastVersion": "1.29.1",
+        "pattern": "(0|1[.][0-9]|1[.]1[0-9]|1[.]2[0-8]|1[.]29[.][01])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-916",
+    "type": "plugin",
+    "name": "saml",
+    "message": "HTTP session fixation vulnerability",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-916",
+    "versions": [
+      {
+        "lastVersion": "1.0.6",
+        "pattern": "(0|1[.]0[.][0-6])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-927",
+    "type": "plugin",
+    "name": "configuration-as-code",
+    "message": "Missing permission check allowed anyone to export Jenkins configuration",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-927",
+    "versions": [
+      {
+        "lastVersion": "0.7-alpha",
+        "pattern": "(0[.][0-7])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-929",
+    "type": "plugin",
+    "name": "configuration-as-code",
+    "message": "Plain text logging of sensitive configuration variables",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-929",
+    "versions": [
+      {
+        "lastVersion": "0.7-alpha",
+        "pattern": "(0[.][0-7])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-941",
+    "type": "plugin",
+    "name": "collabnet",
+    "message": "Plugin globally disables SSL/TLS certification validation in Jenkins",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-941",
+    "versions": [
+      {
+        "lastVersion": "2.0.4",
+        "pattern": "(1|2[.]0[.][0-4])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-950",
+    "type": "plugin",
+    "name": "zos-connector",
+    "message": "Password stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-950",
+    "versions": [
+      {
+        "lastVersion": "1.2.6.1",
+        "pattern": "1(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-967",
+    "type": "plugin",
+    "name": "aws-codepipeline",
+    "message": "AWS Secret Key stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2018-06-25/#SECURITY-967",
+    "versions": [
+      {
+        "lastVersion": "0.36",
+        "pattern": "(0[.]([0-9]|[12][0-9]|3[0-6]))(|[-.].*)"
+      }
+    ]
+  },
 ]
