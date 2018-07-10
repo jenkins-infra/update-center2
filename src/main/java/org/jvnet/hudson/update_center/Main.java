@@ -46,8 +46,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -62,6 +64,9 @@ public class Main {
 
     @Option(name="-r",usage="release history JSON file")
     public File releaseHistory = new File("release-history.json");
+
+    @Option(name="-p",usage="plugin versions JSON file")
+    public File pluginVersions = new File("plugin-versions.json");
 
     @Option(name="-urlmap", usage="plugin to URL mapping file")
     public File urlmap = new File("plugin-to-documentation-url.json");
@@ -147,6 +152,9 @@ public class Main {
     @Option(name="-skip-release-history",usage="Skip generation of release history")
     public boolean skipReleaseHistory;
 
+    @Option(name="-skip-plugin-versions",usage="Skip generation of plugin versions")
+    public boolean skipPluginVersions;
+
     private Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
@@ -183,8 +191,10 @@ public class Main {
         json = new File(www,"update-center.actual.json");
         jsonp = new File(www,"update-center.json");
         urlmap = new File(www, "plugin-documentation-urls.json");
+
         latest = new File(www,"latest");
         indexHtml = new File(www,"index.html");
+        pluginVersions = new File(www, "plugin-versions.json");
         releaseHistory = new File(www,"release-history.json");
         latestCoreTxt = new File(www,"latestCore.txt");
     }
@@ -200,6 +210,10 @@ public class Main {
         writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
         writeToFile(prettyPrintJson(ucRoot), json);
         writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath()+".html"));
+
+        if (!skipPluginVersions) {
+            writeToFile(prettyPrintJson(buildPluginVersionsJson(repo)), pluginVersions);
+        }
 
         if (!skipReleaseHistory) {
             JSONObject rhRoot = buildFullReleaseHistory(repo);
@@ -236,6 +250,17 @@ public class Main {
     private LatestLinkBuilder createHtaccessWriter() throws IOException {
         latest.mkdirs();
         return new LatestLinkBuilder(latest);
+    }
+
+    private JSONObject buildPluginVersionsJson(MavenRepository repo) throws Exception {
+        JSONObject root = new JSONObject();
+        root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
+        root.put("plugins", buildPluginVersions(repo));
+
+        if (signer.isConfigured())
+            signer.sign(root);
+
+        return root;
     }
 
     private JSONObject buildUpdateCenterJson(MavenRepository repo, LatestLinkBuilder latest) throws Exception {
@@ -289,6 +314,46 @@ public class Main {
             repo = new VersionCappedMavenRepository(repo, vp, vc);
         }
         return repo;
+    }
+
+    private JSONObject buildPluginVersions(MavenRepository repository) throws Exception {
+        JSONObject plugins = new JSONObject();
+        System.out.println("Build plugin versions index from the maven repo...");
+
+        for (PluginHistory plugin : repository.listHudsonPlugins()) {
+                System.out.println(plugin.artifactId);
+
+                JSONObject versions = new JSONObject();
+
+                // Gather the plugin properties from the plugin file and the wiki
+                for (HPI hpi : plugin.artifacts.values()) {
+                    try {
+                        JSONObject hpiJson = hpi.toJSON(plugin.artifactId);
+
+                        hpiJson.put("requiredCore", hpi.getRequiredJenkinsVersion());
+
+                        if (hpi.getCompatibleSinceVersion() != null) {
+                            hpiJson.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
+                        }
+                        if (hpi.getSandboxStatus() != null) {
+                            hpiJson.put("sandboxStatus",hpi.getSandboxStatus());
+                        }
+
+                        JSONArray deps = new JSONArray();
+                        for (HPI.Dependency d : hpi.getDependencies())
+                            deps.add(d.toJSON());
+                        hpiJson.put("dependencies",deps);
+
+                        versions.put(hpi.version, hpiJson);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        // skip this version
+                    }
+                }
+
+                plugins.put(plugin.artifactId, versions);
+        }
+        return plugins;
     }
 
     /**
