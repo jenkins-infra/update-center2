@@ -2,7 +2,6 @@ package org.jvnet.hudson.update_center;
 
 import com.google.gson.Gson;
 import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 
@@ -15,11 +14,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ArtifactoryChecksumSource {
+public class ArtifactoryChecksumSource extends ChecksumSource {
     private static final String ARTIFACTORY_API_URL = "https://repo.jenkins-ci.org/api/storage/releases/?list&deep=1";
 
-    private static final String ARTIFACTORY_API_USERNAME = System.getenv("ARTIFACTORY_USERNAME");
-    private static final String ARTIFACTORY_API_PASSWORD = System.getenv("ARTIFACTORY_PASSWORD");
+    private final String username;
+    private final String password;
 
     private static ArtifactoryChecksumSource instance;
 
@@ -29,7 +28,9 @@ public class ArtifactoryChecksumSource {
     // example: /args4j/args4j/2.0.21/args4j-2.0.21-javadoc.jar
     private Map<String, GsonFile> files = new HashMap<>();
 
-    private ArtifactoryChecksumSource() {
+    public ArtifactoryChecksumSource(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 
     private static class GsonFile {
@@ -50,7 +51,7 @@ public class ArtifactoryChecksumSource {
         }
         HttpClient client = new HttpClient();
         GetMethod get = new GetMethod(ARTIFACTORY_API_URL);
-        get.addRequestHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((ARTIFACTORY_API_USERNAME + ":" + ARTIFACTORY_API_PASSWORD).getBytes()));
+        get.addRequestHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes()));
         client.executeMethod(get);
         InputStream body = get.getResponseBodyAsStream();
         Gson gson = new Gson();
@@ -63,35 +64,23 @@ public class ArtifactoryChecksumSource {
         }
     }
 
-    public static ArtifactoryChecksumSource getInstance() {
-        if (instance == null) {
-            instance = new ArtifactoryChecksumSource();
-        }
-        return instance;
-    }
-
-    public String getSha1(MavenArtifact artifact) throws IOException {
+    @Override
+    public Digests getDigests(MavenArtifact artifact) throws IOException {
         ensureInitialized();
+        Digests ret = new Digests();
         try {
-            return files.get(getUri(artifact)).sha1;
+            ret.sha1 = files.get(getUri(artifact)).sha1;
         } catch (NullPointerException e) {
             System.out.println("No artifact: " + artifact.toString());
             return null;
         }
-    }
-
-    public String getSha256(MavenArtifact artifact) throws IOException {
-        ensureInitialized();
         try {
-            return files.get(getUri(artifact)).sha2;
+            ret.sha256 = files.get(getUri(artifact)).sha2;
         } catch (JSONException e) {
             // not all files have sha256
             System.out.println("No SHA-256: " + artifact.toString());
-            return null;
-        } catch (NullPointerException e) {
-            System.out.println("No artifact: " + artifact.toString());
-            return null;
         }
+        return ret;
     }
 
     private void ensureInitialized() throws IOException {

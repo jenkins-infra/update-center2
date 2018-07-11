@@ -118,16 +118,8 @@ public class MavenArtifact {
         }
     }
 
-    private static class Digests {
-        String sha1;
-        String sha256;
-    }
-
-    public Digests getDigests() throws IOException {
-        Digests ret = new Digests();
-        ret.sha1 = ArtifactoryChecksumSource.getInstance().getSha1(this);
-        ret.sha256 = ArtifactoryChecksumSource.getInstance().getSha256(this);
-        return ret;
+    public ChecksumSource.Digests getDigests() throws IOException {
+        return ChecksumSource.getInstance().getDigests(this);
     }
 
     public JSONObject toJSON(String name) throws IOException {
@@ -137,7 +129,7 @@ public class MavenArtifact {
 
         o.put("url", getURL().toExternalForm());
         o.put("buildDate", getTimestampAsString());
-        Digests d = getDigests();
+        ChecksumSource.Digests d = getDigests();
         o.put("sha1", d.sha1);
         o.put("sha256", d.sha256);
 
