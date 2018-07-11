@@ -58,7 +58,7 @@ public class ArtifactoryChecksumSource extends ChecksumSource {
         GsonResponse json = gson.fromJson(new InputStreamReader(body), GsonResponse.class);
         for (GsonFile file : json.files) {
             String uri = file.uri;
-            if (uri.endsWith(".hpi") || uri.endsWith(".war")) { // we only care about HPI (plugin) and WAR (core) files
+            if (uri.endsWith(".hpi") || uri.endsWith(".jpi") || uri.endsWith(".war")) { // we only care about HPI (plugin) and WAR (core) files
                 this.files.put(uri, file);
             }
         }
