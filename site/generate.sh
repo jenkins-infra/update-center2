@@ -105,7 +105,7 @@ ln -sf ../updates ./www2/experimental/updates
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
-generate -no-experimental -www ./www2/current -www-download ./www2/download -download ./download -pluginCount.txt ./www2/pluginCount.txt
+generate -no-experimental -www ./www2/current -skip-plugin-versions -www-download ./www2/download -download ./download -pluginCount.txt ./www2/pluginCount.txt
 ln -sf ../updates ./www2/current/updates
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
