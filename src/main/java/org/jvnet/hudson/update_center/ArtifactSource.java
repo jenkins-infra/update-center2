@@ -2,20 +2,20 @@ package org.jvnet.hudson.update_center;
 
 import java.io.IOException;
 
-public abstract class ChecksumSource {
+public abstract class ArtifactSource {
     abstract public Digests getDigests(MavenArtifact artifact) throws IOException;
 
     private static String ARTIFACTORY_API_USERNAME = System.getenv("ARTIFACTORY_USERNAME");
     private static String ARTIFACTORY_API_PASSWORD = System.getenv("ARTIFACTORY_PASSWORD");
 
-    private static ChecksumSource instance;
+    private static ArtifactSource instance;
 
-    public static ChecksumSource getInstance() {
+    public static ArtifactSource getInstance() {
         if (instance == null) {
             if (ARTIFACTORY_API_PASSWORD != null && ARTIFACTORY_API_USERNAME != null) {
-                instance = new ArtifactoryChecksumSource(ARTIFACTORY_API_USERNAME, ARTIFACTORY_API_PASSWORD);
+                instance = new ArtifactoryArtifactSource(ARTIFACTORY_API_USERNAME, ARTIFACTORY_API_PASSWORD);
             } else {
-                instance = new MavenChecksumSource();
+                instance = new MavenArtifactSource();
             }
         }
         return instance;

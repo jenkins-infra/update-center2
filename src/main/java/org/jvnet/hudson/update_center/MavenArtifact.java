@@ -25,17 +25,13 @@ package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -118,8 +114,8 @@ public class MavenArtifact {
         }
     }
 
-    public ChecksumSource.Digests getDigests() throws IOException {
-        return ChecksumSource.getInstance().getDigests(this);
+    public ArtifactSource.Digests getDigests() throws IOException {
+        return ArtifactSource.getInstance().getDigests(this);
     }
 
     public JSONObject toJSON(String name) throws IOException {
@@ -129,7 +125,7 @@ public class MavenArtifact {
 
         o.put("url", getURL().toExternalForm());
         o.put("buildDate", getTimestampAsString());
-        ChecksumSource.Digests d = getDigests();
+        ArtifactSource.Digests d = getDigests();
         o.put("sha1", d.sha1);
         o.put("sha256", d.sha256);
 

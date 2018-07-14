@@ -14,13 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ArtifactoryChecksumSource extends ChecksumSource {
+public class ArtifactoryArtifactSource extends ArtifactSource {
     private static final String ARTIFACTORY_API_URL = "https://repo.jenkins-ci.org/api/storage/releases/?list&deep=1";
 
     private final String username;
     private final String password;
 
-    private static ArtifactoryChecksumSource instance;
+    private static ArtifactoryArtifactSource instance;
 
     private boolean initialized = false;
 
@@ -28,7 +28,7 @@ public class ArtifactoryChecksumSource extends ChecksumSource {
     // example: /args4j/args4j/2.0.21/args4j-2.0.21-javadoc.jar
     private Map<String, GsonFile> files = new HashMap<>();
 
-    public ArtifactoryChecksumSource(String username, String password) {
+    public ArtifactoryArtifactSource(String username, String password) {
         this.username = username;
         this.password = password;
     }

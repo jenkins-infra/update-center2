@@ -7,7 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 
-public class MavenChecksumSource extends ChecksumSource {
+public class MavenArtifactSource extends ArtifactSource {
     @Override
     public Digests getDigests(MavenArtifact artifact) throws IOException {
         try (FileInputStream fin = new FileInputStream(artifact.resolve())) {
