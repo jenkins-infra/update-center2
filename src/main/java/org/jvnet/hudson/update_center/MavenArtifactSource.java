@@ -3,9 +3,13 @@ package org.jvnet.hudson.update_center;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 public class MavenArtifactSource extends ArtifactSource {
     @Override
@@ -25,5 +29,20 @@ public class MavenArtifactSource extends ArtifactSource {
             ret.sha256 = new String(Base64.encodeBase64(sha256.digest()), "UTF-8");
             return ret;
         }
+    }
+
+    @Override
+    public Manifest getManifest(MavenArtifact artifact) throws IOException {
+        Manifest manifest;
+        File f = artifact.resolve();
+        try {
+            JarFile jar = new JarFile(f);
+            ZipEntry e = jar.getEntry("META-INF/MANIFEST.MF");
+            manifest = jar.getManifest();
+            jar.close();
+        } catch (IOException x) {
+            throw new IOException("Failed to open "+f, x);
+        }
+        return manifest;
     }
 }

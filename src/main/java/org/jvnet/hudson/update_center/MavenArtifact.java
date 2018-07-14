@@ -174,15 +174,7 @@ public class MavenArtifact {
 
     public Manifest getManifest() throws IOException {
         if (manifest==null) {
-            File f = resolve();
-            try {
-                JarFile jar = new JarFile(f);
-                ZipEntry e = jar.getEntry("META-INF/MANIFEST.MF");
-                manifest = jar.getManifest();
-                jar.close();
-            } catch (IOException x) {
-                throw (IOException)new IOException("Failed to open "+f).initCause(x);
-            }
+            manifest = ArtifactSource.getInstance().getManifest(this);
         }
         return manifest;
     }

@@ -2,25 +2,35 @@ package org.jvnet.hudson.update_center;
 
 import com.google.gson.Gson;
 import net.sf.json.JSONException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.IOUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Manifest;
 
 public class ArtifactoryArtifactSource extends ArtifactSource {
-    private static final String ARTIFACTORY_API_URL = "https://repo.jenkins-ci.org/api/storage/releases/?list&deep=1";
+    private static final String ARTIFACTORY_URL = "https://repo.jenkins-ci.org/";
+    private static final String ARTIFACTORY_API_URL = "https://repo.jenkins-ci.org/api/";
+    private static final String ARTIFACTORY_LIST_URL = ARTIFACTORY_API_URL + "storage/releases/?list&deep=1";
+    private static final String ARTIFACTORY_MANIFEST_URL = ARTIFACTORY_URL + "%s/%s!/META-INF/MANIFEST.MF";
 
     private final String username;
     private final String password;
 
     private static ArtifactoryArtifactSource instance;
+
+    private File cacheDirectory = new File("artifactoryFileCache");
 
     private boolean initialized = false;
 
@@ -50,8 +60,8 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
             throw new IllegalStateException("re-initialized");
         }
         HttpClient client = new HttpClient();
-        GetMethod get = new GetMethod(ARTIFACTORY_API_URL);
-        get.addRequestHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes()));
+        GetMethod get = new GetMethod(ARTIFACTORY_LIST_URL);
+        get.addRequestHeader("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()));
         client.executeMethod(get);
         InputStream body = get.getResponseBodyAsStream();
         Gson gson = new Gson();
@@ -69,13 +79,13 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
         ensureInitialized();
         Digests ret = new Digests();
         try {
-            ret.sha1 = files.get(getUri(artifact)).sha1;
+            ret.sha1 = files.get("/" + getUri(artifact)).sha1;
         } catch (NullPointerException e) {
             System.out.println("No artifact: " + artifact.toString());
             return null;
         }
         try {
-            ret.sha256 = files.get(getUri(artifact)).sha2;
+            ret.sha256 = files.get("/" + getUri(artifact)).sha2;
         } catch (JSONException e) {
             // not all files have sha256
             System.out.println("No SHA-256: " + artifact.toString());
@@ -98,7 +108,29 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
         } else {
             filename = basename + "." + a.artifact.packaging;
         }
-        String ret = "/" + a.artifact.groupId.replace(".", "/") + "/" + a.artifact.artifactId + "/" + a.version + "/" + filename;
+        String ret = a.artifact.groupId.replace(".", "/") + "/" + a.artifact.artifactId + "/" + a.version + "/" + filename;
         return ret;
+    }
+
+    @Override
+    public Manifest getManifest(MavenArtifact artifact) throws IOException {
+        try (InputStream is = getFileContent(String.format(ARTIFACTORY_MANIFEST_URL, "releases", getUri(artifact)))) {
+            return new Manifest(is);
+        }
+    }
+
+    private InputStream getFileContent(String url) throws IOException {
+        String urlBase64 = Base64.encodeBase64String(url.getBytes());
+        File cache = new File(cacheDirectory, urlBase64);
+        if (!cache.exists()) {
+            cache.getParentFile().mkdirs();
+            HttpClient client = new HttpClient();
+            GetMethod get = new GetMethod(url);
+            client.executeMethod(get);
+            InputStream stream = get.getResponseBodyAsStream();
+            IOUtils.copy(stream, new FileOutputStream(cache));
+            stream.close();
+        }
+        return new FileInputStream(cache);
     }
 }
