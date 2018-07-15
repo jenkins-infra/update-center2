@@ -23,6 +23,9 @@
  */
 package org.jvnet.hudson.update_center;
 
+import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.util.encoders.Base64;
+
 import java.io.Closeable;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -69,14 +72,39 @@ public class IndexHtmlBuilder implements Closeable {
         );
     }
 
+    private String base64ToHex(String base64) {
+        byte[] decodedBase64 = Base64.decode(base64.getBytes());
+        return Hex.encodeHexString(decodedBase64);
+    }
+
     public void add(MavenArtifact a) throws IOException {
-        add(a.getURL().getPath(), a.version);
+        ArtifactSource.Digests digests = a.getDigests();
+        if (digests == null) {
+            return;
+        }
+        String checksums = "SHA-1: " + base64ToHex(digests.sha1);
+        if (digests.sha256 != null) {
+            checksums += ", SHA-256: " + base64ToHex(digests.sha256);
+        }
+        add(a.getURL().getPath(), a.version, checksums);
     }
 
     public void add(String url, String caption) throws MalformedURLException {
         out.println(
-            "<tr><td><img src='http://jenkins-ci.org/images/jar.png'/></td><td><a href='"+ url +"'>"+ caption +"</a></td></tr>"
+                "<tr><td><img src='http://jenkins-ci.org/images/jar.png'/></td><td><a href='"+ url +"'>"+ caption +"</a></td></tr>"
         );
+    }
+
+    public void add(String url, String caption, String metadata) throws MalformedURLException {
+        if (metadata == null) {
+            out.println(
+                    "<tr><td><img src='http://jenkins-ci.org/images/jar.png'/></td><td><a href='" + url + "'>" + caption + "</a></td></tr>"
+            );
+        } else {
+            out.println(
+                    "<tr><td><img src='http://jenkins-ci.org/images/jar.png'/></td><td><a href='" + url + "'>" + caption + "</a></td><td>" + metadata + "</td></tr>"
+            );
+        }
     }
 
     public void close() throws IOException {
