@@ -2,7 +2,10 @@ package org.jvnet.hudson.update_center;
 
 import com.google.gson.Gson;
 import net.sf.json.JSONException;
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
@@ -74,18 +77,27 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
         }
     }
 
+    private String hexToBase64(String hex) throws IOException {
+        try {
+            byte[] decodedHex = Hex.decodeHex(hex);
+            return Base64.encodeBase64String(decodedHex);
+        } catch (DecoderException e) {
+            throw new IOException("failed to convert hex to base64", e);
+        }
+    }
+
     @Override
     public Digests getDigests(MavenArtifact artifact) throws IOException {
         ensureInitialized();
         Digests ret = new Digests();
         try {
-            ret.sha1 = files.get("/" + getUri(artifact)).sha1;
+            ret.sha1 = hexToBase64(files.get("/" + getUri(artifact)).sha1);
         } catch (NullPointerException e) {
             System.out.println("No artifact: " + artifact.toString());
             return null;
         }
         try {
-            ret.sha256 = files.get("/" + getUri(artifact)).sha2;
+            ret.sha256 = hexToBase64(files.get("/" + getUri(artifact)).sha2);
         } catch (JSONException e) {
             // not all files have sha256
             System.out.println("No SHA-256: " + artifact.toString());
