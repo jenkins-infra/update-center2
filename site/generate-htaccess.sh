@@ -68,14 +68,9 @@ RewriteRule ^latestCore\.txt+ /current%{REQUEST_URI}? [NC,L,R=301]
 
 
 ReadmeName readme.html
-IndexIgnore readme.html *.php
+IndexIgnore readme.html
 
 # TODO: properly handle HTTPS in redirector
-
-# handle the redirect with test.php.
-# "L" flag causes the match to terminate, and internal redirect will be used to dispatch the request.
-# "QSA" flag is used to preserve the 'version' query parameter in the request.
-RewriteRule ^([^/]*\.json(\.html)?)$ redirect.php?path=\$1 [L,QSA]
 
 # For other tool installations under updates/
 # HTTPS clients need to be served from HTTPS servers to avoid the error, so only send traffic to mirror for regular HTTP traffic
