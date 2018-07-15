@@ -62,6 +62,9 @@ RewriteRule ^update\-center.*\.[json|html]+ /current%{REQUEST_URI}? [NC,L,R=301]
 # Ensure /release-history.json goes to the right place
 RewriteRule ^release\-history\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
 
+# Ensure /plugin-documentation-urls.json goes to the right place
+RewriteRule ^plugin\-documentation\-urls\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
+
 # Ensure /latestCore.txt goes to /current/latestCore.txt
 RewriteRule ^latestCore\.txt+ /current%{REQUEST_URI}? [NC,L,R=301]
 
