@@ -314,18 +314,9 @@ public class Plugin {
     }
 
     private String requireGitHubRepoExistence(String url) {
-        try {
-            HttpClient client = new HttpClient();
-            GetMethod get = new GetMethod(url);
-            get.setFollowRedirects(true);
-            if (client.executeMethod(get) >= 400) {
-                return null;
-            }
-        } catch (Exception e) {
-            // that didn't work
-            return null;
-        }
-        return url;
+        GitHubSource gh = GitHubSource.getInstance();
+        String shortenedUrl = StringUtils.removeEndIgnoreCase(url, "-plugin");
+        return gh.isRepoExisting(url) ? url : (gh.isRepoExisting(shortenedUrl) ? shortenedUrl : null);
     }
 
     /**
