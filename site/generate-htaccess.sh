@@ -35,19 +35,29 @@ for ltsv in $@ ; do
     major=${versionPieces[0]}
     minor=${versionPieces[1]}
     cat <<EOF
-
 RewriteCond %{QUERY_STRING} ^.*version=${major}\.(\d+)$ [NC]
 RewriteCond %1 <=${minor}
 RewriteRule ^update\-center.*\.[json|html]+ /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+
 EOF
 
 done
 
 
-# Add a RewriteRule for the last LTS we have, which should always rewrite to
-# /stable
+lts=$1
+versionPieces=(${lts//./ })
+major=${versionPieces[0]}
+minor=${versionPieces[1]}
+echo "# First LTS update site (stable-$major.$minor) gets all older releases"
 cat <<EOF
+RewriteCond %{QUERY_STRING} ^.*version=\d\.(\d+).\d+$ [NC]
+RewriteRule ^update\-center.*\.[json|html]+ /stable-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 
+EOF
+
+
+echo "# Add a RewriteRule for the last LTS we have, which should always rewrite to /stable"
+cat <<EOF
 RewriteRule ^stable/(.+) "/stable-${lastLTS}/\$1" [NC,L,R=301]
 
 EOF
