@@ -16,7 +16,7 @@ cat <<EOF
 RewriteEngine on
 
 # If we have a match that looks like an LTS version, e.g. 1.554.1, redirect to stable-1.554
-RewriteCond %{QUERY_STRING} ^.*version=([0-9]*\.[0-9]*)\.[0-9]*$ [NC]
+RewriteCond %{QUERY_STRING} ^.*version=([0-9]*\.[0-9]*)\..*$ [NC]
 RewriteCond %{DOCUMENT_ROOT}/stable\-%1%{REQUEST_URI} -f
 RewriteRule ^update\-center\.[json|html]+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
 
