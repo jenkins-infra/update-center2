@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -96,9 +97,10 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
             System.out.println("No artifact: " + artifact.toString());
             return null;
         }
-        try {
-            ret.sha256 = hexToBase64(files.get("/" + getUri(artifact)).sha2);
-        } catch (JSONException e) {
+        String hexSha256 = files.get("/" + getUri(artifact)).sha2;
+        if (hexSha256 != null) {
+            ret.sha256 = hexToBase64(hexSha256);
+        } else {
             // not all files have sha256
             System.out.println("No SHA-256: " + artifact.toString());
         }
@@ -132,7 +134,7 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
     }
 
     private InputStream getFileContent(String url) throws IOException {
-        String urlBase64 = Base64.encodeBase64String(url.getBytes());
+        String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes());
         File cache = new File(cacheDirectory, urlBase64);
         if (!cache.exists()) {
             cache.getParentFile().mkdirs();

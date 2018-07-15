@@ -329,7 +329,9 @@ public class Main {
                 for (HPI hpi : plugin.artifacts.values()) {
                     try {
                         JSONObject hpiJson = hpi.toJSON(plugin.artifactId);
-
+                        if (hpiJson == null) {
+                            continue;
+                        }
                         hpiJson.put("requiredCore", hpi.getRequiredJenkinsVersion());
 
                         if (hpi.getCompatibleSinceVersion() != null) {

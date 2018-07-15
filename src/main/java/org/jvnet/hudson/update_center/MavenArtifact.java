@@ -126,6 +126,9 @@ public class MavenArtifact {
         o.put("url", getURL().toExternalForm());
         o.put("buildDate", getTimestampAsString());
         ArtifactSource.Digests d = getDigests();
+        if (d == null) {
+            return null; // no artifact
+        }
         o.put("sha1", d.sha1);
         o.put("sha256", d.sha256);
 
