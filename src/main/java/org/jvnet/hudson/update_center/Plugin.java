@@ -206,6 +206,10 @@ public class Plugin {
             // well known historical URL that won't help
             return null;
         }
+        if (scm.contains("jenkinsci/plugin-pom")) {
+            // this is a plugin based on the parent POM without a <scm> blocck
+            return null;
+        }
         return scm;
     }
 
