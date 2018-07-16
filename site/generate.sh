@@ -40,7 +40,7 @@ test_which mvn
 
 set -x
 
-RELEASES=$( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | ./jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
+RELEASES=$( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
 
 # prepare the www workspace for execution
 rm -rf "$WWW_ROOT_DIR"
@@ -123,4 +123,4 @@ pushd "$WWW_ROOT_DIR"
 popd
 
 # copy other static resource files
-cp -av "$( dirname "$0" )/static/readme.html" .
+cp -av "$( dirname "$0" )/static/readme.html" "$WWW_ROOT_DIR"
