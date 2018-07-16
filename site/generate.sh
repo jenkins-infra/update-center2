@@ -58,6 +58,7 @@ function sanity-check() {
 
 for ltsv in ${RELEASES[@]}; do
     v="${ltsv/%.1/}"
+    lastLTS=$v
     # for mainline up to $v, which advertises the latest core
     generate -no-experimental -skip-release-history -skip-plugin-versions -www ./www2/$v -cap $v.999 -capCore 2.999
     sanity-check ./www2/$v
