@@ -1,26 +1,55 @@
-#!/bin/bash -ex
-# used from ci.jenkins-ci.org to actually generate the production OSS update center
+#!/usr/bin/env bash
 
-# Used later for rsyncing updates
-UPDATES_SITE="updates.jenkins.io"
-RSYNC_USER="www-data"
+# Usage: SECRET=dirname ./site/generate.sh "./www2" "./download"
+[[ $# -eq 2 ]] || { echo "Usage: $0 <www root dir> <download root dir>" >&2 ; exit 1 ; }
+[[ -n "$1" ]] || { echo "Non-empty www root dir required" >&2 ; exit 1 ; }
+[[ -n "$2" ]] || { echo "Non-empty download root dir required" >&2 ; exit 1 ; }
 
-wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 || { echo "Failed to download jq" >&2 ; exit 1; }
-chmod +x jq || { echo "Failed to make jq executable" >&2 ; exit 1; }
+[[ -n "$SECRET" ]] || { echo "SECRET env var not defined" >&2 ; exit 1 ; }
+[[ -d "$SECRET" ]] || { echo "SECRET env var not a directory" >&2 ; exit 1 ; }
+[[ -f "$SECRET/update-center.key" ]] || { echo "update-center.key does not exist in SECRET dir" >&2 ; exit 1 ; }
+[[ -f "$SECRET/update-center.cert" ]] || { echo "update-center.cert does not exist in SECRET dir" >&2 ; exit 1 ; }
 
+WWW_ROOT_DIR="$1"
+DOWNLOAD_ROOT_DIR="$2"
+
+set -o nounset
 set -o pipefail
+set -o errexit
 
-RELEASES=$( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | ./jq --raw-output '.results[].version' | head -n 5 | sort --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
+# platform specific behavior
+UNAME="$( uname )"
+if [[ $UNAME == Linux ]] ; then
+  SORT=sort
+elif [[ $UNAME == Darwin ]] ; then
+  SORT=gsort
+else
+  echo "Unknown platform: $UNAME" >&2
+  exit 1
+fi
 
-set +o pipefail
+function test_which() {
+  which "$1" >/dev/null || { echo "Not on PATH: $1" >&2 ; exit 1 ; }
+}
 
-umask
+test_which curl
+test_which wget
+test_which $SORT
+test_which jq
+test_which mvn
+
+set -x
+
+RELEASES=$( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | ./jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
 
 # prepare the www workspace for execution
-rm -rf www2 || true
-mkdir www2
-$( dirname "$0" )/generate-htaccess.sh "${RELEASES[@]}" > www2/.htaccess
+rm -rf "$WWW_ROOT_DIR"
+mkdir -p "$WWW_ROOT_DIR"
 
+# Generate htaccess file
+$( dirname "$0" )/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
+
+# build update center generator
 mvn -e clean install
 
 function generate() {
@@ -35,8 +64,8 @@ function generate() {
 function sanity-check() {
     dir="$1"
     file="$dir/update-center.json"
-    if [ 700000 -ge $(wc -c "$file" | cut -f 1 -d ' ') ]; then
-        echo $file looks too small
+    if [[ 700000 -ge $(cat  "$file" | wc -c ) ]] ; then
+        echo "$file looks too small" >&2
         exit 1
     fi
 }
@@ -60,14 +89,14 @@ for ltsv in ${RELEASES[@]}; do
     v="${ltsv/%.1/}"
     lastLTS=$v
     # for mainline up to $v, which advertises the latest core
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www ./www2/$v -cap $v.999 -capCore 2.999
-    sanity-check ./www2/$v
-    ln -sf ../updates ./www2/$v/updates
+    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap $v.999 -capCore 2.999
+    sanity-check "$WWW_ROOT_DIR/$v"
+    ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
 
     # for LTS
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www ./www2/stable-$v -cap $v.999 -capCore 2.999 -stableCore
-    sanity-check ./www2/stable-$v
-    ln -sf ../updates ./www2/stable-$v/updates
+    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap $v.999 -capCore 2.999 -stableCore
+    sanity-check "$WWW_ROOT_DIR/stable-$v"
+    ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
 done
 
 
@@ -76,33 +105,22 @@ done
 #     with symlinks pointing to the 'latest' current versions. So we generate exprimental first, then overwrite current to produce proper symlinks
 
 # experimental update center. this is not a part of the version-based redirection rules
-generate -skip-release-history -skip-plugin-versions -www ./www2/experimental -download ./download
-ln -sf ../updates ./www2/experimental/updates
+generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experimental" -download "$DOWNLOAD_ROOT_DIR"
+ln -sf ../updates "$WWW_ROOT_DIR/experimental/updates"
 
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
-generate -no-experimental -www ./www2/current -skip-plugin-versions -www-download ./www2/download -download ./download -pluginCount.txt ./www2/pluginCount.txt
-ln -sf ../updates ./www2/current/updates
+generate -no-experimental -www "$WWW_ROOT_DIR/current" -skip-plugin-versions -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
+ln -sf ../updates $WWW_ROOT_DIR/current/updates
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
-pushd www2
+pushd "$WWW_ROOT_DIR"
     ln -s stable-$lastLTS stable
     for f in latest latestCore.txt plugin-documentation-urls.json release-history.json update-center.*; do
         ln -s current/$f .
     done
-
-    # copy other static resource files
-    rsync -avz "../site/static/" ./
 popd
 
-
-# push plugins to mirrors.jenkins-ci.org
-chmod -R a+r download
-rsync -avz --size-only download/plugins/ ${RSYNC_USER}@${UPDATES_SITE}:/srv/releases/jenkins/plugins
-
-# push generated index to the production servers
-# 'updates' come from tool installer generator, so leave that alone, but otherwise
-# delete old sites
-chmod -R a+r www2
-rsync -acvz www2/ --exclude=/updates --delete ${RSYNC_USER}@${UPDATES_SITE}:/var/www/${UPDATES_SITE}
+# copy other static resource files
+cp -av "$( dirname "$0" )/static/readme.html" .
