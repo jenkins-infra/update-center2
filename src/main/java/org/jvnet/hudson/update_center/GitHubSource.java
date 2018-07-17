@@ -41,7 +41,7 @@ public class GitHubSource {
                         return o1.compareToIgnoreCase(o2);
                     }
                 });
-                for (GHRepository repo : github.getOrganization("jenkinsci").getRepositories().values()) {
+                for (GHRepository repo : github.getOrganization("jenkinsci").listRepositories().withPageSize(100)) {
                     repoNames.add(StringUtils.stripEnd(repo.getHttpTransportUrl(), ".git"));
                 }
             }
