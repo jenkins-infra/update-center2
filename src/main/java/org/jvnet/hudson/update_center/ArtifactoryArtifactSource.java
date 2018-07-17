@@ -141,6 +141,9 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
             HttpClient client = new HttpClient();
             GetMethod get = new GetMethod(url);
             client.executeMethod(get);
+            if (get.getStatusCode() >= 400) {
+                throw new IOException("Failed to retrieve content of " + url + ", got " + get.getStatusCode());
+            }
             InputStream stream = get.getResponseBodyAsStream();
             IOUtils.copy(stream, new FileOutputStream(cache));
             stream.close();
