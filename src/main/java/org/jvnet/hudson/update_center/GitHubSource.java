@@ -42,7 +42,7 @@ public class GitHubSource {
                     }
                 });
                 for (GHRepository repo : github.getOrganization("jenkinsci").listRepositories().withPageSize(100)) {
-                    repoNames.add(StringUtils.stripEnd(repo.getHttpTransportUrl(), ".git"));
+                    repoNames.add(repo.getHtmlUrl().toString());
                 }
             }
         } catch (IOException e) {
