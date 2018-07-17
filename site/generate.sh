@@ -111,7 +111,7 @@ ln -sf ../updates "$WWW_ROOT_DIR/experimental/updates"
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
-generate -no-experimental -www "$WWW_ROOT_DIR/current" -skip-plugin-versions -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
+generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
 ln -sf ../updates $WWW_ROOT_DIR/current/updates
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
