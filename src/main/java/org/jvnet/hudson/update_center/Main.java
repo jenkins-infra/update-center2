@@ -35,9 +35,11 @@ import org.kohsuke.args4j.Option;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -382,6 +384,12 @@ public class Main {
                 pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
 
                 JSONObject json = plugin.toJSON();
+                final JSONObject versions = new JSONObject();
+                for (VersionNumber version : hpi.artifacts.keySet()) {
+                    versions.accumulate(version.toString(), "http://updates.jenkins-ci.org/download/plugins/" + hpi.artifactId + "/" + version + "/metadata.json");
+                }
+                json.accumulate("versions", versions);
+
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
                 latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
@@ -389,6 +397,10 @@ public class Main {
                 if (download!=null) {
                     for (HPI v : hpi.artifacts.values()) {
                         stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
+
+                        try (Writer w = new FileWriter(new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/metadata.json"))) {
+                            new Plugin(v).toJSON().write(w);
+                        }
                     }
                     if (!hpi.artifacts.isEmpty())
                         createLatestSymlink(hpi, plugin.latest);
