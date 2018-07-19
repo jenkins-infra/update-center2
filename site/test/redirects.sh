@@ -25,6 +25,15 @@ function test_redirect () {
 }
 
 test_redirect "https://updates.jenkins.io/update-center.json" "https://updates.jenkins.io/current/update-center.json"
+test_redirect "https://updates.jenkins.io/update-center.json.html" "https://updates.jenkins.io/current/update-center.json.html"
+test_redirect "https://updates.jenkins.io/update-center.actual.json" "https://updates.jenkins.io/current/update-center.actual.json"
+test_redirect "https://updates.jenkins.io/release-history.json" "https://updates.jenkins.io/current/release-history.json"
+test_redirect "https://updates.jenkins.io/plugin-documentation-urls.json" "https://updates.jenkins.io/current/plugin-documentation-urls.json"
+test_redirect "https://updates.jenkins.io/latestCore.txt" "https://updates.jenkins.io/current/latestCore.txt"
+
+
+test_redirect "https://updates.jenkins.io/stable/update-center.json" "https://updates.jenkins.io/stable-$NEWEST_LTS_BASELINE/update-center.json"
+
 test_redirect "https://updates.jenkins.io/update-center.json?version=$CURRENT_WEEKLY" "https://updates.jenkins.io/current/update-center.json"
 test_redirect "https://updates.jenkins.io/update-center.json?version=$RECENT_WEEKLY" "https://updates.jenkins.io/current/update-center.json"
 test_redirect "https://updates.jenkins.io/update-center.json?version=$NEWEST_LTS_BASELINE" "https://updates.jenkins.io/$NEWEST_LTS_BASELINE/update-center.json"
@@ -41,4 +50,6 @@ test_redirect "https://updates.jenkins.io/update-center.json?version=2.46.1" "ht
 # This is probably better -- drop down if older than newest LTS baseline, this isn't getting updates weekly
 #test_redirect "https://updates.jenkins.io/update-center.json?version=2.120" "https://updates.jenkins.io/2.107/update-center.json"
 # This is the current result
+# This test is obviously time dependent, and only useful as long as 2.121 is NEWER THAN the oldest supported baseline.
+# While still true when it's the oldest, then this is the expected result.
 test_redirect "https://updates.jenkins.io/update-center.json?version=2.115" "https://updates.jenkins.io/2.121/update-center.json"
