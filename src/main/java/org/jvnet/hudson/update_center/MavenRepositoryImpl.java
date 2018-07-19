@@ -87,6 +87,7 @@ public class MavenRepositoryImpl extends MavenRepository {
     protected ArtifactFactory af;
     protected ArtifactResolver ar;
     protected List<ArtifactRepository> remoteRepositories = new ArrayList<ArtifactRepository>();
+    private final File localRepo;
     protected ArtifactRepository local;
     protected ArtifactRepositoryFactory arf;
     private PlexusContainer plexus;
@@ -109,8 +110,9 @@ public class MavenRepositoryImpl extends MavenRepository {
         ar = plexus.lookup(ArtifactResolver.class);
         arf = plexus.lookup(ArtifactRepositoryFactory.class);
 
+        localRepo = new File(new File(System.getProperty("user.home")), ".m2/repository");
         local = arf.createArtifactRepository("local",
-                new File(new File(System.getProperty("user.home")), ".m2/repository").toURI().toURL().toExternalForm(),
+                localRepo.toURI().toURL().toExternalForm(),
                 new DefaultRepositoryLayout(), POLICY, POLICY);
     }
 
@@ -221,6 +223,9 @@ public class MavenRepositoryImpl extends MavenRepository {
 
     protected File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException {
         Artifact artifact = af.createArtifactWithClassifier(a.groupId, a.artifactId, a.version, type, classifier);
+        if (!new File(localRepo, local.pathOf(artifact)).isFile()) {
+            System.err.println("Downloading " + artifact);
+        }
         ar.resolve(artifact, remoteRepositories, local);
         return artifact.getFile();
     }
