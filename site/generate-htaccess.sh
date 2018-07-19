@@ -49,7 +49,7 @@ major=${versionPieces[0]}
 minor=${versionPieces[1]}
 echo "# First LTS update site (stable-$major.$minor) gets all older releases"
 cat <<EOF
-RewriteCond %{QUERY_STRING} ^.*version=\d\.(\d+).\d+$ [NC]
+RewriteCond %{QUERY_STRING} ^.*version=\d\.(\d+)\.\d+$ [NC]
 RewriteRule ^update\-center.*\.[json|html]+ /stable-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 
 EOF
