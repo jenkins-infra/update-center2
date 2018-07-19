@@ -49,6 +49,6 @@ node('linux') {
     }
 
     stage('Archive Update Site') {
-        archive 'output/*.json'
+        archive 'output/**/*.json'
     }
 }
