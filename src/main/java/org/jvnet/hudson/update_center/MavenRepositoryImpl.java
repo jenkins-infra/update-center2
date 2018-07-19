@@ -167,7 +167,7 @@ public class MavenRepositoryImpl extends MavenRepository {
             con.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(url.getUserInfo().getBytes("UTF-8")));
         }
 
-        if (!expanded.exists() || !local.exists() || (local.lastModified()!=con.getLastModified() && !offlineIndex)) {
+        if (!expanded.exists() || !local.exists() || (local.lastModified() < con.getLastModified() && !offlineIndex)) {
             System.out.println("Downloading "+url);
             // if the download fail in the middle, only leave a broken tmp file
             dir.mkdirs();
