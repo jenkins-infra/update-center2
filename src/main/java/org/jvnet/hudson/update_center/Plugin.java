@@ -38,15 +38,30 @@ import org.dom4j.io.SAXReader;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.owasp.html.HtmlSanitizer;
+import org.owasp.html.HtmlStreamRenderer;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
+import org.w3c.dom.NodeList;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -398,7 +413,9 @@ public class Plugin {
         return name;
     }
 
-    public JSONObject toJSON() throws IOException {
+    private static final PolicyFactory HTML_POLICY = Sanitizers.BLOCKS.and(Sanitizers.FORMATTING).and(Sanitizers.LINKS);
+
+    public JSONObject toJSON() throws Exception {
         JSONObject json = latest.toJSON(artifactId);
 
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
@@ -419,6 +436,26 @@ public class Plugin {
         json.put("labels", getLabels());
 
         String description = plainText2html(selectSingleValue(getPom(), "/project/description"));
+        try (JarFile jf = new JarFile(latest.resolveJar())) {
+            ZipEntry indexJelly = jf.getEntry("index.jelly");
+            if (indexJelly != null) {
+                try (InputStream is = jf.getInputStream(indexJelly)) {
+                    org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+                    StringWriter sw = new StringWriter();
+                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                    StreamResult result = new StreamResult(sw);
+                    NodeList nl = doc.getDocumentElement().getChildNodes();
+                    for (int i = 0; i < nl.getLength(); i++) {
+                        transformer.transform(new DOMSource(nl.item(i)), result);
+                    }
+                    StringBuilder b = new StringBuilder();
+                    HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
+                    HtmlSanitizer.sanitize(sw.toString(), HTML_POLICY.apply(renderer));
+                    description = b.toString().trim().replaceAll("\\s+", " ");
+                }
+            }
+        }
         if (latest.isAlphaOrBeta()) {
             description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
         }
