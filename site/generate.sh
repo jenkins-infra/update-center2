@@ -91,12 +91,12 @@ for ltsv in ${RELEASES[@]}; do
     # for mainline up to $v, which advertises the latest core
     generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap $v.999 -capCore 2.999
     sanity-check "$WWW_ROOT_DIR/$v"
-    ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
+    ln -sf ../../updates "$WWW_ROOT_DIR/$v/updates"
 
     # for LTS
     generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap $v.999 -capCore 2.999 -stableCore
     sanity-check "$WWW_ROOT_DIR/stable-$v"
-    ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
+    ln -sf ../../updates "$WWW_ROOT_DIR/stable-$v/updates"
 done
 
 
@@ -106,13 +106,13 @@ done
 
 # experimental update center. this is not a part of the version-based redirection rules
 generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experimental" -download "$DOWNLOAD_ROOT_DIR"
-ln -sf ../updates "$WWW_ROOT_DIR/experimental/updates"
+ln -sf ../../updates "$WWW_ROOT_DIR/experimental/updates"
 
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
 generate -no-experimental -www "$WWW_ROOT_DIR/current" -skip-plugin-versions -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
-ln -sf ../updates $WWW_ROOT_DIR/current/updates
+ln -sf ../../updates $WWW_ROOT_DIR/current/updates
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd "$WWW_ROOT_DIR"
