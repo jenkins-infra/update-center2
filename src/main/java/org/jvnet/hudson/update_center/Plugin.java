@@ -51,6 +51,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -436,25 +437,28 @@ public class Plugin {
         json.put("labels", getLabels());
 
         String description = plainText2html(selectSingleValue(getPom(), "/project/description"));
-        try (JarFile jf = new JarFile(latest.resolveJar())) {
-            ZipEntry indexJelly = jf.getEntry("index.jelly");
-            if (indexJelly != null) {
-                try (InputStream is = jf.getInputStream(indexJelly)) {
-                    org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-                    StringWriter sw = new StringWriter();
-                    Transformer transformer = TransformerFactory.newInstance().newTransformer();
-                    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-                    StreamResult result = new StreamResult(sw);
-                    NodeList nl = doc.getDocumentElement().getChildNodes();
-                    for (int i = 0; i < nl.getLength(); i++) {
-                        transformer.transform(new DOMSource(nl.item(i)), result);
-                    }
-                    StringBuilder b = new StringBuilder();
-                    HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
-                    HtmlSanitizer.sanitize(sw.toString(), HTML_POLICY.apply(renderer));
-                    description = b.toString().trim().replaceAll("\\s+", " ");
-                }
+
+        ArtifactInfo info = new ArtifactInfo();
+        info.artifactId = latest.artifact.artifactId;
+        info.groupId = latest.artifact.groupId;
+        info.packaging = "jar";
+        info.version = latest.artifact.version;
+        try (InputStream is = ArtifactSource.getInstance().getZipFileEntry(new MavenArtifact(latest.repository, info), "index.jelly")) {
+            org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+            StringWriter sw = new StringWriter();
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            StreamResult result = new StreamResult(sw);
+            NodeList nl = doc.getDocumentElement().getChildNodes();
+            for (int i = 0; i < nl.getLength(); i++) {
+                transformer.transform(new DOMSource(nl.item(i)), result);
             }
+            StringBuilder b = new StringBuilder();
+            HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
+            HtmlSanitizer.sanitize(sw.toString(), HTML_POLICY.apply(renderer));
+            description = b.toString().trim().replaceAll("\\s+", " ");
+        } catch (IOException e) {
+            System.err.println("Failed to read description from index.jelly: " + e.getMessage());
         }
         if (latest.isAlphaOrBeta()) {
             description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));

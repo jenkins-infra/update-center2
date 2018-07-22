@@ -6,6 +6,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -33,16 +34,25 @@ public class MavenArtifactSource extends ArtifactSource {
 
     @Override
     public Manifest getManifest(MavenArtifact artifact) throws IOException {
-        Manifest manifest;
+        try (InputStream is = getZipFileEntry(artifact, "META-INF/MANIFEST.MF")) {
+            return new Manifest(is);
+        } catch (IOException x) {
+            throw new IOException("Failed to read manifest from "+artifact, x);
+        }
+    }
+
+    @Override
+    public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException {
         File f = artifact.resolve();
         try {
             JarFile jar = new JarFile(f);
-            ZipEntry e = jar.getEntry("META-INF/MANIFEST.MF");
-            manifest = jar.getManifest();
-            jar.close();
+            ZipEntry e = jar.getEntry(path);
+            if (e == null) {
+                throw new IOException("No entry " + path + " found in " + artifact);
+            }
+            return jar.getInputStream(e);
         } catch (IOException x) {
-            throw new IOException("Failed to open "+f, x);
+            throw new IOException("Failed read from " + f + ": " + x.getMessage(), x);
         }
-        return manifest;
     }
 }

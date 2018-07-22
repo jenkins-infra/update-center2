@@ -1,12 +1,15 @@
 package org.jvnet.hudson.update_center;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.jar.Manifest;
 
 public abstract class ArtifactSource {
     abstract public Digests getDigests(MavenArtifact artifact) throws IOException;
 
     abstract public Manifest getManifest(MavenArtifact artifact) throws IOException;
+
+    abstract public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException;
 
     private static String ARTIFACTORY_API_USERNAME = System.getenv("ARTIFACTORY_USERNAME");
     private static String ARTIFACTORY_API_PASSWORD = System.getenv("ARTIFACTORY_PASSWORD");

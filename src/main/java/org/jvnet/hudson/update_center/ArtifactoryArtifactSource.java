@@ -1,14 +1,13 @@
 package org.jvnet.hudson.update_center;
 
 import com.google.gson.Gson;
-import net.sf.json.JSONException;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +27,7 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
     private static final String ARTIFACTORY_API_URL = "https://repo.jenkins-ci.org/api/";
     private static final String ARTIFACTORY_LIST_URL = ARTIFACTORY_API_URL + "storage/releases/?list&deep=1";
     private static final String ARTIFACTORY_MANIFEST_URL = ARTIFACTORY_URL + "%s/%s!/META-INF/MANIFEST.MF";
+    private static final String ARTIFACTORY_ZIP_ENTRY_URL = ARTIFACTORY_URL + "%s/%s!%s";
 
     private final String username;
     private final String password;
@@ -149,5 +149,10 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
             stream.close();
         }
         return new FileInputStream(cache);
+    }
+
+    @Override
+    public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException {
+        return getFileContent(String.format(ARTIFACTORY_ZIP_ENTRY_URL, "releases", getUri(artifact), StringUtils.prependIfMissing(path, "/")));
     }
 }
