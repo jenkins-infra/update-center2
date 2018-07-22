@@ -106,6 +106,14 @@ public class MavenArtifact {
         }
     }
 
+    public File resolveJar() throws IOException {
+        try {
+            return repository.resolve(artifact, "jar", null);
+        } catch (AbstractArtifactResolutionException e) {
+            throw new IOException("Failed to resolve artifact " + artifact + " jar", e);
+        }
+    }
+
     public File resolveSources() throws IOException {
         try {
             return repository.resolve(artifact,"jar","sources");

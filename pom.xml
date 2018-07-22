@@ -158,6 +158,12 @@
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-container-default</artifactId>
       <version>1.5.5</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.collections</groupId>
+          <artifactId>google-collections</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.wagon</groupId>
@@ -188,6 +194,11 @@
       <groupId>jetty</groupId>
       <artifactId>jetty-util</artifactId>
       <version>6.0.0rc1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+      <artifactId>owasp-java-html-sanitizer</artifactId>
+      <version>20180219.1</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
