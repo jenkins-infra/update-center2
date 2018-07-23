@@ -26,8 +26,6 @@ package org.jvnet.hudson.update_center;
 import com.google.common.annotations.VisibleForTesting;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -46,12 +44,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -444,7 +440,12 @@ public class Plugin {
         info.packaging = "jar";
         info.version = latest.artifact.version;
         try (InputStream is = ArtifactSource.getInstance().getZipFileEntry(new MavenArtifact(latest.repository, info), "index.jelly")) {
-            org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            db.setEntityResolver((publicId, systemId) -> {
+                throw new IOException("Attempt to resolve entity suppressed: publicId: " + publicId + ", systemId: " + systemId);
+            });
+            org.w3c.dom.Document doc = db.parse(is);
             StringWriter sw = new StringWriter();
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
