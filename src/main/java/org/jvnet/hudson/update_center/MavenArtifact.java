@@ -123,6 +123,7 @@ public class MavenArtifact {
         }
         o.put("sha1", d.sha1);
         o.put("sha256", d.sha256);
+        // TODO FIXME fail if sha256 is not set -- http://lists.jenkins-ci.org/pipermail/jenkins-infra/2018-July/001469.html
 
         return o;
     }
