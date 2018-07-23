@@ -414,6 +414,9 @@ public class Plugin {
 
     public JSONObject toJSON() throws Exception {
         JSONObject json = latest.toJSON(artifactId);
+        if (json == null) {
+            return null;
+        }
 
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
         json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));

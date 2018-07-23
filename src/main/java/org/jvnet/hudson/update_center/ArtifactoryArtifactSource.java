@@ -101,8 +101,8 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
         if (hexSha256 != null) {
             ret.sha256 = hexToBase64(hexSha256);
         } else {
-            // not all files have sha256
             System.out.println("No SHA-256: " + artifact.toString());
+            return null;
         }
         return ret;
     }
