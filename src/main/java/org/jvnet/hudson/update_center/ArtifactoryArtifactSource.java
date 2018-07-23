@@ -142,11 +142,16 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
             GetMethod get = new GetMethod(url);
             client.executeMethod(get);
             if (get.getStatusCode() >= 400) {
+                cache.mkdirs();
                 throw new IOException("Failed to retrieve content of " + url + ", got " + get.getStatusCode());
             }
             InputStream stream = get.getResponseBodyAsStream();
             IOUtils.copy(stream, new FileOutputStream(cache));
             stream.close();
+        }
+        if (cache.isDirectory()) {
+            // indicator that this is a cached error
+            throw new IOException("Failed to retrieve content of " + url + " (cached)");
         }
         return new FileInputStream(cache);
     }
