@@ -25,17 +25,13 @@ package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -110,35 +106,8 @@ public class MavenArtifact {
         }
     }
 
-    public File resolveSources() throws IOException {
-        try {
-            return repository.resolve(artifact,"jar","sources");
-        } catch (AbstractArtifactResolutionException e) {
-            throw (IOException)new IOException("Failed to resolve artifact "+artifact+ " sources jar").initCause(e);
-        }
-    }
-
-    private static class Digests {
-        String sha1;
-        String sha512;
-    }
-
-    public Digests getDigests() throws IOException {
-        try (FileInputStream fin = new FileInputStream(resolve())) {
-            MessageDigest sha1 = DigestUtils.getSha1Digest();
-            MessageDigest sha512 = DigestUtils.getSha512Digest();
-            byte[] buf = new byte[2048];
-            int len;
-            while ((len=fin.read(buf,0,buf.length)) >= 0) {
-                sha1.update(buf, 0, len);
-                sha512.update(buf, 0, len);
-            }
-
-            Digests ret = new Digests();
-            ret.sha1 = new String(Base64.encodeBase64(sha1.digest()), "UTF-8");
-            ret.sha512 = new String(Base64.encodeBase64(sha512.digest()), "UTF-8");
-            return ret;
-        }
+    public ArtifactSource.Digests getDigests() throws IOException {
+        return ArtifactSource.getInstance().getDigests(this);
     }
 
     public JSONObject toJSON(String name) throws IOException {
@@ -148,9 +117,12 @@ public class MavenArtifact {
 
         o.put("url", getURL().toExternalForm());
         o.put("buildDate", getTimestampAsString());
-        Digests d = getDigests();
+        ArtifactSource.Digests d = getDigests();
+        if (d == null) {
+            return null; // no artifact
+        }
         o.put("sha1", d.sha1);
-        o.put("sha512", d.sha512);
+        o.put("sha256", d.sha256);
 
         return o;
     }
@@ -197,15 +169,7 @@ public class MavenArtifact {
 
     public Manifest getManifest() throws IOException {
         if (manifest==null) {
-            File f = resolve();
-            try {
-                JarFile jar = new JarFile(f);
-                ZipEntry e = jar.getEntry("META-INF/MANIFEST.MF");
-                manifest = jar.getManifest();
-                jar.close();
-            } catch (IOException x) {
-                throw (IOException)new IOException("Failed to open "+f).initCause(x);
-            }
+            manifest = ArtifactSource.getInstance().getManifest(this);
         }
         return manifest;
     }

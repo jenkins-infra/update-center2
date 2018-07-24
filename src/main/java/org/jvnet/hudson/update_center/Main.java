@@ -329,7 +329,9 @@ public class Main {
                 for (HPI hpi : plugin.artifacts.values()) {
                     try {
                         JSONObject hpiJson = hpi.toJSON(plugin.artifactId);
-
+                        if (hpiJson == null) {
+                            continue;
+                        }
                         hpiJson.put("requiredCore", hpi.getRequiredJenkinsVersion());
 
                         if (hpi.getCompatibleSinceVersion() != null) {
@@ -382,6 +384,10 @@ public class Main {
                 pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
 
                 JSONObject json = plugin.toJSON();
+                if (json == null) {
+                    System.out.println("Skipping due to lack of checksums: " + plugin.getName());
+                    continue;
+                }
                 System.out.println("=> " + json);
                 plugins.put(plugin.artifactId, json);
                 latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());

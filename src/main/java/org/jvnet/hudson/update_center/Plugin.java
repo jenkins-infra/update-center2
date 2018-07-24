@@ -26,8 +26,6 @@ package org.jvnet.hudson.update_center;
 import com.google.common.annotations.VisibleForTesting;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -38,6 +36,8 @@ import org.dom4j.io.SAXReader;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Iterator;
@@ -47,6 +47,18 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.owasp.html.HtmlSanitizer;
+import org.owasp.html.HtmlStreamRenderer;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
+import org.w3c.dom.NodeList;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -398,8 +410,13 @@ public class Plugin {
         return name;
     }
 
-    public JSONObject toJSON() throws IOException {
+    private static final PolicyFactory HTML_POLICY = Sanitizers.BLOCKS.and(Sanitizers.FORMATTING).and(Sanitizers.LINKS);
+
+    public JSONObject toJSON() throws Exception {
         JSONObject json = latest.toJSON(artifactId);
+        if (json == null) {
+            return null;
+        }
 
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
         json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));
@@ -419,6 +436,34 @@ public class Plugin {
         json.put("labels", getLabels());
 
         String description = plainText2html(selectSingleValue(getPom(), "/project/description"));
+
+        ArtifactInfo info = new ArtifactInfo();
+        info.artifactId = latest.artifact.artifactId;
+        info.groupId = latest.artifact.groupId;
+        info.packaging = "jar";
+        info.version = latest.artifact.version;
+        try (InputStream is = ArtifactSource.getInstance().getZipFileEntry(new MavenArtifact(latest.repository, info), "index.jelly")) {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            db.setEntityResolver((publicId, systemId) -> {
+                throw new IOException("Attempt to resolve entity suppressed: publicId: " + publicId + ", systemId: " + systemId);
+            });
+            org.w3c.dom.Document doc = db.parse(is);
+            StringWriter sw = new StringWriter();
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            StreamResult result = new StreamResult(sw);
+            NodeList nl = doc.getDocumentElement().getChildNodes();
+            for (int i = 0; i < nl.getLength(); i++) {
+                transformer.transform(new DOMSource(nl.item(i)), result);
+            }
+            StringBuilder b = new StringBuilder();
+            HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
+            HtmlSanitizer.sanitize(sw.toString(), HTML_POLICY.apply(renderer));
+            description = b.toString().trim().replaceAll("\\s+", " ");
+        } catch (IOException e) {
+            System.err.println("Failed to read description from index.jelly: " + e.getMessage());
+        }
         if (latest.isAlphaOrBeta()) {
             description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
         }

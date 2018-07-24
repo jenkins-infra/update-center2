@@ -66,6 +66,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -86,6 +87,7 @@ public class MavenRepositoryImpl extends MavenRepository {
     protected ArtifactFactory af;
     protected ArtifactResolver ar;
     protected List<ArtifactRepository> remoteRepositories = new ArrayList<ArtifactRepository>();
+    private final File localRepo;
     protected ArtifactRepository local;
     protected ArtifactRepositoryFactory arf;
     private PlexusContainer plexus;
@@ -108,8 +110,9 @@ public class MavenRepositoryImpl extends MavenRepository {
         ar = plexus.lookup(ArtifactResolver.class);
         arf = plexus.lookup(ArtifactRepositoryFactory.class);
 
+        localRepo = new File(new File(System.getProperty("user.home")), ".m2/repository");
         local = arf.createArtifactRepository("local",
-                new File(new File(System.getProperty("user.home")), ".m2/repository").toURI().toURL().toExternalForm(),
+                localRepo.toURI().toURL().toExternalForm(),
                 new DefaultRepositoryLayout(), POLICY, POLICY);
     }
 
@@ -161,10 +164,10 @@ public class MavenRepositoryImpl extends MavenRepository {
 
         URLConnection con = url.openConnection();
         if (url.getUserInfo()!=null) {
-            con.setRequestProperty("Authorization","Basic "+new sun.misc.BASE64Encoder().encode(url.getUserInfo().getBytes("UTF-8")));
+            con.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(url.getUserInfo().getBytes("UTF-8")));
         }
 
-        if (!expanded.exists() || !local.exists() || (local.lastModified()!=con.getLastModified() && !offlineIndex)) {
+        if (!expanded.exists() || !local.exists() || (local.lastModified() < con.getLastModified() && !offlineIndex)) {
             System.out.println("Downloading "+url);
             // if the download fail in the middle, only leave a broken tmp file
             dir.mkdirs();
@@ -220,6 +223,9 @@ public class MavenRepositoryImpl extends MavenRepository {
 
     protected File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException {
         Artifact artifact = af.createArtifactWithClassifier(a.groupId, a.artifactId, a.version, type, classifier);
+        if (!new File(localRepo, local.pathOf(artifact)).isFile()) {
+            System.err.println("Downloading " + artifact);
+        }
         ar.resolve(artifact, remoteRepositories, local);
         return artifact.getFile();
     }
