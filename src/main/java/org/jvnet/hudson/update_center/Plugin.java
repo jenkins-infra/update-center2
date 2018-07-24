@@ -26,6 +26,7 @@ package org.jvnet.hudson.update_center;
 import com.google.common.annotations.VisibleForTesting;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -425,7 +426,7 @@ public class Plugin {
         return name;
     }
 
-    private static final PolicyFactory HTML_POLICY = Sanitizers.BLOCKS.and(Sanitizers.FORMATTING).and(Sanitizers.LINKS);
+    private static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
 
     public JSONObject toJSON() throws Exception {
         JSONObject json = latest.toJSON(artifactId);
@@ -458,23 +459,9 @@ public class Plugin {
         info.packaging = "jar";
         info.version = latest.artifact.version;
         try (InputStream is = ArtifactSource.getInstance().getZipFileEntry(new MavenArtifact(latest.repository, info), "index.jelly")) {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            db.setEntityResolver((publicId, systemId) -> {
-                throw new IOException("Attempt to resolve entity suppressed: publicId: " + publicId + ", systemId: " + systemId);
-            });
-            org.w3c.dom.Document doc = db.parse(is);
-            StringWriter sw = new StringWriter();
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            StreamResult result = new StreamResult(sw);
-            NodeList nl = doc.getDocumentElement().getChildNodes();
-            for (int i = 0; i < nl.getLength(); i++) {
-                transformer.transform(new DOMSource(nl.item(i)), result);
-            }
             StringBuilder b = new StringBuilder();
             HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
-            HtmlSanitizer.sanitize(sw.toString(), HTML_POLICY.apply(renderer));
+            HtmlSanitizer.sanitize(IOUtils.toString(is), HTML_POLICY.apply(renderer));
             description = b.toString().trim().replaceAll("\\s+", " ");
         } catch (IOException e) {
             System.err.println("Failed to read description from index.jelly: " + e.getMessage());
