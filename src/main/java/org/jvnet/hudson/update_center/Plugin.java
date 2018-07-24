@@ -462,6 +462,8 @@ public class Plugin {
                     LOGGER.warning("Failed to read index.jelly: " + ex.getMessage());
                 }
             }
+        } catch (IOException ex) {
+            LOGGER.warning("Failed to download jar: " + ex.getMessage());
         }
         if (latest.isAlphaOrBeta()) {
             description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
