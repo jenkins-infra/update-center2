@@ -406,7 +406,7 @@ public class Plugin {
     /** @return The plugin name defined in the POM &lt;name> modified by simplication rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
     public String getName() throws IOException {
         String title = readSingleValueFromXmlFile(latest.resolvePOM(), "/project/name");
-        if (title == null) {
+        if (title == null || "".equals(title)) {
             title = artifactId;
         } else {
             title = simplifyPluginName(title);
