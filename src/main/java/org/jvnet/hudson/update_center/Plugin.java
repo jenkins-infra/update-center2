@@ -51,6 +51,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -440,7 +441,11 @@ public class Plugin {
             ZipEntry indexJelly = jf.getEntry("index.jelly");
             if (indexJelly != null) {
                 try (InputStream is = jf.getInputStream(indexJelly)) {
-                    org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+                    DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                    db.setEntityResolver((publicId, systemId) -> {
+                        throw new IOException("Attempt to resolve entity suppressed: publicId: " + publicId + ", systemId: " + systemId);
+                    });
+                    org.w3c.dom.Document doc = db.parse(is);
                     StringWriter sw = new StringWriter();
                     Transformer transformer = TransformerFactory.newInstance().newTransformer();
                     transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -453,6 +458,8 @@ public class Plugin {
                     HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
                     HtmlSanitizer.sanitize(sw.toString(), HTML_POLICY.apply(renderer));
                     description = b.toString().trim().replaceAll("\\s+", " ");
+                } catch (IOException ex) {
+                    LOGGER.warning("Failed to read index.jelly: " + ex.getMessage());
                 }
             }
         }
