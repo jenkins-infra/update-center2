@@ -132,11 +132,28 @@ public class Plugin {
         this(hpi.artifact.artifactId, hpi,  null);
     }
 
+    private Document getPom() throws IOException {
+        if (pom == null) {
+            pom = readPOM();
+        }
+        return pom;
+    }
+
     private SAXReader createXmlReader() {
         DocumentFactory factory = new DocumentFactory();
         factory.setXPathNamespaceURIs(
                 Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
         return new SAXReader(factory);
+    }
+
+    private Document readPOM() throws IOException {
+        try {
+            return xmlReader.read(latest.resolvePOM());
+        } catch (DocumentException e) {
+            System.err.println("** Can't parse POM for "+artifactId);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /** @return The URL as specified in the POM, or the overrides file. */
@@ -210,7 +227,7 @@ public class Plugin {
             // Try parent pom
             if (scm == null) {
                 System.out.println("** No SCM URL found in POM");
-                Element parent = (Element) selectSingleNode(pom, "/project/parent");
+                Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
                 if (parent != null) {
                     try {
                         File parentPomFile = latest.repository.resolve(
@@ -250,7 +267,7 @@ public class Plugin {
             // Try parent pom
             if (scm == null) {
                 System.out.println("** No SCM developerConnection found in POM");
-                Element parent = (Element) selectSingleNode(pom, "/project/parent");
+                Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
                 if (parent != null) {
                     try {
                         File parentPomFile = latest.repository.resolve(
