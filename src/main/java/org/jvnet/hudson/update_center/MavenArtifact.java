@@ -120,23 +120,23 @@ public class MavenArtifact {
 
     private static class Digests {
         String sha1;
-        String sha512;
+        String sha256;
     }
 
     public Digests getDigests() throws IOException {
         try (FileInputStream fin = new FileInputStream(resolve())) {
             MessageDigest sha1 = DigestUtils.getSha1Digest();
-            MessageDigest sha512 = DigestUtils.getSha512Digest();
+            MessageDigest sha256 = DigestUtils.getSha256Digest();
             byte[] buf = new byte[2048];
             int len;
             while ((len=fin.read(buf,0,buf.length)) >= 0) {
                 sha1.update(buf, 0, len);
-                sha512.update(buf, 0, len);
+                sha256.update(buf, 0, len);
             }
 
             Digests ret = new Digests();
             ret.sha1 = new String(Base64.encodeBase64(sha1.digest()), "UTF-8");
-            ret.sha512 = new String(Base64.encodeBase64(sha512.digest()), "UTF-8");
+            ret.sha256 = new String(Base64.encodeBase64(sha256.digest()), "UTF-8");
             return ret;
         }
     }
@@ -150,7 +150,7 @@ public class MavenArtifact {
         o.put("buildDate", getTimestampAsString());
         Digests d = getDigests();
         o.put("sha1", d.sha1);
-        o.put("sha512", d.sha512);
+        o.put("sha256", d.sha256);
 
         return o;
     }
