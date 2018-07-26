@@ -32,6 +32,7 @@ import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.spi.OptionHandler;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +40,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -55,19 +57,14 @@ import java.util.TreeMap;
  * @author Kohsuke Kawaguchi
  */
 public class Main {
-    @Option(name="-o",usage="JSONP file")
     public File jsonp = new File("output.json");
 
-    @Option(name="-json",usage="JSON file")
     public File json = new File("actual.json");
 
-    @Option(name="-r",usage="release history JSON file")
     public File releaseHistory = new File("release-history.json");
 
-    @Option(name="-p",usage="plugin versions JSON file")
     public File pluginVersions = new File("plugin-versions.json");
 
-    @Option(name="-urlmap", usage="plugin to URL mapping file")
     public File urlmap = new File("plugin-to-documentation-url.json");
 
     private Map<String, String> pluginToDocumentationUrl = new HashMap<>();
@@ -76,7 +73,6 @@ public class Main {
      * This file defines all the convenient symlinks in the form of
      * ./latest/PLUGINNAME.hpi.
      */
-    @Option(name="-latest",usage="Build latest symlink directory")
     public File latest = new File("latest");
 
     /**
@@ -111,10 +107,8 @@ public class Main {
     @Option(name="-www-download",usage="Build updates.jenkins-ci.org/download directory")
     public File wwwDownload = null;
 
-    @Option(name="-index.html",usage="Update the version number of the latest jenkins.war in jenkins-ci.org/index.html")
     public File indexHtml = null;
 
-    @Option(name="-latestCore.txt",usage="Update the version number of the latest jenkins.war in latestCore.txt")
     public File latestCoreTxt = null;
 
     @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
@@ -176,6 +170,7 @@ public class Main {
             } else {
                 List<String> invocations = IOUtils.readLines(new FileReader(argumentsFile));
                 for (String line : invocations) {
+                    resetArguments();
                     if (!line.trim().startsWith("#") && !line.trim().isEmpty()) {
 
                         System.err.println("Running with args: " + line);
@@ -191,6 +186,26 @@ public class Main {
             System.err.println(e.getMessage());
             p.printUsage(System.err);
             return 1;
+        }
+    }
+
+    private void resetArguments() {
+        for (Field field : this.getClass().getFields()) {
+            if (field.getAnnotation(Option.class) != null) {
+                if (Object.class.isAssignableFrom(field.getType())) {
+                    try {
+                        field.set(this, null);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                } else if (boolean.class.isAssignableFrom(field.getType())) {
+                    try {
+                        field.set(this, false);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
