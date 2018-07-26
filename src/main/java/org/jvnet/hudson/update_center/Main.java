@@ -171,9 +171,11 @@ public class Main {
                 List<String> invocations = IOUtils.readLines(new FileReader(argumentsFile));
                 for (String line : invocations) {
                     resetArguments();
+                    this.signer = new Signer();
                     if (!line.trim().startsWith("#") && !line.trim().isEmpty()) {
 
                         System.err.println("Running with args: " + line);
+                        // TODO combine args array and this list
                         String[] invocationArgs = line.split(" +");
                         p.parseArgument(invocationArgs);
                         run();
