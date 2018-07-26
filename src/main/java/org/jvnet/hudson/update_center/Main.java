@@ -35,6 +35,7 @@ import org.kohsuke.args4j.Option;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -46,10 +47,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -155,6 +154,9 @@ public class Main {
     @Option(name="-skip-plugin-versions",usage="Skip generation of plugin versions")
     public boolean skipPluginVersions;
 
+    @Option(name="-arguments-file",usage="Specify invocation arguments in a file, with each line being a separate update site build")
+    public File argumentsFile;
+
     private Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
@@ -169,11 +171,21 @@ public class Main {
         try {
             p.parseArgument(args);
 
-            if (www!=null) {
-                prepareStandardDirectoryLayout();
+            if (argumentsFile == null) {
+                run();
+            } else {
+                List<String> invocations = IOUtils.readLines(new FileReader(argumentsFile));
+                for (String line : invocations) {
+                    if (!line.trim().startsWith("#") && !line.trim().isEmpty()) {
+
+                        System.err.println("Running with args: " + line);
+                        String[] invocationArgs = line.split(" +");
+                        p.parseArgument(invocationArgs);
+                        run();
+                    }
+                }
             }
 
-            run();
             return 0;
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
@@ -200,6 +212,10 @@ public class Main {
     }
 
     public void run() throws Exception {
+
+        if (www!=null) {
+            prepareStandardDirectoryLayout();
+        }
 
         MavenRepository repo = createRepository();
 
@@ -298,7 +314,7 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance();
+        MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (experimentalOnly)
@@ -378,9 +394,6 @@ public class Main {
                 // Gather the plugin properties from the plugin file and the wiki
                 Plugin plugin = new Plugin(hpi);
 
-                if (pluginToDocumentationUrl.containsKey(plugin.artifactId)) {
-                    throw new IllegalStateException("Already contains " + plugin.artifactId);
-                }
                 pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
 
                 JSONObject json = plugin.toJSON();
@@ -388,7 +401,7 @@ public class Main {
                     System.out.println("Skipping due to lack of checksums: " + plugin.getName());
                     continue;
                 }
-                System.out.println("=> " + json);
+                System.out.println("=> " + hpi.latest().getGavId());
                 plugins.put(plugin.artifactId, json);
                 latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
 

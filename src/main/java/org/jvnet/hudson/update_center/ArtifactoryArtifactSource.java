@@ -6,16 +6,22 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tools.ant.filters.StringInputStream;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +64,10 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
         public Date created;
         public List<GsonFile> files;
     }
+
+    private Map<String, String> cache = new HashMap<>();
+
+    private static final int CACHE_ENTRY_MAX_LENGTH = 1024 * 50;
 
     private void initialize() throws IOException {
         if (initialized) {
@@ -134,26 +144,44 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
     }
 
     private InputStream getFileContent(String url) throws IOException {
+        if (this.cache.containsKey(url)) {
+            String entry = this.cache.get(url);
+            if (entry == null) {
+                throw new IOException("Failed to retrieve content of " + url + " (cached)");
+            }
+            return new StringInputStream(entry);
+        }
         String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes());
-        File cache = new File(cacheDirectory, urlBase64);
-        if (!cache.exists()) {
-            cache.getParentFile().mkdirs();
+        File cacheFile = new File(cacheDirectory, urlBase64);
+        if (!cacheFile.exists()) {
+            cacheFile.getParentFile().mkdirs();
             HttpClient client = new HttpClient();
             GetMethod get = new GetMethod(url);
             client.executeMethod(get);
             if (get.getStatusCode() >= 400) {
-                cache.mkdirs();
+                cacheFile.mkdirs();
                 throw new IOException("Failed to retrieve content of " + url + ", got " + get.getStatusCode());
             }
             InputStream stream = get.getResponseBodyAsStream();
-            IOUtils.copy(stream, new FileOutputStream(cache));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IOUtils.copy(stream, new TeeOutputStream(new FileOutputStream(cacheFile), baos));
+            if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
+                this.cache.put(url, baos.toString("UTF-8"));
+            }
             stream.close();
+        } else {
+            if (cacheFile.isDirectory()) {
+                // indicator that this is a cached error
+                this.cache.put(url, null);
+                throw new IOException("Failed to retrieve content of " + url + " (cached)");
+            } else {
+                // read from cached file
+                if (cacheFile.length() <= CACHE_ENTRY_MAX_LENGTH) {
+                    this.cache.put(url, FileUtils.readFileToString(cacheFile, StandardCharsets.UTF_8));
+                }
+            }
         }
-        if (cache.isDirectory()) {
-            // indicator that this is a cached error
-            throw new IOException("Failed to retrieve content of " + url + " (cached)");
-        }
-        return new FileInputStream(cache);
+        return new FileInputStream(cacheFile);
     }
 
     @Override
