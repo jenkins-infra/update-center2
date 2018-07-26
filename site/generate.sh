@@ -57,7 +57,7 @@ mvn -e clean install
 echo "# one update site per line" > args.lst
 
 function generate() {
-    echo "-connectionCheckUrl http://www.google.com/ -key $SECRET/update-center.key -certificate $SECRET/update-center.cert $@" >> args.lst
+    echo "-id default -connectionCheckUrl http://www.google.com/ -key $SECRET/update-center.key -certificate $SECRET/update-center.cert $@" >> args.lst
 }
 
 function sanity-check() {
