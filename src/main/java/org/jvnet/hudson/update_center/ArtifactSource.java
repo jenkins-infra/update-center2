@@ -23,8 +23,8 @@ public abstract class ArtifactSource {
             } else {
                 instance = new MavenArtifactSource();
             }
+            System.err.println("Using ArtifactSource: " + instance.getClass().getSimpleName());
         }
-        System.err.println("Using ArtifactSource: " + instance.getClass().getSimpleName());
         return instance;
     }
 
