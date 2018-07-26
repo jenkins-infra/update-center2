@@ -24,6 +24,7 @@ public abstract class ArtifactSource {
                 instance = new MavenArtifactSource();
             }
         }
+        System.err.println("Using ArtifactSource: " + instance.getClass().getSimpleName());
         return instance;
     }
 

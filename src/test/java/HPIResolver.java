@@ -39,7 +39,7 @@ public class HPIResolver {
 
     public void resolveHPI(String groupId, String artifactId, String version) throws Exception {
         System.out.format("Resolving HPI %s:%s:%s\n", groupId, artifactId, version);
-        MavenRepositoryImpl mavenRepository = DefaultMavenRepositoryBuilder.createStandardInstance();
+        MavenRepositoryImpl mavenRepository = DefaultMavenRepositoryBuilder.getInstance();
 
         HPI plugin = mavenRepository.findPlugin(groupId, artifactId, version);
 

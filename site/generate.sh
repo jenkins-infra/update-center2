@@ -52,13 +52,12 @@ $( dirname "$0" )/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htacce
 # build update center generator
 mvn -e clean install
 
+
+# Reset arguments file
+echo "# one update site per line" > args.lst
+
 function generate() {
-    java -jar target/update-center2-*-bin*/update-center2-*.jar \
-      -id default \
-      -connectionCheckUrl http://www.google.com/ \
-      -key $SECRET/update-center.key \
-      -certificate $SECRET/update-center.cert \
-      "$@"
+    echo "-id default -connectionCheckUrl http://www.google.com/ -key $SECRET/update-center.key -certificate $SECRET/update-center.cert $@" >> args.lst
 }
 
 function sanity-check() {
@@ -87,16 +86,11 @@ function sanity-check() {
 
 for ltsv in ${RELEASES[@]}; do
     v="${ltsv/%.1/}"
-    lastLTS=$v
     # for mainline up to $v, which advertises the latest core
     generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap $v.999 -capCore 2.999
-    sanity-check "$WWW_ROOT_DIR/$v"
-    ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
 
     # for LTS
     generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap $v.999 -capCore 2.999 -stableCore
-    sanity-check "$WWW_ROOT_DIR/stable-$v"
-    ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
 done
 
 
@@ -106,13 +100,34 @@ done
 
 # experimental update center. this is not a part of the version-based redirection rules
 generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experimental" -download "$DOWNLOAD_ROOT_DIR"
-ln -sf ../updates "$WWW_ROOT_DIR/experimental/updates"
 
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
 # will capture every plugin and every core
 generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
+
+# actually run the update center build
+java -jar target/update-center2-*-bin*/update-center2-*.jar -id default -arguments-file args.lst
+
+# generate symlinks to global /updates directory (created by crawler)
+for ltsv in ${RELEASES[@]}; do
+    v="${ltsv/%.1/}"
+
+    sanity-check "$WWW_ROOT_DIR/$v"
+    sanity-check "$WWW_ROOT_DIR/stable-$v"
+    ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
+    ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
+
+    # needed for the stable/ directory (below)
+    lastLTS=$v
+done
+
+sanity-check "$WWW_ROOT_DIR/experimental"
+sanity-check "$WWW_ROOT_DIR/current"
+ln -sf ../updates "$WWW_ROOT_DIR/experimental/updates"
 ln -sf ../updates $WWW_ROOT_DIR/current/updates
+
+
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd "$WWW_ROOT_DIR"

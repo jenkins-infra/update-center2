@@ -58,6 +58,7 @@ public class GitHubSource {
     }
 
     private void retrieveRepositoryNames() throws IOException {
+        System.err.println("Retrieving GitHub repository names...");
         Cache cache = new Cache(GITHUB_API_CACHE, 20L*1024*1024); // 20 MB cache
         github = new GitHubBuilder().withConnector(new OkHttp3Connector(new OkUrlFactory(new OkHttpClient.Builder().cache(cache).build()))).withPassword(GITHUB_API_USERNAME, GITHUB_API_PASSWORD).build();
 
