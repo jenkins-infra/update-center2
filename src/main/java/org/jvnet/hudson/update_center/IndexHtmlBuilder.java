@@ -36,6 +36,8 @@ import java.io.FileWriter;
 import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Generates index.html that has a list of files.
@@ -86,23 +88,26 @@ public class IndexHtmlBuilder implements Closeable {
         if (digests.sha256 != null) {
             checksums += ", SHA-256: " + base64ToHex(digests.sha256);
         }
-        add(a.getURL().getPath(), a.version, checksums);
+        add(a.getURL().getPath(), a.getTimestampAsDate(), a.version, checksums);
     }
 
     public void add(String url, String caption) throws MalformedURLException {
-        add(url, caption, null);
+        add(url, null, caption, null);
     }
 
-    public void add(String url, String caption, String metadata) throws MalformedURLException {
-        if (metadata == null) {
-            out.println(
-                    "<tr><td><img src='http://jenkins-ci.org/images/jar.png'/></td><td><a href='" + url + "'>" + caption + "</a></td></tr>"
-            );
-        } else {
-            out.println(
-                    "<tr><td><img src='http://jenkins-ci.org/images/jar.png'/></td><td><a href='" + url + "'>" + caption + "</a></td><td>" + metadata + "</td></tr>"
-            );
+    public void add(String url, Date releaseDate, String caption, String metadata) throws MalformedURLException {
+        String metadataString = "";
+        if (metadata != null) {
+            metadataString = "<td>" + metadata + "</td>";
         }
+
+        String releaseDateString = "";
+        if (releaseDate != null) {
+            releaseDateString = " title='Released " + SimpleDateFormat.getDateInstance().format(releaseDate) + "' ";
+        }
+
+        out.println("<tr><td><img src='http://jenkins-ci.org/images/jar.png' /></td><td><a href='" + url + "'" + releaseDateString + "'>"
+                + caption + "</a></td>" + metadataString + "</tr>");
     }
 
     public void close() throws IOException {
