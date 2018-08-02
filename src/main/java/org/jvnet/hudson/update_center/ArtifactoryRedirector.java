@@ -40,9 +40,8 @@ public class ArtifactoryRedirector {
     public void writeRedirects() throws IOException {
         directory.mkdirs();
         FileWriter writer = new FileWriter(new File(directory, ".htaccess"));
-        writer.write("RewriteEngine on\n\n");
         for (Map.Entry<String, MavenArtifact> entry : redirects.entrySet()) {
-            writer.write(String.format("RewriteRule ^%s$ %s [NC,L,R]\n", regexEscape(entry.getKey()), getUri(entry.getValue())));
+            writer.write(String.format("Redirect \"/%s\" \"%s\"\n", regexEscape(entry.getKey()), getUri(entry.getValue())));
         }
         writer.close();
     }
