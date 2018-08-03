@@ -27,6 +27,6 @@ rsync -acvz www2/ --exclude=/updates --delete ${RSYNC_USER}@${UPDATES_SITE}:/var
 az storage file upload-batch \
     --account-name produpdatesproxy \
     --account-key "${UPDATESPROXY_STORAGEACCOUNTKEY}" \
-    --source ../output/htaccess \
+    --source ./fallback \
     --destination updates-proxy \
     --validate-content
