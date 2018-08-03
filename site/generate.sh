@@ -51,7 +51,7 @@ rm -rf "$WWW_ROOT_DIR"
 mkdir -p "$WWW_ROOT_DIR"
 
 # Generate htaccess file
-"$( dirname "$0" )/generate-htaccess.sh" "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
+"$( dirname "$0" )/generate-htaccess.sh" ${RELEASES[@]} > "$WWW_ROOT_DIR/.htaccess"
 
 # build update center generator
 mvn -e clean install
