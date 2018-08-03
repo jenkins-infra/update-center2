@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # Usage: SECRET=dirname ./site/generate.sh "./www2" "./download"
-[[ $# -eq 3 ]] || { echo "Usage: $0 <www root dir> <download root dir>" >&2 ; exit 1 ; }
+[[ $# -eq 3 ]] || { echo "Usage: $0 <www root dir> <download root dir> <fallback dir>" >&2 ; exit 1 ; }
 [[ -n "$1" ]] || { echo "Non-empty www root dir required" >&2 ; exit 1 ; }
 [[ -n "$2" ]] || { echo "Non-empty download root dir required" >&2 ; exit 1 ; }
-[[ -n "$3" ]] || { echo "Non-empty download root dir required" >&2 ; exit 1 ; }
+[[ -n "$3" ]] || { echo "Non-empty fallback dir required" >&2 ; exit 1 ; }
 
 [[ -n "$SECRET" ]] || { echo "SECRET env var not defined" >&2 ; exit 1 ; }
 [[ -d "$SECRET" ]] || { echo "SECRET env var not a directory" >&2 ; exit 1 ; }
@@ -18,6 +18,8 @@ FALLBACK_DIR="$3"
 set -o nounset
 set -o pipefail
 set -o errexit
+
+echo "Bash: $BASH_VERSION" >&2
 
 # platform specific behavior
 UNAME="$( uname )"
@@ -86,7 +88,7 @@ function sanity-check() {
 # otherwise it'll offer the weekly as update to a running LTS version
 
 
-for ltsv in "${RELEASES[@]}" ; do
+for ltsv in ${RELEASES[@]} ; do
     v="${ltsv/%.1/}"
     # for mainline up to $v, which advertises the latest core
     generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap "$v.999" -capCore 2.999
@@ -112,7 +114,7 @@ generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_
 java -jar target/update-center2-*-bin*/update-center2-*.jar -id default -arguments-file args.lst
 
 # generate symlinks to global /updates directory (created by crawler)
-for ltsv in "${RELEASES[@]}" ; do
+for ltsv in ${RELEASES[@]} ; do
     v="${ltsv/%.1/}"
 
     sanity-check "$WWW_ROOT_DIR/$v"
