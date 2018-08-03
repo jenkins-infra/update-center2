@@ -20,3 +20,13 @@ rsync -avz --size-only download/plugins/ ${RSYNC_USER}@${UPDATES_SITE}:/srv/rele
 # delete old sites
 chmod -R a+r www2
 rsync -acvz www2/ --exclude=/updates --delete ${RSYNC_USER}@${UPDATES_SITE}:/var/www/${UPDATES_SITE}
+
+# push generated htaccess file on the azure file storage produpdatesproxy
+# This file is used by updates.azure.jenkins.io as fallback service for updates.jenkins.io
+
+az storage file upload-batch \
+    --account-name produpdatesproxy \
+    --account-key "${UPDATESPROXY_STORAGEACCOUNTKEY}" \
+    --source ../output/htaccess \
+    --destination updates-proxy \
+    --validate-content
