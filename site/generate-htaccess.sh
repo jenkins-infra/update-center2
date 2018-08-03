@@ -42,7 +42,7 @@ done
 
 
 lts=$1
-IFS=. read -r major minor <<< "$lts"
+IFS=. read -r major minor patch <<< "$lts"
 echo "# First LTS update site (stable-$major.$minor) gets all older releases"
 cat <<EOF
 RewriteCond %{QUERY_STRING} ^.*version=\\d\\.(\\d+)\\.\\d+$ [NC]
