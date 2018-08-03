@@ -17,8 +17,8 @@ function test_redirect () {
   REQUEST_URL="$1"
   DESTINATION="$2"
   echo "Requesting $REQUEST_URL"
-  REDIRECT=$( curl -Ii "$REQUEST_URL" 2>/dev/null | fgrep 'Location:' | cut -d' ' -f2 | tr -d '[:space:]' )
-  if [ $REDIRECT != $DESTINATION ] ; then
+  REDIRECT=$( curl -Ii "$REQUEST_URL" 2>/dev/null | grep -F 'Location:' | cut -d' ' -f2 | tr -d '[:space:]' )
+  if [[ "$REDIRECT" != "$DESTINATION" ]] ; then
     echo "Expected $DESTINATION but got $REDIRECT for $REQUEST_URL"
     exit 1
   fi

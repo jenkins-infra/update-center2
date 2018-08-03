@@ -22,16 +22,16 @@ set -o errexit
 # platform specific behavior
 UNAME="$( uname )"
 if [[ $UNAME == Linux ]] ; then
-  SORT=sort
+  SORT="sort"
 elif [[ $UNAME == Darwin ]] ; then
-  SORT=gsort
+  SORT="gsort"
 else
   echo "Unknown platform: $UNAME" >&2
   exit 1
 fi
 
 function test_which() {
-  which "$1" >/dev/null || { echo "Not on PATH: $1" >&2 ; exit 1 ; }
+  command -v "$1" >/dev/null || { echo "Not on PATH: $1" >&2 ; exit 1 ; }
 }
 
 test_which curl
@@ -49,7 +49,7 @@ rm -rf "$WWW_ROOT_DIR"
 mkdir -p "$WWW_ROOT_DIR"
 
 # Generate htaccess file
-$( dirname "$0" )/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
+"$( dirname "$0" )/generate-htaccess.sh" "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
 
 # build update center generator
 mvn -e clean install
@@ -59,13 +59,13 @@ mvn -e clean install
 echo "# one update site per line" > args.lst
 
 function generate() {
-    echo "-id default -connectionCheckUrl http://www.google.com/ -key $SECRET/update-center.key -certificate $SECRET/update-center.cert $@" >> args.lst
+    echo "-id default -connectionCheckUrl http://www.google.com/ -key $SECRET/update-center.key -certificate $SECRET/update-center.cert $*" >> args.lst
 }
 
 function sanity-check() {
     dir="$1"
     file="$dir/update-center.json"
-    if [[ 700000 -ge $(cat  "$file" | wc -c ) ]] ; then
+    if [[ 700000 -ge $( wc -c < "$file" ) ]] ; then
         echo "$file looks too small" >&2
         exit 1
     fi
@@ -86,13 +86,13 @@ function sanity-check() {
 # otherwise it'll offer the weekly as update to a running LTS version
 
 
-for ltsv in ${RELEASES[@]}; do
+for ltsv in "${RELEASES[@]}" ; do
     v="${ltsv/%.1/}"
     # for mainline up to $v, which advertises the latest core
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap $v.999 -capCore 2.999
+    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap "$v.999" -capCore 2.999
 
     # for LTS
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap $v.999 -capCore 2.999 -stableCore
+    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap "$v.999" -capCore 2.999 -stableCore
 done
 
 
@@ -112,7 +112,7 @@ generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_
 java -jar target/update-center2-*-bin*/update-center2-*.jar -id default -arguments-file args.lst
 
 # generate symlinks to global /updates directory (created by crawler)
-for ltsv in ${RELEASES[@]}; do
+for ltsv in "${RELEASES[@]}" ; do
     v="${ltsv/%.1/}"
 
     sanity-check "$WWW_ROOT_DIR/$v"
@@ -127,15 +127,15 @@ done
 sanity-check "$WWW_ROOT_DIR/experimental"
 sanity-check "$WWW_ROOT_DIR/current"
 ln -sf ../updates "$WWW_ROOT_DIR/experimental/updates"
-ln -sf ../updates $WWW_ROOT_DIR/current/updates
+ln -sf ../updates "$WWW_ROOT_DIR/current/updates"
 
 
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd "$WWW_ROOT_DIR"
-    ln -s stable-$lastLTS stable
+    ln -s "stable-$lastLTS" stable
     for f in latest latestCore.txt plugin-documentation-urls.json release-history.json update-center.*; do
-        ln -s current/$f .
+        ln -s "current/$f" .
     done
 popd
 
