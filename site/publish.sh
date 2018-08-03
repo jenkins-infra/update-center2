@@ -20,3 +20,22 @@ rsync -avz --size-only download/plugins/ ${RSYNC_USER}@${UPDATES_SITE}:/srv/rele
 # delete old sites
 chmod -R a+r www2
 rsync -acvz www2/ --exclude=/updates --delete ${RSYNC_USER}@${UPDATES_SITE}:/var/www/${UPDATES_SITE}
+
+# push generated htaccess file on the azure file storage produpdatesproxy
+# This file is used by updates.azure.jenkins.io as fallback service for updates.jenkins.io
+
+pushd ..
+docker run --rm -i -t \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd)/output/htaccess:/data" \
+    alfpark/blobxfer:1.3.1  upload \
+        --local-path /data \
+        --storage-account-key "$UPDATESPROXY_STORAGEACCOUNTKEY" \
+        --storage-account produpdatesproxy \
+        --remote-path updates-proxy \
+        --recursive \
+        --mode file \
+        --skip-on-md5-match \
+        --file-md5 \
+        --connect-timeout 30 \
+        --delete
