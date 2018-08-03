@@ -32,7 +32,7 @@ node('linux') {
             sh 'java -jar target/update-center2-*-bin*/update-center2-*.jar' +
                     ' -id default -connectionCheckUrl http://www.google.com/' +
                     ' -no-experimental -skip-release-history' +
-                    ' -www ./output/latest -cap 2.107.999 -capCore 2.999'
+                    ' -www ./output/latest -download-fallback ./output/htaccess -cap 2.107.999 -capCore 2.999'
         }
     }
 
@@ -49,6 +49,6 @@ node('linux') {
     }
 
     stage('Archive Update Site') {
-        archive 'output/**/*.json'
+        archive 'output/**/*.json, output/htaccess/*'
     }
 }

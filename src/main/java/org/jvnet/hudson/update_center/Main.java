@@ -88,6 +88,13 @@ public class Main {
     public File download = null;
 
     /**
+     * This option generates a directory layout containing htaccess files redirecting to Artifactory
+     * for all files contained therein. This can be used for the 'fallback' mirror server.
+     */
+    @Option(name="-download-fallback",usage="Build archives.jenkins-ci.org layout")
+    public File downloadFallback = null;
+
+    /**
      * This options builds update site. update-center.json(.html) that contains metadata,
      * latest symlinks, and download/ directories that are referenced from metadata and
      * redirects to the actual download server.
@@ -406,6 +413,10 @@ public class Main {
         int validCount = 0;
 
         JSONObject plugins = new JSONObject();
+        ArtifactoryRedirector redirector = null;
+        if (downloadFallback != null) {
+            redirector = new ArtifactoryRedirector(downloadFallback);
+        }
         System.out.println("Gathering list of plugins and versions from the maven repo...");
         for (PluginHistory hpi : repository.listHudsonPlugins()) {
             try {
@@ -438,11 +449,21 @@ public class Main {
                     buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
                 }
 
+                if (redirector != null) {
+                    for (HPI v : hpi.artifacts.values()) {
+                        redirector.recordRedirect(v, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi");
+                    }
+                }
+
                 validCount++;
             } catch (IOException e) {
                 e.printStackTrace();
                 // move on to the next plugin
             }
+        }
+
+        if (redirector != null) {
+            redirector.writeRedirects();
         }
 
         if (pluginCountTxt!=null)

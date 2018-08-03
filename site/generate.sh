@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
 # Usage: SECRET=dirname ./site/generate.sh "./www2" "./download"
-[[ $# -eq 2 ]] || { echo "Usage: $0 <www root dir> <download root dir>" >&2 ; exit 1 ; }
+[[ $# -eq 3 ]] || { echo "Usage: $0 <www root dir> <download root dir>" >&2 ; exit 1 ; }
 [[ -n "$1" ]] || { echo "Non-empty www root dir required" >&2 ; exit 1 ; }
 [[ -n "$2" ]] || { echo "Non-empty download root dir required" >&2 ; exit 1 ; }
+[[ -n "$3" ]] || { echo "Non-empty download root dir required" >&2 ; exit 1 ; }
 
 [[ -n "$SECRET" ]] || { echo "SECRET env var not defined" >&2 ; exit 1 ; }
 [[ -d "$SECRET" ]] || { echo "SECRET env var not a directory" >&2 ; exit 1 ; }
@@ -12,6 +13,7 @@
 
 WWW_ROOT_DIR="$1"
 DOWNLOAD_ROOT_DIR="$2"
+FALLBACK_DIR="$3"
 
 set -o nounset
 set -o pipefail
@@ -99,7 +101,7 @@ done
 #     with symlinks pointing to the 'latest' current versions. So we generate exprimental first, then overwrite current to produce proper symlinks
 
 # experimental update center. this is not a part of the version-based redirection rules
-generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experimental" -download "$DOWNLOAD_ROOT_DIR"
+generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experimental" -download "$DOWNLOAD_ROOT_DIR" -download-fallback "$FALLBACK_DIR"
 
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
