@@ -28,6 +28,7 @@ test_redirect "https://updates.jenkins.io/update-center.json" "https://updates.j
 test_redirect "https://updates.jenkins.io/update-center.json.html" "https://updates.jenkins.io/current/update-center.json.html"
 test_redirect "https://updates.jenkins.io/update-center.actual.json" "https://updates.jenkins.io/current/update-center.actual.json"
 test_redirect "https://updates.jenkins.io/release-history.json" "https://updates.jenkins.io/current/release-history.json"
+test_redirect "https://updates.jenkins.io/plugin-versions.json" "https://updates.jenkins.io/current/plugin-versions.json"
 test_redirect "https://updates.jenkins.io/plugin-documentation-urls.json" "https://updates.jenkins.io/current/plugin-documentation-urls.json"
 test_redirect "https://updates.jenkins.io/latestCore.txt" "https://updates.jenkins.io/current/latestCore.txt"
 

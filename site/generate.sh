@@ -136,7 +136,7 @@ ln -sf ../updates $WWW_ROOT_DIR/current/updates
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd "$WWW_ROOT_DIR"
     ln -s stable-$lastLTS stable
-    for f in latest latestCore.txt plugin-documentation-urls.json release-history.json update-center.*; do
+    for f in latest latestCore.txt plugin-documentation-urls.json release-history.json plugin-releases.json update-center.*; do
         ln -s current/$f .
     done
 popd
