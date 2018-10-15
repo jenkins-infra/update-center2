@@ -35,12 +35,16 @@ import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.OptionHandler;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -51,6 +55,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 /**
@@ -86,6 +91,15 @@ public class Main {
      */
     @Option(name="-download",usage="Build mirrors.jenkins-ci.org layout")
     public File download = null;
+
+    @Option(name="-cache",usage="Cache target plugin")
+    public File cache = null;
+
+    @Option(name="-cacheAll",usage="Cache all version of plugin")
+    public boolean cacheAll;
+
+    @Option(name="-cacheServer",usage="Cache server will replace the orignal")
+    public String cacheServer;
 
     /**
      * This option generates a directory layout containing htaccess files redirecting to Artifactory
@@ -157,6 +171,9 @@ public class Main {
 
     @Option(name="-arguments-file",usage="Specify invocation arguments in a file, with each line being a separate update site build")
     public File argumentsFile;
+
+    @Option(name="-whitelist",usage="White list for plugins")
+    public File whitelist = null;
 
     private Signer signer = new Signer();
 
@@ -412,6 +429,13 @@ public class Main {
 
         int validCount = 0;
 
+        Properties whitelistPro = new Properties();
+        if(whitelist != null && whitelist.isFile()) {
+            try(InputStream input = new FileInputStream(whitelist)) {
+                whitelistPro.load(input);
+            }
+        }
+
         JSONObject plugins = new JSONObject();
         ArtifactoryRedirector redirector = null;
         if (downloadFallback != null) {
@@ -419,6 +443,12 @@ public class Main {
         }
         System.out.println("Gathering list of plugins and versions from the maven repo...");
         for (PluginHistory hpi : repository.listHudsonPlugins()) {
+            if(whitelistPro.size() > 0) {
+                if(whitelistPro.get(hpi.artifactId) == null) {
+                    continue;
+                }
+            }
+
             try {
                 System.out.println(hpi.artifactId);
 
@@ -427,12 +457,30 @@ public class Main {
 
                 pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
 
+                if (cache!=null) {
+                    if(cacheAll) {
+                        for (HPI v : hpi.artifacts.values()) {
+                            cachePlugin(v, new File(cache, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
+                        }
+                    }
+
+                    HPI latestHpi = plugin.latest;
+                    cachePlugin(latestHpi, new File(cache, "plugins/" + hpi.artifactId + "/" + latestHpi.version + "/" + hpi.artifactId + ".hpi"));
+                }
+
+                if (cacheServer!=null) {
+                    for (HPI v : hpi.artifacts.values()) {
+                        v.setPluginSite(cacheServer);
+                    }
+                }
+
                 JSONObject json = plugin.toJSON();
                 if (json == null) {
                     System.out.println("Skipping due to lack of checksums: " + plugin.getName());
                     continue;
                 }
                 System.out.println("=> " + hpi.latest().getGavId());
+
                 plugins.put(plugin.artifactId, json);
                 latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
 
@@ -470,6 +518,35 @@ public class Main {
             FileUtils.writeStringToFile(pluginCountTxt,String.valueOf(validCount));
         System.out.println("Total " + validCount + " plugins listed.");
         return plugins;
+    }
+
+    /**
+     * Cache target plugin file into local
+     * @param v plugin
+     * @param file target location
+     */
+    private void cachePlugin(HPI v, File file) {
+        if(file.exists()) {
+            System.out.println("Plugin file " + file.getName() + " already exists, skip download.");
+            return;
+        }
+
+        File parentDir = file.getParentFile();
+        if(!parentDir.exists() && !parentDir.mkdirs()) {
+            System.err.println("Can't create directory: " + parentDir.getAbsolutePath());
+            return;
+        }
+
+        try(InputStream input = v.getURL().openStream();
+            OutputStream output = new FileOutputStream(file)) {
+            System.out.println("Prepare download file: " + file.getName());
+
+            IOUtils.copy(input, output);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
