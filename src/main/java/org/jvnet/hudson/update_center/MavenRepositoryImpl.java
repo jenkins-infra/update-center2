@@ -36,6 +36,7 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
+import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.transform.ArtifactTransformationManager;
 import org.apache.tools.ant.taskdefs.Expand;
@@ -226,7 +227,11 @@ public class MavenRepositoryImpl extends MavenRepository {
         if (!new File(localRepo, local.pathOf(artifact)).isFile()) {
             System.err.println("Downloading " + artifact);
         }
-        ar.resolve(artifact, remoteRepositories, local);
+        try {
+            ar.resolve(artifact, remoteRepositories, local);
+        } catch (RuntimeException e) {
+            throw new ArtifactResolutionException(e.getMessage(), artifact);
+        }
         return artifact.getFile();
     }
 
