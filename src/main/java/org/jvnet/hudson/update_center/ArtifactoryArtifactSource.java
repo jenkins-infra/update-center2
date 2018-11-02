@@ -155,20 +155,24 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
         File cacheFile = new File(cacheDirectory, urlBase64);
         if (!cacheFile.exists()) {
             cacheFile.getParentFile().mkdirs();
-            HttpClient client = new HttpClient();
-            GetMethod get = new GetMethod(url);
-            client.executeMethod(get);
-            if (get.getStatusCode() >= 400) {
-                cacheFile.mkdirs();
-                throw new IOException("Failed to retrieve content of " + url + ", got " + get.getStatusCode());
+            try {
+                HttpClient client = new HttpClient();
+                GetMethod get = new GetMethod(url);
+                client.executeMethod(get);
+                if (get.getStatusCode() >= 400) {
+                    cacheFile.mkdirs();
+                    throw new IOException("Failed to retrieve content of " + url + ", got " + get.getStatusCode());
+                }
+                try (InputStream stream = get.getResponseBodyAsStream()) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    IOUtils.copy(stream, new TeeOutputStream(new FileOutputStream(cacheFile), baos));
+                    if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
+                        this.cache.put(url, baos.toString("UTF-8"));
+                    }
+                }
+            } catch (RuntimeException e) {
+                throw new IOException(e);
             }
-            InputStream stream = get.getResponseBodyAsStream();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.copy(stream, new TeeOutputStream(new FileOutputStream(cacheFile), baos));
-            if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
-                this.cache.put(url, baos.toString("UTF-8"));
-            }
-            stream.close();
         } else {
             if (cacheFile.isDirectory()) {
                 // indicator that this is a cached error
