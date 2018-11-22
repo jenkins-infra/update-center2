@@ -110,3 +110,8 @@ you can try to use the appassembler plugin as described below. The exec:java plu
     # warning this may take quite a bit of time, so you might want to add the -maxPlugins 1 option
     mvn package appassembler:assemble
     sh target/appassembler/bin/app -id com.example.jenkins -www www
+
+Development
+-----------
+
+See the developer guidelines [here](/DEVELOPER.md).

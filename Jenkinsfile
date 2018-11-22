@@ -29,10 +29,7 @@ node('linux') {
                 "JAVA_HOME=${tool 'jdk8'}",
                 "PATH+JAVA=${tool 'jdk8'}/bin"
         ]) {
-            sh 'java -jar target/update-center2-*-bin*/update-center2-*.jar' +
-                    ' -id default -connectionCheckUrl http://www.google.com/' +
-                    ' -no-experimental -skip-release-history' +
-                    ' -www ./output/latest -download-fallback ./output/htaccess -cap 2.107.999 -capCore 2.999'
+            sh 'make test-weekly'
         }
     }
 
@@ -41,10 +38,7 @@ node('linux') {
                 "JAVA_HOME=${tool 'jdk8'}",
                 "PATH+JAVA=${tool 'jdk8'}/bin"
         ]) {
-            sh 'java -jar target/update-center2-*-bin*/update-center2-*.jar' +
-                    ' -id default -connectionCheckUrl http://www.google.com/' +
-                    ' -no-experimental -skip-release-history' +
-                    ' -www ./output/stable -cap 2.107.999 -capCore 2.999 -stableCore'
+            sh 'make test-lts'
         }
     }
 
