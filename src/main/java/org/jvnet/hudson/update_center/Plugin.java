@@ -23,10 +23,11 @@
  */
 package org.jvnet.hudson.update_center;
 
+import com.google.common.annotations.VisibleForTesting;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -35,9 +36,11 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.sonatype.nexus.index.ArtifactInfo;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +49,18 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.owasp.html.HtmlSanitizer;
+import org.owasp.html.HtmlStreamRenderer;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
+import org.w3c.dom.NodeList;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -149,7 +164,7 @@ public class Plugin {
 
         // Otherwise read the wiki URL from the POM, if any
         if (url == null) {
-            url = selectSingleValue(getPom(), "/project/url");
+            url = readSingleValueFromXmlFile(latest.resolvePOM(), "/project/url");
         }
 
         String originalUrl = url;
@@ -170,11 +185,6 @@ public class Plugin {
         if (result == null)
             result = pom.selectSingleNode(path.replaceAll("/", "/m:"));
         return result;
-    }
-
-    private static String selectSingleValue(Document dom, String path) {
-        Node node = selectSingleNode(dom, path);
-        return node != null ? ((Element)node).getTextTrim() : null;
     }
 
     private static final Pattern HOSTNAME_PATTERN =
@@ -205,26 +215,29 @@ public class Plugin {
             // well known historical URL that won't help
             return null;
         }
+        if (scm.contains("jenkinsci/plugin-pom")) {
+            // this is a plugin based on the parent POM without a <scm> blocck
+            return null;
+        }
         return scm;
     }
 
-    private String getScmUrl(Document pom) {
-        if (pom != null) {
-            String scm = selectSingleValue(pom, "/project/scm/url");
+    private String _getScmUrl() {
+        try {
+            String scm = readSingleValueFromXmlFile(latest.resolvePOM(), "/project/scm/url");
             // Try parent pom
             if (scm == null) {
                 System.out.println("** No SCM URL found in POM");
-                Element parent = (Element) selectSingleNode(pom, "/project/parent");
+                Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
                 if (parent != null) {
                     try {
-                        Document parentPom = xmlReader.read(
-                                latest.repository.resolve(
-                                        new ArtifactInfo("",
-                                                parent.element("groupId").getTextTrim(),
-                                                parent.element("artifactId").getTextTrim(),
-                                                parent.element("version").getTextTrim(),
-                                                ""), "pom", null));
-                        scm = selectSingleValue(parentPom, "/project/scm/url");
+                        File parentPomFile = latest.repository.resolve(
+                                new ArtifactInfo("",
+                                        parent.element("groupId").getTextTrim(),
+                                        parent.element("artifactId").getTextTrim(),
+                                        parent.element("version").getTextTrim(),
+                                        ""), "pom", null);
+                        scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/url");
                         if (scm == null) {
                             System.out.println("** No SCM URL found in parent POM");
                             // grandparent is pointless, no additional hits
@@ -243,27 +256,28 @@ public class Plugin {
                 return null;
             }
             return scm;
+        } catch (IOException ex) {
+            // ignore
         }
         return null;
     }
 
-    private String getScmUrlFromDeveloperConnection(Document pom) {
-        if (pom != null) {
-            String scm = selectSingleValue(pom, "/project/scm/developerConnection");
+    private String getScmUrlFromDeveloperConnection() {
+        try {
+            String scm = readSingleValueFromXmlFile(latest.resolvePOM(), "/project/scm/developerConnection");
             // Try parent pom
             if (scm == null) {
                 System.out.println("** No SCM developerConnection found in POM");
-                Element parent = (Element) selectSingleNode(pom, "/project/parent");
+                Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
                 if (parent != null) {
                     try {
-                        Document parentPom = xmlReader.read(
-                                latest.repository.resolve(
-                                        new ArtifactInfo("",
-                                                parent.element("groupId").getTextTrim(),
-                                                parent.element("artifactId").getTextTrim(),
-                                                parent.element("version").getTextTrim(),
-                                                ""), "pom", null));
-                        scm = selectSingleValue(parentPom, "/project/scm/developerConnection");
+                        File parentPomFile = latest.repository.resolve(
+                                new ArtifactInfo("",
+                                        parent.element("groupId").getTextTrim(),
+                                        parent.element("artifactId").getTextTrim(),
+                                        parent.element("version").getTextTrim(),
+                                        ""), "pom", null);
+                        scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/developerConnection");
                         if (scm == null) {
                             System.out.println("** No SCM developerConnection found in parent POM");
                         }
@@ -281,6 +295,8 @@ public class Plugin {
                 return null;
             }
             return scm;
+        } catch (IOException ex) {
+            // ignore
         }
         return null;
     }
@@ -312,19 +328,27 @@ public class Plugin {
         return null;
     }
 
-    private String requireGitHubRepoExistence(String url) {
+    private String readSingleValueFromXmlFile(File file, String xpath) {
         try {
-            HttpClient client = new HttpClient();
-            GetMethod get = new GetMethod(url);
-            get.setFollowRedirects(true);
-            if (client.executeMethod(get) >= 400) {
-                return null;
+            XmlCache.CachedValue cached = XmlCache.readCache(file, xpath);
+            if (cached == null) {
+                Document doc = xmlReader.read(file);
+                Node node = selectSingleNode(doc, xpath);
+                String ret = node != null ? ((Element) node).getTextTrim() : null;
+                XmlCache.writeCache(file, xpath, ret);
+                return ret;
+            } else {
+                return cached.value;
             }
-        } catch (Exception e) {
-            // that didn't work
+        } catch (IOException|DocumentException e) {
             return null;
         }
-        return url;
+    }
+
+    private String requireGitHubRepoExistence(String url) {
+        GitHubSource gh = GitHubSource.getInstance();
+        String shortenedUrl = StringUtils.removeEndIgnoreCase(url, "-plugin");
+        return gh.isRepoExisting(url) ? url : (gh.isRepoExisting(shortenedUrl) ? shortenedUrl : null);
     }
 
     /**
@@ -332,10 +356,10 @@ public class Plugin {
      * Used to determine if source lives in github or svn.
      */
     public String getScmUrl() throws IOException {
-        if (getPom() != null) {
-            String scm = getScmUrl(getPom());
+        if (latest.resolvePOM().exists()) {
+            String scm = _getScmUrl();
             if (scm == null) {
-                scm = getScmUrlFromDeveloperConnection(getPom());
+                scm = getScmUrlFromDeveloperConnection();
             }
             if (scm == null) {
                 System.out.println("** Failed to determine SCM URL from POM or parent POM of " + artifactId);
@@ -379,17 +403,36 @@ public class Plugin {
         return labels.split("\\s+");
     }
 
-    /** @return The plugin name defined in the POM &lt;name>; falls back to the wiki page title, then artifact ID. */
+    /** @return The plugin name defined in the POM &lt;name> modified by simplication rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
     public String getName() throws IOException {
-        String title = selectSingleValue(getPom(), "/project/name");
-        if (title == null) {
+        String title = readSingleValueFromXmlFile(latest.resolvePOM(), "/project/name");
+        if (title == null || "".equals(title)) {
             title = artifactId;
+        } else {
+            title = simplifyPluginName(title);
         }
         return title;
     }
 
-    public JSONObject toJSON() throws IOException {
+    @VisibleForTesting
+    public static String simplifyPluginName(String name) {
+        name = StringUtils.removeStart(name, "Jenkins ");
+        name = StringUtils.removeStart(name, "Hudson ");
+        name = StringUtils.removeEndIgnoreCase(name, " for Jenkins");
+        name = StringUtils.removeEndIgnoreCase(name, " Jenkins Plugin");
+        name = StringUtils.removeEndIgnoreCase(name, " Plugin");
+        name = StringUtils.removeEndIgnoreCase(name, " Plug-In");
+        name = name.replaceAll("[- .!]+$", ""); // remove trailing punctuation e.g. for 'Acme Foo - Jenkins Plugin'
+        return name;
+    }
+
+    private static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+
+    public JSONObject toJSON() throws Exception {
         JSONObject json = latest.toJSON(artifactId);
+        if (json == null) {
+            return null;
+        }
 
         SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
         json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));
@@ -408,7 +451,21 @@ public class Plugin {
 
         json.put("labels", getLabels());
 
-        String description = plainText2html(selectSingleValue(getPom(), "/project/description"));
+        String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
+
+        ArtifactInfo info = new ArtifactInfo();
+        info.artifactId = latest.artifact.artifactId;
+        info.groupId = latest.artifact.groupId;
+        info.packaging = "jar";
+        info.version = latest.artifact.version;
+        try (InputStream is = ArtifactSource.getInstance().getZipFileEntry(new MavenArtifact(latest.repository, info), "index.jelly")) {
+            StringBuilder b = new StringBuilder();
+            HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
+            HtmlSanitizer.sanitize(IOUtils.toString(is), HTML_POLICY.apply(renderer));
+            description = b.toString().trim().replaceAll("\\s+", " ");
+        } catch (IOException e) {
+            System.err.println("Failed to read description from index.jelly: " + e.getMessage());
+        }
         if (latest.isAlphaOrBeta()) {
             description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
         }

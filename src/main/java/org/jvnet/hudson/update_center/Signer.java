@@ -4,6 +4,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -139,26 +141,39 @@ public class Signer {
      */
     static class SignatureGenerator {
         private final MessageDigest sha1;
-        private final Signature sig;
+        private final Signature sha1sig;
+        private final MessageDigest sha512;
+        private final Signature sha512sig;
         private final TeeOutputStream out;
-        private final Signature verifier;
+        private final Signature verifier1;
+        private final Signature verifier512;
 
         SignatureGenerator(X509Certificate signer, PrivateKey key) throws GeneralSecurityException, IOException {
             // this is for computing a digest
-            sha1 = MessageDigest.getInstance("SHA1");
-            DigestOutputStream dos = new DigestOutputStream(new NullOutputStream(), sha1);
+            sha1 = DigestUtils.getSha1Digest();
+            sha512 = DigestUtils.getSha512Digest();
+            DigestOutputStream dos1 = new DigestOutputStream(new NullOutputStream(), sha1);
+            DigestOutputStream dos512 = new DigestOutputStream(new NullOutputStream(), sha512);
 
             // this is for computing a signature
-            sig = Signature.getInstance("SHA1withRSA");
-            sig.initSign(key);
-            SignatureOutputStream sos = new SignatureOutputStream(sig);
+            sha1sig = Signature.getInstance("SHA1withRSA");
+            sha1sig.initSign(key);
+            SignatureOutputStream sos1 = new SignatureOutputStream(sha1sig);
+
+            sha512sig = Signature.getInstance("SHA512withRSA");
+            sha512sig.initSign(key);
+            SignatureOutputStream sos512 = new SignatureOutputStream(sha512sig);
 
             // this is for verifying that signature validates
-            verifier = Signature.getInstance("SHA1withRSA");
-            verifier.initVerify(signer.getPublicKey());
-            SignatureOutputStream vos = new SignatureOutputStream(verifier);
+            verifier1 = Signature.getInstance("SHA1withRSA");
+            verifier1.initVerify(signer.getPublicKey());
+            SignatureOutputStream vos1 = new SignatureOutputStream(verifier1);
 
-            out = new TeeOutputStream(new TeeOutputStream(dos, sos), vos);
+            verifier512 = Signature.getInstance("SHA512withRSA");
+            verifier512.initVerify(signer.getPublicKey());
+            SignatureOutputStream vos512 = new SignatureOutputStream(verifier512);
+
+            out = new TeeOutputStream(new TeeOutputStream(new TeeOutputStream(new TeeOutputStream(new TeeOutputStream(dos1, sos1), vos1), dos512), sos512), vos512);
         }
 
         public TeeOutputStream getOut() {
@@ -169,14 +184,19 @@ public class Signer {
             // digest
             byte[] digest = sha1.digest();
             sign.put(prefix+"digest",new String(Base64.encodeBase64(digest), "UTF-8"));
+            sign.put(prefix+"digest512", Hex.encodeHexString(sha512.digest()));
 
             // signature
-            byte[] s = sig.sign();
-            sign.put(prefix+"signature",new String(Base64.encodeBase64(s), "UTF-8"));
+            byte[] s1 = sha1sig.sign();
+            byte[] s512 = sha512sig.sign();
+            sign.put(prefix+"signature",new String(Base64.encodeBase64(s1), "UTF-8"));
+            sign.put(prefix+"signature512",Hex.encodeHexString(s512));
 
             // did the signature validate?
-            if (!verifier.verify(s))
-                throw new GeneralSecurityException("Signature failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
+            if (!verifier1.verify(s1))
+                throw new GeneralSecurityException("Signature (SHA-1) failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
+            if (!verifier512.verify(s512))
+                throw new GeneralSecurityException("Signature (SHA-512) failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
         }
     }
 

@@ -14,7 +14,7 @@ import java.util.Collection;
  */
 public class ListPluginsAndVersionsJava6 {
     public static void main(String[] args) throws Exception{
-        MavenRepositoryImpl r = DefaultMavenRepositoryBuilder.createStandardInstance();
+        MavenRepositoryImpl r = DefaultMavenRepositoryBuilder.getInstance();
         r.addPluginFilter(new JavaVersionPluginFilter(new VersionNumber("1.6")));
 
         System.out.println(r.getHudsonWar().firstKey());

@@ -30,11 +30,14 @@ public class DefaultMavenRepositoryBuilder {
     private DefaultMavenRepositoryBuilder () {
         
     }
-    
-    public static MavenRepositoryImpl createStandardInstance() throws Exception {
-        MavenRepositoryImpl instance = new MavenRepositoryImpl();
-        instance.addRemoteRepository("public", new URL("http://repo.jenkins-ci.org/public/"));
 
+    private static MavenRepositoryImpl instance;
+    
+    public static MavenRepositoryImpl getInstance() throws Exception {
+        if (instance == null) {
+            instance = new MavenRepositoryImpl();
+            instance.addRemoteRepository("public", new URL("http://repo.jenkins-ci.org/public/"));
+        }
         return instance;
     }
 }

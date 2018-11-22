@@ -11,7 +11,7 @@ import java.util.TreeSet;
  */
 public class ListExisting {
     public static void main(String[] args) throws Exception{
-        MavenRepositoryImpl r = DefaultMavenRepositoryBuilder.createStandardInstance();
+        MavenRepositoryImpl r = DefaultMavenRepositoryBuilder.getInstance();
 
         Set<String> groupIds = new TreeSet<String>();
         Collection<PluginHistory> all = r.listHudsonPlugins();

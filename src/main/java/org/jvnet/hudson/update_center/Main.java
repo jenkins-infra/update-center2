@@ -34,13 +34,16 @@ import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.spi.OptionHandler;
 
 import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -57,16 +60,14 @@ import java.util.TreeMap;
  * @author Kohsuke Kawaguchi
  */
 public class Main {
-    @Option(name="-o",usage="JSONP file")
     public File jsonp = new File("output.json");
 
-    @Option(name="-json",usage="JSON file")
     public File json = new File("actual.json");
 
-    @Option(name="-r",usage="release history JSON file")
     public File releaseHistory = new File("release-history.json");
 
-    @Option(name="-urlmap", usage="plugin to URL mapping file")
+    public File pluginVersions = new File("plugin-versions.json");
+
     public File urlmap = new File("plugin-to-documentation-url.json");
 
     private Map<String, String> pluginToDocumentationUrl = new HashMap<>();
@@ -75,7 +76,6 @@ public class Main {
      * This file defines all the convenient symlinks in the form of
      * ./latest/PLUGINNAME.hpi.
      */
-    @Option(name="-latest",usage="Build latest symlink directory")
     public File latest = new File("latest");
 
     /**
@@ -89,6 +89,13 @@ public class Main {
      */
     @Option(name="-download",usage="Build mirrors.jenkins-ci.org layout")
     public File download = null;
+
+    /**
+     * This option generates a directory layout containing htaccess files redirecting to Artifactory
+     * for all files contained therein. This can be used for the 'fallback' mirror server.
+     */
+    @Option(name="-download-fallback",usage="Build archives.jenkins-ci.org layout")
+    public File downloadFallback = null;
 
     /**
      * This options builds update site. update-center.json(.html) that contains metadata,
@@ -110,10 +117,8 @@ public class Main {
     @Option(name="-www-download",usage="Build updates.jenkins-ci.org/download directory")
     public File wwwDownload = null;
 
-    @Option(name="-index.html",usage="Update the version number of the latest jenkins.war in jenkins-ci.org/index.html")
     public File indexHtml = null;
 
-    @Option(name="-latestCore.txt",usage="Update the version number of the latest jenkins.war in latestCore.txt")
     public File latestCoreTxt = null;
 
     @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
@@ -156,6 +161,12 @@ public class Main {
     @CheckForNull
     public String javaVersion;
 
+    @Option(name="-skip-plugin-versions",usage="Skip generation of plugin versions")
+    public boolean skipPluginVersions;
+
+    @Option(name="-arguments-file",usage="Specify invocation arguments in a file, with each line being a separate update site build")
+    public File argumentsFile;
+
     private Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
@@ -170,16 +181,52 @@ public class Main {
         try {
             p.parseArgument(args);
 
-            if (www!=null) {
-                prepareStandardDirectoryLayout();
+            if (argumentsFile == null) {
+                run();
+            } else {
+                List<String> invocations = IOUtils.readLines(new FileReader(argumentsFile));
+                for (String line : invocations) {
+                    if (!line.trim().startsWith("#") && !line.trim().isEmpty()) {
+
+                        System.err.println("Running with args: " + line);
+                        // TODO combine args array and this list
+                        String[] invocationArgs = line.split(" +");
+
+                        resetArguments();
+                        this.signer = new Signer();
+                        p = new CmdLineParser(this);
+                        new ClassParser().parse(signer, p);
+                        p.parseArgument(invocationArgs);
+                        run();
+                    }
+                }
             }
 
-            run();
             return 0;
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
             p.printUsage(System.err);
             return 1;
+        }
+    }
+
+    private void resetArguments() {
+        for (Field field : this.getClass().getFields()) {
+            if (field.getAnnotation(Option.class) != null) {
+                if (Object.class.isAssignableFrom(field.getType())) {
+                    try {
+                        field.set(this, null);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                } else if (boolean.class.isAssignableFrom(field.getType())) {
+                    try {
+                        field.set(this, false);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
@@ -197,13 +244,19 @@ public class Main {
         json = new File(www,"update-center.actual.json");
         jsonp = new File(www,"update-center.json");
         urlmap = new File(www, "plugin-documentation-urls.json");
+
         latest = new File(www,"latest");
         indexHtml = new File(www,"index.html");
+        pluginVersions = new File(www, "plugin-versions.json");
         releaseHistory = new File(www,"release-history.json");
         latestCoreTxt = new File(www,"latestCore.txt");
     }
 
     public void run() throws Exception {
+
+        if (www!=null) {
+            prepareStandardDirectoryLayout();
+        }
 
         MavenRepository repo = createRepository();
 
@@ -214,6 +267,10 @@ public class Main {
         writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
         writeToFile(prettyPrintJson(ucRoot), json);
         writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath()+".html"));
+
+        if (!skipPluginVersions) {
+            writeToFile(prettyPrintJson(buildPluginVersionsJson(repo)), pluginVersions);
+        }
 
         if (!skipReleaseHistory) {
             JSONObject rhRoot = buildFullReleaseHistory(repo);
@@ -252,6 +309,17 @@ public class Main {
         return new LatestLinkBuilder(latest);
     }
 
+    private JSONObject buildPluginVersionsJson(MavenRepository repo) throws Exception {
+        JSONObject root = new JSONObject();
+        root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
+        root.put("plugins", buildPluginVersions(repo));
+
+        if (signer.isConfigured())
+            signer.sign(root);
+
+        return root;
+    }
+
     private JSONObject buildUpdateCenterJson(MavenRepository repo, LatestLinkBuilder latest) throws Exception {
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
@@ -287,7 +355,8 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.createStandardInstance();
+
+        MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.getInstance();
         if (javaVersion != null) {
             base.addPluginFilter(new JavaVersionPluginFilter(new VersionNumber(javaVersion)));
         } else {
@@ -315,6 +384,48 @@ public class Main {
         return repo;
     }
 
+    private JSONObject buildPluginVersions(MavenRepository repository) throws Exception {
+        JSONObject plugins = new JSONObject();
+        System.out.println("Build plugin versions index from the maven repo...");
+
+        for (PluginHistory plugin : repository.listHudsonPlugins()) {
+                System.out.println(plugin.artifactId);
+
+                JSONObject versions = new JSONObject();
+
+                // Gather the plugin properties from the plugin file and the wiki
+                for (HPI hpi : plugin.artifacts.values()) {
+                    try {
+                        JSONObject hpiJson = hpi.toJSON(plugin.artifactId);
+                        if (hpiJson == null) {
+                            continue;
+                        }
+                        hpiJson.put("requiredCore", hpi.getRequiredJenkinsVersion());
+
+                        if (hpi.getCompatibleSinceVersion() != null) {
+                            hpiJson.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
+                        }
+                        if (hpi.getSandboxStatus() != null) {
+                            hpiJson.put("sandboxStatus",hpi.getSandboxStatus());
+                        }
+
+                        JSONArray deps = new JSONArray();
+                        for (HPI.Dependency d : hpi.getDependencies())
+                            deps.add(d.toJSON());
+                        hpiJson.put("dependencies",deps);
+
+                        versions.put(hpi.version, hpiJson);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        // skip this version
+                    }
+                }
+
+                plugins.put(plugin.artifactId, versions);
+        }
+        return plugins;
+    }
+
     /**
      * Build JSON for the plugin list.
      * @param repository
@@ -327,6 +438,10 @@ public class Main {
         int validCount = 0;
 
         JSONObject plugins = new JSONObject();
+        ArtifactoryRedirector redirector = null;
+        if (downloadFallback != null) {
+            redirector = new ArtifactoryRedirector(downloadFallback);
+        }
         System.out.println("Gathering list of plugins and versions from the maven repo...");
         for (PluginHistory hpi : repository.listHudsonPlugins()) {
             try {
@@ -335,13 +450,14 @@ public class Main {
                 // Gather the plugin properties from the plugin file and the wiki
                 Plugin plugin = new Plugin(hpi);
 
-                if (pluginToDocumentationUrl.containsKey(plugin.artifactId)) {
-                    throw new IllegalStateException("Already contains " + plugin.artifactId);
-                }
                 pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
 
                 JSONObject json = plugin.toJSON();
-                System.out.println("=> " + json);
+                if (json == null) {
+                    System.out.println("Skipping due to lack of checksums: " + plugin.getName());
+                    continue;
+                }
+                System.out.println("=> " + hpi.latest().getGavId());
                 plugins.put(plugin.artifactId, json);
                 latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
 
@@ -358,11 +474,21 @@ public class Main {
                     buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
                 }
 
+                if (redirector != null) {
+                    for (HPI v : hpi.artifacts.values()) {
+                        redirector.recordRedirect(v, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi");
+                    }
+                }
+
                 validCount++;
             } catch (IOException e) {
                 e.printStackTrace();
                 // move on to the next plugin
             }
+        }
+
+        if (redirector != null) {
+            redirector.writeRedirects();
         }
 
         if (pluginCountTxt!=null)
