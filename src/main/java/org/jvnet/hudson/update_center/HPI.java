@@ -25,7 +25,9 @@ package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
+import org.jvnet.hudson.update_center.util.JavaVersionUtil;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.IOException;
@@ -110,8 +112,15 @@ public class HPI extends MavenArtifact {
         return getManifestAttributes().getValue("Compatible-Since-Version");
     }
 
-    public String getMinimumJavaVersion() throws IOException {
-        return getManifestAttributes().getValue("Minimum-Java-Version");
+    public VersionNumber getMinimumJavaVersion() throws IOException {
+        String manifestEntry = getManifestAttributes().getValue("Minimum-Java-Version");
+        if (StringUtils.isNotBlank(manifestEntry)) {
+            return new VersionNumber(manifestEntry);
+        }
+
+        //TODO(oleg_nenashev): It will break plugins which intentionally declare lower version than the one required by the core (which is a bad idea)
+        // Interpolate minimum version by the target core
+        return JavaVersionUtil.interpolateJavaVersionByCore(new VersionNumber(getRequiredJenkinsVersion()));
     }
 
     public String getDisplayName() throws IOException {

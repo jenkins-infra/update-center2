@@ -424,7 +424,7 @@ public class Plugin {
         }
 
         if (hpi.getMinimumJavaVersion() != null) {
-            json.put("requiredJava", hpi.getMinimumJavaVersion());
+            json.put("requiredJava", hpi.getMinimumJavaVersion().toString());
         }
 
         if (hpi.getSandboxStatus() != null) {

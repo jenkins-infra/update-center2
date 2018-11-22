@@ -28,11 +28,14 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
+import org.jvnet.hudson.update_center.util.JavaVersionUtil;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -147,6 +150,12 @@ public class Main {
     @Option(name="-skip-release-history",usage="Skip generation of release history")
     public boolean skipReleaseHistory;
 
+    @Option(name = "-javaVersion",usage = "Target Java version for the update center. " +
+            "Plugins will be excluded if their minimum version does not match. " +
+            "Defaults to Java 8")
+    @CheckForNull
+    public String javaVersion;
+
     private Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
@@ -177,6 +186,11 @@ public class Main {
     private String getCapCore() {
         if (capCore!=null)  return capCore;
         return capPlugin;
+    }
+
+    @CheckForNull
+    public String getJavaVersion() {
+        return javaVersion;
     }
 
     private void prepareStandardDirectoryLayout() {
@@ -273,7 +287,17 @@ public class Main {
     }
 
     protected MavenRepository createRepository() throws Exception {
-        MavenRepository repo = DefaultMavenRepositoryBuilder.createStandardInstance();
+        MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.createStandardInstance();
+        if (javaVersion != null) {
+            base.addPluginFilter(new JavaVersionPluginFilter(new VersionNumber(javaVersion)));
+        } else {
+            System.out.println("WARNING: Target Java version is not defined, version filters will not be applied");
+            //TODO: Default to the version actually supported by the target core if CAP is set?
+            // base.addPluginFilter(new JavaVersionPluginFilter(JavaVersionUtil.JAVA_8));
+        }
+
+        MavenRepository repo = base;
+        // TODO: Maven repository implementations below can be reworked to filters
         if (maxPlugins!=null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (experimentalOnly)

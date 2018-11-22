@@ -59,6 +59,7 @@ import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 import org.sonatype.nexus.index.updater.IndexDataReader;
 import org.sonatype.nexus.index.updater.IndexDataReader.IndexDataReadResult;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -90,6 +91,7 @@ public class MavenRepositoryImpl extends MavenRepository {
     protected ArtifactRepositoryFactory arf;
     private PlexusContainer plexus;
     private boolean offlineIndex;
+    protected List<PluginFilter> pluginFilters = new ArrayList<>();
 
     public MavenRepositoryImpl() throws Exception {
         ClassWorld classWorld = new ClassWorld( "plexus.core", MavenRepositoryImpl.class.getClassLoader() );
@@ -111,6 +113,14 @@ public class MavenRepositoryImpl extends MavenRepository {
         local = arf.createArtifactRepository("local",
                 new File(new File(System.getProperty("user.home")), ".m2/repository").toURI().toURL().toExternalForm(),
                 new DefaultRepositoryLayout(), POLICY, POLICY);
+    }
+
+    /**
+     * Adds a plugin filter.
+     * @param filter Filter to be added.
+     */
+    public void addPluginFilter(@Nonnull PluginFilter filter) {
+        pluginFilters.add(filter);
     }
 
     /**
@@ -237,7 +247,7 @@ public class MavenRepositoryImpl extends MavenRepository {
             new TreeMap<String, PluginHistory>(String.CASE_INSENSITIVE_ORDER);
 
         Set<String> excluded = new HashSet<String>();
-        for (ArtifactInfo a : response.getResults()) {
+        ARTIFACTS: for (ArtifactInfo a : response.getResults()) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
             if (a.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
             // Don't add blacklisted artifacts
@@ -257,7 +267,15 @@ public class MavenRepositoryImpl extends MavenRepository {
                 p=new PluginHistory(a.artifactId);
                 plugins.put(a.artifactId, p);
             }
-            p.addArtifact(createHpiArtifact(a, p));
+            HPI hpi = createHpiArtifact(a, p);
+
+            for (PluginFilter pluginFilter : pluginFilters) {
+                if (pluginFilter.shouldIgnore(hpi)) {
+                    continue ARTIFACTS;
+                }
+            }
+
+            p.addArtifact(hpi);
             p.groupId.add(a.groupId);
         }
         return plugins.values();
