@@ -73,6 +73,7 @@ public class Main {
     public File urlmap = new File("plugin-to-documentation-url.json");
 
     private Map<String, String> pluginToDocumentationUrl = new HashMap<>();
+    private Properties whitelistPro = new Properties();
 
     /**
      * This file defines all the convenient symlinks in the form of
@@ -265,6 +266,13 @@ public class Main {
 
         LatestLinkBuilder latest = createHtaccessWriter();
 
+        // load white list of plugins
+        if(whitelist != null && whitelist.isFile()) {
+            try(InputStream input = new FileInputStream(whitelist)) {
+                whitelistPro.load(input);
+            }
+        }
+
         JSONObject ucRoot = buildUpdateCenterJson(repo, latest);
         writeToFile(mapPluginToDocumentationUrl(), urlmap);
         writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
@@ -381,6 +389,9 @@ public class Main {
         System.out.println("Build plugin versions index from the maven repo...");
 
         for (PluginHistory plugin : repository.listHudsonPlugins()) {
+                if(whitelistPro.size() > 0 && whitelistPro.get(plugin.artifactId) == null) {
+                    continue;
+                }
                 System.out.println(plugin.artifactId);
 
                 JSONObject versions = new JSONObject();
@@ -429,13 +440,6 @@ public class Main {
 
         int validCount = 0;
 
-        Properties whitelistPro = new Properties();
-        if(whitelist != null && whitelist.isFile()) {
-            try(InputStream input = new FileInputStream(whitelist)) {
-                whitelistPro.load(input);
-            }
-        }
-
         JSONObject plugins = new JSONObject();
         ArtifactoryRedirector redirector = null;
         if (downloadFallback != null) {
@@ -443,10 +447,8 @@ public class Main {
         }
         System.out.println("Gathering list of plugins and versions from the maven repo...");
         for (PluginHistory hpi : repository.listHudsonPlugins()) {
-            if(whitelistPro.size() > 0) {
-                if(whitelistPro.get(hpi.artifactId) == null) {
-                    continue;
-                }
+            if(whitelistPro.size() > 0 && whitelistPro.get(hpi.artifactId) == null) {
+                continue;
             }
 
             try {
@@ -614,6 +616,9 @@ public class Main {
                 JSONObject o = new JSONObject();
                 try {
                     Plugin plugin = new Plugin(h);
+                    if(whitelistPro.size() > 0 && whitelistPro.get(plugin.artifactId) == null) {
+                        continue;
+                    }
 
                     if (h.getTimestampAsDate().after(oldestDate.getTime())) {
                         String title = plugin.getName();
