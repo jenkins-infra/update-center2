@@ -110,3 +110,31 @@ you can try to use the appassembler plugin as described below. The exec:java plu
     # warning this may take quite a bit of time, so you might want to add the -maxPlugins 1 option
     mvn package appassembler:assemble
     sh target/appassembler/bin/app -id com.example.jenkins -www www
+
+Private Update Center
+---------------------
+
+Jenkins offical update center has lots of plugins. You could follow below steps to create your own
+private update center:
+
+1. Create your own certificate. For example:
+
+    openssl genrsa -out rootCA/demo.key 1024
+    openssl req -new -x509 -days 1095 -key rootCA/demo.key \
+        -out rootCA/demo.crt \
+        -subj "/C=CN/ST=GD/L=SZ/O=vihoo/OU=dev/CN=demo.com/emailAddress=demo@demo.com"
+2. Fetch plugins information then generate update.json
+
+    echo "localization-zh-cn=1.580.1" > whiteList.properties
+    mvn package appassembler:assemble
+	sh target/appassembler/bin/app -id default -www www \
+		-skip-release-history -cache plugins -whitelist whiteList.properties \
+		-key rootCA/demo.key -certificate rootCA/emo.crt \
+		-root-certificate rootCA/demo.crt \
+		-cacheServer http://localhost:9090/plugins/ \
+		-connectionCheckUrl http://localhost:9090/
+3. Start your update center server (e.g. Nginx). Copy `www` into publish directory.
+4. Start your Jenkins server then copy demo.crt into `$JENKINS_HOME/war/WEB-INF/update-center-rootCAs/`.
+5. Change the update center url in `http://localhost:8080/pluginManager/advanced`.
+
+Finally, you could see your favour plugins.
