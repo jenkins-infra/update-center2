@@ -157,7 +157,7 @@ public class Main {
 
     @Option(name = "-javaVersion",usage = "Target Java version for the update center. " +
             "Plugins will be excluded if their minimum version does not match. " +
-            "Defaults to Java 8")
+            "If not set, required Java version will be ignored")
     @CheckForNull
     public String javaVersion;
 
