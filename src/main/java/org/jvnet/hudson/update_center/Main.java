@@ -156,10 +156,16 @@ public class Main {
     public boolean skipReleaseHistory;
 
     @Option(name = "-javaVersion",usage = "Target Java version for the update center. " +
-            "Plugins will be excluded if their minimum version does not match. " +
+            "Plugins will be excluded if their minimum Java version does not match. " +
             "If not set, required Java version will be ignored")
     @CheckForNull
     public String javaVersion;
+
+    @Option(name = "-interpolateMinimumJavaVersion",usage = "If set, the update center generator" +
+            "will try to interpolate Minimum Java Version if `Minimum-Java-Version` is not set in the manifest." +
+            "The interpolation is based on the required Jenkins core version, and it may be inaccurate (see README).")
+    public boolean interpolateMinimumJavaVersion;
+
 
     @Option(name="-skip-plugin-versions",usage="Skip generation of plugin versions")
     public boolean skipPluginVersions;
@@ -452,7 +458,7 @@ public class Main {
 
                 pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
 
-                JSONObject json = plugin.toJSON();
+                JSONObject json = plugin.toJSON(interpolateMinimumJavaVersion);
                 if (json == null) {
                     System.out.println("Skipping due to lack of checksums: " + plugin.getName());
                     continue;

@@ -24,6 +24,7 @@
 package org.jvnet.hudson.update_center;
 
 import com.google.common.annotations.VisibleForTesting;
+import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -428,7 +429,26 @@ public class Plugin {
 
     private static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
 
+    /**
+     * Converts the plugin definition to JSON.
+     * @return Generated JSON
+     * @throws Exception Generation error, e.g. Manifest read failure
+     * @deprecated Use {@link #toJSON(boolean)}
+     */
+    @Deprecated
     public JSONObject toJSON() throws Exception {
+        return toJSON(false);
+    }
+
+    /**
+     * Converts the plugin definition to JSON.
+     * @param interpolateMinimumJavaVersion if true,
+     *          the generator will try to interpolate minimum Java versions
+     *                                      in {@link HPI#getMinimumJavaVersion(boolean)}
+     * @return Generated JSON
+     * @throws Exception Generation error, e.g. Manifest read failure
+     */
+    public JSONObject toJSON(boolean interpolateMinimumJavaVersion) throws Exception {
         JSONObject json = latest.toJSON(artifactId);
         if (json == null) {
             return null;
@@ -480,8 +500,9 @@ public class Plugin {
             json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
         }
 
-        if (hpi.getMinimumJavaVersion() != null) {
-            json.put("requiredJava", hpi.getMinimumJavaVersion().toString());
+        VersionNumber minimumJavaVersion = hpi.getMinimumJavaVersion(interpolateMinimumJavaVersion);
+        if (minimumJavaVersion != null) {
+            json.put("requiredJava", minimumJavaVersion.toString());
         }
 
         if (hpi.getSandboxStatus() != null) {

@@ -73,6 +73,26 @@ These warnings are part of the update center metadata downloaded by Jenkins.
 These warnings are defined in the file `src/main/resources/warnings.json`.
 
 
+### Filtering Java versions
+
+Backend Update Center 2.1 offers a `-javaVersion [version]` CLI argument
+which can be used to filter plugins based on their minimum Java version requirement.
+By default such filtering happens based on the `Minimum-Java-Version` 
+manifest entry provided in Plugin HPIs starting from 
+[Maven HPI Plugin 3.0](https://github.com/jenkinsci/maven-hpi-plugin#30-2018-12-05)
+and [Plugin POM 3.29](https://github.com/jenkinsci/plugin-pom/blob/master/CHANGELOG.md#329).
+
+If the `-interpolateMinimumJavaVersion` argument is set in CLI,
+the Update Center generator will also try to interpolate the Minimum Java version
+by using the Jenkins core version:
+
+* Java `1.6` is assumed for Jenkins cores older than `1.612`
+* Java `1.7` is assumed for Jenkins cores older than `2.54`
+* Java `1.8` is assumed for Jenkins `2.54` and above
+
+This `-interpolateMinimumJavaVersion` is considered as **experimental**,
+it may change in the future.
+
 Usage
 -----
 

@@ -30,10 +30,13 @@ import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.jvnet.hudson.update_center.util.JavaVersionUtil;
 import org.sonatype.nexus.index.ArtifactInfo;
 
+import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.*;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -50,6 +53,8 @@ public class HPI extends MavenArtifact {
     public final PluginHistory history;
 
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
+
+    private static final Logger LOGGER = Logger.getLogger(HPI.class.getName());
 
     public HPI(MavenRepository repository, PluginHistory history, ArtifactInfo artifact) throws AbstractArtifactResolutionException {
         super(repository, artifact);
@@ -112,15 +117,32 @@ public class HPI extends MavenArtifact {
         return getManifestAttributes().getValue("Compatible-Since-Version");
     }
 
-    public VersionNumber getMinimumJavaVersion() throws IOException {
+    /**
+     * Gets Minimum Java Version required by the plugin.
+     * By default uses the value of the {@code Minimum-Java-Version} manifest entry
+     * @param interpolateByCore if {@code true} and if {@code Minimum-Java-Version} is missing,
+     *          try to interpolate the minimum Java version by using the Java requirement
+     *          of the required Jenkins core version
+     * @return Minimum Java Version or {@code null} if it is unknown
+     * @throws IOException Manifest read error
+     */
+    @CheckForNull
+    public VersionNumber getMinimumJavaVersion(boolean interpolateByCore) throws IOException {
         String manifestEntry = getManifestAttributes().getValue("Minimum-Java-Version");
         if (StringUtils.isNotBlank(manifestEntry)) {
             return new VersionNumber(manifestEntry);
         }
 
-        //TODO(oleg_nenashev): It will break plugins which intentionally declare lower version than the one required by the core (which is a bad idea)
-        // Interpolate minimum version by the target core
-        return JavaVersionUtil.interpolateJavaVersionByCore(new VersionNumber(getRequiredJenkinsVersion()));
+        if (interpolateByCore) {
+            // Interpolate minimum version by the target core
+            String requiredCoreVersion = getRequiredJenkinsVersion();
+            VersionNumber res = JavaVersionUtil.interpolateJavaVersionByCore(new VersionNumber(requiredCoreVersion));
+            LOGGER.log(Level.FINE, "Interpolating minimum Java Version of {0} based on the Jenkins Core {1} java requirement. " +
+                    "The minimum version is {2}",
+                    new Object[] {this, requiredCoreVersion, res});
+            return res;
+        }
+        return null;
     }
 
     public String getDisplayName() throws IOException {
