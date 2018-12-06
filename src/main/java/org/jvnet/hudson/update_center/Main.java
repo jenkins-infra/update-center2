@@ -367,7 +367,7 @@ public class Main {
             base.addPluginFilter(new JavaVersionPluginFilter(new VersionNumber(javaVersion), interpolateMinimumJavaVersion, true));
         } else {
             System.out.println("WARNING: Target Java version is not defined, version filters will not be applied");
-            //TODO: Default to the version actually supported by the target core if CAP is set?
+            //TODO: Default to the version actually supported by the target core if `-cap` is set?
             // base.addPluginFilter(new JavaVersionPluginFilter(JavaVersionUtil.JAVA_8));
         }
 
