@@ -12,10 +12,10 @@ import java.util.Collection;
  *
  * @author Kohsuke Kawaguchi
  */
-public class ListPluginsAndVersionsJava6 {
+public class ListPluginsAndVersionsJava6Interpolate {
     public static void main(String[] args) throws Exception{
         MavenRepositoryImpl r = DefaultMavenRepositoryBuilder.getInstance();
-        r.addPluginFilter(new JavaVersionPluginFilter(new VersionNumber("1.6"), false, true));
+        r.addPluginFilter(new JavaVersionPluginFilter(new VersionNumber("1.6"), true, true));
 
         System.out.println(r.getHudsonWar().firstKey());
 

@@ -46,18 +46,33 @@ public class JavaVersionPluginFilter implements PluginFilter {
     @Nonnull
     private final VersionNumber javaVersion;
 
-    public JavaVersionPluginFilter(@Nonnull VersionNumber javaVersion) {
+    private final boolean interpolateMinimumJavaVersion;
+    private final boolean acceptUnknownVersions;
+
+    public JavaVersionPluginFilter(@Nonnull VersionNumber javaVersion,
+                                   boolean interpolateMinimumJavaVersion,
+                                   boolean acceptUnknownVersions) {
         this.javaVersion = javaVersion;
+        this.interpolateMinimumJavaVersion = interpolateMinimumJavaVersion;
+        this.acceptUnknownVersions = acceptUnknownVersions;
     }
 
     @Override
     public boolean shouldIgnore(@Nonnull HPI hpi) {
         final VersionNumber pluginJavaVersion;
         try {
-            pluginJavaVersion = hpi.getMinimumJavaVersion();
+            pluginJavaVersion = hpi.getMinimumJavaVersion(interpolateMinimumJavaVersion);
         } catch (IOException e) {
-            //TODO: do something?
-            return true;
+            LOGGER.log(acceptUnknownVersions ? Level.FINE : Level.INFO,
+                    String.format("Minimum Java Version cannot be determined for %s, will %s it",
+                            hpi, acceptUnknownVersions ? "accept" : "ignore"),
+                    e);
+            return acceptUnknownVersions;
+        }
+        if (pluginJavaVersion == null) {
+            LOGGER.log(acceptUnknownVersions ? Level.FINE : Level.INFO, "Minimum Java Version cannot be determined for {0}, will {1} it",
+                    new Object[] {hpi, acceptUnknownVersions ? "accept" : "ignore"});
+            return acceptUnknownVersions;
         }
 
         if (javaVersion.isOlderThan(pluginJavaVersion)) {
