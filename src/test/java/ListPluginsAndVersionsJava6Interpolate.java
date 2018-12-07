@@ -16,7 +16,7 @@ import java.util.Collection;
 public class ListPluginsAndVersionsJava6Interpolate {
     public static void main(String[] args) throws Exception{
         MavenRepositoryImpl r = DefaultMavenRepositoryBuilder.getInstance();
-        r.addPluginFilter(new JavaVersionPluginFilter(JavaSpecificationVersion.JAVA_6, true, true));
+        r.addPluginFilter(new JavaVersionPluginFilter(JavaSpecificationVersion.JAVA_6, true));
 
         System.out.println(r.getHudsonWar().firstKey());
 

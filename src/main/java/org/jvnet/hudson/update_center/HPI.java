@@ -28,7 +28,6 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
-import org.jvnet.hudson.update_center.util.JavaVersionUtil;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import javax.annotation.CheckForNull;
@@ -121,28 +120,16 @@ public class HPI extends MavenArtifact {
     /**
      * Gets Minimum Java Version required by the plugin.
      * By default uses the value of the {@code Minimum-Java-Version} manifest entry
-     * @param interpolateByCore if {@code true} and if {@code Minimum-Java-Version} is missing,
-     *          try to interpolate the minimum Java version by using the Java requirement
-     *          of the required Jenkins core version
      * @return Minimum Java Version or {@code null} if it is unknown
      * @throws IOException Manifest read error
      */
     @CheckForNull
-    public JavaSpecificationVersion getMinimumJavaVersion(boolean interpolateByCore) throws IOException {
+    public JavaSpecificationVersion getMinimumJavaVersion() throws IOException {
         String manifestEntry = getManifestAttributes().getValue("Minimum-Java-Version");
         if (StringUtils.isNotBlank(manifestEntry)) {
             return new JavaSpecificationVersion(manifestEntry);
         }
 
-        if (interpolateByCore) {
-            // Interpolate minimum version by the target core
-            String requiredCoreVersion = getRequiredJenkinsVersion();
-            JavaSpecificationVersion res = JavaVersionUtil.interpolateJavaVersionByCore(new VersionNumber(requiredCoreVersion));
-            LOGGER.log(Level.FINE, "Interpolating minimum Java Version of {0} based on the Jenkins Core {1} java requirement. " +
-                    "The minimum version is {2}",
-                    new Object[] {this, requiredCoreVersion, res});
-            return res;
-        }
         return null;
     }
 

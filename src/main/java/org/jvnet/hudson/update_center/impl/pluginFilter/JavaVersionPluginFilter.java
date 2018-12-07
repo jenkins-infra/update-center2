@@ -35,7 +35,6 @@ import java.util.logging.Logger;
 
 /**
  * @author Oleg Nenashev
- * @since TODO
  */
 public class JavaVersionPluginFilter implements PluginFilter {
 
@@ -47,14 +46,11 @@ public class JavaVersionPluginFilter implements PluginFilter {
     @Nonnull
     private final VersionNumber javaVersion;
 
-    private final boolean interpolateMinimumJavaVersion;
     private final boolean acceptUnknownVersions;
 
     public JavaVersionPluginFilter(@Nonnull JavaSpecificationVersion javaVersion,
-                                   boolean interpolateMinimumJavaVersion,
                                    boolean acceptUnknownVersions) {
         this.javaVersion = javaVersion;
-        this.interpolateMinimumJavaVersion = interpolateMinimumJavaVersion;
         this.acceptUnknownVersions = acceptUnknownVersions;
     }
 
@@ -62,7 +58,7 @@ public class JavaVersionPluginFilter implements PluginFilter {
     public boolean shouldIgnore(@Nonnull HPI hpi) {
         final JavaSpecificationVersion pluginJavaVersion;
         try {
-            pluginJavaVersion = hpi.getMinimumJavaVersion(interpolateMinimumJavaVersion);
+            pluginJavaVersion = hpi.getMinimumJavaVersion();
         } catch (IOException e) {
             LOGGER.log(acceptUnknownVersions ? Level.FINE : Level.INFO,
                     String.format("Minimum Java Version cannot be determined for %s, will %s it",

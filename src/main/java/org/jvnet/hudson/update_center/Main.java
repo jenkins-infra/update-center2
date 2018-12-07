@@ -30,7 +30,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
-import org.jvnet.hudson.update_center.util.JavaVersionUtil;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -161,12 +160,6 @@ public class Main {
             "If not set, required Java version will be ignored")
     @CheckForNull
     public String javaVersion;
-
-    @Option(name = "-interpolateMinimumJavaVersion",usage = "If set, the update center generator" +
-            "will try to interpolate Minimum Java Version if `Minimum-Java-Version` is not set in the manifest." +
-            "The interpolation is based on the required Jenkins core version, and it may be inaccurate (see README).")
-    public boolean interpolateMinimumJavaVersion;
-
 
     @Option(name="-skip-plugin-versions",usage="Skip generation of plugin versions")
     public boolean skipPluginVersions;
@@ -365,7 +358,7 @@ public class Main {
 
         MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.getInstance();
         if (javaVersion != null) {
-            base.addPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(javaVersion), interpolateMinimumJavaVersion, true));
+            base.addPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(javaVersion), true));
         } else {
             System.out.println("WARNING: Target Java version is not defined, version filters will not be applied");
             //TODO: Default to the version actually supported by the target core if `-cap` is set?
@@ -459,7 +452,7 @@ public class Main {
 
                 pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
 
-                JSONObject json = plugin.toJSON(interpolateMinimumJavaVersion);
+                JSONObject json = plugin.toJSON();
                 if (json == null) {
                     System.out.println("Skipping due to lack of checksums: " + plugin.getName());
                     continue;

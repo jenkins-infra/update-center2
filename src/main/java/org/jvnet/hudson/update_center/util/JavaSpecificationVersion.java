@@ -33,7 +33,6 @@ import javax.annotation.Nonnull;
  * Java Version Specification.
  * Implemented according to https://openjdk.java.net/jeps/223
  * @author Oleg Nenashev
- * @since TODO
  */
 public class JavaSpecificationVersion extends VersionNumber {
 
