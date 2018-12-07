@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-# Simple script to test actual output is sane
+# Simple script to manually test actual output is sane -- This is not automatically run as part of the build (since it needs a full deployment first)
 # Ideally we'd set up a local test server with the output, but for now, this will help us quickly figure out if things broke.
 
 # TODO automatically determine these values from current update sites
-CURRENT_WEEKLY=2.133
-RECENT_WEEKLY=2.125
-NEWEST_LTS_BASELINE=2.121
-OLDEST_SUPPORTED_LTS_BASELINE=2.60
+CURRENT_WEEKLY=2.154
+RECENT_WEEKLY=2.152
+NEWEST_LTS_BASELINE=2.150
+OLDEST_SUPPORTED_LTS_BASELINE=2.89
 
 set -o pipefail
 set -o errexit
