@@ -358,7 +358,7 @@ public class Main {
 
         MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.getInstance();
         if (javaVersion != null) {
-            base.addPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(javaVersion), true));
+            base.addPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(javaVersion)));
         } else {
             System.out.println("WARNING: Target Java version is not defined, version filters will not be applied");
             //TODO: Default to the version actually supported by the target core if `-cap` is set?
