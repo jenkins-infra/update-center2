@@ -26,6 +26,7 @@ package org.jvnet.hudson.update_center.impl.pluginFilter;
 import hudson.util.VersionNumber;
 import org.jvnet.hudson.update_center.HPI;
 import org.jvnet.hudson.update_center.PluginFilter;
+import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class JavaVersionPluginFilter implements PluginFilter {
     private final boolean interpolateMinimumJavaVersion;
     private final boolean acceptUnknownVersions;
 
-    public JavaVersionPluginFilter(@Nonnull VersionNumber javaVersion,
+    public JavaVersionPluginFilter(@Nonnull JavaSpecificationVersion javaVersion,
                                    boolean interpolateMinimumJavaVersion,
                                    boolean acceptUnknownVersions) {
         this.javaVersion = javaVersion;
@@ -59,7 +60,7 @@ public class JavaVersionPluginFilter implements PluginFilter {
 
     @Override
     public boolean shouldIgnore(@Nonnull HPI hpi) {
-        final VersionNumber pluginJavaVersion;
+        final JavaSpecificationVersion pluginJavaVersion;
         try {
             pluginJavaVersion = hpi.getMinimumJavaVersion(interpolateMinimumJavaVersion);
         } catch (IOException e) {

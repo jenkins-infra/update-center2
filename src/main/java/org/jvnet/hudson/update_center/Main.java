@@ -29,6 +29,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
+import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 import org.jvnet.hudson.update_center.util.JavaVersionUtil;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
@@ -364,7 +365,7 @@ public class Main {
 
         MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.getInstance();
         if (javaVersion != null) {
-            base.addPluginFilter(new JavaVersionPluginFilter(new VersionNumber(javaVersion), interpolateMinimumJavaVersion, true));
+            base.addPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(javaVersion), interpolateMinimumJavaVersion, true));
         } else {
             System.out.println("WARNING: Target Java version is not defined, version filters will not be applied");
             //TODO: Default to the version actually supported by the target core if `-cap` is set?
