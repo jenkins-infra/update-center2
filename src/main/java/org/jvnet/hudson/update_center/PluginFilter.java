@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
 /**
  * Filters plugins in {@link MavenRepositoryImpl}.
  * @author Oleg Nenashev
- * @since TODO
  * @see MavenRepositoryImpl
  */
 public interface PluginFilter {
