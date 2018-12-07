@@ -352,8 +352,14 @@ public class Main {
     protected MavenRepository createRepository() throws Exception {
 
         MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.getInstance();
+
+        // ensure that we reset plugin filters between batch executions
+        base.resetPluginFilters();
+
         if (javaVersion != null) {
-            base.addPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(javaVersion)));
+            JavaSpecificationVersion specificationVersion = new JavaSpecificationVersion(this.javaVersion);
+            base.addPluginFilter(new JavaVersionPluginFilter(specificationVersion));
+            System.out.println("INFO: Filtering plugins for compatibility with Java version " + specificationVersion);
         } else {
             System.out.println("WARNING: Target Java version is not defined, version filters will not be applied");
             //TODO: Default to the version actually supported by the target core if `-cap` is set?
