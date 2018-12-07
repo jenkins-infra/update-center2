@@ -127,6 +127,10 @@ public class MavenRepositoryImpl extends MavenRepository {
         pluginFilters.add(filter);
     }
 
+    public void resetPluginFilters() {
+        this.pluginFilters.clear();
+    }
+
     /**
      * Set to true to force reusing locally cached index and not download new versions.
      * Useful for debugging.
