@@ -235,11 +235,6 @@ public class Main {
         return capPlugin;
     }
 
-    @CheckForNull
-    public String getJavaVersion() {
-        return javaVersion;
-    }
-
     private void prepareStandardDirectoryLayout() {
         json = new File(www,"update-center.actual.json");
         jsonp = new File(www,"update-center.json");

@@ -35,8 +35,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.*;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -53,8 +51,6 @@ public class HPI extends MavenArtifact {
     public final PluginHistory history;
 
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
-
-    private static final Logger LOGGER = Logger.getLogger(HPI.class.getName());
 
     public HPI(MavenRepository repository, PluginHistory history, ArtifactInfo artifact) throws AbstractArtifactResolutionException {
         super(repository, artifact);
@@ -119,7 +115,7 @@ public class HPI extends MavenArtifact {
 
     /**
      * Gets Minimum Java Version required by the plugin.
-     * By default uses the value of the {@code Minimum-Java-Version} manifest entry
+     * This uses the value of the {@code Minimum-Java-Version} manifest entry
      * @return Minimum Java Version or {@code null} if it is unknown
      * @throws IOException Manifest read error
      */
