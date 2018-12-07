@@ -59,11 +59,11 @@ public class JavaVersionPluginFilter implements PluginFilter {
             LOGGER.log(Level.FINE,
                     String.format("Minimum Java Version cannot be determined for %s, will accept it", hpi),
                     e);
-            return true;
+            return false;
         }
         if (pluginJavaVersion == null) {
             LOGGER.log(Level.FINE, "Minimum Java Version cannot be determined for {0}, will accept it", hpi);
-            return true;
+            return false;
         }
 
         if (javaVersion.isOlderThan(pluginJavaVersion)) {
