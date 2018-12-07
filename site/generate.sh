@@ -103,7 +103,10 @@ done
 #     with symlinks pointing to the 'latest' current versions. So we generate exprimental first, then overwrite current to produce proper symlinks
 
 # experimental update center. this is not a part of the version-based redirection rules
-generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experimental" -download "$DOWNLOAD_ROOT_DIR" -download-fallback "$FALLBACK_DIR"
+generate -javaVersion 8 -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experimental"
+
+# As this includes more releases than the Java 8 experimental update site, generate complete -download and -download-fallback here.
+generate -javaVersion 11 -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/temporary-experimental-java11" -download "$DOWNLOAD_ROOT_DIR" -download-fallback "$FALLBACK_DIR"
 
 # for the latest without any cap
 # also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
@@ -127,8 +130,10 @@ for ltsv in ${RELEASES[@]}; do
 done
 
 sanity-check "$WWW_ROOT_DIR/experimental"
+sanity-check "$WWW_ROOT_DIR/temporary-experimental-java11"
 sanity-check "$WWW_ROOT_DIR/current"
 ln -sf ../updates "$WWW_ROOT_DIR/experimental/updates"
+ln -sf ../updates "$WWW_ROOT_DIR/temporary-experimental-java11/updates"
 ln -sf ../updates $WWW_ROOT_DIR/current/updates
 
 

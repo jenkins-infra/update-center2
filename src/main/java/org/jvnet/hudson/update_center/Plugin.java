@@ -24,6 +24,7 @@
 package org.jvnet.hudson.update_center;
 
 import com.google.common.annotations.VisibleForTesting;
+import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -428,6 +429,11 @@ public class Plugin {
 
     private static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
 
+    /**
+     * Converts the plugin definition to JSON.
+     * @return Generated JSON
+     * @throws Exception Generation error, e.g. Manifest read failure
+     */
     public JSONObject toJSON() throws Exception {
         JSONObject json = latest.toJSON(artifactId);
         if (json == null) {
@@ -479,6 +485,12 @@ public class Plugin {
         if (hpi.getCompatibleSinceVersion() != null) {
             json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
         }
+
+        VersionNumber minimumJavaVersion = hpi.getMinimumJavaVersion();
+        if (minimumJavaVersion != null) {
+            json.put("minimumJavaVersion", minimumJavaVersion.toString());
+        }
+
         if (hpi.getSandboxStatus() != null) {
             json.put("sandboxStatus",hpi.getSandboxStatus());
         }

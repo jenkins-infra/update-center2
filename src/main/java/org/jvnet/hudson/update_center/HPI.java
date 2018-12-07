@@ -25,9 +25,12 @@ package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
+import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 import org.sonatype.nexus.index.ArtifactInfo;
 
+import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,6 +111,22 @@ public class HPI extends MavenArtifact {
 
     public String getCompatibleSinceVersion() throws IOException {
         return getManifestAttributes().getValue("Compatible-Since-Version");
+    }
+
+    /**
+     * Gets Minimum Java Version required by the plugin.
+     * This uses the value of the {@code Minimum-Java-Version} manifest entry
+     * @return Minimum Java Version or {@code null} if it is unknown
+     * @throws IOException Manifest read error
+     */
+    @CheckForNull
+    public JavaSpecificationVersion getMinimumJavaVersion() throws IOException {
+        String manifestEntry = getManifestAttributes().getValue("Minimum-Java-Version");
+        if (StringUtils.isNotBlank(manifestEntry)) {
+            return new JavaSpecificationVersion(manifestEntry);
+        }
+
+        return null;
     }
 
     public String getDisplayName() throws IOException {
