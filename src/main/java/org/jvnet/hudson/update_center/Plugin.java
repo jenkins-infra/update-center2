@@ -488,7 +488,7 @@ public class Plugin {
 
         VersionNumber minimumJavaVersion = hpi.getMinimumJavaVersion();
         if (minimumJavaVersion != null) {
-            json.put("requiredJava", minimumJavaVersion.toString());
+            json.put("minimumJava", minimumJavaVersion.toString());
         }
 
         if (hpi.getSandboxStatus() != null) {
