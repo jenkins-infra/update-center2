@@ -3201,10 +3201,10 @@
   },
 
   {
-    "id": "core-2_159",
+    "id": "core-2_160",
     "type": "core",
     "name": "core",
-    "message": "Multiple security vulnerabilities in Jenkins 2.158 and earlier, and LTS 2.150.1 and earlier",
+    "message": "Multiple security vulnerabilities in Jenkins 2.159 and earlier, and LTS 2.150.1 and earlier",
     "url": "https://jenkins.io/security/advisory/2019-01-16/",
     "versions": [
       {
