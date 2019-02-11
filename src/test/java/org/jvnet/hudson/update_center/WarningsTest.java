@@ -114,7 +114,7 @@ public class WarningsTest {
         Map<String, List<Warning>> warnings = loadPluginWarnings();
 
         HttpClient hc = new HttpClient();
-        GetMethod request = new GetMethod("https://updates.jenkins-ci.org/release-history.json");
+        GetMethod request = new GetMethod("https://updates.jenkins.io/release-history.json");
 
         hc.executeMethod(request);
 
