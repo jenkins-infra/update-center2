@@ -3478,4 +3478,122 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1320",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Script Security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-02-19/#SECURITY-1320",
+    "versions": [
+      {
+        "lastVersion": "1.52",
+        "pattern": "(1[.]([0-9]|[1-4][0-9]|5[0-2]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-876",
+    "type": "plugin",
+    "name": "cloudfoundry",
+    "message": "CSRF vulnerability and missing permission checks allowed capturing credentials",
+    "url": "https://jenkins.io/security/advisory/2019-02-19/#SECURITY-876",
+    "versions": [
+      {
+        "lastVersion": "2.3.1",
+        "pattern": "(1|2[.][012]|2[.]3[.][01])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-985",
+    "type": "plugin",
+    "name": "mattermost",
+    "message": "SSRF vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-02-19/#SECURITY-985",
+    "versions": [
+      {
+        "lastVersion": "2.6.2",
+        "pattern": "(1|2[.][0-5]|2[.]6[.][0-2])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-817",
+    "type": "plugin",
+    "name": "octopusdeploy",
+    "message": "SSRF vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-02-19/#SECURITY-817",
+    "versions": [
+      {
+        "lastVersion": "1.8.1",
+        "pattern": "(1[.][0-8])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1033",
+    "type": "plugin",
+    "name": "jms-messaging",
+    "message": "SSRF vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-02-19/#SECURITY-1033",
+    "versions": [
+      {
+        "lastVersion": "1.1.1",
+        "pattern": "(1[.]0|1[.]1[.][01])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-937",
+    "type": "plugin",
+    "name": "electricflow",
+    "message": "SSL/TLS certification validation in Jenkins globally disabled",
+    "url": "https://jenkins.io/security/advisory/2019-02-19/#SECURITY-937",
+    "versions": [
+      {
+        "lastVersion": "1.1.4",
+        "pattern": "(1[.]0|1[.]1[.][0-4])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-951",
+    "type": "plugin",
+    "name": "acunetix",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-02-19/#SECURITY-951",
+    "versions": [
+      {
+        "lastVersion": "1.0.0",
+        "pattern": "1[.]0[.]0(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-980",
+    "type": "plugin",
+    "name": "acunetix",
+    "message": "SSRF vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-02-19/#SECURITY-980",
+    "versions": [
+      {
+        "lastVersion": "1.0.0",
+        "pattern": "1[.]0[.]0(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1070",
+    "type": "plugin",
+    "name": "ease-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-02-19/#SECURITY-1070",
+    "versions": [
+      {
+        "lastVersion": "1.2.12",
+        "pattern": "1(|[-.].*)"
+      }
+    ]
+  },
 ]
