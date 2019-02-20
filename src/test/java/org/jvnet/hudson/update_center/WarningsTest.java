@@ -63,7 +63,7 @@ public class WarningsTest {
             }
 
             Warning warning = new Warning();
-            warning.id = o.getString("id");
+            warning.id = o.getString("url") + " / " + o.getString("id");
 
             JSONArray versions = o.getJSONArray("versions");
             for (int j = 0 ; j < versions.size() ; j++) {
