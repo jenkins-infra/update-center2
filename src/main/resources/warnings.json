@@ -3596,4 +3596,200 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-848",
+    "type": "plugin",
+    "name": "rabbitmq-publisher",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-848",
+    "versions": [
+      {
+        "lastVersion": "1.0",
+        "pattern": "1[.]0(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-958",
+    "type": "plugin",
+    "name": "repository-connector",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-958",
+    "versions": [
+      {
+        "lastVersion": "1.2.4",
+        "pattern": "(0|1[.]([01]|2[.][0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-970",
+    "type": "plugin",
+    "name": "rabbitmq-publisher",
+    "message": "Server-side request forgery",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-970",
+    "versions": [
+      {
+        "lastVersion": "1.0",
+        "pattern": "1[.]0(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1038",
+    "type": "plugin",
+    "name": "osf-builder-suite-for-sfcc-deploy",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1038",
+    "versions": [
+      {
+        "lastVersion": "1.0.10",
+        "pattern": "1[.]0[.]([0-9]|10)(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1087",
+    "type": "plugin",
+    "name": "appdynamics-dashboard",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1087",
+    "versions": [
+      {
+        "lastVersion": "1.0.14",
+        "pattern": "1[.]0[.]([0-9]|1[0-4])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1088",
+    "type": "plugin",
+    "name": "testdroid-run-in-cloud",
+    "message": "Unprotected HTTP endpoint allowed server-side request forgery, unauthorized configuration changes",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1088",
+    "versions": [
+      {
+        "lastVersion": "2.69.1",
+        "pattern": "(1|2[.][0-6][0-9])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1330",
+    "type": "plugin",
+    "name": "azure-vm-agents",
+    "message": "Information disclosure",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1330",
+    "versions": [
+      {
+        "lastVersion": "0.8.0",
+        "pattern": "0[.]([1-7]|8[.]0)(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1331",
+    "type": "plugin",
+    "name": "azure-vm-agents",
+    "message": "Unauthorized users could change agent IP configuration",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1331",
+    "versions": [
+      {
+        "lastVersion": "0.8.0",
+        "pattern": "0[.]([1-7]|8[.]0)(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1332",
+    "type": "plugin",
+    "name": "azure-vm-agents",
+    "message": "Users with Overall/Read access can enumerate credential IDs",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1332",
+    "versions": [
+      {
+        "lastVersion": "0.8.0",
+        "pattern": "0[.]([1-7]|8[.]0)(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1336/1",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Script security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1336%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.53",
+        "pattern": "(1[.]([0-9]|[1-4][0-9]|5[0-3]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1336/2",
+    "type": "plugin",
+    "name": "workflow-cps",
+    "message": "Script security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1336%20(2)",
+    "versions": [
+      {
+        "lastVersion": "2.63",
+        "pattern": "(1|2[.]([0-9]|[1-5][0-9]|6[0-3]))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1338",
+    "type": "plugin",
+    "name": "groovy",
+    "message": "Script security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1338",
+    "versions": [
+      {
+        "lastVersion": "2.1",
+        "pattern": "(1|2[.][01])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1339",
+    "type": "plugin",
+    "name": "matrix-project",
+    "message": "Script security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1339",
+    "versions": [
+      {
+        "lastVersion": "1.13",
+        "pattern": "1[.]([0-9]|1[0-3])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1340",
+    "type": "plugin",
+    "name": "email-ext",
+    "message": "Script security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1340",
+    "versions": [
+      {
+        "lastVersion": "2.64",
+        "pattern": "2[.]([0-9]|[12345][0-9]|6[0-4])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1342",
+    "type": "plugin",
+    "name": "job-dsl",
+    "message": "Script security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-03-06/#SECURITY-1342",
+    "versions": [
+      {
+        "lastVersion": "1.71",
+        "pattern": "1[.]([0-9]|[1-6][0-9]|7[01])(|[.-].*)"
+      }
+    ]
+  },
 ]
