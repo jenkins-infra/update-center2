@@ -3792,4 +3792,122 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1353-script-security",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Script Security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-03-25/#SECURITY-1353",
+    "versions": [
+      {
+        "lastVersion": "1.55",
+        "pattern": "(1[.]([0-9]|[1-4][0-9]|5[0-5]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1353-workflow-cps",
+    "type": "plugin",
+    "name": "workflow-cps",
+    "message": "Script Security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-03-25/#SECURITY-1353",
+    "versions": [
+      {
+        "lastVersion": "2.64",
+        "pattern": "(1|2[.]([0-9]|[1-5][0-9]|6[0-4]))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-992",
+    "type": "plugin",
+    "name": "fortify-on-demand-uploader",
+    "message": "SSRF vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-03-25/#SECURITY-992",
+    "versions": [
+      {
+        "lastVersion": "3.0.10",
+        "pattern": "([0-2]|3[.]0[.]([0-9]|10))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-976",
+    "type": "plugin",
+    "name": "slack",
+    "message": "CSRF vulnerability and missing permission checks allowed capturing credentials",
+    "url": "https://jenkins.io/security/advisory/2019-03-25/#SECURITY-976",
+    "versions": [
+      {
+        "lastVersion": "2.19",
+        "pattern": "(1|2[.]([0-9]|1[0-9]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1361",
+    "type": "plugin",
+    "name": "lockable-resources",
+    "message": "XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-03-25/#SECURITY-1361",
+    "versions": [
+      {
+        "lastVersion": "2.4",
+        "pattern": "(1|2[.]([0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1089",
+    "type": "plugin",
+    "name": "prqa-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-03-25/#SECURITY-1089",
+    "versions": [
+      {
+        "lastVersion": "3.1.0",
+        "pattern": "(0|1|2|3[.](0|1[.]0))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1086",
+    "type": "plugin",
+    "name": "codebeamer-result-trend-updater",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-03-25/#SECURITY-1086",
+    "versions": [
+      {
+        "lastVersion": "1.1.3",
+        "pattern": "1[.](0([.].*)|1(|[.]3))"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1328",
+    "type": "plugin",
+    "name": "ease",
+    "message": "Unprivileged users with Overall/Read access are able to enumerate credential IDs",
+    "url": "https://jenkins.io/security/advisory/2019-03-25/#SECURITY-1328",
+    "versions": [
+      {
+        "lastVersion": "2.1",
+        "pattern": "(1|2[.](0|1))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-846",
+    "type": "plugin",
+    "name": "ecs-publisher",
+    "message": "API token stored and displayed in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-03-25/#SECURITY-846",
+    "versions": [
+      {
+        "lastVersion": "1.0.0",
+        "pattern": "1[.]0[.]0"
+      }
+    ]
+  },
 ]
