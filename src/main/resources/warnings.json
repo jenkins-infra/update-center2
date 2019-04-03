@@ -3910,4 +3910,716 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-829",
+    "type": "plugin",
+    "name": "ircbot",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-829",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-831",
+    "type": "plugin",
+    "name": "aws-beanstalk-publisher-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-831",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-837",
+    "type": "plugin",
+    "name": "jenkins-jira-issue-updater",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-837",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-839",
+    "type": "plugin",
+    "name": "hockeyapp",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-839",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-954",
+    "type": "plugin",
+    "name": "ftppublisher",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-954",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-956",
+    "type": "plugin",
+    "name": "websphere-deployer",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-956",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-965",
+    "type": "plugin",
+    "name": "bitbucket-approve",
+    "message": "Bitbucket Approve Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-965",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-974",
+    "type": "plugin",
+    "name": "ftppublisher",
+    "message": "CSRF vulnerability and missing permission check allow connecting to arbitrary FTP servers",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-974",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1041",
+    "type": "plugin",
+    "name": "zap",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1041",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1042",
+    "type": "plugin",
+    "name": "jenkins-cloudformation-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1042",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-830",
+    "type": "plugin",
+    "name": "aws-cloudwatch-logs-publisher",
+    "message": "AWS CloudWatch Logs Publisher Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-830",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-832",
+    "type": "plugin",
+    "name": "snsnotify",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-832",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-835",
+    "type": "plugin",
+    "name": "aws-device-farm",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-835",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-838",
+    "type": "plugin",
+    "name": "cloudshare-docker",
+    "message": "CloudShare Docker-Machine Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-838",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-841",
+    "type": "plugin",
+    "name": "bugzilla",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-841",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-842",
+    "type": "plugin",
+    "name": "trac-publisher-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-842",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-945",
+    "type": "plugin",
+    "name": "vmware-vrealize-automation-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-945",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-949",
+    "type": "plugin",
+    "name": "aqua-security-scanner",
+    "message": "Aqua Security Scanner Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-949",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-952",
+    "type": "plugin",
+    "name": "veracode-scanner",
+    "message": "veracode-scanner Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-952",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-957",
+    "type": "plugin",
+    "name": "octopusdeploy",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-957",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-961",
+    "type": "plugin",
+    "name": "wildfly-deployer",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-961",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-962",
+    "type": "plugin",
+    "name": "vsts-cd",
+    "message": "VS Team Services Continuous Deployment Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-962",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-964",
+    "type": "plugin",
+    "name": "hyper-commons",
+    "message": "Hyper.sh Commons Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-964",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-966",
+    "type": "plugin",
+    "name": "audit2db",
+    "message": "Audit to Database Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-966",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-977",
+    "type": "plugin",
+    "name": "audit2db",
+    "message": "CSRF vulnerability and missing permission check allow connecting to arbitrary databases",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-977",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-979",
+    "type": "plugin",
+    "name": "labmanager",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-979",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-981",
+    "type": "plugin",
+    "name": "openshift-deployer",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-981",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-991",
+    "type": "plugin",
+    "name": "gearman-plugin",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-991",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-993",
+    "type": "plugin",
+    "name": "zephyr-enterprise-test-management",
+    "message": "CSRF vulnerability and missing permission check allow SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-993",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1037",
+    "type": "plugin",
+    "name": "sinatra-chef-builder",
+    "message": "CSRF vulnerability and missing permission check allow SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1037",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1043",
+    "type": "plugin",
+    "name": "fabric-beta-publisher",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1043",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1044",
+    "type": "plugin",
+    "name": "upload-pgyer",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1044",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1054",
+    "type": "plugin",
+    "name": "cloudtest",
+    "message": "CSRF vulnerability and missing permission check allow SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1054",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1058",
+    "type": "plugin",
+    "name": "nomad",
+    "message": "CSRF vulnerability and missing permission check allow SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1058",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1059",
+    "type": "plugin",
+    "name": "open-stf",
+    "message": "Open STF Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1059",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1061",
+    "type": "plugin",
+    "name": "perfectomobile",
+    "message": "Perfecto Mobile Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1061",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1062",
+    "type": "plugin",
+    "name": "TestFairy",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1062",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1069",
+    "type": "plugin",
+    "name": "crowd",
+    "message": "Crowd Integration Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1069",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1084",
+    "type": "plugin",
+    "name": "openid",
+    "message": "CSRF vulnerability and missing permission check allow SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1084",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1085",
+    "type": "plugin",
+    "name": "starteam",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1085",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1091",
+    "type": "plugin",
+    "name": "jenkins-reviewbot",
+    "message": "CSRF vulnerability and missing permission check allow SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1091",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1093",
+    "type": "plugin",
+    "name": "assembla-auth",
+    "message": "Assembla Auth Plugin stores credentials in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1093",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-828",
+    "type": "plugin",
+    "name": "relution-publisher",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-828",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-843",
+    "type": "plugin",
+    "name": "klaros-testmanagement",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-843",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-946",
+    "type": "plugin",
+    "name": "mabl-integration",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-946",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-947",
+    "type": "plugin",
+    "name": "diawi-upload",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-947",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-955",
+    "type": "plugin",
+    "name": "minio-storage",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-955",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-959",
+    "type": "plugin",
+    "name": "deployhub",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-959",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-963",
+    "type": "plugin",
+    "name": "youtrack-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-963",
+    "versions": [
+      {
+        "lastVersion": "0.7.1",
+        "pattern": "(0[.][1-6]|0[.]7[.]1)(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1031",
+    "type": "plugin",
+    "name": "jabber-server-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1031",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1032",
+    "type": "plugin",
+    "name": "netsparker-cloud-scan",
+    "message": "CSRF vulnerability and missing permission check allowed SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1032",
+    "versions": [
+      {
+        "lastVersion": "1.1.5",
+        "pattern": "(1[.]1[.][0-5])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1040",
+    "type": "plugin",
+    "name": "netsparker-cloud-scan",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1040",
+    "versions": [
+      {
+        "lastVersion": "1.1.5",
+        "pattern": "(1[.]1[.][0-5])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1055",
+    "type": "plugin",
+    "name": "kmap-jenkins",
+    "message": "CSRF vulnerability and missing permission check allow SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1055",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1056",
+    "type": "plugin",
+    "name": "kmap-jenkins",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1056",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1063",
+    "type": "plugin",
+    "name": "crittercism-dsym",
+    "message": "API key stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1063",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1066",
+    "type": "plugin",
+    "name": "sra-deploy",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1066",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1090",
+    "type": "plugin",
+    "name": "sametime",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1090",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1092",
+    "type": "plugin",
+    "name": "koji",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1092",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-960",
+    "type": "plugin",
+    "name": "cloudcoreo-deploytime",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-960",
+    "versions": [
+      {
+        "pattern": ".*"
+      }
+    ]
+  },
 ]
