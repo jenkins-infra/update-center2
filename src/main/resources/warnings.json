@@ -4643,4 +4643,71 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1357",
+    "type": "plugin",
+    "name": "gitlab-plugin",
+    "message": "CSRF vulnerability and missing permission checks allowed capturing credentials",
+    "url": "https://jenkins.io/security/advisory/2019-04-17/#SECURITY-1357",
+    "versions": [
+      {
+        "lastVersion": "1.5.11",
+        "pattern": "(1[.]([0-4]|5[.]([0-9]|1[01])))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-836",
+    "type": "plugin",
+    "name": "jira-ext",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-17/#SECURITY-836",
+    "versions": [
+      {
+        "lastVersion": "0.8",
+        "pattern": "(0[.][1-8])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-844",
+    "type": "plugin",
+    "name": "azure-publishersettings-credentials",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-17/#SECURITY-844",
+    "versions": [
+      {
+        "lastVersion": "1.2",
+        "pattern": "(1[.][0-2])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-983",
+    "type": "plugin",
+    "name": "deployit-plugin",
+    "message": "CSRF vulnerability and missing permission check allow SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-04-17/#SECURITY-983",
+    "versions": [
+      {
+        "lastVersion": "7.5.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1341",
+    "type": "plugin",
+    "name": "ontrack",
+    "message": "Script security sandbox bypass",
+    "url": "https://jenkins.io/security/advisory/2019-04-17/#SECURITY-1341",
+    "versions": [
+      {
+        "lastVersion": "3.4",
+        "pattern": "(2|3[.]([0-3]))(|[.-].*)|3[.]4"
+      }
+    ]
+  },
+
 ]
