@@ -36,7 +36,7 @@ Jenkins groups plugins into various categories in the plugin manager.
 
 These categories historically were labels on the plugins' wiki page with Jenkins applying localization on the raw label value, if defined.
 To remove the need to scrape wiki pages in this tool, we've changed this behavior, and plugins now have the labels defined in this repository.
-See the file `src/main/resources/label-definitions.properties` for the plugin/label assignments.
+See [`label-definitions.properties`](https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/label-definitions.properties) for the plugin/label assignments.
 
 See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides Jenkins applies.
 
