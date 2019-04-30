@@ -4710,4 +4710,134 @@
     ]
   },
 
+  {
+    "id": "SECURITY-1100",
+    "type": "plugin",
+    "name": "analysis-core",
+    "message": "CSRF vulnerability allowed changing graph configuration",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-1100",
+    "versions": [
+      {
+        "lastVersion": "1.95",
+        "pattern": "(1[.]([0-9][0-9]|9[0-5]))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-930",
+    "type": "plugin",
+    "name": "sitemonitor",
+    "message": "SSL/TLS certificate validation globally and unconditionally disabled",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-930",
+    "versions": [
+      {
+        "lastVersion": "0.5",
+        "pattern": "(0[.][0-5])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1252",
+    "type": "plugin",
+    "name": "swarm",
+    "message": "XXE vulnerability via UDP broadcast response in Swarm client",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-1252",
+    "versions": [
+      {
+        "lastVersion": "3.15",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1355-1",
+    "type": "plugin",
+    "name": "ansible-tower",
+    "message": "CSRF vulnerability and missing permission check allowed capturing credentials",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-1355%20(1)",
+    "versions": [
+      {
+        "lastVersion": "0.9.1",
+        "pattern": "(0[.][5-8]|0[.]9[.][01])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1355-2",
+    "type": "plugin",
+    "name": "ansible-tower",
+    "message": "Users with Overall/Read access are able to enumerate credential IDs",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-1355%20(2)",
+    "versions": [
+      {
+        "lastVersion": "0.9.1",
+        "pattern": "(0[.][5-8]|0[.]9[.][01])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1390",
+    "type": "plugin",
+    "name": "azure-ad",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-1390",
+    "versions": [
+      {
+        "lastVersion": "0.3.3",
+        "pattern": "(0[.][12]|0[.]3[.][0-3])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1143",
+    "type": "plugin",
+    "name": "twitter",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-1143",
+    "versions": [
+      {
+        "lastVersion": "0.7",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-936",
+    "type": "plugin",
+    "name": "koji",
+    "message": "SSL/TLS certificate validation globally and unconditionally disabled",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-936",
+    "versions": [
+      {
+        "lastVersion": "0.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-443",
+    "type": "plugin",
+    "name": "github-oauth",
+    "message": "CSRF vulnerability in OAuth callback",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-443",
+    "versions": [
+      {
+        "lastVersion": "0.31",
+        "pattern": "(0[.]([0-9]|[12][0-9]|3[01]))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1380",
+    "type": "plugin",
+    "name": "aqua-microscanner",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-04-30/#SECURITY-1380",
+    "versions": [
+      {
+        "lastVersion": "1.0.5",
+        "pattern": "(1[.]0[.][1-5])(|[.-].*)"
+      }
+    ]
+  },
 ]
