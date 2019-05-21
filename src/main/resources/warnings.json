@@ -4840,4 +4840,31 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1316",
+    "type": "plugin",
+    "name": "pam-auth",
+    "message": "Missing permission check allowed obtaining limited information about system configuration",
+    "url": "https://jenkins.io/security/advisory/2019-05-21/#SECURITY-1316",
+    "versions": [
+      {
+        "lastVersion": "1.5",
+        "pattern": "1[.][0-5]"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1322",
+    "type": "plugin",
+    "name": "credentials",
+    "message": "Certificate file read vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-05-21/#SECURITY-1322",
+    "versions": [
+      {
+        "lastVersion": "2.1.18",
+        "pattern": "(1|2[.](0|1[.]([0-9]|1[0-8])))(|[.-].*)"
+      }
+    ]
+  },
 ]
