@@ -4691,8 +4691,8 @@
     "url": "https://jenkins.io/security/advisory/2019-04-17/#SECURITY-983",
     "versions": [
       {
-        "lastVersion": "7.5.3",
-        "pattern": ".*"
+        "lastVersion": "7.5.5",
+        "pattern": "(3[.].*|4[.].*|5[.].*|6[.].*|7[.][01234])"
       }
     ]
   },
