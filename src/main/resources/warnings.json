@@ -4868,4 +4868,122 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1373",
+    "type": "plugin",
+    "name": "warnings-ng",
+    "message": "Persisted XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1373",
+    "versions": [
+      {
+        "lastVersion": "5.0.0",
+        "pattern": "([1-4]|5[.]0[.]0)(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1391",
+    "type": "plugin",
+    "name": "warnings-ng",
+    "message": "CSRF vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1391",
+    "versions": [
+      {
+        "lastVersion": "5.0.0",
+        "pattern": "([1-4]|5[.]0[.]0)(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1409",
+    "type": "plugin",
+    "name": "pipeline-maven",
+    "message": "XML External Entity processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1409",
+    "versions": [
+      {
+        "lastVersion": "3.7.0",
+        "pattern": "([0-2]|3[.][0-6]|3[.]7[.]0)(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-921",
+    "type": "plugin",
+    "name": "workflow-remote-loader",
+    "message": "Unsafe Script Security whitelist entry",
+    "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-921",
+    "versions": [
+      {
+        "lastVersion": "1.4",
+        "pattern": "(1[.][0-4])(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1403",
+    "type": "plugin",
+    "name": "influxdb",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1403",
+    "versions": [
+      {
+        "lastVersion": "1.21",
+        "pattern": "(1[.]([0-9]|1[0-9]|2[01]))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1046",
+    "type": "plugin",
+    "name": "gitea",
+    "message": "Improper handling of untrusted branches",
+    "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1046",
+    "versions": [
+      {
+        "lastVersion": "1.1.1",
+        "pattern": "(1[.](0|1[.][0-1]))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1015-1",
+    "type": "plugin",
+    "name": "artifactory",
+    "message": "CSRF vulnerability and missing permission check allow capturing credentials",
+    "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1015%20(1)",
+    "versions": [
+      {
+        "lastVersion": "3.2.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1015-2",
+    "type": "plugin",
+    "name": "artifactory",
+    "message": "Users with Overall/Read access could enumerate credential IDs",
+    "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1015%20(2)",
+    "versions": [
+      {
+        "lastVersion": "3.2.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1347",
+    "type": "plugin",
+    "name": "artifactory",
+    "message": "CSRF vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1347",
+    "versions": [
+      {
+        "lastVersion": "3.2.2",
+        "pattern": ".*"
+      }
+    ]
+  },
 ]
