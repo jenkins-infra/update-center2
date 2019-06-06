@@ -4956,7 +4956,7 @@
     "versions": [
       {
         "lastVersion": "3.2.2",
-        "pattern": ".*"
+        "pattern": "([12]|3[.]([01]|2[.][012]))(|[.-].*)"
       }
     ]
   },
@@ -4968,8 +4968,8 @@
     "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-1015%20(2)",
     "versions": [
       {
-        "lastVersion": "3.2.2",
-        "pattern": ".*"
+        "lastVersion": "3.2.3",
+        "pattern": "([12]|3[.]([01]|2[.][0123]))(|[.-].*)"
       }
     ]
   },
@@ -4982,7 +4982,7 @@
     "versions": [
       {
         "lastVersion": "3.2.2",
-        "pattern": ".*"
+        "pattern": "([12]|3[.]([01]|2[.][012]))(|[.-].*)"
       }
     ]
   },
