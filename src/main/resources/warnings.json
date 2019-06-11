@@ -4986,4 +4986,96 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1399",
+    "type": "plugin",
+    "name": "token-macro",
+    "message": "XML External Entity processing vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1399",
+    "versions": [
+      {
+        "lastVersion": "2.7",
+        "pattern": "(1|2[.][0-7])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1379",
+    "type": "plugin",
+    "name": "jx-resources",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1379",
+    "versions": [
+      {
+        "lastVersion": "1.0.36",
+        "pattern": "1[.]0[.]([0-9]|[12][0-9]|3[0-6])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1410-1",
+    "type": "plugin",
+    "name": "electricflow",
+    "message": "CSRF vulnerability and missing permission checks allowed SSRF",
+    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1410 (1)",
+    "versions": [
+      {
+        "lastVersion": "1.1.5",
+        "pattern": "(1[.]0|1[.]1[.][0-5])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1410-2",
+    "type": "plugin",
+    "name": "electricflow",
+    "message": "Missing permission checks",
+    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1410 (2)",
+    "versions": [
+      {
+        "lastVersion": "1.1.5",
+        "pattern": "(1[.]0|1[.]1[.][0-5])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1411",
+    "type": "plugin",
+    "name": "electricflow",
+    "message": "SSL/TLS certificate validation globally and unconditionally disabled",
+    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1411",
+    "versions": [
+      {
+        "lastVersion": "1.1.5",
+        "pattern": "(1[.]0|1[.]1[.][0-5])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1412",
+    "type": "plugin",
+    "name": "electricflow",
+    "message": "XSS vulnerability in build metadata",
+    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1412",
+    "versions": [
+      {
+        "lastVersion": "1.1.5",
+        "pattern": "(1[.]0|1[.]1[.][0-5])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1420",
+    "type": "plugin",
+    "name": "electricflow",
+    "message": "XSS vulnerability affecting job configuration forms",
+    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1420",
+    "versions": [
+      {
+        "lastVersion": "1.1.6",
+        "pattern": "(1[.]0|1[.]1[.][0-6])(|[-.].*)"
+      }
+    ]
+  },
 ]
