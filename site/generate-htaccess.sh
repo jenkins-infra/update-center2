@@ -18,7 +18,10 @@ RewriteEngine on
 # If we have a match that looks like an LTS version, e.g. 1.554.1, redirect to stable-1.554
 RewriteCond %{QUERY_STRING} ^.*version=([0-9]*\.[0-9]*)\..*$ [NC]
 RewriteCond %{DOCUMENT_ROOT}/stable\-%1%{REQUEST_URI} -f
-RewriteRule ^update\-center\.[json|html]+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
+
+RewriteRule ^update\-center.*\.[json|html]+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^plugin\-documentation\-urls\.json+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^latestCore\.txt+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
 
 EOF
 
@@ -37,6 +40,8 @@ for ltsv in $@ ; do
 RewriteCond %{QUERY_STRING} ^.*version=${major}\.(\d+)$ [NC]
 RewriteCond %1 <=${minor}
 RewriteRule ^update\-center.*\.[json|html]+ /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^plugin\-documentation\-urls\.json+ /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^latestCore\.txt+ /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 
 EOF
 
@@ -51,6 +56,8 @@ echo "# First LTS update site (stable-$major.$minor) gets all older releases"
 cat <<EOF
 RewriteCond %{QUERY_STRING} ^.*version=\d\.(\d+)\.\d+$ [NC]
 RewriteRule ^update\-center.*\.[json|html]+ /stable-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^plugin\-documentation\-urls\.json+ /stable-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^latestCore\.txt+ /stable-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 
 EOF
 
