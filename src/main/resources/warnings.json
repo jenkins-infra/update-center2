@@ -4256,7 +4256,7 @@
     "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-993",
     "versions": [
       {
-        "pattern": "(1[.][0-6])"
+        "pattern": "(1[.][0-6])(|[-.].*)"
       }
     ]
   },
