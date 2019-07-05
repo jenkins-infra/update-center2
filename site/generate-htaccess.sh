@@ -19,9 +19,7 @@ RewriteEngine on
 RewriteCond %{QUERY_STRING} ^.*version=([0-9]*\.[0-9]*)\..*$ [NC]
 RewriteCond %{DOCUMENT_ROOT}/stable\-%1%{REQUEST_URI} -f
 
-RewriteRule ^update\-center.*\.[json|html]+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
-RewriteRule ^plugin\-documentation\-urls\.json+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
-RewriteRule ^latestCore\.txt+ /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+|plugin\-documentation\-urls\.json|latestCore\.txt) /stable\-%1%{REQUEST_URI}? [NC,L,R=301]
 
 EOF
 
@@ -39,9 +37,7 @@ for ltsv in $@ ; do
     cat <<EOF
 RewriteCond %{QUERY_STRING} ^.*version=${major}\.(\d+)$ [NC]
 RewriteCond %1 <=${minor}
-RewriteRule ^update\-center.*\.[json|html]+ /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
-RewriteRule ^plugin\-documentation\-urls\.json+ /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
-RewriteRule ^latestCore\.txt+ /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+|plugin\-documentation\-urls\.json|latestCore\.txt) /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 
 EOF
 
@@ -55,9 +51,7 @@ minor=${versionPieces[1]}
 echo "# First LTS update site (stable-$major.$minor) gets all older releases"
 cat <<EOF
 RewriteCond %{QUERY_STRING} ^.*version=\d\.(\d+)\.\d+$ [NC]
-RewriteRule ^update\-center.*\.[json|html]+ /stable-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
-RewriteRule ^plugin\-documentation\-urls\.json+ /stable-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
-RewriteRule ^latestCore\.txt+ /stable-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+|plugin\-documentation\-urls\.json|latestCore\.txt) /stable-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 
 EOF
 
@@ -73,20 +67,13 @@ EOF
 # Further static rules
 cat <<EOF
 # If that all failed, but we have an update center, let's go to current
-RewriteRule ^update\-center.*\.[json|html]+ /current%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+|plugin\-documentation\-urls\.json|latestCore\.txt) /current%{REQUEST_URI}? [NC,L,R=301]
 
 # Ensure /release-history.json goes to the right place
 RewriteRule ^release\-history\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
 
 # Ensure /plugin-versions.json goes to the right place
 RewriteRule ^plugin\-versions\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
-
-# Ensure /plugin-documentation-urls.json goes to the right place
-RewriteRule ^plugin\-documentation\-urls\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
-
-# Ensure /latestCore.txt goes to /current/latestCore.txt
-RewriteRule ^latestCore\.txt+ /current%{REQUEST_URI}? [NC,L,R=301]
-
 
 
 ReadmeName readme.html
