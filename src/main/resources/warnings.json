@@ -5078,4 +5078,109 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1010",
+    "type": "plugin",
+    "name": "docker-plugin",
+    "message": "CSRF vulnerability and missing permission check allowed capturing credentials",
+    "url": "https://jenkins.io/security/advisory/2019-07-11/#SECURITY-1010",
+    "versions": [
+      {
+        "lastVersion": "1.1.6",
+        "pattern": "(0|1[.](0|1[.][0-6]))(|[-.].*)|1[.]1"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1400",
+    "type": "plugin",
+    "name": "docker-plugin",
+    "message": "Users with Overall/Read access could enumerate credential IDs",
+    "url": "https://jenkins.io/security/advisory/2019-07-11/#SECURITY-1400",
+    "versions": [
+      {
+        "lastVersion": "1.1.6",
+        "pattern": "(0|1[.](0|1[.][0-6]))(|[-.].*)|1[.]1"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1419",
+    "type": "plugin",
+    "name": "embeddable-build-status",
+    "message": "Reflected XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-07-11/#SECURITY-1419",
+    "versions": [
+      {
+        "lastVersion": "2.0.1",
+        "pattern": "(1[.].+|2[.](0(|[.]1)))(|[-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-775",
+    "type": "plugin",
+    "name": "mashup-portlets-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-07-11/#SECURITY-775",
+    "versions": [
+      {
+        "lastVersion": "1.0.9",
+        "pattern": "(0|1[.]0)(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1438",
+    "type": "plugin",
+    "name": "gogs-webhook",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-07-11/#SECURITY-1438",
+    "versions": [
+      {
+        "lastVersion": "1.0.14",
+        "pattern": "(1[.]0[.]([0-9]|1[0-4]))(|[.-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1177",
+    "type": "plugin",
+    "name": "depgraph-view",
+    "message": "Stored XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-07-11/#SECURITY-1177",
+    "versions": [
+      {
+        "lastVersion": "0.13",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1441",
+    "type": "plugin",
+    "name": "port-allocator",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-07-11/#SECURITY-1441",
+    "versions": [
+      {
+        "lastVersion": "1.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1437",
+    "type": "plugin",
+    "name": "caliper-ci",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-07-11/#SECURITY-1437",
+    "versions": [
+      {
+        "lastVersion": "2.3",
+        "pattern": ".*"
+      }
+    ]
+  }
 ]
