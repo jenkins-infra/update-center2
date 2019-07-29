@@ -5201,4 +5201,200 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1465-1",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass through type casts",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1465%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.61",
+        "pattern": "(1[.]([0-9]|[1-5][0-9]|6[01]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1465-2",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass through method pointer expressions",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1465%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1.61",
+        "pattern": "(1[.]([0-9]|[1-5][0-9]|6[01]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1422",
+    "type": "plugin",
+    "name": "workflow-cps-global-lib",
+    "message": "Missing permission check",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1422",
+    "versions": [
+      {
+        "lastVersion": "2.14",
+        "pattern": "(1|2[.]([0-9]|1[0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-713",
+    "type": "plugin",
+    "name": "maven-plugin",
+    "message": "Sensitive values in module build logs were not masked",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-713",
+    "versions": [
+      {
+        "lastVersion": "3.3",
+        "pattern": "(1|2|3[.][0-3])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1098",
+    "type": "plugin",
+    "name": "m2release",
+    "message": "CSRF vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1098",
+    "versions": [
+      {
+        "lastVersion": "0.14.0",
+        "pattern": "(0[.]([0-9]|1[0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1184",
+    "type": "plugin",
+    "name": "m2release",
+    "message": "Stored XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1184",
+    "versions": [
+      {
+        "lastVersion": "0.14.0",
+        "pattern": "(0[.]([0-9]|1[0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1435",
+    "type": "plugin",
+    "name": "m2release",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1435",
+    "versions": [
+      {
+        "lastVersion": "0.14.0",
+        "pattern": "(0[.]([0-9]|1[0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1279",
+    "type": "plugin",
+    "name": "configuration-as-code",
+    "message": "Secrets in log messages were not masked",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1279",
+    "versions": [
+      {
+        "lastVersion": "1.24",
+        "pattern": "(0|1[.]([0-9]|1[0-9]|2[0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1290",
+    "type": "plugin",
+    "name": "configuration-as-code",
+    "message": "Users without Overall/Administer permission allowed to access documentation",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1290",
+    "versions": [
+      {
+        "lastVersion": "1.24",
+        "pattern": "(0|1[.]([0-9]|1[0-9]|2[0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1303",
+    "type": "plugin",
+    "name": "configuration-as-code",
+    "message": "Proxy credentials not masked",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1303",
+    "versions": [
+      {
+        "lastVersion": "1.20",
+        "pattern": "(0|1[.]([0-9]|1[0-9]|20))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1446",
+    "type": "plugin",
+    "name": "configuration-as-code",
+    "message": "Placeholders evaluated when importing a previously exported configuration",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1446",
+    "versions": [
+      {
+        "lastVersion": "1.24",
+        "pattern": "(0|1[.]([0-9]|1[0-9]|2[0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1458",
+    "type": "plugin",
+    "name": "configuration-as-code",
+    "message": "Secret values exported in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1458",
+    "versions": [
+      {
+        "lastVersion": "1.24",
+        "pattern": "(0|1[.]([0-9]|1[0-9]|2[0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-673",
+    "type": "plugin",
+    "name": "ec2",
+    "message": "Beginning of private key leaked in system log",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-673",
+    "versions": [
+      {
+        "lastVersion": "1.43",
+        "pattern": "(1[.](19|[23][0-9]|4[0-3]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1345",
+    "type": "plugin",
+    "name": "google-kubernetes-engine",
+    "message": "Temporary secret stored in a user accessible location",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1345",
+    "versions": [
+      {
+        "lastVersion": "0.6.2",
+        "pattern": "(0[.]([1-5]|6[.][0-2]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1429",
+    "type": "plugin",
+    "name": "skytap",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1429",
+    "versions": [
+      {
+        "lastVersion": "2.06",
+        "pattern": "(1|2[.]0[0-6])(|[-.].*)"
+      }
+    ]
+  },
 ]
