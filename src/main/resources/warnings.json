@@ -5245,7 +5245,7 @@
     "id": "SECURITY-713",
     "type": "plugin",
     "name": "maven-plugin",
-    "message": "Sensitive values in module build logs were not masked",
+    "message": "Sensitive values in module build logs not masked",
     "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-713",
     "versions": [
       {
@@ -5297,7 +5297,7 @@
     "id": "SECURITY-1279",
     "type": "plugin",
     "name": "configuration-as-code",
-    "message": "Secrets in log messages were not masked",
+    "message": "Secrets in system log messages not masked",
     "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1279",
     "versions": [
       {
@@ -5336,7 +5336,7 @@
     "id": "SECURITY-1446",
     "type": "plugin",
     "name": "configuration-as-code",
-    "message": "Placeholders evaluated when importing a previously exported configuration",
+    "message": "Variable references evaluated when importing a previously exported configuration",
     "url": "https://jenkins.io/security/advisory/2019-07-31/#SECURITY-1446",
     "versions": [
       {
