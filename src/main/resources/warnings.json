@@ -5632,4 +5632,48 @@
       }
     ]
   },
+
+  {
+    "id": "core-2_192",
+    "type": "core",
+    "name": "core",
+    "message": "Multiple security vulnerabilities in Jenkins 2.191 and earlier, and LTS 2.176.2 and earlier",
+    "url": "https://jenkins.io/security/advisory/2019-08-28/",
+    "versions": [
+      {
+        "lastVersion": "2.191",
+        "pattern": "(1[.].*|2[.][0-9]|2[.][0-9][0-9]|2[.]1[0-8][0-9]|2[.]19[01])(|[-].*)"
+      },
+      {
+        "lastVersion": "2.176.2",
+        "pattern": "(2[.][0-9]{1,2}[.].+|2[.](107|121|138|150|164)[.].+|2[.]176[.][12])(|[-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1294",
+    "type": "plugin",
+    "name": "splunk-devops",
+    "message": "Sandbox Bypass",
+    "url": "https://jenkins.io/security/advisory/2019-08-28/#SECURITY-1294",
+    "versions": [
+      {
+        "lastVersion": "1.7.4",
+        "pattern": "(1[.][0-7])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1512",
+    "type": "plugin",
+    "name": "ibm-application-security",
+    "message": "Plain text password shown in job configuration form fields",
+    "url": "https://jenkins.io/security/advisory/2019-08-28/#SECURITY-1512",
+    "versions": [
+      {
+        "lastVersion": "1.2.4",
+        "pattern": "(1[.]([01]|2[.][0-4]))(|[-.].*)"
+      }
+    ]
+  },
 ]
