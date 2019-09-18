@@ -5018,7 +5018,7 @@
     "type": "plugin",
     "name": "electricflow",
     "message": "CSRF vulnerability and missing permission checks allowed SSRF",
-    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1410 (1)",
+    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1410%20(1)",
     "versions": [
       {
         "lastVersion": "1.1.5",
@@ -5031,7 +5031,7 @@
     "type": "plugin",
     "name": "electricflow",
     "message": "Missing permission checks",
-    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1410 (2)",
+    "url": "https://jenkins.io/security/advisory/2019-06-11/#SECURITY-1410%20(2)",
     "versions": [
       {
         "lastVersion": "1.1.5",
