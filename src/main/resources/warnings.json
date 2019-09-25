@@ -5759,4 +5759,308 @@
       }
     ]
   },
+
+  {
+    "id": "core-2_197",
+    "type": "core",
+    "name": "core",
+    "message": "Multiple security vulnerabilities in Jenkins 2.196 and earlier, and LTS 2.176.3 and earlier",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/",
+    "versions": [
+      {
+        "lastVersion": "2.196",
+        "pattern": "(1[.].*|2[.][0-9]|2[.][0-9][0-9]|2[.]1[0-8][0-9]|2[.]19[0-6])(|[-].*)"
+      },
+      {
+        "lastVersion": "2.176.3",
+        "pattern": "(2[.][0-9]{1,2}[.].+|2[.](107|121|138|150|164)[.].+|2[.]176[.][123])(|[-].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-351",
+    "type": "plugin",
+    "name": "project-inheritance",
+    "message": "Secret environment variables defined in Mask Passwords Plugin shown unmasked",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-351",
+    "versions": [
+      {
+        "lastVersion": "19.08.01",
+        "pattern": "([12]|19[.]08[.]01)(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-401",
+    "type": "plugin",
+    "name": "project-inheritance",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-401",
+    "versions": [
+      {
+        "lastVersion": "19.08.01",
+        "pattern": "([12]|19[.]08[.]01)(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-732",
+    "type": "plugin",
+    "name": "log-parser",
+    "message": "Stored XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-732",
+    "versions": [
+      {
+        "lastVersion": "2.0",
+        "pattern": "(1|2[.]0)(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1504",
+    "type": "plugin",
+    "name": "neuvector-vulnerability-scanner",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1504",
+    "versions": [
+      {
+        "lastVersion": "1.5",
+        "pattern": "(1[.][0-5])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1507",
+    "type": "plugin",
+    "name": "aqua-microscanner",
+    "message": "Plain text password shown in configuration form",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1507",
+    "versions": [
+      {
+        "lastVersion": "1.0.7",
+        "pattern": "(1[.]0[.][0-7])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1508",
+    "type": "plugin",
+    "name": "aqua-security-scanner",
+    "message": "Plain text password shown in configuration form",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1508",
+    "versions": [
+      {
+        "lastVersion": "3.0.17",
+        "pattern": "([12]|3[.]0[.]([0-9]|1[0-7]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1513",
+    "type": "plugin",
+    "name": "inedo-buildmaster",
+    "message": "Plain text password shown in configuration form",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1513",
+    "versions": [
+      {
+        "lastVersion": "2.4.0",
+        "pattern": "(1|2[.][0-4])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1514",
+    "type": "plugin",
+    "name": "inedo-proget",
+    "message": "Plain text password shown in configuration form",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1514",
+    "versions": [
+      {
+        "lastVersion": "1.2",
+        "pattern": "(0|1[.][0-2])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1557",
+    "type": "plugin",
+    "name": "datatheorem-mobile-app-security",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1557",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": "(1[.][0-3])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1574",
+    "type": "plugin",
+    "name": "git-changelog",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1574",
+    "versions": [
+      {
+        "lastVersion": "2.17",
+        "pattern": "(1|2[.]([0-9]|1[0-7]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1575",
+    "type": "plugin",
+    "name": "gitlab-logo",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1575",
+    "versions": [
+      {
+        "lastVersion": "1.0.3",
+        "pattern": "(1[.]0[.][0-3])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1577",
+    "type": "plugin",
+    "name": "violation-comments-to-gitlab",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1577",
+    "versions": [
+      {
+        "lastVersion": "2.28",
+        "pattern": "(1|2[.]([0-9]|1[0-9]|2[0-8]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-920-1",
+    "type": "plugin",
+    "name": "kubernetes-pipeline-steps",
+    "message": "Script sandbox bypass vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-920%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.6",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-920-2",
+    "type": "plugin",
+    "name": "kubernetes-pipeline-arquillian-steps",
+    "message": "Script sandbox bypass vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-920%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1.6",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1541",
+    "type": "plugin",
+    "name": "application-director-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1541",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1543",
+    "type": "plugin",
+    "name": "assembla",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1543",
+    "versions": [
+      {
+        "lastVersion": "1.4",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1544",
+    "type": "plugin",
+    "name": "azure-event-grid-notifier",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1544",
+    "versions": [
+      {
+        "lastVersion": "0.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1548",
+    "type": "plugin",
+    "name": "call-remote-job-plugin",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1548",
+    "versions": [
+      {
+        "lastVersion": "1.0.21",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1551",
+    "type": "plugin",
+    "name": "codescan",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1551",
+    "versions": [
+      {
+        "lastVersion": "0.11",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1561",
+    "type": "plugin",
+    "name": "elOyente",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1561",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1572",
+    "type": "plugin",
+    "name": "gcal",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1572",
+    "versions": [
+      {
+        "lastVersion": "0.4",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1573",
+    "type": "plugin",
+    "name": "gem-publisher",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-09-25/#SECURITY-1573",
+    "versions": [
+      {
+        "lastVersion": "1.0",
+        "pattern": ".*"
+      }
+    ]
+  },
 ]
