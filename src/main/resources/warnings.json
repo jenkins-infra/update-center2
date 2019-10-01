@@ -6063,4 +6063,70 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1579",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-10-01/#SECURITY-1579",
+    "versions": [
+      {
+        "lastVersion": "1.64",
+        "pattern": "(1[.]([0-9]|[1-5][0-9]|6[0-4]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1590",
+    "type": "plugin",
+    "name": "htmlpublisher",
+    "message": "Stored XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-10-01/#SECURITY-1590",
+    "versions": [
+      {
+        "lastVersion": "1.20",
+        "pattern": "(0|1[.][0-9]|1[.](1[0-9]|20))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1423",
+    "type": "plugin",
+    "name": "dingding-notifications",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-10-01/#SECURITY-1423",
+    "versions": [
+      {
+        "lastVersion": "1.9",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1515",
+    "type": "plugin",
+    "name": "ldapemail",
+    "message": "Plain text password shown in configuration form",
+    "url": "https://jenkins.io/security/advisory/2019-10-01/#SECURITY-1515",
+    "versions": [
+      {
+        "lastVersion": "0.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1524",
+    "type": "plugin",
+    "name": "vault-scm-plugin",
+    "message": "Plain text password shown in configuration form",
+    "url": "https://jenkins.io/security/advisory/2019-10-01/#SECURITY-1524",
+    "versions": [
+      {
+        "lastVersion": "1.1.1",
+        "pattern": ".*"
+      }
+    ]
+  },
 ]
