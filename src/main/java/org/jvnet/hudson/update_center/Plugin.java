@@ -163,6 +163,11 @@ public class Plugin {
         // Check whether the wiki URL should be overridden
         String url = URL_OVERRIDES.getProperty(artifactId);
 
+        // Otherwise read *.hpi!/META-INF/MANIFEST.MF#Url, if defined
+        if (url == null) {
+            url = latest.getManifestAttributes().getValue("Url");
+        }
+
         // Otherwise read the wiki URL from the POM, if any
         if (url == null) {
             url = readSingleValueFromXmlFile(latest.resolvePOM(), "/project/url");
