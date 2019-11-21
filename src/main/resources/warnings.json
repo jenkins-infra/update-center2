@@ -6574,4 +6574,135 @@
       }
     ]
   },
+
+  {
+    "id": "SECURITY-1658",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-1658",
+    "versions": [
+      {
+        "lastVersion": "1.67",
+        "pattern": "(?!(1[.](57[.][4-9]|66[.][1-9])))(1[.]([0-9]|[1-5][0-9]|6[0-7]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1634",
+    "type": "plugin",
+    "name": "support-core",
+    "message": "Users with Overall/Read permission are able to delete arbitrary files",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-1634",
+    "versions": [
+      {
+        "lastVersion": "2.63",
+        "pattern": "(?!(2[.](56|62)[.][1-9]))(1|2[.]([0-9]|[1-5][0-9]|6[0-3]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1106",
+    "type": "plugin",
+    "name": "jira",
+    "message": "Folder-scoped Jira sites were able to access System-scoped credentials",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-1106",
+    "versions": [
+      {
+        "lastVersion": "3.0.10",
+        "pattern": "(?!(3[.]0[.]6[.][1-9]))(1|2|3[.]0[.]([0-9]|10))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1539",
+    "type": "plugin",
+    "name": "anchore-container-scanner",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-1539",
+    "versions": [
+      {
+        "lastVersion": "1.0.19",
+        "pattern": "(1[.]0[.]([0-9]|1[0-9]))(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1554",
+    "type": "plugin",
+    "name": "inflectra-spira-integration",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-1554",
+    "versions": [
+      {
+        "lastVersion": "3.2.2",
+        "pattern": "3[.]2[.]2"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1584",
+    "type": "plugin",
+    "name": "google-compute-engine",
+    "message": "Missing SSH host key verification",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-1584",
+    "versions": [
+      {
+        "lastVersion": "4.1.1",
+        "pattern": "([1-3]|4[.][01])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1585",
+    "type": "plugin",
+    "name": "google-compute-engine",
+    "message": "Environment information disclosed to users with Overall/Read permission",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-1585",
+    "versions": [
+      {
+        "lastVersion": "4.1.1",
+        "pattern": "([1-3]|4[.][01])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1586",
+    "type": "plugin",
+    "name": "google-compute-engine",
+    "message": "CSRF vulnerability allowed provisioning agents",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-1586",
+    "versions": [
+      {
+        "lastVersion": "4.1.1",
+        "pattern": "([1-3]|4[.][01])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-727-1",
+    "type": "plugin",
+    "name": "qmetry-for-jira-test-management",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-727%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.12",
+        "pattern": "(1[.]([0-9]|1[0-2]))"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-727-2",
+    "type": "plugin",
+    "name": "qmetry-for-jira-test-management",
+    "message": "Plain text password shown in configuration form",
+    "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-727%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1.13",
+        "pattern": ".*"
+      }
+    ]
+  },
 ]
