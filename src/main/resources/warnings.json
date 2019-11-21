@@ -6605,7 +6605,7 @@
     "id": "SECURITY-1106",
     "type": "plugin",
     "name": "jira",
-    "message": "Folder-scoped Jira sites were able to access System-scoped credentials",
+    "message": "Folder-scoped Jira sites are able to access System-scoped credentials",
     "url": "https://jenkins.io/security/advisory/2019-11-21/#SECURITY-1106",
     "versions": [
       {
