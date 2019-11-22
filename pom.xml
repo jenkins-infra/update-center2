@@ -102,7 +102,7 @@
     <dependency>
       <groupId>org.kohsuke</groupId>
       <artifactId>github-api</artifactId>
-      <version>1.93</version>
+      <version>1.99</version>
     </dependency>
     <dependency>
       <groupId>com.sun.xml.bind</groupId>

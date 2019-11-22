@@ -70,6 +70,14 @@ public class GitHubSource {
         Files.write(GITHUB_REPO_LIST.toPath(), ret);
     }
 
+    public List<String> getTopics(String organization, String repo) throws IOException {
+        System.err.println("Retrieving GitHub repository names...");
+        Cache cache = new Cache(GITHUB_API_CACHE, 20L*1024*1024); // 20 MB cache
+        github = new GitHubBuilder().withConnector(new OkHttp3Connector(new OkUrlFactory(new OkHttpClient.Builder().cache(cache).build()))).withPassword(GITHUB_API_USERNAME, GITHUB_API_PASSWORD).build();
+
+        return github.getRepository(organization + "/" + repo).listTopics();
+    }
+
     private static GitHubSource instance;
 
     public static GitHubSource getInstance() {

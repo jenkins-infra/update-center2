@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -455,7 +456,21 @@ public class Plugin {
 
         json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
 
-        json.put("labels", getLabels());
+        GitHubSource gh = GitHubSource.getInstance();
+        if (scm != null && scm.contains("https://github.com/")) {
+            String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
+            if (parts.length >= 2) {
+                String[] labels = gh.getTopics(parts[0], parts[1]).toArray(new String[0]);
+                if (labels.length > 0) {
+                    json.put("labels", labels);
+                }
+            }
+        }
+        if (json.has("labels")) {
+            json.put("labels", json.optJSONArray("labels").addAll(Arrays.asList(getLabels())));
+        } else {
+            json.put("labels", getLabels());
+        }
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
 
