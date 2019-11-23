@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -88,16 +89,20 @@ public class GitHubSource {
         }
         System.err.println("Retrieving GitHub topics...");
         Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
-        OkHttpClient client = new OkHttpClient.Builder()
-                .cache(cache)
-                .authenticator(new Authenticator() {
-                    @Nullable
-                    @Override
-                    public Request authenticate(Route route, Response response) throws IOException {
-                        String credential = Credentials.basic(GITHUB_API_USERNAME, GITHUB_API_PASSWORD);
-                        return response.request().newBuilder().header("Authorization", credential).build();
-                    }
-                }).build();
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.cache(cache);
+        if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null)
+        {
+            builder.authenticator(new Authenticator() {
+                @Nullable
+                @Override
+                public Request authenticate(Route route, Response response) throws IOException {
+                    String credential = Credentials.basic(GITHUB_API_USERNAME, GITHUB_API_PASSWORD);
+                    return response.request().newBuilder().header("Authorization", credential).build();
+                }
+            });
+        }
+        OkHttpClient client = builder.build();
 
         boolean hasNextPage = true;
         String endCursor = null;
@@ -148,6 +153,11 @@ public class GitHubSource {
                         jsonResponse.getJSONArray("errors").toString()// .stream().map(o -> ((JSONObject)o).getString("message")).collect( Collectors.joining( "," ) )
                 );
             }
+
+            if (jsonResponse.has("message") && !jsonResponse.has("data")) {
+                throw new IOException(jsonResponse.getString("message"));
+            }
+
             JSONObject repositories = jsonResponse.getJSONObject("data").getJSONObject("organization").getJSONObject("repositories");
 
             hasNextPage = repositories.getJSONObject("pageInfo").getBoolean("hasNextPage");
@@ -175,15 +185,12 @@ public class GitHubSource {
     }
 
     public List<String> getTopics(String organization, String repo) throws IOException {
-        if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null) {
-            return this.getTopics(organization).get(repo);
-        } else {
-            System.err.println("Retrieving GitHub repository names...");
-            Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
-            github = new GitHubBuilder().withConnector(new OkHttp3Connector(new OkUrlFactory(new OkHttpClient.Builder().cache(cache).build()))).withPassword(GITHUB_API_USERNAME, GITHUB_API_PASSWORD).build();
-
-            return github.getRepository(organization + "/" + repo).listTopics();
+        Map<String, List<String>> topics = this.getTopics(organization);
+        if (topics.containsKey(repo)) {
+            return Collections.emptyList();
         }
+        return topics.get(repo);
+
     }
 
     private static GitHubSource instance;
