@@ -82,13 +82,24 @@ public class Plugin {
      * Previous version of this plugin.
      */
     public final HPI previous;
-    
+
     private final SAXReader xmlReader;
 
     /**
      * POM parsed as a DOM.
      */
     private Document pom;
+
+
+    private static final Properties ALLOWED_LABELS = new Properties();;
+
+    static {
+        try {
+            ALLOWED_LABELS.load(Plugin.class.getClassLoader().getResourceAsStream("allowed-labels.properties"));
+        } catch (IOException e) {
+            throw new Error(e);
+        }
+    }
 
     public Plugin(String artifactId, HPI latest, HPI previous) throws IOException {
         this.artifactId = artifactId;
@@ -470,6 +481,10 @@ public class Plugin {
             json.put("labels", json.optJSONArray("labels").addAll(Arrays.asList(getLabels())));
         } else {
             json.put("labels", getLabels());
+        }
+
+        if (json.has("labels")) {
+            json.put("labels", json.optJSONArray("labels").retainAll(ALLOWED_LABELS.values()));
         }
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
