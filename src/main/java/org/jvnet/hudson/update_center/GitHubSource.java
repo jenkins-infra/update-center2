@@ -84,6 +84,10 @@ public class GitHubSource {
         Files.write(GITHUB_REPO_LIST.toPath(), ret);
     }
 
+    protected String getGraphqlUrl() {
+        return "https://api.github.com/graphql";
+    }
+
     private Map<String, List<String>> getTopics(String organization) throws IOException {
         if (this.topicNames != null) {
             return this.topicNames;
@@ -143,11 +147,13 @@ public class GitHubSource {
             System.err.println(String.format("Retrieving GitHub topics with end token... %s", endCursor));
 
             Request request = new Request.Builder()
-                    .url("https://api.github.com/graphql")
+                    .url(this.getGraphqlUrl())
                     .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString()))
                     .build();
 
-            JSONObject jsonResponse = JSONObject.fromObject(client.newCall(request).execute().body().string());
+            String bodyString = client.newCall(request).execute().body().string();
+
+            JSONObject jsonResponse = JSONObject.fromObject(bodyString);
             if (jsonResponse.has("errors")) {
                 throw new IOException(
                         jsonResponse.getJSONArray("errors").toString()// .stream().map(o -> ((JSONObject)o).getString("message")).collect( Collectors.joining( "," ) )
