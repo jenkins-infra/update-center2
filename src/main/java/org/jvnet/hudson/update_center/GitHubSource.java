@@ -180,13 +180,12 @@ public class GitHubSource {
                 }
             }
         }
-        this.topicNames = ret;
-        return ret;
+        return this.topicNames;
     }
 
     public List<String> getTopics(String organization, String repo) throws IOException {
         Map<String, List<String>> topics = this.getTopics(organization);
-        if (topics.containsKey(repo)) {
+        if (!topics.containsKey(repo)) {
             return Collections.emptyList();
         }
         return topics.get(repo);
