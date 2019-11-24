@@ -45,10 +45,10 @@ public class GitHubSource {
     private Set<String> repoNames;
     private Map<String, List<String>> topicNames = null;
 
-    private GitHubSource() {
+
+    private void init() {
         try {
             if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null) {
-
                 this.repoNames = new TreeSet<>(new Comparator<String>() {
                     @Override
                     public int compare(String o1, String o2) {
@@ -56,6 +56,7 @@ public class GitHubSource {
                     }
                 });
                 this.repoNames.addAll(getRepositoryNames());
+                this.getTopics("jenkinsci");
             }
         } catch (IOException e) {
             // ignore, fall back to dumb mode
@@ -83,10 +84,12 @@ public class GitHubSource {
         Files.write(GITHUB_REPO_LIST.toPath(), ret);
     }
 
-    public Map<String, List<String>> getTopics(String organization) throws IOException {
+    private Map<String, List<String>> getTopics(String organization) throws IOException {
         if (this.topicNames != null) {
             return this.topicNames;
         }
+        this.topicNames = new HashMap<>();
+
         System.err.println("Retrieving GitHub topics...");
         Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
@@ -106,8 +109,6 @@ public class GitHubSource {
 
         boolean hasNextPage = true;
         String endCursor = null;
-
-        Map<String,List<String>> ret = new HashMap<>();
 
         while (hasNextPage) {
             JSONObject jsonObject = new JSONObject();
@@ -141,7 +142,6 @@ public class GitHubSource {
             ));
             System.err.println(String.format("Retrieving GitHub topics with end token... %s", endCursor));
 
-
             Request request = new Request.Builder()
                     .url("https://api.github.com/graphql")
                     .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString()))
@@ -169,9 +169,9 @@ public class GitHubSource {
                     continue;
                 }
                 String name = node.getString("name");
-                ret.put(name, new ArrayList<String>());
+                this.topicNames.put(name, new ArrayList<>());
                 for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
-                    ret.get(name).add(
+                    this.topicNames.get(name).add(
                             ((JSONObject) repositoryTopic)
                                     .getJSONObject("node")
                                     .getJSONObject("topic")
@@ -197,6 +197,7 @@ public class GitHubSource {
     public static GitHubSource getInstance() {
         if (instance == null) {
             instance = new GitHubSource();
+            instance.init();
         }
         return instance;
     }
