@@ -35,15 +35,19 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
+import org.owasp.html.HtmlSanitizer;
+import org.owasp.html.HtmlStreamRenderer;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -51,18 +55,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.owasp.html.HtmlSanitizer;
-import org.owasp.html.HtmlStreamRenderer;
-import org.owasp.html.PolicyFactory;
-import org.owasp.html.Sanitizers;
-import org.w3c.dom.NodeList;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -484,7 +476,20 @@ public class Plugin {
         }
 
         if (json.has("labels")) {
-            json.put("labels", json.optJSONArray("labels").retainAll(ALLOWED_LABELS.values()));
+            HashSet<String> allowedLabels = new HashSet<String>();
+
+            for (Object _label : json.optJSONArray("labels")) {
+                String label = (String) _label;
+
+                // Everything starting with jenkins- is allowed
+                if (label.startsWith("jenkins-")) {
+                    allowedLabels.add(label.replaceFirst("jenkins-", ""));
+                } else if (ALLOWED_LABELS.contains(label)) {
+                    allowedLabels.add(label);
+                }
+            }
+
+            json.put("labels", allowedLabels);
         }
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
