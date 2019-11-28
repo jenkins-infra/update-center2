@@ -417,7 +417,8 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "2.9",
+        "pattern": "[12](|[.-].*)"
       }
     ]
   },
@@ -429,7 +430,8 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "2.9",
+        "pattern": "[12](|[.-].*)"
       }
     ]
   },
@@ -467,7 +469,8 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "2.9",
+        "pattern": "[12](|[.-].*)"
       }
     ]
   },
@@ -479,7 +482,8 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "2.9",
+        "pattern": "[12](|[.-].*)"
       }
     ]
   },
@@ -491,7 +495,8 @@
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "2.9",
+        "pattern": "[12](|[.-].*)"
       }
     ]
   },
