@@ -6301,7 +6301,7 @@
     "versions": [
       {
         "lastVersion": "4.0.0",
-        "pattern": ".*"
+        "pattern": "([0-4])(|[-.].*)"
       }
     ]
   },
