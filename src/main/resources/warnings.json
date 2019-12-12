@@ -117,7 +117,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-441",
     "type": "plugin",
@@ -135,7 +134,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-161",
     "type": "plugin",
@@ -213,8 +211,6 @@
       }
     ]
   },
-
-
   {
     "id": "SECURITY-187",
     "type": "plugin",
@@ -267,7 +263,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-123",
     "type": "plugin",
@@ -365,10 +360,10 @@
     "message": "Arbitrary code execution vulnerability",
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
-		{
-			"lastVersion": "0.17",
-			"pattern": "0[.]([0-9]|1[0-7])"
-		}
+      {
+        "lastVersion": "0.17",
+        "pattern": "0[.]([0-9]|1[0-7])"
+      }
     ]
   },
   {
@@ -812,7 +807,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_57",
     "type": "core",
@@ -830,7 +824,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-445",
     "type": "plugin",
@@ -844,7 +837,6 @@
       }
     ]
   },
-
   {
     "id": "JENKINS-44643",
     "type": "plugin",
@@ -871,7 +863,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-201",
     "type": "plugin",
@@ -1066,7 +1057,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-467-analysis-core",
     "type": "plugin",
@@ -1235,7 +1225,6 @@
       }
     ]
   },
-
   {
     "id": "JENKINS-46007",
     "type": "plugin",
@@ -1249,7 +1238,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_84",
     "type": "core",
@@ -1304,7 +1292,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-50",
     "type": "plugin",
@@ -1382,7 +1369,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_89",
     "type": "core",
@@ -1400,7 +1386,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-640",
     "type": "plugin",
@@ -1414,7 +1399,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-643",
     "type": "plugin",
@@ -1428,7 +1412,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-663",
     "type": "plugin",
@@ -1442,7 +1425,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_95",
     "type": "core",
@@ -1460,7 +1442,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-507",
     "type": "plugin",
@@ -1578,7 +1559,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-521",
     "type": "plugin",
@@ -1644,7 +1624,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_107",
     "type": "core",
@@ -1662,7 +1641,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-248",
     "type": "plugin",
@@ -1830,7 +1808,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-261",
     "type": "plugin",
@@ -1981,7 +1958,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_116",
     "type": "core",
@@ -1999,7 +1975,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-442",
     "type": "plugin",
@@ -2065,7 +2040,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_121",
     "type": "core",
@@ -2134,7 +2108,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-799",
     "type": "plugin",
@@ -2269,7 +2242,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-440",
     "type": "plugin",
@@ -2465,7 +2437,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_133",
     "type": "core",
@@ -2483,7 +2454,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-704",
     "type": "plugin",
@@ -2705,7 +2675,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_138",
     "type": "core",
@@ -2723,7 +2692,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-130",
     "type": "plugin",
@@ -3101,7 +3069,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_146",
     "type": "core",
@@ -3119,7 +3086,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1186-script-security",
     "type": "plugin",
@@ -3146,7 +3112,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_154",
     "type": "core",
@@ -3164,7 +3129,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1266-workflow-cps",
     "type": "plugin",
@@ -3204,7 +3168,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_160",
     "type": "core",
@@ -3222,7 +3185,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1292",
     "type": "plugin",
@@ -3483,7 +3445,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1320",
     "type": "plugin",
@@ -3601,7 +3562,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-848",
     "type": "plugin",
@@ -3797,7 +3757,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1353-script-security",
     "type": "plugin",
@@ -3915,7 +3874,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-829",
     "type": "plugin",
@@ -4632,7 +4590,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_172",
     "type": "core",
@@ -4650,7 +4607,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1357",
     "type": "plugin",
@@ -4716,7 +4672,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1100",
     "type": "plugin",
@@ -4847,7 +4802,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1316",
     "type": "plugin",
@@ -4874,7 +4828,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1373",
     "type": "plugin",
@@ -4992,7 +4945,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1399",
     "type": "plugin",
@@ -5084,7 +5036,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1010",
     "type": "plugin",
@@ -5189,7 +5140,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_186",
     "type": "core",
@@ -5207,7 +5157,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1465-1",
     "type": "plugin",
@@ -5403,7 +5352,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1497",
     "type": "plugin",
@@ -5638,7 +5586,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_192",
     "type": "core",
@@ -5682,7 +5629,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1534",
     "type": "plugin",
@@ -5765,7 +5711,6 @@
       }
     ]
   },
-
   {
     "id": "core-2_197",
     "type": "core",
@@ -6069,7 +6014,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1579",
     "type": "plugin",
@@ -6135,7 +6079,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1583",
     "type": "plugin",
@@ -6383,7 +6326,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1628",
     "type": "plugin",
@@ -6579,7 +6521,6 @@
       }
     ]
   },
-
   {
     "id": "SECURITY-1658",
     "type": "plugin",
@@ -6709,5 +6650,5 @@
         "pattern": ".*"
       }
     ]
-  },
+  }
 ]
