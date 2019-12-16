@@ -1256,7 +1256,7 @@
     ]
   },
   {
-    "id": "SECURITY-577",
+    "id": "SECURITY-557",
     "type": "plugin",
     "name": "maven-plugin",
     "message": "Maven plugin bundles commons-httpclient library vulnerable to man-in-the-middle attacks",
