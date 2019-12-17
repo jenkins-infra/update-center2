@@ -480,7 +480,7 @@ public class Plugin {
             }
         }
 
-        if (labels.size() > 0) {
+        if (!labels.isEmpty()) {
             HashSet<String> allowedLabels = new HashSet<String>();
 
             for (String label : labels) {
