@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -465,27 +466,24 @@ public class Plugin {
         json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
 
         GitHubSource gh = GitHubSource.getInstance();
+        ArrayList<String> labels = new ArrayList<String>();
+        labels.addAll(Arrays.asList(getLabels()));
+
         if (scm != null && scm.contains("https://github.com/")) {
             String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
             if (parts.length >= 2) {
-                String[] labels = gh.getTopics(parts[0], parts[1]).toArray(new String[0]);
-                if (labels.length > 0) {
-                    json.put("labels", labels);
-                }
+                labels.addAll(
+                    Arrays.asList(
+                        gh.getTopics(parts[0], parts[1]).toArray(new String[0])
+                    )
+                );
             }
         }
-        if (json.has("labels")) {
-            json.put("labels", json.optJSONArray("labels").addAll(Arrays.asList(getLabels())));
-        } else {
-            json.put("labels", getLabels());
-        }
 
-        if (json.has("labels")) {
+        if (labels.size() > 0) {
             HashSet<String> allowedLabels = new HashSet<String>();
 
-            for (Object _label : json.optJSONArray("labels")) {
-                String label = (String) _label;
-
+            for (String label : labels) {
                 // Everything starting with jenkins- is allowed
                 if (label.startsWith("jenkins-")) {
                     allowedLabels.add(label.replaceFirst("jenkins-", ""));
