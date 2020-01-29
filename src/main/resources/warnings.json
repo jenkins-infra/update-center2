@@ -6976,5 +6976,61 @@
         "pattern": ".*"
       }
     ]
+  },
+  {
+    "id": "core-2_219",
+    "type": "core",
+    "name": "core",
+    "message": "Multiple vulnerabilities in Jenkins 2.218 and earlier, LTS 2.204.1 and earlier",
+    "url": "https://jenkins.io/security/advisory/2020-01-29/",
+    "versions": [
+      {
+        "lastVersion": "2.218",
+        "pattern": "(1|2[.][0-9]|2[.]0[-]alpha[-][1-4]|2[.]0[-]beta[-][12]|2[.]0[-]rc[-]1|2[.]1[0-9]|2[.]10[0-9]|2[.]11[0-9]|2[.]12[0-9]|2[.]13[0-8]|2[.]14[0-9]|2[.]15[0-9]|2[.]16[0-9]|2[.]17[0-9]|2[.]18[012345679]|2[.]19[0-9]|2[.]2[0-9]|2[.]20[0-9]|2[.]21[01234578]|2[.]3[0-9]|2[.]4[0-9]|2[.]5[0-9]|2[.]6[0-9]|2[.]7[0-9]|2[.]8[0-9]|2[.]9[0-9])(|[.-].+)"
+      },
+      {
+        "lastVersion": "LTS 2.204.1",
+        "pattern": "(1|2[.]107|2[.]121|2[.]138|2[.]150|2[.]164|2[.]176|2[.]19|2[.]190|2[.]204[.]1|2[.]32|2[.]46|2[.]60|2[.]7|2[.]73|2[.]89)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1565",
+    "type": "plugin",
+    "name": "fortify",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2020-01-29/#SECURITY-1565",
+    "versions": [
+      {
+        "lastVersion": "19.1.29",
+        "pattern": "(19[.]1)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1680",
+    "type": "plugin",
+    "name": "code-coverage-api",
+    "message": "Stored XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-01-29/#SECURITY-1680",
+    "versions": [
+      {
+        "lastVersion": "1.1.2",
+        "pattern": "(1[.]0|1[.]1[.][0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1719",
+    "type": "plugin",
+    "name": "websphere-deployer",
+    "message": "XXE vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-01-29/#SECURITY-1719",
+    "versions": [
+      {
+        "lastVersion": "1.6.1",
+        "pattern": ".*"
+      }
+    ]
   }
 ]
