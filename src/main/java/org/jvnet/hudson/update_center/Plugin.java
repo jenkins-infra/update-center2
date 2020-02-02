@@ -25,6 +25,7 @@ package org.jvnet.hudson.update_center;
 
 import com.google.common.annotations.VisibleForTesting;
 import hudson.util.VersionNumber;
+import javax.annotation.CheckForNull;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -35,6 +36,7 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
+import org.jvnet.hudson.update_center.util.UrlToGitHubSlugConverter;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
@@ -81,8 +83,16 @@ public class Plugin {
      * Previous version of this plugin.
      */
     public final HPI previous;
-    
+
     private final SAXReader xmlReader;
+
+    private static final JSONObject JIRA_ISSUE_TRACKER;
+
+    static {
+        JIRA_ISSUE_TRACKER = new JSONObject();
+        JIRA_ISSUE_TRACKER.put("name", "Jenkins JIRA");
+        JIRA_ISSUE_TRACKER.put("url", "https://issues.jenkins-ci.org/");
+    }
 
     /**
      * POM parsed as a DOM.
@@ -357,6 +367,32 @@ public class Plugin {
         return gh.isRepoExisting(url) ? url : (gh.isRepoExisting(shortenedUrl) ? shortenedUrl : null);
     }
 
+    public Object getIssueTracker(@CheckForNull String scmUrl) {
+        if (scmUrl != null) {
+            try {
+                String slug = UrlToGitHubSlugConverter.convert(scmUrl);
+                boolean issuesEnabled = GitHubSource.getInstance().issuesEnabled(slug);
+
+                if (issuesEnabled) {
+                    return githubIssueTracker("https://github.com/" + slug + "/issues");
+                }
+            } catch (Exception e) {
+                System.out.println("Failed to check if issues are enabled: " + e.getMessage());
+            }
+        } else {
+            System.out.println("SCM url is empty, defaulting to Jenkins JIRA for issue tracking");
+        }
+
+        return JIRA_ISSUE_TRACKER;
+    }
+
+    private Object githubIssueTracker(String url) {
+        JSONObject issueTracker = new JSONObject();
+        issueTracker.put("name", "GitHub Issues");
+        issueTracker.put("url", url);
+        return issueTracker;
+    }
+
     /**
      * Get hostname of SCM specified in POM of latest release, or null.
      * Used to determine if source lives in github or svn.
@@ -461,6 +497,8 @@ public class Plugin {
         json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
 
         json.put("labels", getLabels());
+
+        json.put("issueTracker", getIssueTracker(scm));
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
 

@@ -5,6 +5,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.OkUrlFactory;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.jvnet.hudson.update_center.util.UrlToGitHubSlugConverter;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
@@ -21,7 +22,6 @@ import java.util.TreeSet;
 
 public class GitHubSource {
 
-    private GitHub github;
 
     private static String GITHUB_API_USERNAME = System.getenv("GITHUB_USERNAME");
     private static String GITHUB_API_PASSWORD = System.getenv("GITHUB_PASSWORD");
@@ -60,7 +60,7 @@ public class GitHubSource {
     private void retrieveRepositoryNames() throws IOException {
         System.err.println("Retrieving GitHub repository names...");
         Cache cache = new Cache(GITHUB_API_CACHE, 20L*1024*1024); // 20 MB cache
-        github = new GitHubBuilder().withConnector(new OkHttp3Connector(new OkUrlFactory(new OkHttpClient.Builder().cache(cache).build()))).withPassword(GITHUB_API_USERNAME, GITHUB_API_PASSWORD).build();
+        GitHub github = new GitHubBuilder().withConnector(new OkHttp3Connector(new OkUrlFactory(new OkHttpClient.Builder().cache(cache).build()))).withPassword(GITHUB_API_USERNAME, GITHUB_API_PASSWORD).build();
 
         List<String> ret = new ArrayList<>();
         for (GHRepository repo : github.getOrganization("jenkinsci").listRepositories().withPageSize(100)) {
@@ -68,6 +68,13 @@ public class GitHubSource {
         }
 
         Files.write(GITHUB_REPO_LIST.toPath(), ret);
+    }
+
+    public boolean issuesEnabled(String slug) throws IOException {
+        Cache cache = new Cache(GITHUB_API_CACHE, 20L*1024*1024); // 20 MB cache
+        GitHub github = new GitHubBuilder().withConnector(new OkHttp3Connector(new OkUrlFactory(new OkHttpClient.Builder().cache(cache).build()))).withPassword(GITHUB_API_USERNAME, GITHUB_API_PASSWORD).build();
+
+        return github.getRepository(slug).hasIssues();
     }
 
     private static GitHubSource instance;
