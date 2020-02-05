@@ -5058,8 +5058,8 @@
     "url": "https://jenkins.io/security/advisory/2019-07-11/#SECURITY-1177",
     "versions": [
       {
-        "lastVersion": "0.13",
-        "pattern": ".*"
+        "lastVersion": "0.14",
+        "pattern": "0[.]([1-9]|1[0-3])(|[.-].*)"
       }
     ]
   },
