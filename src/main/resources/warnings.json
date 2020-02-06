@@ -4332,7 +4332,8 @@
     "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-946",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "0.0.16",
+        "pattern": "(0[.]0[.]1[023456]|0[.]0[.][5-9])(|[.-].+)"
       }
     ]
   },
