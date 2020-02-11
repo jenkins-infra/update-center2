@@ -90,7 +90,7 @@ public class Plugin {
 
     static {
         JIRA_ISSUE_TRACKER = new JSONObject();
-        JIRA_ISSUE_TRACKER.put("name", "Jenkins JIRA");
+        JIRA_ISSUE_TRACKER.put("name", "Jenkins Jira");
         JIRA_ISSUE_TRACKER.put("url", "https://issues.jenkins-ci.org/");
     }
 
@@ -380,7 +380,7 @@ public class Plugin {
                 System.out.println("Failed to check if issues are enabled: " + e.getMessage());
             }
         } else {
-            System.out.println("SCM url is empty, defaulting to Jenkins JIRA for issue tracking");
+            System.out.println("SCM url is empty, defaulting to Jenkins Jira for issue tracking");
         }
 
         return JIRA_ISSUE_TRACKER;
