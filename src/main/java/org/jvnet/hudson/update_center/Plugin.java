@@ -83,17 +83,6 @@ public class Plugin {
      */
     private Document pom;
 
-
-    private static final Properties ALLOWED_LABELS = new Properties();;
-
-    static {
-        try {
-            ALLOWED_LABELS.load(Plugin.class.getClassLoader().getResourceAsStream("allowed-labels.properties"));
-        } catch (IOException e) {
-            throw new Error(e);
-        }
-    }
-
     public Plugin(String artifactId, HPI latest, HPI previous) throws IOException {
         this.artifactId = artifactId;
         this.latest = latest;
@@ -484,16 +473,20 @@ public class Plugin {
             HashSet<String> allowedLabels = new HashSet<String>();
 
             for (String label : labels) {
-                // Everything starting with jenkins- is allowed
                 if (label.startsWith("jenkins-")) {
-                    allowedLabels.add(label.replaceFirst("jenkins-", ""));
-                } else if (ALLOWED_LABELS.contains(label)) {
+                    label = label.replaceFirst("jenkins-", "");
+                }
+
+                if (ALLOWED_LABELS.containsKey(label)) {
                     allowedLabels.add(label);
+                } else {
+                    System.err.println(artifactId + " has a label of " + label + " which is not in ALLOWED_LABELS, so dropping");
                 }
             }
 
-            json.put("labels", allowedLabels);
+            labels = new ArrayList<String>(allowedLabels);
         }
+        json.put("labels", labels);
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
 
@@ -563,11 +556,13 @@ public class Plugin {
 
     private static final Properties URL_OVERRIDES = new Properties();
     private static final Properties LABEL_DEFINITIONS = new Properties();
+    private static final Properties ALLOWED_LABELS = new Properties();
 
     static {
         try {
             URL_OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
             LABEL_DEFINITIONS.load(Plugin.class.getClassLoader().getResourceAsStream("label-definitions.properties"));
+            ALLOWED_LABELS.load(Plugin.class.getClassLoader().getResourceAsStream("allowed-labels.properties"));
         } catch (IOException e) {
             throw new Error(e);
         }
