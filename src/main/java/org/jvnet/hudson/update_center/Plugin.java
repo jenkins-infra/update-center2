@@ -166,12 +166,15 @@ public class Plugin {
         if (url == null) {
             url = readSingleValueFromXmlFile(latest.resolvePOM(), "/project/url");
         }
-
+        // last fallback: GitHub URL; also prevent plugins.j.io referencing itself
+        if (url == null || url.startsWith("https://plugins.jenkins.io")) {
+            url = requireTopLevelUrl(getScmUrl());
+        }
         String originalUrl = url;
 
         if (url != null) {
             url = url.replace("wiki.hudson-ci.org/display/HUDSON/", "wiki.jenkins-ci.org/display/JENKINS/");
-            url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins-ci.org");
+            url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins.io");
         }
 
         if (url != null && !url.equals(originalUrl)) {
@@ -180,15 +183,24 @@ public class Plugin {
         return url;
     }
 
+    @VisibleForTesting
+    static String requireTopLevelUrl(String scmUrl) {
+        if (scmUrl == null) {
+            return null;
+        }
+        String[] parts = scmUrl.split("/");
+        if (parts.length > 5){
+            return null;
+        }
+        return scmUrl;
+    }
+
     private static Node selectSingleNode(Document pom, String path) {
         Node result = pom.selectSingleNode(path);
         if (result == null)
             result = pom.selectSingleNode(path.replaceAll("/", "/m:"));
         return result;
     }
-
-    private static final Pattern HOSTNAME_PATTERN =
-        Pattern.compile("(?:://|scm:git:(?!\\w+://))(?:\\w*@)?([\\w.-]+)[/:]");
 
     private String filterKnownObsoleteUrls(String scm) {
         if (scm == null) {
@@ -323,6 +335,9 @@ public class Plugin {
                 // all should, but not all do
                 githubUrl = githubUrl.substring(0, githubUrl.lastIndexOf(".git"));
             }
+            if (githubUrl.endsWith("/")) {
+                githubUrl = githubUrl.substring(0, githubUrl.lastIndexOf("/"));
+            }
             return "https://" + githubUrl;
         }
         return null;
@@ -415,7 +430,7 @@ public class Plugin {
     }
 
     @VisibleForTesting
-    public static String simplifyPluginName(String name) {
+    static String simplifyPluginName(String name) {
         name = StringUtils.removeStart(name, "Jenkins ");
         name = StringUtils.removeStart(name, "Hudson ");
         name = StringUtils.removeEndIgnoreCase(name, " for Jenkins");

@@ -43,4 +43,10 @@ public class PluginTest extends TestCase {
         assertEquals(expected, Plugin.simplifyPluginName(original));
     }
 
+    public void testTopLevelUrl() {
+        assertEquals("https://github.com/jenkinsci/repo",
+                Plugin.requireTopLevelUrl("https://github.com/jenkinsci/repo"));
+        assertNull(Plugin.requireTopLevelUrl("https://github.com/jenkinsci/repo/subfolder"));
+    }
+
 }
