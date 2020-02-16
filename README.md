@@ -39,7 +39,7 @@ For example, if you want the `matrix` label, you need to add `jenkins-matrix` to
 
 Only labels in the [whitelist file](./src/main/resources/allowed-labels.properties) will make it into the jenkins infrastructure.
 
-See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides Jenkins applies.
+See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides applied by Jenkins.
 
 Older plugins may have additional labels defined in the file [`label-definitions.properties`](https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/label-definitions.properties) in this repository, this approach is deprecated.
 
