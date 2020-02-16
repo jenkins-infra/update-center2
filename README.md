@@ -129,7 +129,7 @@ private update center:
     mvn package appassembler:assemble
 	sh target/appassembler/bin/app -id default -www www \
 		-skip-release-history -cache plugins -whitelist whiteList.properties \
-		-key rootCA/demo.key -certificate rootCA/emo.crt \
+		-key rootCA/demo.key -certificate rootCA/demo.crt \
 		-root-certificate rootCA/demo.crt \
 		-cacheServer http://localhost:9090/plugins/ \
 		-connectionCheckUrl http://localhost:9090/
