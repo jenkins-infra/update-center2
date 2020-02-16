@@ -32,7 +32,7 @@ Extra features
 
 ### Categorizing plugins
 
-Jenkins groups plugins into various categories in the plugin manager.
+Jenkins groups plugins into various categories in the plugin manager and on [plugins.jenkins.io](https://plugins.jenkins.io/).
 
 To set these on your plugin, add a [topic](https://help.github.com/en/github/administering-a-repository/classifying-your-repository-with-topics) to your github repo, with the prefix jenkins-.
 For example, if you want the `matrix` label, you need to add `jenkins-matrix` to your repo's [topics](https://help.github.com/en/github/administering-a-repository/classifying-your-repository-with-topics) (also sometimes refered to as labels).
