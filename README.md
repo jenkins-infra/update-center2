@@ -41,6 +41,8 @@ Only labels in the [whitelist file](./src/main/resources/allowed-labels.properti
 
 See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides Jenkins applies.
 
+Older plugins may have additional labels defined in the file [`label-definitions.properties`](https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/label-definitions.properties) in this repository, this approach is deprecated.
+
 ### Wiki Page Override
 
 Plugins are generally expected to provide a `<url>` to their documentation in their POM.
