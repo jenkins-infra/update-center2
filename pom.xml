@@ -102,7 +102,7 @@
     <dependency>
       <groupId>org.kohsuke</groupId>
       <artifactId>github-api</artifactId>
-      <version>1.93</version>
+      <version>1.99</version>
     </dependency>
     <dependency>
       <groupId>com.sun.xml.bind</groupId>
@@ -216,6 +216,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
+      <version>3.9.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
