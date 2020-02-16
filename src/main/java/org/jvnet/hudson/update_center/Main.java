@@ -93,7 +93,7 @@ public class Main {
     @Option(name="-download",usage="Build mirrors.jenkins-ci.org layout")
     public File download = null;
 
-    @Option(name="-cache",usage="Cache target plugin")
+    @Option(name="-cache",usage="Cache directory used for caching plugin files")
     public File cache = null;
 
     @Option(name="-cacheAll",usage="Cache all version of plugin")
