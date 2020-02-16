@@ -35,13 +35,20 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
+import org.owasp.html.HtmlSanitizer;
+import org.owasp.html.HtmlStreamRenderer;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -52,6 +59,7 @@ import org.owasp.html.HtmlSanitizer;
 import org.owasp.html.HtmlStreamRenderer;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
+import java.util.regex.Pattern;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -71,7 +79,7 @@ public class Plugin {
      * Previous version of this plugin.
      */
     public final HPI previous;
-    
+
     private final SAXReader xmlReader;
 
     /**
@@ -465,7 +473,39 @@ public class Plugin {
 
         json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
 
-        json.put("labels", getLabels());
+        GitHubSource gh = GitHubSource.getInstance();
+        ArrayList<String> labels = new ArrayList<String>();
+        labels.addAll(Arrays.asList(getLabels()));
+
+        if (scm != null && scm.contains("https://github.com/")) {
+            String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
+            if (parts.length >= 2) {
+                labels.addAll(
+                    Arrays.asList(
+                        gh.getTopics(parts[0], parts[1]).toArray(new String[0])
+                    )
+                );
+            }
+        }
+
+        if (!labels.isEmpty()) {
+            HashSet<String> allowedLabels = new HashSet<String>();
+
+            for (String label : labels) {
+                if (label.startsWith("jenkins-")) {
+                    label = label.replaceFirst("jenkins-", "");
+                }
+
+                if (ALLOWED_LABELS.containsKey(label)) {
+                    allowedLabels.add(label);
+                } else {
+                    System.err.println(artifactId + " has a label of " + label + " which is not in ALLOWED_LABELS, so dropping");
+                }
+            }
+
+            labels = new ArrayList<String>(allowedLabels);
+        }
+        json.put("labels", labels);
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
 
@@ -535,11 +575,13 @@ public class Plugin {
 
     private static final Properties URL_OVERRIDES = new Properties();
     private static final Properties LABEL_DEFINITIONS = new Properties();
+    private static final Properties ALLOWED_LABELS = new Properties();
 
     static {
         try {
             URL_OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
             LABEL_DEFINITIONS.load(Plugin.class.getClassLoader().getResourceAsStream("label-definitions.properties"));
+            ALLOWED_LABELS.load(Plugin.class.getClassLoader().getResourceAsStream("allowed-labels.properties"));
         } catch (IOException e) {
             throw new Error(e);
         }
