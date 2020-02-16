@@ -173,7 +173,7 @@ public class Main {
     @Option(name="-arguments-file",usage="Specify invocation arguments in a file, with each line being a separate update site build")
     public File argumentsFile;
 
-    @Option(name="-whitelist",usage="White list for plugins")
+    @Option(name="-whitelist",usage="If set to a file using the Java properties format, only plugins listed as keys will be included in the generated update site")
     public File whitelist = null;
 
     private Signer signer = new Signer();
