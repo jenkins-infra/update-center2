@@ -507,8 +507,7 @@ public class Plugin {
         json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
 
         GitHubSource gh = GitHubSource.getInstance();
-        ArrayList<String> labels = new ArrayList<String>();
-        json.put("labels", labels.addAll(getLabels()));
+        json.put("labels", getLabels());
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
 
