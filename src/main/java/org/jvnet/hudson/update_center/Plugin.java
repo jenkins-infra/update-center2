@@ -403,7 +403,43 @@ public class Plugin {
         return null;
     }
 
-    public String[] getLabels() {
+    public List<String> getLabels() throws IOException {
+        String scm = getScmUrl();
+
+        List<String> labels = Arrays.asList(getLabelsFromFile());
+
+        if (scm != null && scm.contains("https://github.com/")) {
+            String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
+            if (parts.length >= 2) {
+                labels.addAll(
+                        Arrays.asList(
+                                GitHubSource.getInstance().getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
+                        )
+                );
+            }
+        }
+
+        if (!labels.isEmpty()) {
+            HashSet<String> allowedLabels = new HashSet<>();
+
+            for (String label : labels) {
+                if (label.startsWith("jenkins-")) {
+                    label = label.replaceFirst("jenkins-", "");
+                }
+
+                if (ALLOWED_LABELS.containsKey(label)) {
+                    allowedLabels.add(label);
+                } else {
+                    System.err.println(artifactId + " has a label of " + label + " which is not in ALLOWED_LABELS, so dropping");
+                }
+            }
+
+            labels = new ArrayList<>(allowedLabels);
+        }
+        return labels;
+    }
+
+    private String[] getLabelsFromFile() {
         Object ret = LABEL_DEFINITIONS.get(artifactId);
         if (ret == null) {
             // handle missing entry in properties file
@@ -470,37 +506,7 @@ public class Plugin {
 
         GitHubSource gh = GitHubSource.getInstance();
         ArrayList<String> labels = new ArrayList<String>();
-        labels.addAll(Arrays.asList(getLabels()));
-
-        if (scm != null && scm.contains("https://github.com/")) {
-            String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
-            if (parts.length >= 2) {
-                labels.addAll(
-                    Arrays.asList(
-                        gh.getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
-                    )
-                );
-            }
-        }
-
-        if (!labels.isEmpty()) {
-            HashSet<String> allowedLabels = new HashSet<String>();
-
-            for (String label : labels) {
-                if (label.startsWith("jenkins-")) {
-                    label = label.replaceFirst("jenkins-", "");
-                }
-
-                if (ALLOWED_LABELS.containsKey(label)) {
-                    allowedLabels.add(label);
-                } else {
-                    System.err.println(artifactId + " has a label of " + label + " which is not in ALLOWED_LABELS, so dropping");
-                }
-            }
-
-            labels = new ArrayList<String>(allowedLabels);
-        }
-        json.put("labels", labels);
+        json.put("labels", labels.addAll(getLabels()));
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
 
