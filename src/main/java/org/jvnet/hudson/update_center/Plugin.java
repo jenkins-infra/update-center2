@@ -55,7 +55,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -478,7 +477,7 @@ public class Plugin {
             if (parts.length >= 2) {
                 labels.addAll(
                     Arrays.asList(
-                        gh.getTopics(parts[0], parts[1]).toArray(new String[0])
+                        gh.getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
                     )
                 );
             }
