@@ -96,10 +96,10 @@ public class Main {
     @Option(name="-cache",usage="Cache directory used for caching plugin files")
     public File cache = null;
 
-    @Option(name="-cacheAll",usage="Cache all version of plugin instead of only the latest")
+    @Option(name="-cache-all",usage="Cache all version of plugin instead of only the latest")
     public boolean cacheAll;
 
-    @Option(name="-cacheServer",usage="Cache server will replace the orignal")
+    @Option(name="-cache-server",usage="Cache server will replace the orignal")
     public String cacheServer;
 
     /**
@@ -269,7 +269,7 @@ public class Main {
         // load white list of plugins
         if(whitelist != null && whitelist.isFile()) {
             try(InputStream input = new FileInputStream(whitelist)) {
-                whitelistPro.load(input);
+                whitelistProperties.load(input);
             }
         }
 
@@ -389,7 +389,7 @@ public class Main {
         System.out.println("Build plugin versions index from the maven repo...");
 
         for (PluginHistory plugin : repository.listHudsonPlugins()) {
-                if(whitelistPro.size() > 0 && whitelistPro.get(plugin.artifactId) == null) {
+                if(whitelistProperties.size() > 0 && whitelistProperties.get(plugin.artifactId) == null) {
                     continue;
                 }
                 System.out.println(plugin.artifactId);
@@ -447,7 +447,7 @@ public class Main {
         }
         System.out.println("Gathering list of plugins and versions from the maven repo...");
         for (PluginHistory hpi : repository.listHudsonPlugins()) {
-            if(whitelistPro.size() > 0 && whitelistPro.get(hpi.artifactId) == null) {
+            if(whitelistProperties.size() > 0 && whitelistProperties.get(hpi.artifactId) == null) {
                 continue;
             }
 
@@ -616,7 +616,7 @@ public class Main {
                 JSONObject o = new JSONObject();
                 try {
                     Plugin plugin = new Plugin(h);
-                    if(whitelistPro.size() > 0 && whitelistPro.get(plugin.artifactId) == null) {
+                    if(whitelistProperties.size() > 0 && whitelistProperties.get(plugin.artifactId) == null) {
                         continue;
                     }
 
