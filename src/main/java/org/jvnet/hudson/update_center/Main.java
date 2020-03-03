@@ -73,7 +73,7 @@ public class Main {
     public File urlmap = new File("plugin-to-documentation-url.json");
 
     private Map<String, String> pluginToDocumentationUrl = new HashMap<>();
-    private Properties whitelistPro = new Properties();
+    private Properties whitelistProperties = new Properties();
 
     /**
      * This file defines all the convenient symlinks in the form of
