@@ -96,7 +96,7 @@ public class Main {
     @Option(name="-cache",usage="Cache directory used for caching plugin files")
     public File cache = null;
 
-    @Option(name="-cacheAll",usage="Cache all version of plugin")
+    @Option(name="-cacheAll",usage="Cache all version of plugin instead of only the latest")
     public boolean cacheAll;
 
     @Option(name="-cacheServer",usage="Cache server will replace the orignal")
