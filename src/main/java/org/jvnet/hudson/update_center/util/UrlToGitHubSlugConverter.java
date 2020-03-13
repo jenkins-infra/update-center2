@@ -5,6 +5,21 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class UrlToGitHubSlugConverter {
 
+    public static final class SlugFields {
+        public final String organization;
+        public final String name;
+
+        public SlugFields(String organization, String name) {
+          this.organization = organization;
+          this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return this.organization + "/" + this.name;
+        }
+    }
+
     private UrlToGitHubSlugConverter() {
     }
 
@@ -13,7 +28,7 @@ public final class UrlToGitHubSlugConverter {
      * @param url a url like: https://github.com/jenkinsci/blueocean-plugin
      * @return the github slug, jenkinsci/blueocean-plugin
      */
-    public static String convert(@Nonnull String url) {
+    public static SlugFields convert(@Nonnull String url) {
         if (StringUtils.isBlank(url)) {
             throw new IllegalArgumentException("URL must be present");
         }
@@ -25,6 +40,7 @@ public final class UrlToGitHubSlugConverter {
         String slug = StringUtils.remove(url, "https://github.com/");
         String slugWithNoGit = StringUtils.remove(slug, ".git");
 
-        return StringUtils.stripEnd(slugWithNoGit, "/");
+        String[] parts = StringUtils.stripEnd(slugWithNoGit, "/").split("/");
+        return new SlugFields(parts[0], parts[1]);
     }
 }

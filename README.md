@@ -32,14 +32,16 @@ Extra features
 
 ### Categorizing plugins
 
-Jenkins groups plugins into various categories in the plugin manager.
+Jenkins groups plugins into various categories in the plugin manager and on [plugins.jenkins.io](https://plugins.jenkins.io/).
 
-These categories historically were labels on the plugins' wiki page with Jenkins applying localization on the raw label value, if defined.
-To remove the need to scrape wiki pages in this tool, we've changed this behavior, and plugins now have the labels defined in this repository.
-See [`label-definitions.properties`](https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/label-definitions.properties) for the plugin/label assignments.
+To set these on your plugin, add a [topic](https://help.github.com/en/github/administering-a-repository/classifying-your-repository-with-topics) to your github repository, with the prefix `jenkins-`.
+For example, if you want the `matrix` label, you need to add `jenkins-matrix` to your repo's [topics](https://help.github.com/en/github/administering-a-repository/classifying-your-repository-with-topics) (also sometimes refered to as labels).
 
-See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides Jenkins applies.
+Only labels in the [whitelist file](./src/main/resources/allowed-labels.properties) will make it into the jenkins infrastructure.
 
+See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides applied by Jenkins.
+
+Older plugins may have additional labels defined in the file [`label-definitions.properties`](https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/label-definitions.properties) in this repository, this approach is deprecated.
 
 ### Wiki Page Override
 

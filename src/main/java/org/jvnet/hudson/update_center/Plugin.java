@@ -37,14 +37,20 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.jvnet.hudson.update_center.util.UrlToGitHubSlugConverter;
+import org.owasp.html.HtmlSanitizer;
+import org.owasp.html.HtmlStreamRenderer;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -52,18 +58,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.owasp.html.HtmlSanitizer;
-import org.owasp.html.HtmlStreamRenderer;
-import org.owasp.html.PolicyFactory;
-import org.owasp.html.Sanitizers;
-import org.w3c.dom.NodeList;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -182,12 +176,15 @@ public class Plugin {
         if (url == null) {
             url = readSingleValueFromXmlFile(latest.resolvePOM(), "/project/url");
         }
-
+        // last fallback: GitHub URL; also prevent plugins.j.io referencing itself
+        if (url == null || url.startsWith("https://plugins.jenkins.io")) {
+            url = requireTopLevelUrl(getScmUrl());
+        }
         String originalUrl = url;
 
         if (url != null) {
             url = url.replace("wiki.hudson-ci.org/display/HUDSON/", "wiki.jenkins-ci.org/display/JENKINS/");
-            url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins-ci.org");
+            url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins.io");
         }
 
         if (url != null && !url.equals(originalUrl)) {
@@ -196,15 +193,24 @@ public class Plugin {
         return url;
     }
 
+    @VisibleForTesting
+    static String requireTopLevelUrl(String scmUrl) {
+        if (scmUrl == null) {
+            return null;
+        }
+        String[] parts = scmUrl.split("/");
+        if (parts.length > 5){
+            return null;
+        }
+        return scmUrl;
+    }
+
     private static Node selectSingleNode(Document pom, String path) {
         Node result = pom.selectSingleNode(path);
         if (result == null)
             result = pom.selectSingleNode(path.replaceAll("/", "/m:"));
         return result;
     }
-
-    private static final Pattern HOSTNAME_PATTERN =
-        Pattern.compile("(?:://|scm:git:(?!\\w+://))(?:\\w*@)?([\\w.-]+)[/:]");
 
     private String filterKnownObsoleteUrls(String scm) {
         if (scm == null) {
@@ -339,6 +345,9 @@ public class Plugin {
                 // all should, but not all do
                 githubUrl = githubUrl.substring(0, githubUrl.lastIndexOf(".git"));
             }
+            if (githubUrl.endsWith("/")) {
+                githubUrl = githubUrl.substring(0, githubUrl.lastIndexOf("/"));
+            }
             return "https://" + githubUrl;
         }
         return null;
@@ -370,11 +379,11 @@ public class Plugin {
     public Object getIssueTracker(@CheckForNull String scmUrl) {
         if (scmUrl != null) {
             try {
-                String slug = UrlToGitHubSlugConverter.convert(scmUrl);
-                boolean issuesEnabled = GitHubSource.getInstance().issuesEnabled(slug);
+                UrlToGitHubSlugConverter.SlugFields slug = UrlToGitHubSlugConverter.convert(scmUrl);
+                boolean issuesEnabled = GitHubSource.getInstance().issuesEnabled(slug.organization, slug.name);
 
                 if (issuesEnabled) {
-                    return githubIssueTracker("https://github.com/" + slug + "/issues");
+                    return githubIssueTracker("https://github.com/" + slug.organization + "/" + slug.name + "/issues");
                 }
             } catch (Exception e) {
                 System.out.println("Failed to check if issues are enabled: " + e.getMessage());
@@ -457,7 +466,7 @@ public class Plugin {
     }
 
     @VisibleForTesting
-    public static String simplifyPluginName(String name) {
+    static String simplifyPluginName(String name) {
         name = StringUtils.removeStart(name, "Jenkins ");
         name = StringUtils.removeStart(name, "Hudson ");
         name = StringUtils.removeEndIgnoreCase(name, " for Jenkins");
@@ -496,7 +505,39 @@ public class Plugin {
 
         json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
 
-        json.put("labels", getLabels());
+        GitHubSource gh = GitHubSource.getInstance();
+        ArrayList<String> labels = new ArrayList<String>();
+        labels.addAll(Arrays.asList(getLabels()));
+
+        if (scm != null && scm.contains("https://github.com/")) {
+            String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
+            if (parts.length >= 2) {
+                labels.addAll(
+                    Arrays.asList(
+                        gh.getTopics(parts[0], parts[1]).toArray(new String[0])
+                    )
+                );
+            }
+        }
+
+        if (!labels.isEmpty()) {
+            HashSet<String> allowedLabels = new HashSet<String>();
+
+            for (String label : labels) {
+                if (label.startsWith("jenkins-")) {
+                    label = label.replaceFirst("jenkins-", "");
+                }
+
+                if (ALLOWED_LABELS.containsKey(label)) {
+                    allowedLabels.add(label);
+                } else {
+                    System.err.println(artifactId + " has a label of " + label + " which is not in ALLOWED_LABELS, so dropping");
+                }
+            }
+
+            labels = new ArrayList<String>(allowedLabels);
+        }
+        json.put("labels", labels);
 
         json.put("issueTracker", getIssueTracker(scm));
 
@@ -568,11 +609,13 @@ public class Plugin {
 
     private static final Properties URL_OVERRIDES = new Properties();
     private static final Properties LABEL_DEFINITIONS = new Properties();
+    private static final Properties ALLOWED_LABELS = new Properties();
 
     static {
         try {
             URL_OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
             LABEL_DEFINITIONS.load(Plugin.class.getClassLoader().getResourceAsStream("label-definitions.properties"));
+            ALLOWED_LABELS.load(Plugin.class.getClassLoader().getResourceAsStream("allowed-labels.properties"));
         } catch (IOException e) {
             throw new Error(e);
         }

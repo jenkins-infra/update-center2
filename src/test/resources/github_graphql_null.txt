@@ -1,0 +1,1037 @@
+{
+  "data": {
+    "organization": {
+      "repositories": {
+        "pageInfo": {
+          "startCursor": "Y3Vyc29yOnYyOpHOAAJ45A==",
+          "hasNextPage": true,
+          "endCursor": "Y3Vyc29yOnYyOpHOABHA7A=="
+        },
+        "edges": [
+          {
+            "node": {
+              "name": "gmaven",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "core-js",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "jelly",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "jexl",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "json-lib",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "maven-hudson-dev-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "netx",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "svnkit",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "trilead-ssh2",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "winstone",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "xstream",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "htmlunit",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "dom4j",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "jenkins.rb",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "git-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "jenkins-clone-workspace-scm-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "Hudson-Gerrit-Plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "throttle-concurrent-builds-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "jmdns",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "gerrit-trigger-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "hudson-notifo-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "rake-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "rubymetrics-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "priority-sorter-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "hudson-clearcase-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "jenkins",
+              "repositoryTopics": {
+                "edges": [
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "continuous-integration"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "continuous-delivery"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "continuous-deployment"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "java"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "groovy"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "jenkins"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "pipelines-as-code"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "devops"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "hacktoberfest"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "cicd"
+                      }
+                    }
+                  }
+                ]
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "robot-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "testbed-ant-sample",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "testbed-anttest-sample",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "labmanager-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "plugin-blekkoPanel",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "maven-hpi-plugin",
+              "repositoryTopics": {
+                "edges": [
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "jenkins"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "maven-plugin"
+                      }
+                    }
+                  }
+                ]
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "subversion-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "WebSVN2-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "analysis-suite-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "analysis-regression-checker-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "VMWareLabManager-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "audit-trail-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "analysis-test-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "android-emulator-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "BlameSubversion-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "URLSCM-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "analysis-collector-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "analysis-pom-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "SCTMExecutor-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "bamboo-notifier-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "backlog-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "analysis-core-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "blame-upstream-commiters-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "artifactory-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "accurev-plugin",
+              "repositoryTopics": {
+                "edges": [
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "java"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "jenkins-accurev-plugin"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "accurev"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "jenkins-plugin"
+                      }
+                    }
+                  },
+                  {
+                    "node": {
+                      "topic": {
+                        "name": "scm"
+                      }
+                    }
+                  }
+                ]
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "bruceschneier-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "bazaar-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "active-directory-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "bitkeeper-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "backup-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "buggame-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "bugzilla-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "bulk-builder-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "batch-task-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cas1-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "campfire-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "caroline-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "ccm-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "build-timeout-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cccc-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "changelog-history-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "buckminster-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "chucknorris-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cifs-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "build-publisher-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "clearcase-release-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "codeplex-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "claim-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "collapsing-console-sections-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cmvc-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "codescanner-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "clearcase-ucm-baseline-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "conditional-upstream-trigger-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "concordionpresenter-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "codeviation-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cmakebuilder-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "copy-to-slave-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "compact-columns-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "copyarchiver-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "covcomplplot-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "clover-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "coverage-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "collabnet-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cppncss-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "copyartifact-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "culprit-report-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cron_column-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "configurationslicing-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cppcheck-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "crowd-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cpptest-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "createjobadvanced-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "dbCharts-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          },
+          {
+            "node": {
+              "name": "cygpath-plugin",
+              "repositoryTopics": {
+                "edges": []
+              },
+              "hasIssuesEnabled": false
+            }
+          }
+        ]
+      }
+    }
+  }
+}
