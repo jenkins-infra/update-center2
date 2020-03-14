@@ -48,14 +48,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -404,7 +404,44 @@ public class Plugin {
         return null;
     }
 
-    public String[] getLabels() {
+    public List<String> getLabels() throws IOException {
+        String scm = getScmUrl();
+
+        List<String> gitHubLabels = new ArrayList<>();
+        if (scm != null && scm.contains("https://github.com/")) {
+
+            List<String> unsanitizedLabels = new ArrayList<>();
+            String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
+            if (parts.length >= 2) {
+                unsanitizedLabels.addAll(
+                        Arrays.asList(
+                                GitHubSource.getInstance().getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
+                        )
+                );
+            }
+
+            for (String label : unsanitizedLabels) {
+                if (label.startsWith("jenkins-")) {
+                    label = label.replaceFirst("jenkins-", "");
+                }
+
+                if (ALLOWED_GITHUB_LABELS.containsKey(label)) {
+                    gitHubLabels.add(label);
+                }
+            }
+
+            if (!gitHubLabels.isEmpty()) {
+                System.out.println(artifactId + " got the following labels contributed from GitHub: " + StringUtils.join(gitHubLabels, ", "));
+            }
+        }
+
+        Set<String> labels = new TreeSet<>(Arrays.asList(getLabelsFromFile()));
+        labels.addAll(gitHubLabels);
+
+        return new ArrayList<>(labels);
+    }
+
+    private String[] getLabelsFromFile() {
         Object ret = LABEL_DEFINITIONS.get(artifactId);
         if (ret == null) {
             // handle missing entry in properties file
@@ -468,40 +505,7 @@ public class Plugin {
         }
 
         json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
-
-        GitHubSource gh = GitHubSource.getInstance();
-        ArrayList<String> labels = new ArrayList<String>();
-        labels.addAll(Arrays.asList(getLabels()));
-
-        if (scm != null && scm.contains("https://github.com/")) {
-            String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
-            if (parts.length >= 2) {
-                labels.addAll(
-                    Arrays.asList(
-                        gh.getTopics(parts[0], parts[1]).toArray(new String[0])
-                    )
-                );
-            }
-        }
-
-        if (!labels.isEmpty()) {
-            HashSet<String> allowedLabels = new HashSet<String>();
-
-            for (String label : labels) {
-                if (label.startsWith("jenkins-")) {
-                    label = label.replaceFirst("jenkins-", "");
-                }
-
-                if (ALLOWED_LABELS.containsKey(label)) {
-                    allowedLabels.add(label);
-                } else {
-                    System.err.println(artifactId + " has a label of " + label + " which is not in ALLOWED_LABELS, so dropping");
-                }
-            }
-
-            labels = new ArrayList<String>(allowedLabels);
-        }
-        json.put("labels", labels);
+        json.put("labels", getLabels());
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
 
@@ -571,13 +575,13 @@ public class Plugin {
 
     private static final Properties URL_OVERRIDES = new Properties();
     private static final Properties LABEL_DEFINITIONS = new Properties();
-    private static final Properties ALLOWED_LABELS = new Properties();
+    private static final Properties ALLOWED_GITHUB_LABELS = new Properties();
 
     static {
         try {
             URL_OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
             LABEL_DEFINITIONS.load(Plugin.class.getClassLoader().getResourceAsStream("label-definitions.properties"));
-            ALLOWED_LABELS.load(Plugin.class.getClassLoader().getResourceAsStream("allowed-labels.properties"));
+            ALLOWED_GITHUB_LABELS.load(Plugin.class.getClassLoader().getResourceAsStream("allowed-github-topics.properties"));
         } catch (IOException e) {
             throw new Error(e);
         }
