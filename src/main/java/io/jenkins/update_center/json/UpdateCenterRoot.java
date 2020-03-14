@@ -2,6 +2,8 @@ package io.jenkins.update_center.json;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.google.common.base.Functions;
+import io.jenkins.update_center.Deprecations;
 import io.jenkins.update_center.MavenRepository;
 import io.jenkins.update_center.PluginUpdateCenterEntry;
 import io.jenkins.update_center.Plugin;
@@ -14,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class UpdateCenterRoot extends WithSignature {
     @JSONField
@@ -34,10 +37,16 @@ public class UpdateCenterRoot extends WithSignature {
     @JSONField
     public List<UpdateCenterWarning> warnings;
 
+    @JSONField
+    public Map<String, UpdateCenterDeprecation> deprecations;
+
     public UpdateCenterRoot(MavenRepository repo, File warningsJsonFile) throws IOException {
         // load warnings
         final String warningsJsonText = String.join("", Files.readAllLines(warningsJsonFile.toPath(), StandardCharsets.UTF_8));
         warnings = Arrays.asList(JSON.parseObject(warningsJsonText, UpdateCenterWarning[].class));
+
+        // load deprecations
+        deprecations = Deprecations.getDeprecatedPlugins().stream().collect(Collectors.toMap(Functions.identity(), it -> new UpdateCenterDeprecation(Deprecations.getCustomDeprecationUri(it))));
 
         for (Plugin plugin : repo.listJenkinsPlugins()) {
             PluginUpdateCenterEntry entry = new PluginUpdateCenterEntry(plugin);
