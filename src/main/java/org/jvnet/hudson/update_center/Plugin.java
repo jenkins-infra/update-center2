@@ -55,7 +55,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * An entry of a plugin in the update center metadata.
@@ -468,6 +467,7 @@ public class Plugin {
         }
 
         json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
+        json.put("popularity", Popularities.getInstance().getPopularity(artifactId));
 
         GitHubSource gh = GitHubSource.getInstance();
         ArrayList<String> labels = new ArrayList<String>();
