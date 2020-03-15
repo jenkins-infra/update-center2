@@ -149,20 +149,20 @@ public class GitHubSource {
 
             for (Object repository : repositories.getJSONArray("edges")) {
                 JSONObject node = ((JSONObject) repository).getJSONObject("node");
-                if (node.getJSONObject("repositoryTopics").getJSONArray("edges").size() == 0) {
-                    continue;
-                }
                 String name = node.getString("name");
                 this.repoNames.add("https://github.com/" + organization + "/" + name);
                 this.githubIssuesEnabled.put(organization + "/" + name, node.getBoolean("hasIssuesEnabled"));
-                this.topicNames.put(organization + "/" + name, new ArrayList<>());
-                for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
-                    this.topicNames.get(organization + "/" + name).add(
-                            ((JSONObject) repositoryTopic)
-                                    .getJSONObject("node")
-                                    .getJSONObject("topic")
-                                    .getString("name")
-                    );
+
+                if (node.getJSONObject("repositoryTopics").getJSONArray("edges").size() != 0) {
+                    this.topicNames.put(organization + "/" + name, new ArrayList<>());
+                    for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
+                        this.topicNames.get(organization + "/" + name).add(
+                                ((JSONObject) repositoryTopic)
+                                        .getJSONObject("node")
+                                        .getJSONObject("topic")
+                                        .getString("name")
+                        );
+                    }
                 }
             }
         }

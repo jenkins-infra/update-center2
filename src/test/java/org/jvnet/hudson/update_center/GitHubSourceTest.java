@@ -3,19 +3,19 @@ package org.jvnet.hudson.update_center;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class GitHubSourceTest {
 
-    @Test
-    public void getTopics() throws Exception {
+    GitHubSource gh;
+    @Before
+    public void setup() throws Exception {
         MockWebServer server = new MockWebServer();
 
         server.enqueue(new MockResponse().setBody(
@@ -33,7 +33,7 @@ public class GitHubSourceTest {
         // Start the server.
         server.start();
 
-        GitHubSource gh = new GitHubSource() {
+        gh = new GitHubSource() {
             @Override
             protected String getGraphqlUrl() {
                 return server.url("/graphql").toString();
@@ -42,18 +42,30 @@ public class GitHubSourceTest {
             @Override
             protected void init() {
                 try {
-                  this.getRepositoryData("jenkinsci");
+                    this.getRepositoryData("jenkinsci");
                 } catch (IOException e) {
-                  fail("Should not have thrown any exception");
-                  throw new RuntimeException(e);
+                    fail("Should not have thrown any exception");
+                    throw new RuntimeException(e);
                 }
             }
         };
         gh.init();
+
+        // Shut down the server. Instances cannot be reused.
+        server.shutdown();
+    }
+
+
+    @Test
+    public void getRepositoryTopics() throws Exception {
         assertEquals(
                 Arrays.asList("pipeline"),
                 gh.getRepositoryTopics("jenkinsci", "workflow-cps-plugin")
         );
+    }
+
+    @Test
+    public void issuesEnabled() throws Exception {
         assertEquals(
                 false,
                 gh.issuesEnabled("jenkinsci", "workflow-cps-plugin")
@@ -62,6 +74,10 @@ public class GitHubSourceTest {
                 true,
                 gh.issuesEnabled("jenkinsci", "github-pr-coverage-status-plugin")
         );
+    }
+
+    @Test
+    public void isRepoExisting() throws Exception {
         assertEquals(
                 true,
                 gh.isRepoExisting("https://github.com/jenkinsci/jenkins-design-language")
@@ -74,8 +90,5 @@ public class GitHubSourceTest {
                 true,
                 gh.isRepoExisting("https://github.com/jenkinsci/codecommit-url-helper-plugin")
         );
-
-        // Shut down the server. Instances cannot be reused.
-        server.shutdown();
     }
 }
