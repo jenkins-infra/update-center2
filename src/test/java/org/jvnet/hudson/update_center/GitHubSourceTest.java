@@ -5,7 +5,10 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -17,13 +20,13 @@ public class GitHubSourceTest {
 
         server.enqueue(new MockResponse().setBody(
                 IOUtils.toString(
-                        this.getClass().getClassLoader().getResourceAsStream("github_graphql_null.txt"),
+                        this.getClass().getClassLoader().getResourceAsStream("github_graphql_null.json"),
                         "UTF-8"
                 )
         ));
         server.enqueue(new MockResponse().setBody(
                 IOUtils.toString(
-                        this.getClass().getClassLoader().getResourceAsStream("github_graphql_Y3Vyc29yOnYyOpHOA0oRaA==.txt"),
+                        this.getClass().getClassLoader().getResourceAsStream("github_graphql_Y3Vyc29yOnYyOpHOA0oRaA==.json"),
                         "UTF-8"
                 )
         ));
@@ -35,10 +38,29 @@ public class GitHubSourceTest {
             protected String getGraphqlUrl() {
                 return server.url("/graphql").toString();
             }
+
+            @Override
+            protected void init() {
+                try {
+                  this.getRepositoryData("jenkinsci");
+                } catch (IOException e) {
+                  fail("Should not have thrown any exception");
+                  throw new RuntimeException(e);
+                }
+            }
         };
+        gh.init();
         assertEquals(
-            gh.getTopics("jenkinsci", "workflow-cps-plugin"),
-            Arrays.asList("pipeline")
+                Arrays.asList("pipeline"),
+                gh.getRepositoryTopics("jenkinsci", "workflow-cps-plugin")
+        );
+        assertEquals(
+                false,
+                gh.issuesEnabled("jenkinsci", "workflow-cps-plugin")
+        );
+        assertEquals(
+                true,
+                gh.issuesEnabled("jenkinsci", "github-pr-coverage-status-plugin")
         );
         // Shut down the server. Instances cannot be reused.
         server.shutdown();

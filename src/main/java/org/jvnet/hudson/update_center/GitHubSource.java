@@ -42,12 +42,12 @@ public class GitHubSource {
     /* Using the OkHttp Cache reduces request rate limit use, but isn't actually faster, so let's cache the repo list manually in this file */
     private static File GITHUB_REPO_LIST = new File(GITHUB_API_CACHE, "repo-list.txt");
 
-    private Set<String> repoNames;
+    private Set<String> repoNames = null;
     private Map<String, List<String>> topicNames = null;
     private Map<String, Boolean> githubIssuesEnabled = null;
 
 
-    private void init() {
+    protected void init() {
         try {
             if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null) {
                 this.getRepositoryData("jenkinsci");
@@ -61,10 +61,7 @@ public class GitHubSource {
         return "https://api.github.com/graphql";
     }
 
-    private void getRepositoryData(String organization) throws IOException {
-        if (this.topicNames != null && this.githubIssuesEnabled != null) {
-            return;
-        }
+    protected void getRepositoryData(String organization) throws IOException {
         this.topicNames = new HashMap<>();
         this.githubIssuesEnabled = new HashMap<>();
         this.repoNames = new TreeSet<>(new Comparator<String>() {
@@ -156,11 +153,11 @@ public class GitHubSource {
                     continue;
                 }
                 String name = node.getString("name");
-                this.repoNames.add(name);
-                this.githubIssuesEnabled.put(name, node.getBoolean("hasIssuesEnabled"));
-                this.topicNames.put(name, new ArrayList<>());
+                this.repoNames.add("https://github.com/" + organization + "/" + name);
+                this.githubIssuesEnabled.put(organization + "/" + name, node.getBoolean("hasIssuesEnabled"));
+                this.topicNames.put(organization + "/" + name, new ArrayList<>());
                 for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
-                    this.topicNames.get(name).add(
+                    this.topicNames.get(organization + "/" + name).add(
                             ((JSONObject) repositoryTopic)
                                     .getJSONObject("node")
                                     .getJSONObject("topic")
@@ -172,7 +169,6 @@ public class GitHubSource {
     }
 
     public List<String> getTopics(String organization, String repo) throws IOException {
-        this.getRepositoryData(organization);
         if (!this.topicNames.containsKey(repo)) {
             return Collections.emptyList();
         }
@@ -180,8 +176,11 @@ public class GitHubSource {
     }
 
     public boolean issuesEnabled(String organization, String repo) throws IOException {
-        this.getRepositoryData(organization);
-        return this.githubIssuesEnabled.get(repo);
+        return this.githubIssuesEnabled == null ? false : this.githubIssuesEnabled.getOrDefault(organization + "/" + repo, false);
+    }
+
+    public List<String> getRepositoryTopics(String org, String repo) throws IOException {
+        return this.topicNames == null ? Collections.emptyList() : this.topicNames.getOrDefault(org + "/" + repo, Collections.emptyList());
     }
 
 
