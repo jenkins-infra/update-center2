@@ -62,6 +62,19 @@ public class GitHubSourceTest {
                 true,
                 gh.issuesEnabled("jenkinsci", "github-pr-coverage-status-plugin")
         );
+        assertEquals(
+                true,
+                gh.isRepoExisting("https://github.com/jenkinsci/jenkins-design-language")
+        );
+        assertEquals(
+                true,
+                gh.isRepoExisting("https://github.com/jenkinsci/codecommit-url-helper-plugin")
+        );
+        assertEquals(
+                true,
+                gh.isRepoExisting("https://github.com/jenkinsci/codecommit-url-helper-plugin")
+        );
+
         // Shut down the server. Instances cannot be reused.
         server.shutdown();
     }
