@@ -3,14 +3,17 @@ package org.jvnet.hudson.update_center;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
-import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class MavenArtifactSource extends ArtifactSource {
     @Override
@@ -44,13 +47,27 @@ public class MavenArtifactSource extends ArtifactSource {
     @Override
     public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException {
         File f = artifact.resolve();
-        try {
-            JarFile jar = new JarFile(f);
-            ZipEntry e = jar.getEntry(path);
-            if (e == null) {
-                throw new IOException("No entry " + path + " found in " + artifact);
+        try (FileInputStream fis = new FileInputStream(f);
+             BufferedInputStream bis = new BufferedInputStream(fis);
+             ZipInputStream stream = new ZipInputStream(bis)) {
+
+            ZipEntry entry;
+            while ((entry = stream.getNextEntry()) != null) {
+                if (path.equals(entry.getName())) {
+                    // pull out the file from entire zip, copy it into memory, and throw away the rest
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = stream.read(buffer)) > -1 ) {
+                        baos.write(buffer, 0, len);
+                    }
+                    baos.flush();
+
+                    return new ByteArrayInputStream(baos.toByteArray());
+                }
             }
-            return jar.getInputStream(e);
+            throw new IOException("No entry " + path + " found in " + artifact);
         } catch (IOException x) {
             throw new IOException("Failed read from " + f + ": " + x.getMessage(), x);
         }
