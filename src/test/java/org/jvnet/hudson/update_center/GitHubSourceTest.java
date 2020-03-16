@@ -5,7 +5,10 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -35,10 +38,15 @@ public class GitHubSourceTest {
             protected String getGraphqlUrl() {
                 return server.url("/graphql").toString();
             }
+
+            @Override
+            public List<String> getRepositoryTopics(String org, String repo) throws IOException {
+                return getOrganizationTopics(org).getOrDefault(org + "/" + repo, Collections.emptyList());
+            }
         };
         assertEquals(
-            gh.getTopics("jenkinsci", "workflow-cps-plugin"),
-            Arrays.asList("pipeline")
+                Arrays.asList("pipeline"),
+                gh.getRepositoryTopics("jenkinsci", "workflow-cps-plugin")
         );
         // Shut down the server. Instances cannot be reused.
         server.shutdown();

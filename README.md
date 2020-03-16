@@ -34,14 +34,15 @@ Extra features
 
 Jenkins groups plugins into various categories in the plugin manager and on [plugins.jenkins.io](https://plugins.jenkins.io/).
 
-To set these on your plugin, add a [topic](https://help.github.com/en/github/administering-a-repository/classifying-your-repository-with-topics) to your github repository, with the prefix `jenkins-`.
-For example, if you want the `matrix` label, you need to add `jenkins-matrix` to your repo's [topics](https://help.github.com/en/github/administering-a-repository/classifying-your-repository-with-topics) (also sometimes refered to as labels).
+To define these for your plugin, add [topics](https://help.github.com/en/github/administering-a-repository/classifying-your-repository-with-topics) to your GitHub repository.
+For a list of supported topics, see the [whitelist file](src/main/resources/allowed-github-topics.properties) that contains all topics that can be set on GitHub repositories that will be reflected in update sites.
+Topics can be set with or without the prefix `jenkins-`. If a topics has that prefix, it is removed first:
+To add the label `matrix` for your plugin, you would add either `matrix` or `jenkins-matrix` on your repository. 
 
-Only labels in the [whitelist file](./src/main/resources/allowed-labels.properties) will make it into the jenkins infrastructure.
+See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides applied to labels by Jenkins.
+Other labels are categorized into general _Misc (custom-label-here)_ categories.
 
-See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties (look for `UpdateCenter.PluginCategory`) for the localization overrides applied by Jenkins.
-
-Older plugins may have additional labels defined in the file [`label-definitions.properties`](https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/label-definitions.properties) in this repository, this approach is deprecated.
+Some plugins may have additional labels defined in the file [`label-definitions.properties`](https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/label-definitions.properties) in this repository, this approach is deprecated.
 
 ### Wiki Page Override
 

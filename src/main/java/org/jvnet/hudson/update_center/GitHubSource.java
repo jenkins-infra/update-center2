@@ -43,7 +43,7 @@ public class GitHubSource {
     private static File GITHUB_REPO_LIST = new File(GITHUB_API_CACHE, "repo-list.txt");
 
     private Set<String> repoNames;
-    private Map<String, List<String>> topicNames = null;
+    private Map<String, List<String>> topicNames;
 
 
     private void init() {
@@ -56,7 +56,7 @@ public class GitHubSource {
                     }
                 });
                 this.repoNames.addAll(getRepositoryNames());
-                this.getTopics("jenkinsci");
+                this.getOrganizationTopics("jenkinsci");
             }
         } catch (IOException e) {
             // ignore, fall back to dumb mode
@@ -88,7 +88,7 @@ public class GitHubSource {
         return "https://api.github.com/graphql";
     }
 
-    private Map<String, List<String>> getTopics(String organization) throws IOException {
+    protected Map<String, List<String>> getOrganizationTopics(String organization) throws IOException {
         if (this.topicNames != null) {
             return this.topicNames;
         }
@@ -175,9 +175,9 @@ public class GitHubSource {
                     continue;
                 }
                 String name = node.getString("name");
-                this.topicNames.put(name, new ArrayList<>());
+                this.topicNames.put(organization + "/" + name, new ArrayList<>());
                 for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
-                    this.topicNames.get(name).add(
+                    this.topicNames.get(organization + "/" + name).add(
                             ((JSONObject) repositoryTopic)
                                     .getJSONObject("node")
                                     .getJSONObject("topic")
@@ -189,13 +189,8 @@ public class GitHubSource {
         return this.topicNames;
     }
 
-    public List<String> getTopics(String organization, String repo) throws IOException {
-        Map<String, List<String>> topics = this.getTopics(organization);
-        if (!topics.containsKey(repo)) {
-            return Collections.emptyList();
-        }
-        return topics.get(repo);
-
+    public List<String> getRepositoryTopics(String org, String repo) throws IOException {
+        return this.topicNames == null ? Collections.emptyList() : this.topicNames.getOrDefault(org + "/" + repo, Collections.emptyList());
     }
 
     private static GitHubSource instance;
