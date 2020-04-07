@@ -30,11 +30,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
+import org.jvnet.hudson.update_center.wrappers.AlphaBetaOnlyRepository;
+import org.jvnet.hudson.update_center.wrappers.StableMavenRepository;
+import org.jvnet.hudson.update_center.wrappers.TruncatedMavenRepository;
+import org.jvnet.hudson.update_center.wrappers.VersionCappedMavenRepository;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.spi.OptionHandler;
 
 import javax.annotation.CheckForNull;
 import java.io.File;
@@ -280,7 +283,6 @@ public class Main {
         if (pluginToDocumentationUrl.isEmpty()) {
             throw new IllegalStateException("Must run after buildUpdateCenterJson");
         }
-        // TODO FIXME implement
         JSONObject root = new JSONObject();
         for (Map.Entry<String, String> entry : pluginToDocumentationUrl.entrySet()) {
             JSONObject value = new JSONObject();
@@ -351,7 +353,7 @@ public class Main {
 
     protected MavenRepository createRepository() throws Exception {
 
-        MavenRepositoryImpl base = DefaultMavenRepositoryBuilder.getInstance();
+        BaseMavenRepository base = DefaultMavenRepositoryBuilder.getInstance();
 
         // ensure that we reset plugin filters between batch executions
         base.resetPluginFilters();
@@ -367,8 +369,7 @@ public class Main {
         }
 
         MavenRepository repo = base;
-        // TODO: Maven repository implementations below can be reworked to filters
-        if (maxPlugins!=null)
+        if (maxPlugins != null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (experimentalOnly)
             repo = new AlphaBetaOnlyRepository(repo,false);
@@ -377,9 +378,9 @@ public class Main {
         if (stableCore) {
             repo = new StableMavenRepository(repo);
         }
-        if (capPlugin !=null || getCapCore()!=null) {
-            VersionNumber vp = capPlugin==null ? null : new VersionNumber(capPlugin);
-            VersionNumber vc = getCapCore()==null ? ANY_VERSION : new VersionNumber(getCapCore());
+        if (capPlugin != null || getCapCore() != null) {
+            VersionNumber vp = capPlugin == null ? null : new VersionNumber(capPlugin);
+            VersionNumber vc = getCapCore() == null ? ANY_VERSION : new VersionNumber(getCapCore());
             repo = new VersionCappedMavenRepository(repo, vp, vc);
         }
         return repo;
@@ -433,8 +434,6 @@ public class Main {
      * @param latest
      */
     protected JSONObject buildPlugins(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
-
-        final boolean isVersionCappedRepository = isVersionCappedRepository(repository);
 
         int validCount = 0;
 
@@ -658,17 +657,6 @@ public class Main {
             buildIndex(new File(wwwDownload,"war/"),"jenkins.war", wars.values(), "/latest/jenkins.war");
 
         return core;
-    }
-
-    /** @return {@code true} iff the given repository, or one of the repositories it wraps, is version-capped. */
-    private static boolean isVersionCappedRepository(MavenRepository repository) {
-        if (repository instanceof VersionCappedMavenRepository) {
-            return true;
-        }
-        if (repository.getBaseRepository() == null) {
-            return false;
-        }
-        return isVersionCappedRepository(repository.getBaseRepository());
     }
 
     private static final VersionNumber ANY_VERSION = new VersionNumber("999.999");

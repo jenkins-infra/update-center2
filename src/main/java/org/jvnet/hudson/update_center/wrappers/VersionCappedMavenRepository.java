@@ -1,15 +1,13 @@
-package org.jvnet.hudson.update_center;
+package org.jvnet.hudson.update_center.wrappers;
 
 import hudson.util.VersionNumber;
-import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
-import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.sonatype.nexus.index.ArtifactInfo;
-import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
+import org.jvnet.hudson.update_center.BaseMavenRepository;
+import org.jvnet.hudson.update_center.HPI;
+import org.jvnet.hudson.update_center.HudsonWar;
+import org.jvnet.hudson.update_center.MavenRepository;
+import org.jvnet.hudson.update_center.PluginHistory;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,11 +15,9 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 /**
- * Delegating {@link MavenRepository} to limit the data to the subset compatible with the specific version.
- *
- * @author Kohsuke Kawaguchi
+ * Delegating {@link BaseMavenRepository} to limit the data to the subset compatible with the specific version.
  */
-public class VersionCappedMavenRepository extends MavenRepository {
+public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
 
     /**
      * Version number to cap. We only report plugins that are compatible with this core version.
@@ -39,17 +35,13 @@ public class VersionCappedMavenRepository extends MavenRepository {
         this.capCore = capCore;
     }
 
-    public VersionCappedMavenRepository(MavenRepository base, VersionNumber cap) {
-        this(base,cap,cap);
+    @Override
+    public TreeMap<VersionNumber, HudsonWar> getHudsonWar() throws IOException {
+        return new TreeMap<>(base.getHudsonWar().tailMap(capCore,true));
     }
 
     @Override
-    public TreeMap<VersionNumber, HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException {
-        return new TreeMap<VersionNumber, HudsonWar>(base.getHudsonWar().tailMap(capCore,true));
-    }
-
-    @Override
-    public Collection<PluginHistory> listHudsonPlugins() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
+    public Collection<PluginHistory> listHudsonPlugins() throws IOException {
         Collection<PluginHistory> r = base.listHudsonPlugins();
 
         for (Iterator<PluginHistory> jtr = r.iterator(); jtr.hasNext();) {
@@ -89,11 +81,5 @@ public class VersionCappedMavenRepository extends MavenRepository {
         }
 
         return r;
-    }
-
-
-    @Override
-    public File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException {
-        return base.resolve(a, type, classifier);
     }
 }

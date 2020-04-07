@@ -24,7 +24,6 @@
 package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
-import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -33,7 +32,7 @@ import java.net.MalformedURLException;
  * @author Kohsuke Kawaguchi
  */
 public class HudsonWar extends MavenArtifact {
-    public HudsonWar(MavenRepository repository, ArtifactInfo artifact) {
+    public HudsonWar(BaseMavenRepository repository, ArtifactCoordinates artifact) {
         super(repository, artifact);
     }
 
@@ -42,25 +41,17 @@ public class HudsonWar extends MavenArtifact {
         return new URL("http://updates.jenkins-ci.org/download/war/"+version+"/"+ getFileName());
     }
 
-    /**
-     * Returns the Maven artifact representing the correpsonding core jar file.
-     */
-    public MavenArtifact getCoreArtifact() {
-        return new MavenArtifact(repository,new ArtifactInfo(
-                artifact.repository,
-                artifact.groupId,
-                artifact.artifactId.replace("war","core"),
-                artifact.version,
-                artifact.classifier
-        ));
-    }
-
     public String getFileName() {
         String fileName;
-        if (new VersionNumber(version).compareTo(MavenRepositoryImpl.CUT_OFF)<=0)
+        if (new VersionNumber(version).compareTo(HUDSON_CUT_OFF)<=0)
             fileName = "hudson.war";
         else
             fileName = "jenkins.war";
         return fileName;
     }
+
+    /**
+     * Hudson -> Jenkins cut-over version.
+     */
+    public static final VersionNumber HUDSON_CUT_OFF = new VersionNumber("1.395");
 }

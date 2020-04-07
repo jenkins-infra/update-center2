@@ -25,8 +25,6 @@ package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
-import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
-import org.sonatype.nexus.index.ArtifactInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,9 +37,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.jar.Attributes;
-import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
 
 /**
  * Artifact from a Maven repository and its metadata.
@@ -52,14 +48,14 @@ public class MavenArtifact {
     /**
      * Where did this plugin come from?
      */
-    public final MavenRepository repository;
-    public final ArtifactInfo artifact;
+    public final BaseMavenRepository repository;
+    public final ArtifactCoordinates artifact;
     public final String version;
     private File hpi;
 
     private Manifest manifest;
 
-    public MavenArtifact(MavenRepository repository, ArtifactInfo artifact) {
+    public MavenArtifact(BaseMavenRepository repository, ArtifactCoordinates artifact) {
         this.artifact = artifact;
         this.repository = repository;
         version = artifact.version;
@@ -93,21 +89,15 @@ public class MavenArtifact {
                     at org.jvnet.hudson.update_center.Main.buildPlugins(Main.java:269)
              */
             throw (IOException)new IOException("Failed to resolve artifact "+artifact).initCause(e);
-        } catch (AbstractArtifactResolutionException e) {
-            throw (IOException)new IOException("Failed to resolve artifact "+artifact).initCause(e);
         }
     }
 
     public File resolvePOM() throws IOException {
-        try {
-            return repository.resolve(artifact,"pom", null);
-        } catch (AbstractArtifactResolutionException e) {
-            throw (IOException)new IOException("Failed to resolve artifact "+artifact+ " pom").initCause(e);
-        }
+        return repository.resolve(artifact,"pom", null);
     }
 
-    public ArtifactSource.Digests getDigests() throws IOException {
-        return ArtifactSource.getInstance().getDigests(this);
+    public MavenRepository.Digests getDigests() throws IOException {
+        return repository.getDigests(this);
     }
 
     public JSONObject toJSON(String name) throws IOException {
@@ -117,7 +107,7 @@ public class MavenArtifact {
 
         o.put("url", getURL().toExternalForm());
         o.put("buildDate", getTimestampAsString());
-        ArtifactSource.Digests d = getDigests();
+        MavenRepository.Digests d = getDigests();
         if (d == null) {
             return null; // no artifact
         }
@@ -162,14 +152,14 @@ public class MavenArtifact {
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf;
     }
-        
+
     public long getTimestamp() throws IOException {
-        return artifact.lastModified;
+        return this.artifact.timestamp;
     }
 
     public Manifest getManifest() throws IOException {
         if (manifest==null) {
-            manifest = ArtifactSource.getInstance().getManifest(this);
+            manifest = repository.getManifest(this);
         }
         return manifest;
     }

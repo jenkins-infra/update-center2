@@ -6,6 +6,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -19,50 +21,92 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
-public class ArtifactoryArtifactSource extends ArtifactSource {
+public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
+
     private static final String ARTIFACTORY_URL = "https://repo.jenkins-ci.org/";
     private static final String ARTIFACTORY_API_URL = "https://repo.jenkins-ci.org/api/";
-    private static final String ARTIFACTORY_LIST_URL = ARTIFACTORY_API_URL + "storage/releases/?list&deep=1";
+    private static final String ARTIFACTORY_AQL_URL = ARTIFACTORY_API_URL + "search/aql";
     private static final String ARTIFACTORY_MANIFEST_URL = ARTIFACTORY_URL + "%s/%s!/META-INF/MANIFEST.MF";
     private static final String ARTIFACTORY_ZIP_ENTRY_URL = ARTIFACTORY_URL + "%s/%s!%s";
+    private static final String ARTIFACTORY_FILE_URL = ARTIFACTORY_URL + "%s/%s";
 
     private final String username;
     private final String password;
-
-    private static ArtifactoryArtifactSource instance;
 
     private File cacheDirectory = new File("artifactoryFileCache");
 
     private boolean initialized = false;
 
-    // the key is the URI within the repo, with leading /
-    // example: /args4j/args4j/2.0.21/args4j-2.0.21-javadoc.jar
     private Map<String, GsonFile> files = new HashMap<>();
 
-    public ArtifactoryArtifactSource(String username, String password) {
+    public ArtifactoryRepositoryImpl(String username, String password) {
         this.username = username;
         this.password = password;
     }
 
+    @Override
+    protected Set<ArtifactCoordinates> listAllJenkinsWars(String groupId) throws IOException {
+        ensureInitialized();
+        return this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
+    }
+
+    private static ArtifactCoordinates coordinatesFromGsonFile(GsonFile f) {
+        String fileName = f.name;
+        String path = f.path;
+
+        int gaToV = path.lastIndexOf('/');
+        if (gaToV <= 0) {
+            throw new IllegalStateException("Unexpected path/name: " + f.path + " / " + f.name);
+        }
+        String version = path.substring(gaToV + 1);
+        String ga = path.substring(0, gaToV);
+
+        int gToA = ga.lastIndexOf('/');
+        if (gToA <= 0) {
+            throw new IllegalStateException("Unexpected path/name: " + f.path + " / " + f.name);
+        }
+        String artifactId = ga.substring(gToA + 1);
+        String groupId = ga.substring(0, gToA).replace('/', '.');
+
+        final int baseNameToExtension = fileName.lastIndexOf('.');
+        String extension = fileName.substring(baseNameToExtension + 1);
+        String baseName = fileName.substring(0, baseNameToExtension);
+
+        final int classifierBeginIndex = artifactId.length() + 1 + version.length() + 1;
+        String classifier = null;
+        if (classifierBeginIndex < baseName.length()) {
+            classifier = baseName.substring(classifierBeginIndex);
+        }
+        return new ArtifactCoordinates(groupId, artifactId, version, extension, classifier, f.created.getTime());
+    }
+
+    @Override
+    public Collection<ArtifactCoordinates> listAllPlugins() throws IOException {
+        ensureInitialized();
+        return this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
+    }
+
     private static class GsonFile {
-        public String uri;
-        public String sha1;
-        public String sha2;
+        public String path; // example: org/acme/whatever/1.0
+        public String name; // example: whatever-1.0.jar
+        public String actual_sha1; // base64
+        public String sha256; // base64
+        public Date created;
     }
 
     private static class GsonResponse {
-        public String uri;
-        public Date created;
-        public List<GsonFile> files;
+        public List<GsonFile> results;
     }
 
     private Map<String, String> cache = new HashMap<>();
@@ -73,19 +117,17 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
         if (initialized) {
             throw new IllegalStateException("re-initialized");
         }
+        System.out.println("Initializing " + this.getClass().getName());
         HttpClient client = new HttpClient();
-        GetMethod get = new GetMethod(ARTIFACTORY_LIST_URL);
-        get.addRequestHeader("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()));
-        client.executeMethod(get);
-        InputStream body = get.getResponseBodyAsStream();
+        PostMethod post = new PostMethod(ARTIFACTORY_AQL_URL);
+        post.addRequestHeader("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()));
+        post.setRequestEntity(new StringRequestEntity("items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"path\", \"name\", \"created\", \"sha256\", \"actual_sha1\")", "text/plain", "utf-8"));
+        client.executeMethod(post);
+        InputStream body = post.getResponseBodyAsStream();
         Gson gson = new Gson();
         GsonResponse json = gson.fromJson(new InputStreamReader(body), GsonResponse.class);
-        for (GsonFile file : json.files) {
-            String uri = file.uri;
-            if (uri.endsWith(".hpi") || uri.endsWith(".jpi") || uri.endsWith(".war")) { // we only care about HPI (plugin) and WAR (core) files
-                this.files.put(uri, file);
-            }
-        }
+        json.results.stream().forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
+        System.out.println("Initialized " + this.getClass().getName());
     }
 
     private String hexToBase64(String hex) throws IOException {
@@ -102,12 +144,12 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
         ensureInitialized();
         Digests ret = new Digests();
         try {
-            ret.sha1 = hexToBase64(files.get("/" + getUri(artifact)).sha1);
+            ret.sha1 = hexToBase64(files.get("/" + getUri(artifact.artifact)).actual_sha1);
         } catch (NullPointerException e) {
             System.out.println("No artifact: " + artifact.toString());
             return null;
         }
-        String hexSha256 = files.get("/" + getUri(artifact)).sha2;
+        String hexSha256 = files.get("/" + getUri(artifact.artifact)).sha256;
         if (hexSha256 != null) {
             ret.sha256 = hexToBase64(hexSha256);
         } else {
@@ -124,21 +166,21 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
         }
     }
 
-    private String getUri(MavenArtifact a) {
-        String basename = a.artifact.artifactId + "-" + a.artifact.version;
+    private String getUri(ArtifactCoordinates a) {
+        String basename = a.artifactId + "-" + a.version;
         String filename;
-        if (a.artifact.classifier != null) {
-            filename = basename + "-" + a.artifact.classifier + "." + a.artifact.packaging;
+        if (a.classifier != null) {
+            filename = basename + "-" + a.classifier + "." + a.packaging;
         } else {
-            filename = basename + "." + a.artifact.packaging;
+            filename = basename + "." + a.packaging;
         }
-        String ret = a.artifact.groupId.replace(".", "/") + "/" + a.artifact.artifactId + "/" + a.version + "/" + filename;
+        String ret = a.groupId.replace(".", "/") + "/" + a.artifactId + "/" + a.version + "/" + filename;
         return ret;
     }
 
     @Override
     public Manifest getManifest(MavenArtifact artifact) throws IOException {
-        try (InputStream is = getFileContent(String.format(ARTIFACTORY_MANIFEST_URL, "releases", getUri(artifact)))) {
+        try (InputStream is = getFileContent(String.format(ARTIFACTORY_MANIFEST_URL, "releases", getUri(artifact.artifact)))) {
             return new Manifest(is);
         }
     }
@@ -151,9 +193,15 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
             }
             return new StringInputStream(entry);
         }
+        File cacheFile = getFile(url);
+        return new FileInputStream(cacheFile);
+    }
+
+    private File getFile(String url) throws IOException {
         String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes());
         File cacheFile = new File(cacheDirectory, urlBase64);
         if (!cacheFile.exists()) {
+            System.out.println("Downloading: " + url);
             cacheFile.getParentFile().mkdirs();
             try {
                 HttpClient client = new HttpClient();
@@ -185,11 +233,24 @@ public class ArtifactoryArtifactSource extends ArtifactSource {
                 }
             }
         }
-        return new FileInputStream(cacheFile);
+        return cacheFile;
     }
 
     @Override
     public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException {
-        return getFileContent(String.format(ARTIFACTORY_ZIP_ENTRY_URL, "releases", getUri(artifact), StringUtils.prependIfMissing(path, "/")));
+        return getFileContent(String.format(ARTIFACTORY_ZIP_ENTRY_URL, "releases", getUri(artifact.artifact), StringUtils.prependIfMissing(path, "/")));
     }
+
+    @Override
+    public File resolve(ArtifactCoordinates artifact) throws IOException {
+        /* Support loading files from local Maven repository to reduce redundancy */
+        final String uri = getUri(artifact);
+        final File localFile = new File(LOCAL_REPO, uri);
+        if (localFile.exists()) {
+            return localFile;
+        }
+        return getFile(String.format(ARTIFACTORY_FILE_URL, "releases", uri));
+    }
+
+    private static final File LOCAL_REPO = new File(new File(System.getProperty("user.home")), ".m2/repository");
 }

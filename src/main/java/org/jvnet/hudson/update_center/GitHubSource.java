@@ -6,22 +6,17 @@ import okhttp3.Cache;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.OkUrlFactory;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
-import org.kohsuke.github.extras.OkHttp3Connector;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,9 +34,6 @@ public class GitHubSource {
     private static String GITHUB_API_PASSWORD = System.getenv("GITHUB_PASSWORD");
     private static File GITHUB_API_CACHE = new File(System.getenv().getOrDefault("GITHUB_CACHEDIR", "githubCache"));
 
-    /* Using the OkHttp Cache reduces request rate limit use, but isn't actually faster, so let's cache the repo list manually in this file */
-    private static File GITHUB_REPO_LIST = new File(GITHUB_API_CACHE, "repo-list.txt");
-
     private Set<String> repoNames;
     private Map<String, List<String>> topicNames;
 
@@ -49,50 +41,23 @@ public class GitHubSource {
     private void init() {
         try {
             if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null) {
-                this.repoNames = new TreeSet<>(new Comparator<String>() {
-                    @Override
-                    public int compare(String o1, String o2) {
-                        return o1.compareToIgnoreCase(o2);
-                    }
-                });
-                this.repoNames.addAll(getRepositoryNames());
-                this.getOrganizationTopics("jenkinsci");
+                this.initializeOrganizationData("jenkinsci");
             }
         } catch (IOException e) {
             // ignore, fall back to dumb mode
         }
     }
 
-    private List<String> getRepositoryNames() throws IOException {
-        // cache is valid for one hour
-        if (!GITHUB_REPO_LIST.exists() || GITHUB_REPO_LIST.lastModified() < System.currentTimeMillis() - 1000 * 3600) {
-            retrieveRepositoryNames();
-        }
-        return Files.readAllLines(GITHUB_REPO_LIST.toPath());
-    }
-
-    private void retrieveRepositoryNames() throws IOException {
-        System.err.println("Retrieving GitHub repository names...");
-        Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
-        github = new GitHubBuilder().withConnector(new OkHttp3Connector(new OkUrlFactory(new OkHttpClient.Builder().cache(cache).build()))).withPassword(GITHUB_API_USERNAME, GITHUB_API_PASSWORD).build();
-
-        List<String> ret = new ArrayList<>();
-        for (GHRepository repo : github.getOrganization("jenkinsci").listRepositories().withPageSize(100)) {
-            ret.add(repo.getHtmlUrl().toString());
-        }
-
-        Files.write(GITHUB_REPO_LIST.toPath(), ret);
-    }
-
     protected String getGraphqlUrl() {
         return "https://api.github.com/graphql";
     }
 
-    protected Map<String, List<String>> getOrganizationTopics(String organization) throws IOException {
+    protected Map<String, List<String>> initializeOrganizationData(String organization) throws IOException {
         if (this.topicNames != null) {
             return this.topicNames;
         }
         this.topicNames = new HashMap<>();
+        this.repoNames = new TreeSet<>((o1, o2) -> o1.compareToIgnoreCase(o2));
 
         System.err.println("Retrieving GitHub topics...");
         Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
@@ -175,6 +140,7 @@ public class GitHubSource {
                     continue;
                 }
                 String name = node.getString("name");
+                this.repoNames.add("https://github.com/" + organization + "/" + name);
                 this.topicNames.put(organization + "/" + name, new ArrayList<>());
                 for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
                     this.topicNames.get(organization + "/" + name).add(

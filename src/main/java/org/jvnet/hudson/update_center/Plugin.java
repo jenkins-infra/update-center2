@@ -39,7 +39,7 @@ import org.owasp.html.HtmlSanitizer;
 import org.owasp.html.HtmlStreamRenderer;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
-import org.sonatype.nexus.index.ArtifactInfo;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +60,6 @@ import java.util.logging.Logger;
 /**
  * An entry of a plugin in the update center metadata.
  *
- * @author Kohsuke Kawaguchi
  */
 public class Plugin {
     /**
@@ -76,7 +75,7 @@ public class Plugin {
      */
     public final HPI previous;
 
-    private final SAXReader xmlReader;
+    private static final SAXReader xmlReader = createXmlReader();
 
     /**
      * POM parsed as a DOM.
@@ -87,7 +86,6 @@ public class Plugin {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
-        this.xmlReader = createXmlReader();
     }
 
     public Plugin(PluginHistory hpi) throws IOException {
@@ -120,8 +118,6 @@ public class Plugin {
 
         this.latest = latest;
         this.previous = previous == latest ? null : previous;
-
-        this.xmlReader = createXmlReader();
     }
 
     public Plugin(HPI hpi) throws IOException {
@@ -135,11 +131,12 @@ public class Plugin {
         return pom;
     }
 
-    private SAXReader createXmlReader() {
+    private static SAXReader createXmlReader() {
         DocumentFactory factory = new DocumentFactory();
         factory.setXPathNamespaceURIs(
                 Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
-        return new SAXReader(factory);
+        final SAXReader saxReader = new SAXReader(factory);
+        return saxReader;
     }
 
     private Document readPOM() throws IOException {
@@ -244,11 +241,9 @@ public class Plugin {
                 if (parent != null) {
                     try {
                         File parentPomFile = latest.repository.resolve(
-                                new ArtifactInfo("",
-                                        parent.element("groupId").getTextTrim(),
+                                new ArtifactCoordinates(parent.element("groupId").getTextTrim(),
                                         parent.element("artifactId").getTextTrim(),
-                                        parent.element("version").getTextTrim(),
-                                        ""), "pom", null);
+                                        parent.element("version").getTextTrim(), "pom", null));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/url");
                         if (scm == null) {
                             System.out.println("** No SCM URL found in parent POM");
@@ -284,11 +279,9 @@ public class Plugin {
                 if (parent != null) {
                     try {
                         File parentPomFile = latest.repository.resolve(
-                                new ArtifactInfo("",
-                                        parent.element("groupId").getTextTrim(),
+                                new ArtifactCoordinates(parent.element("groupId").getTextTrim(),
                                         parent.element("artifactId").getTextTrim(),
-                                        parent.element("version").getTextTrim(),
-                                        ""), "pom", null);
+                                        parent.element("version").getTextTrim(), "pom", null));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/developerConnection");
                         if (scm == null) {
                             System.out.println("** No SCM developerConnection found in parent POM");
@@ -509,12 +502,8 @@ public class Plugin {
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
 
-        ArtifactInfo info = new ArtifactInfo();
-        info.artifactId = latest.artifact.artifactId;
-        info.groupId = latest.artifact.groupId;
-        info.packaging = "jar";
-        info.version = latest.artifact.version;
-        try (InputStream is = ArtifactSource.getInstance().getZipFileEntry(new MavenArtifact(latest.repository, info), "index.jelly")) {
+        ArtifactCoordinates coordinates = new ArtifactCoordinates(latest.artifact.groupId, latest.artifact.artifactId, latest.artifact.version, "jar", null);
+        try (InputStream is = latest.repository.getZipFileEntry(new MavenArtifact(latest.repository, coordinates), "index.jelly")) {
             StringBuilder b = new StringBuilder();
             HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
             HtmlSanitizer.sanitize(IOUtils.toString(is), HTML_POLICY.apply(renderer));
