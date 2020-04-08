@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -49,6 +50,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private boolean initialized = false;
 
     private Map<String, GsonFile> files = new HashMap<>();
+    private Set<ArtifactCoordinates> plugins;
+    private Set<ArtifactCoordinates> wars;
 
     public ArtifactoryRepositoryImpl(String username, String password) {
         this.username = username;
@@ -58,23 +61,34 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     @Override
     protected Set<ArtifactCoordinates> listAllJenkinsWars(String groupId) throws IOException {
         ensureInitialized();
-        return this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
+        return wars;
+    }
+
+    private static boolean isPrintableAscii(String test) {
+        return test.chars().allMatch(c -> c >= 0x20 && c < 0x7F);
     }
 
     private static ArtifactCoordinates coordinatesFromGsonFile(GsonFile f) {
         String fileName = f.name;
         String path = f.path;
 
+        if (!isPrintableAscii(fileName) || !isPrintableAscii(path)) {
+            System.out.println("coordinatesFromGsonFile: Not only printable ascii: " + f.path + " / " + f.name);
+            return null;
+        }
+
         int gaToV = path.lastIndexOf('/');
         if (gaToV <= 0) {
-            throw new IllegalStateException("Unexpected path/name: " + f.path + " / " + f.name);
+            System.out.println("coordinatesFromGsonFile: Unexpected path/name: " + f.path + " / " + f.name);
+            return null;
         }
         String version = path.substring(gaToV + 1);
         String ga = path.substring(0, gaToV);
 
         int gToA = ga.lastIndexOf('/');
         if (gToA <= 0) {
-            throw new IllegalStateException("Unexpected path/name: " + f.path + " / " + f.name);
+            System.out.println("coordinatesFromGsonFile: Unexpected path/name: " + f.path + " / " + f.name);
+            return null;
         }
         String artifactId = ga.substring(gToA + 1);
         String groupId = ga.substring(0, gToA).replace('/', '.');
@@ -83,10 +97,18 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         String extension = fileName.substring(baseNameToExtension + 1);
         String baseName = fileName.substring(0, baseNameToExtension);
 
+        final String expectedFileName = artifactId + "-" + version + "." + extension;
+        if (!fileName.equals(expectedFileName)) {
+            System.out.println("coordinatesFromGsonFile: File name: " + fileName + " does not match expected file name: " + expectedFileName);
+            return null;
+        }
+
         final int classifierBeginIndex = artifactId.length() + 1 + version.length() + 1;
         String classifier = null;
         if (classifierBeginIndex < baseName.length()) {
             classifier = baseName.substring(classifierBeginIndex);
+            System.out.println("coordinatesFromGsonFile: Unexpectedly have classifier for path: " + path + " name: " + fileName);
+            return null;
         }
         return new ArtifactCoordinates(groupId, artifactId, version, extension, classifier, f.created.getTime());
     }
@@ -94,7 +116,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     @Override
     public Collection<ArtifactCoordinates> listAllPlugins() throws IOException {
         ensureInitialized();
-        return this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
+        return plugins;
     }
 
     private static class GsonFile {
@@ -127,6 +149,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         Gson gson = new Gson();
         GsonResponse json = gson.fromJson(new InputStreamReader(body), GsonResponse.class);
         json.results.stream().forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
+        this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).filter(Objects::nonNull).collect(Collectors.toSet());
+        this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
         System.out.println("Initialized " + this.getClass().getName());
     }
 
