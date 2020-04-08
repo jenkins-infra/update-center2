@@ -136,11 +136,11 @@ public class GitHubSource {
 
             for (Object repository : repositories.getJSONArray("edges")) {
                 JSONObject node = ((JSONObject) repository).getJSONObject("node");
+                String name = node.getString("name");
+                this.repoNames.add("https://github.com/" + organization + "/" + name);
                 if (node.getJSONObject("repositoryTopics").getJSONArray("edges").size() == 0) {
                     continue;
                 }
-                String name = node.getString("name");
-                this.repoNames.add("https://github.com/" + organization + "/" + name);
                 this.topicNames.put(organization + "/" + name, new ArrayList<>());
                 for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
                     this.topicNames.get(organization + "/" + name).add(
