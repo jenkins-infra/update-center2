@@ -143,7 +143,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         if (initialized) {
             throw new IllegalStateException("re-initialized");
         }
-        System.out.println("Initializing " + this.getClass().getName());
+        System.err.println("Initializing " + this.getClass().getName());
 
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(ARTIFACTORY_AQL_URL).addHeader("Authorization", Credentials.basic(username, password)).post(RequestBody.create(AQL_QUERY, MediaType.parse("text/plain; charset=utf-8"))).build();
@@ -152,7 +152,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         json.results.stream().forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
         this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).filter(Objects::nonNull).collect(Collectors.toSet());
         this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
-        System.out.println("Initialized " + this.getClass().getName());
+        System.err.println("Initialized " + this.getClass().getName());
     }
 
     private String hexToBase64(String hex) throws IOException {
@@ -226,7 +226,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes());
         File cacheFile = new File(cacheDirectory, urlBase64);
         if (!cacheFile.exists()) {
-            System.out.println("Downloading: " + url);
+            System.err.println("Downloading: " + url);
             cacheFile.getParentFile().mkdirs();
             try {
                 OkHttpClient.Builder builder = new OkHttpClient.Builder();

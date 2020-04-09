@@ -151,7 +151,7 @@ public class Plugin {
         }
 
         if (url != null && !url.equals(originalUrl)) {
-            LOGGER.info("Rewrote URL for plugin " + artifactId + " from " + originalUrl + " to " + url);
+            LOGGER.fine("Rewrote URL for plugin " + artifactId + " from " + originalUrl + " to " + url);
         }
         return url;
     }

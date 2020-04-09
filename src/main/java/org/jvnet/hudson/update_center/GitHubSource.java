@@ -56,7 +56,7 @@ public class GitHubSource {
         this.topicNames = new HashMap<>();
         this.repoNames = new TreeSet<>((o1, o2) -> o1.compareToIgnoreCase(o2));
 
-        System.err.println("Retrieving GitHub topics...");
+        System.err.println("Retrieving GitHub repo data...");
         Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.cache(cache);
@@ -105,7 +105,7 @@ public class GitHubSource {
                     "\"" + organization.replace("\"", "\\\"") + "\"",
                     endCursor == null ? "null" : "\"" + endCursor.replace("\"", "\\\"") + "\""
             ));
-            System.err.println(String.format("Retrieving GitHub topics with end token... %s", endCursor));
+            System.out.println(String.format("Retrieving GitHub topics with end token... %s", endCursor));
 
             Request request = new Request.Builder()
                     .url(this.getGraphqlUrl())
@@ -148,6 +148,7 @@ public class GitHubSource {
                 }
             }
         }
+        System.err.println("Retrieved GitHub repo data");
         return this.topicNames;
     }
 
