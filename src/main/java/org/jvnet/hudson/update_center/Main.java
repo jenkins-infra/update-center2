@@ -63,6 +63,8 @@ import java.util.TreeMap;
  * @author Kohsuke Kawaguchi
  */
 public class Main {
+    public static final String DEFAULT_ID = "default";
+    public static final String DEFAULT_CONNECTION_CHECK_URL = "http://www.google.com/"; // TODO go to https
     public File jsonp = new File("output.json");
 
     public File json = new File("actual.json");
@@ -124,7 +126,7 @@ public class Main {
 
     public File latestCoreTxt = null;
 
-    @Option(name="-id",required=true,usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
+    @Option(name="-id",usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
     public String id;
 
     @Option(name="-maxPlugins",usage="For testing purposes. Limit the number of plugins managed to the specified number.")
@@ -325,9 +327,8 @@ public class Main {
             root.put("core", core);
         root.put("warnings", buildWarnings());
         root.put("plugins", buildPlugins(repo, latest));
-        root.put("id",id);
-        if (connectionCheckUrl!=null)
-            root.put("connectionCheckUrl",connectionCheckUrl);
+        root.put("id",id == null ? DEFAULT_ID : id);
+        root.put("connectionCheckUrl",connectionCheckUrl == null ? DEFAULT_CONNECTION_CHECK_URL : connectionCheckUrl);
 
         if (signer.isConfigured())
             signer.sign(root);
