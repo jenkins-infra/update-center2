@@ -635,7 +635,7 @@ public class Main {
 
         JenkinsWar latest = wars.get(wars.firstKey());
         JSONObject core = latest.toJSON("core");
-        System.err.println("core\n=> "+ core);
+        System.out.println("core\n=> "+ core);
 
         redirect.add("jenkins.war", latest.getURL().getPath());
 
