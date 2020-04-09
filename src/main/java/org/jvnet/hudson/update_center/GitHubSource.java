@@ -10,16 +10,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.kohsuke.github.GitHub;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +23,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class GitHubSource {
-
-    private GitHub github;
 
     private static String GITHUB_API_USERNAME = System.getenv("GITHUB_USERNAME");
     private static String GITHUB_API_PASSWORD = System.getenv("GITHUB_PASSWORD");
@@ -42,6 +36,8 @@ public class GitHubSource {
         try {
             if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null) {
                 this.initializeOrganizationData("jenkinsci");
+            } else {
+                throw new IllegalStateException("GITHUB_USERNAME and GITHUB_PASSWORD must be set");
             }
         } catch (IOException e) {
             // ignore, fall back to dumb mode
@@ -64,8 +60,7 @@ public class GitHubSource {
         Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.cache(cache);
-        if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null)
-        {
+        if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null) {
             builder.authenticator(new Authenticator() {
                 @Nullable
                 @Override
@@ -83,30 +78,30 @@ public class GitHubSource {
         while (hasNextPage) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("query", String.format("{\n" +
-                    "  organization(login: %s) {\n" +
-                    "    repositories(first: 100, after: %s) {\n" +
-                    "      pageInfo {\n" +
-                    "        startCursor\n" +
-                    "        hasNextPage\n" +
-                    "        endCursor\n" +
-                    "      }\n" +
-                    "      edges {\n" +
-                    "        node {\n" +
-                    "          name\n" +
-                    "          repositoryTopics(first:100) {\n" +
-                    "            edges {\n" +
-                    "              node {\n" +
-                    "                topic {\n" +
-                    "                  name\n" +
-                    "                }\n" +
-                    "              }\n" +
-                    "            }\n" +
-                    "          }\n" +
-                    "        }\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}\n",
+                            "  organization(login: %s) {\n" +
+                            "    repositories(first: 100, after: %s) {\n" +
+                            "      pageInfo {\n" +
+                            "        startCursor\n" +
+                            "        hasNextPage\n" +
+                            "        endCursor\n" +
+                            "      }\n" +
+                            "      edges {\n" +
+                            "        node {\n" +
+                            "          name\n" +
+                            "          repositoryTopics(first:100) {\n" +
+                            "            edges {\n" +
+                            "              node {\n" +
+                            "                topic {\n" +
+                            "                  name\n" +
+                            "                }\n" +
+                            "              }\n" +
+                            "            }\n" +
+                            "          }\n" +
+                            "        }\n" +
+                            "      }\n" +
+                            "    }\n" +
+                            "  }\n" +
+                            "}\n",
                     "\"" + organization.replace("\"", "\\\"") + "\"",
                     endCursor == null ? "null" : "\"" + endCursor.replace("\"", "\\\"") + "\""
             ));
@@ -170,22 +165,8 @@ public class GitHubSource {
         return instance;
     }
 
+
     public boolean isRepoExisting(String url) {
-        if (repoNames != null) {
-            return repoNames.contains(url);
-        } else {
-            try {
-                HttpClient client = new HttpClient();
-                GetMethod get = new GetMethod(url);
-                get.setFollowRedirects(true);
-                if (client.executeMethod(get) >= 400) {
-                    return false;
-                }
-            } catch (Exception e) {
-                // that didn't work
-                return false;
-            }
-            return true;
-        }
+        return repoNames.contains(url);
     }
 }

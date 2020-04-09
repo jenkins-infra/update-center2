@@ -4,8 +4,8 @@ import junit.framework.Assert;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -113,12 +113,10 @@ public class WarningsTest {
 
         Map<String, List<Warning>> warnings = loadPluginWarnings();
 
-        HttpClient hc = new HttpClient();
-        GetMethod request = new GetMethod("https://updates.jenkins.io/release-history.json");
+        OkHttpClient client = new OkHttpClient.Builder().build();
+        Request request = new Request.Builder().url("https://updates.jenkins.io/release-history.json").get().build();
 
-        hc.executeMethod(request);
-
-        String releaseHistoryText = request.getResponseBodyAsString();
+        String releaseHistoryText = client.newCall(request).execute().body().string();
         JSONObject json = JSONObject.fromObject(releaseHistoryText);
 
         JSONArray dates = json.getJSONArray("releaseHistory");

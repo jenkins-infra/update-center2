@@ -1,19 +1,24 @@
 package org.jvnet.hudson.update_center;
 
 import com.google.gson.Gson;
+import okhttp3.Authenticator;
+import okhttp3.Credentials;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.Route;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.ant.filters.StringInputStream;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +46,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private static final String ARTIFACTORY_MANIFEST_URL = ARTIFACTORY_URL + "%s/%s!/META-INF/MANIFEST.MF";
     private static final String ARTIFACTORY_ZIP_ENTRY_URL = ARTIFACTORY_URL + "%s/%s!%s";
     private static final String ARTIFACTORY_FILE_URL = ARTIFACTORY_URL + "%s/%s";
+
+    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\")";
 
     private final String username;
     private final String password;
@@ -141,14 +148,11 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             throw new IllegalStateException("re-initialized");
         }
         System.out.println("Initializing " + this.getClass().getName());
-        HttpClient client = new HttpClient();
-        PostMethod post = new PostMethod(ARTIFACTORY_AQL_URL);
-        post.addRequestHeader("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()));
-        post.setRequestEntity(new StringRequestEntity("items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\")", "text/plain", "utf-8"));
-        client.executeMethod(post);
-        InputStream body = post.getResponseBodyAsStream();
+
+        OkHttpClient client = new OkHttpClient.Builder().build();
+        Request request = new Request.Builder().url(ARTIFACTORY_AQL_URL).addHeader("Authorization", Credentials.basic(username, password)).post(RequestBody.create(AQL_QUERY, MediaType.parse("text/plain; charset=utf-8"))).build();
         Gson gson = new Gson();
-        GsonResponse json = gson.fromJson(new InputStreamReader(body), GsonResponse.class);
+        GsonResponse json = gson.fromJson(new InputStreamReader(client.newCall(request).execute().body().byteStream()), GsonResponse.class);
         json.results.stream().forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
         this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).filter(Objects::nonNull).collect(Collectors.toSet());
         this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
@@ -229,14 +233,10 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             System.out.println("Downloading: " + url);
             cacheFile.getParentFile().mkdirs();
             try {
-                HttpClient client = new HttpClient();
-                GetMethod get = new GetMethod(url);
-                client.executeMethod(get);
-                if (get.getStatusCode() >= 400) {
-                    cacheFile.mkdirs();
-                    throw new IOException("Failed to retrieve content of " + url + ", got " + get.getStatusCode());
-                }
-                try (InputStream stream = get.getResponseBodyAsStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
+                OkHttpClient.Builder builder = new OkHttpClient.Builder();
+                OkHttpClient client = builder.build();
+                Request request = new Request.Builder().url(url).get().build();
+                try (InputStream stream = client.newCall(request).execute().body().byteStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
                     IOUtils.copy(stream, tos);
                     if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
                         this.cache.put(url, baos.toString("UTF-8"));

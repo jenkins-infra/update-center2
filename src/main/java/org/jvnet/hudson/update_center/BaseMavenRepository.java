@@ -1,7 +1,6 @@
 package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -127,8 +126,6 @@ public abstract class BaseMavenRepository implements MavenRepository {
             r.put(v, createHudsonWarArtifact(a));
         }
     }
-
-    static final ArtifactRepositoryPolicy POLICY = new ArtifactRepositoryPolicy(true, "daily", "warn");
 
     /**
      * find the HPI for the specified plugin
