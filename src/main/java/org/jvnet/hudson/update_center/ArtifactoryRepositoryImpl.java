@@ -110,7 +110,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             System.out.println("coordinatesFromGsonFile: Unexpectedly have classifier for path: " + path + " name: " + fileName);
             return null;
         }
-        return new ArtifactCoordinates(groupId, artifactId, version, extension, classifier, f.created.getTime());
+        return new ArtifactCoordinates(groupId, artifactId, version, extension, classifier, f.modified.getTime());
     }
 
     @Override
@@ -124,6 +124,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         public String name; // example: whatever-1.0.jar
         public String actual_sha1; // base64
         public String sha256; // base64
+        public Date modified;
         public Date created;
     }
 
@@ -143,7 +144,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         HttpClient client = new HttpClient();
         PostMethod post = new PostMethod(ARTIFACTORY_AQL_URL);
         post.addRequestHeader("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()));
-        post.setRequestEntity(new StringRequestEntity("items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"path\", \"name\", \"created\", \"sha256\", \"actual_sha1\")", "text/plain", "utf-8"));
+        post.setRequestEntity(new StringRequestEntity("items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\")", "text/plain", "utf-8"));
         client.executeMethod(post);
         InputStream body = post.getResponseBodyAsStream();
         Gson gson = new Gson();
@@ -235,9 +236,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                     cacheFile.mkdirs();
                     throw new IOException("Failed to retrieve content of " + url + ", got " + get.getStatusCode());
                 }
-                try (InputStream stream = get.getResponseBodyAsStream()) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    IOUtils.copy(stream, new TeeOutputStream(new FileOutputStream(cacheFile), baos));
+                try (InputStream stream = get.getResponseBodyAsStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
+                    IOUtils.copy(stream, tos);
                     if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
                         this.cache.put(url, baos.toString("UTF-8"));
                     }

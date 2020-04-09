@@ -509,7 +509,7 @@ public class Plugin {
             HtmlSanitizer.sanitize(IOUtils.toString(is), HTML_POLICY.apply(renderer));
             description = b.toString().trim().replaceAll("\\s+", " ");
         } catch (IOException e) {
-            System.err.println("Failed to read description from index.jelly: " + e.getMessage());
+            LOGGER.log(Level.FINE, () -> "Failed to read description from index.jelly: " + e.getMessage());
         }
         if (latest.isAlphaOrBeta()) {
             description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
