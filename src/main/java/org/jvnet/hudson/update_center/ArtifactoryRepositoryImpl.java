@@ -144,7 +144,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         HttpClient client = new HttpClient();
         PostMethod post = new PostMethod(ARTIFACTORY_AQL_URL);
         post.addRequestHeader("Authorization", "Basic " + Base64.encodeBase64String((username + ":" + password).getBytes()));
-        post.setRequestEntity(new StringRequestEntity("items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\")", "text/plain", "utf-8"));
+        post.setRequestEntity(new StringRequestEntity("items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\")", "text/plain", "utf-8"));
         client.executeMethod(post);
         InputStream body = post.getResponseBodyAsStream();
         Gson gson = new Gson();
