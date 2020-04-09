@@ -5,10 +5,8 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +59,7 @@ public abstract class BaseMavenRepository implements MavenRepository {
                 p=new PluginHistory(a.artifactId);
                 plugins.put(a.artifactId, p);
             }
-            HPI hpi = createHpiArtifact(a, p);
+            HPI hpi = createHpiArtifact(a);
 
             for (PluginFilter pluginFilter : pluginFilters) {
                 if (pluginFilter.shouldIgnore(hpi)) {
@@ -100,8 +98,8 @@ public abstract class BaseMavenRepository implements MavenRepository {
     }
 
     @Override
-    public HPI createHpiArtifact(ArtifactCoordinates a, PluginHistory p) {
-        return new HPI(this,p,a);
+    public HPI createHpiArtifact(ArtifactCoordinates a) {
+        return new HPI(this,a);
     }
 
     protected abstract Set<ArtifactCoordinates> listAllJenkinsWars(String groupId) throws IOException;

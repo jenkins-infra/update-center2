@@ -14,7 +14,7 @@ import java.util.jar.Manifest;
 public interface MavenRepository {
     Collection<PluginHistory> listHudsonPlugins() throws IOException;
 
-    HPI createHpiArtifact(ArtifactCoordinates a, PluginHistory p);
+    HPI createHpiArtifact(ArtifactCoordinates a);
 
     /**
      * Discover all hudson.war versions. Map must be sorted by version number, descending.

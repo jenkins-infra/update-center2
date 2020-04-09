@@ -27,8 +27,8 @@ public class MavenRepositoryWrapper implements MavenRepository {
     }
 
     @Override
-    public HPI createHpiArtifact(ArtifactCoordinates a, PluginHistory p) {
-        return base.createHpiArtifact(a, p);
+    public HPI createHpiArtifact(ArtifactCoordinates a) {
+        return base.createHpiArtifact(a);
     }
 
     @Override

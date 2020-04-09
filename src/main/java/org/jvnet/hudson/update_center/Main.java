@@ -583,11 +583,6 @@ public class Main {
                     o.put("wiki", "");
                 }
 
-                PluginHistory history = h.history;
-                if (history.latest()==h)
-                    o.put("latestRelease",true);
-                if (history.first()==h)
-                    o.put("firstRelease",true);
                 o.put("version", h.version);
 
                 releases.add(o);

@@ -45,16 +45,10 @@ import static org.jvnet.hudson.update_center.HudsonWar.HUDSON_CUT_OFF;
  * @author Kohsuke Kawaguchi
  */
 public class HPI extends MavenArtifact {
-    /**
-     * Which of the lineage did this come from?
-     */
-    public final PluginHistory history;
-
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
-    public HPI(BaseMavenRepository repository, PluginHistory history, ArtifactCoordinates artifact) {
+    public HPI(BaseMavenRepository repository, ArtifactCoordinates artifact) {
         super(repository, artifact);
-        this.history = history;
     }
 
     /**
