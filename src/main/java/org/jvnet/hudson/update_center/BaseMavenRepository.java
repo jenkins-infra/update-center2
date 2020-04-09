@@ -13,7 +13,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
-import static org.jvnet.hudson.update_center.HudsonWar.HUDSON_CUT_OFF;
+import static org.jvnet.hudson.update_center.JenkinsWar.HUDSON_CUT_OFF;
 
 /**
  * A collection of artifacts from which we build index.
@@ -89,8 +89,8 @@ public abstract class BaseMavenRepository implements MavenRepository {
     /**
      * Discover all hudson.war versions. Map must be sorted by version number, descending.
      */
-    public TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException {
-        TreeMap<VersionNumber,HudsonWar> r = new TreeMap<VersionNumber, HudsonWar>(VersionNumber.DESCENDING);
+    public TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException {
+        TreeMap<VersionNumber, JenkinsWar> r = new TreeMap<VersionNumber, JenkinsWar>(VersionNumber.DESCENDING);
         listWar(r, "org.jenkins-ci.main", null);
         listWar(r, "org.jvnet.hudson.main", HUDSON_CUT_OFF);
         return r;
@@ -103,12 +103,12 @@ public abstract class BaseMavenRepository implements MavenRepository {
 
     protected abstract Set<ArtifactCoordinates> listAllJenkinsWars(String groupId) throws IOException;
 
-    public HudsonWar createHudsonWarArtifact(ArtifactCoordinates a) {
-        return new HudsonWar(this,a);
+    public JenkinsWar createHudsonWarArtifact(ArtifactCoordinates a) {
+        return new JenkinsWar(this,a);
     }
 
     @Override
-    public void listWar(TreeMap<VersionNumber, HudsonWar> r, String groupId, VersionNumber cap) throws IOException {
+    public void listWar(TreeMap<VersionNumber, JenkinsWar> r, String groupId, VersionNumber cap) throws IOException {
         final Set<ArtifactCoordinates> results = listAllJenkinsWars(groupId);
         for (ArtifactCoordinates a : results) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots

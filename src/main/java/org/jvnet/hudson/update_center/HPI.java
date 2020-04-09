@@ -37,7 +37,7 @@ import java.util.regex.*;
 import java.net.URL;
 import java.net.MalformedURLException;
 
-import static org.jvnet.hudson.update_center.HudsonWar.HUDSON_CUT_OFF;
+import static org.jvnet.hudson.update_center.JenkinsWar.HUDSON_CUT_OFF;
 
 /**
  * A particular version of a plugin and its metadata.

@@ -19,9 +19,9 @@ public interface MavenRepository {
     /**
      * Discover all hudson.war versions. Map must be sorted by version number, descending.
      */
-    TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException;
+    TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException;
 
-    void listWar(TreeMap<VersionNumber, HudsonWar> r, String groupId, VersionNumber cap) throws IOException;
+    void listWar(TreeMap<VersionNumber, JenkinsWar> r, String groupId, VersionNumber cap) throws IOException;
 
     Collection<ArtifactCoordinates> listAllPlugins() throws IOException;
 

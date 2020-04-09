@@ -1,7 +1,7 @@
 package org.jvnet.hudson.update_center.wrappers;
 
 import hudson.util.VersionNumber;
-import org.jvnet.hudson.update_center.HudsonWar;
+import org.jvnet.hudson.update_center.JenkinsWar;
 import org.jvnet.hudson.update_center.MavenRepository;
 
 import java.io.IOException;
@@ -18,8 +18,8 @@ public class StableMavenRepository extends MavenRepositoryWrapper {
     }
 
     @Override
-    public TreeMap<VersionNumber, HudsonWar> getHudsonWar() throws IOException {
-        TreeMap<VersionNumber, HudsonWar> releases = base.getHudsonWar();
+    public TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException {
+        TreeMap<VersionNumber, JenkinsWar> releases = base.getHudsonWar();
 
         releases.keySet().retainAll(releases.keySet().stream().filter(it -> it.getDigitAt(2) != -1).collect(Collectors.toSet()));
 

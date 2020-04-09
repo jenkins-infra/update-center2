@@ -3,7 +3,7 @@ package org.jvnet.hudson.update_center.wrappers;
 import hudson.util.VersionNumber;
 import org.jvnet.hudson.update_center.BaseMavenRepository;
 import org.jvnet.hudson.update_center.HPI;
-import org.jvnet.hudson.update_center.HudsonWar;
+import org.jvnet.hudson.update_center.JenkinsWar;
 import org.jvnet.hudson.update_center.MavenRepository;
 import org.jvnet.hudson.update_center.PluginHistory;
 
@@ -36,7 +36,7 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
     }
 
     @Override
-    public TreeMap<VersionNumber, HudsonWar> getHudsonWar() throws IOException {
+    public TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException {
         return new TreeMap<>(base.getHudsonWar().tailMap(capCore,true));
     }
 

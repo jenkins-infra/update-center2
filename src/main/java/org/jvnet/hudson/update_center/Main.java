@@ -629,10 +629,10 @@ public class Main {
      */
     protected JSONObject buildCore(MavenRepository repository, LatestLinkBuilder redirect) throws Exception {
         System.out.println("Finding latest Jenkins core WAR...");
-        TreeMap<VersionNumber,HudsonWar> wars = repository.getHudsonWar();
+        TreeMap<VersionNumber, JenkinsWar> wars = repository.getHudsonWar();
         if (wars.isEmpty())     return null;
 
-        HudsonWar latest = wars.get(wars.firstKey());
+        JenkinsWar latest = wars.get(wars.firstKey());
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
 
@@ -643,7 +643,7 @@ public class Main {
 
         if (download!=null) {
             // build the download server layout
-            for (HudsonWar w : wars.values()) {
+            for (JenkinsWar w : wars.values()) {
                  stage(w, new File(download,"war/"+w.version+"/"+w.getFileName()));
             }
         }
