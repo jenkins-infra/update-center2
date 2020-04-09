@@ -45,6 +45,7 @@ public class GitHubSource {
             }
         } catch (IOException e) {
             // ignore, fall back to dumb mode
+            e.printStackTrace();
         }
     }
 
