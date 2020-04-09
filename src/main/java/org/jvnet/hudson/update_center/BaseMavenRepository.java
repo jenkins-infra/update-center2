@@ -99,35 +99,6 @@ public abstract class BaseMavenRepository implements MavenRepository {
         return r;
     }
 
-    /**
-     * Discover all plugins from this Maven repository in order released, not using PluginHistory.
-     */
-    public Map<Date,Map<String,HPI>> listHudsonPluginsByReleaseDate() throws IOException {
-        Collection<PluginHistory> all = listHudsonPlugins();
-
-        Map<Date, Map<String,HPI>> plugins = new TreeMap<Date, Map<String,HPI>>();
-
-        for (PluginHistory p : all) {
-            for (HPI h : p.artifacts.values()) {
-                try {
-                    Date releaseDate = h.getTimestampAsDate();
-                    System.out.println("adding " + h.artifact.artifactId + ":" + h.version);
-                    Map<String,HPI> pluginsOnDate = plugins.get(releaseDate);
-                    if (pluginsOnDate==null) {
-                        pluginsOnDate = new TreeMap<String,HPI>();
-                        plugins.put(releaseDate, pluginsOnDate);
-                    }
-                    pluginsOnDate.put(p.artifactId,h);
-                } catch (IOException e) {
-                    // if we fail to resolve artifact, move on
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return plugins;
-    }
-
     @Override
     public HPI createHpiArtifact(ArtifactCoordinates a, PluginHistory p) {
         return new HPI(this,p,a);

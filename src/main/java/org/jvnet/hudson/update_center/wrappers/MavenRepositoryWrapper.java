@@ -70,9 +70,4 @@ public class MavenRepositoryWrapper implements MavenRepository {
     public Collection<PluginHistory> listHudsonPlugins() throws IOException {
         return base.listHudsonPlugins();
     }
-
-    @Override
-    public Map<Date, Map<String, HPI>> listHudsonPluginsByReleaseDate() throws IOException {
-        return base.listHudsonPluginsByReleaseDate();
-    }
 }
