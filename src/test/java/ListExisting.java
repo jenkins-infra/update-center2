@@ -14,7 +14,7 @@ public class ListExisting {
         MavenRepository r = DefaultMavenRepositoryBuilder.getInstance();
 
         Set<String> groupIds = new TreeSet<String>();
-        Collection<Plugin> all = r.listHudsonPlugins();
+        Collection<Plugin> all = r.listJenkinsPlugins();
         for (Plugin p : all) {
             HPI hpi = p.getLatest();
             groupIds.add(hpi.artifact.groupId);

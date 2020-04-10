@@ -28,8 +28,8 @@ public class AlphaBetaOnlyRepository extends MavenRepositoryWrapper {
     }
 
     @Override
-    public Collection<Plugin> listHudsonPlugins() throws IOException {
-        Collection<Plugin> r = base.listHudsonPlugins();
+    public Collection<Plugin> listJenkinsPlugins() throws IOException {
+        Collection<Plugin> r = base.listJenkinsPlugins();
         for (Iterator<Plugin> jtr = r.iterator(); jtr.hasNext();) {
             Plugin h = jtr.next();
 

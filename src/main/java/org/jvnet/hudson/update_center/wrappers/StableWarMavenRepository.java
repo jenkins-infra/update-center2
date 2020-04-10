@@ -18,8 +18,8 @@ public class StableWarMavenRepository extends MavenRepositoryWrapper {
     }
 
     @Override
-    public TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException {
-        TreeMap<VersionNumber, JenkinsWar> releases = base.getHudsonWar();
+    public TreeMap<VersionNumber, JenkinsWar> getJenkinsWarsByVersionNumber() throws IOException {
+        TreeMap<VersionNumber, JenkinsWar> releases = base.getJenkinsWarsByVersionNumber();
 
         releases.keySet().retainAll(releases.keySet().stream().filter(it -> it.getDigitAt(2) != -1).collect(Collectors.toSet()));
 

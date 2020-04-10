@@ -18,9 +18,9 @@ public class ListPluginsAndVersionsJava6 {
         BaseMavenRepository r = DefaultMavenRepositoryBuilder.getInstance();
         FilteringRepository f = new FilteringRepository(r).withPluginFilter(new JavaVersionPluginFilter(JavaSpecificationVersion.JAVA_6));
 
-        System.out.println(f.getHudsonWar().firstKey());
+        System.out.println(f.getJenkinsWarsByVersionNumber().firstKey());
 
-        Collection<Plugin> all = f.listHudsonPlugins();
+        Collection<Plugin> all = f.listJenkinsPlugins();
         for (Plugin p : all) {
             HPI hpi = p.getLatest();
             System.out.printf("%s\t%s\n", p.getArtifactId(), hpi.toString());

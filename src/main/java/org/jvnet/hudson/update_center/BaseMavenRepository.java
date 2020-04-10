@@ -16,12 +16,10 @@ import static org.jvnet.hudson.update_center.JenkinsWar.HUDSON_CUT_OFF;
 
 /**
  * A collection of artifacts from which we build index.
- *
- * @author Kohsuke Kawaguchi
  */
 public abstract class BaseMavenRepository implements MavenRepository {
 
-    protected static final Properties IGNORE = new Properties();
+    private static final Properties IGNORE = new Properties();
 
     static {
         try {
@@ -30,7 +28,7 @@ public abstract class BaseMavenRepository implements MavenRepository {
             throw new Error(e);
         }
     }
-    public Collection<Plugin> listHudsonPlugins() throws IOException {
+    public Collection<Plugin> listJenkinsPlugins() throws IOException {
 
         Map<String, Plugin> plugins =
                 new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -70,52 +68,31 @@ public abstract class BaseMavenRepository implements MavenRepository {
     /**
      * Discover all hudson.war versions. Map must be sorted by version number, descending.
      */
-    public TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException {
+    public TreeMap<VersionNumber, JenkinsWar> getJenkinsWarsByVersionNumber() throws IOException {
         TreeMap<VersionNumber, JenkinsWar> r = new TreeMap<>(VersionNumber.DESCENDING);
-        listWar(r, "org.jenkins-ci.main", null);
-        listWar(r, "org.jvnet.hudson.main", HUDSON_CUT_OFF);
+        addWarsInGroupIdToMap(r, "org.jenkins-ci.main", null);
+        addWarsInGroupIdToMap(r, "org.jvnet.hudson.main", HUDSON_CUT_OFF);
         return r;
     }
 
     protected abstract Set<ArtifactCoordinates> listAllJenkinsWars(String groupId) throws IOException;
 
-    public JenkinsWar createHudsonWarArtifact(ArtifactCoordinates a) {
-        return new JenkinsWar(this,a);
-    }
-
-    @Override
-    public void listWar(TreeMap<VersionNumber, JenkinsWar> r, String groupId, VersionNumber cap) throws IOException {
+    public void addWarsInGroupIdToMap(Map<VersionNumber, JenkinsWar> releases, String groupId, VersionNumber cap) throws IOException {
         final Set<ArtifactCoordinates> results = listAllJenkinsWars(groupId);
-        for (ArtifactCoordinates a : results) {
-            if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-            if (a.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
-            if (!a.artifactId.equals("jenkins-war")
-                    && !a.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
-            if (a.classifier!=null)  continue;          // just pick up the main war
-            if (IGNORE.containsKey(a.artifactId + "-" + a.version)) {
-                System.out.println("=> Ignoring " + a.artifactId + ", version " + a.version + " because this version is blacklisted");
+        for (ArtifactCoordinates artifactCoordinates : results) {
+            if (artifactCoordinates.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
+            if (artifactCoordinates.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
+            if (!artifactCoordinates.artifactId.equals("jenkins-war")
+                    && !artifactCoordinates.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
+            if (artifactCoordinates.classifier!=null)  continue;          // just pick up the main war
+            if (IGNORE.containsKey(artifactCoordinates.artifactId + "-" + artifactCoordinates.version)) {
+                System.out.println("=> Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is blacklisted");
                 continue;
             }
-            if (cap!=null && new VersionNumber(a.version).compareTo(cap)>0) continue;
+            if (cap != null && new VersionNumber(artifactCoordinates.version).compareTo(cap) > 0) continue;
 
-            VersionNumber v = new VersionNumber(a.version);
-            r.put(v, createHudsonWarArtifact(a));
+            VersionNumber version = new VersionNumber(artifactCoordinates.version);
+            releases.put(version, new JenkinsWar(this, artifactCoordinates));
         }
-    }
-
-    /**
-     * find the HPI for the specified plugin
-     * @return the found HPI or null
-     */
-    public HPI findPlugin(String groupId, String artifactId, String version) throws IOException {
-        Collection<Plugin> all = listHudsonPlugins();
-
-        for (Plugin p : all) {
-            for (HPI h : p.getArtifacts().values()) {
-                if (h.isEqualsTo(groupId, artifactId, version))
-                  return h;
-            }
-        }
-        return null;
     }
 }

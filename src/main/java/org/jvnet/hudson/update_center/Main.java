@@ -42,6 +42,7 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -388,7 +389,7 @@ public class Main {
         JSONObject plugins = new JSONObject();
         System.err.println("Build plugin versions index from the maven repo...");
 
-        for (Plugin plugin : repository.listHudsonPlugins()) {
+        for (Plugin plugin : repository.listJenkinsPlugins()) {
                 System.out.println(plugin.getArtifactId());
 
                 JSONObject versions = new JSONObject();
@@ -434,7 +435,7 @@ public class Main {
         JSONObject plugins = new JSONObject();
 
         System.err.println("Gathering list of plugins and versions from the maven repo...");
-        for (Plugin plugin : repository.listHudsonPlugins()) {
+        for (Plugin plugin : repository.listJenkinsPlugins()) {
 
             try {
                 System.out.println(plugin.getArtifactId());
@@ -532,7 +533,7 @@ public class Main {
 
         JSONArray releaseHistory = new JSONArray();
         System.err.println("Building release history");
-        for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listHudsonPluginsByReleaseDate().entrySet() ) {
+        for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listPluginsByReleaseDate().entrySet() ) {
             String relDate = MavenArtifact.getDateFormat().format(relsOnDate.getKey());
             System.out.println("Releases on " + relDate);
             
@@ -608,16 +609,18 @@ public class Main {
      * Identify the latest core, populates the htaccess redirect file, optionally download the core wars and build the index.html
      * @return the JSON for the core Jenkins
      */
-    protected JSONObject buildCore(MavenRepository repository, LatestLinkBuilder redirect) throws Exception {
+    protected JSONObject buildCore(@Nonnull MavenRepository repository, @Nonnull LatestLinkBuilder latestLink) throws Exception {
         System.err.println("Finding latest Jenkins core WAR...");
-        TreeMap<VersionNumber, JenkinsWar> wars = repository.getHudsonWar();
-        if (wars.isEmpty())     return null;
+        TreeMap<VersionNumber, JenkinsWar> wars = repository.getJenkinsWarsByVersionNumber();
+        if (wars.isEmpty()) {
+            return null;
+        }
 
         JenkinsWar latest = wars.get(wars.firstKey());
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
 
-        redirect.add("jenkins.war", latest.getDownloadUrl().getPath());
+        latestLink.add("jenkins.war", latest.getDownloadUrl().getPath());
 
         if (latestCoreTxt !=null)
             writeToFile(latest.getVersion().toString(), latestCoreTxt);

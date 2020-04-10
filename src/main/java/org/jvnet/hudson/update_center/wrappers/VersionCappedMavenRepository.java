@@ -36,13 +36,13 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
     }
 
     @Override
-    public TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException {
-        return new TreeMap<>(base.getHudsonWar().tailMap(capCore,true));
+    public TreeMap<VersionNumber, JenkinsWar> getJenkinsWarsByVersionNumber() throws IOException {
+        return new TreeMap<>(base.getJenkinsWarsByVersionNumber().tailMap(capCore,true));
     }
 
     @Override
-    public Collection<Plugin> listHudsonPlugins() throws IOException {
-        Collection<Plugin> r = base.listHudsonPlugins();
+    public Collection<Plugin> listJenkinsPlugins() throws IOException {
+        Collection<Plugin> r = base.listJenkinsPlugins();
 
         for (Iterator<Plugin> jtr = r.iterator(); jtr.hasNext();) {
             Plugin h = jtr.next();

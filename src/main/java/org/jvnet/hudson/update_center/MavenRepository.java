@@ -12,14 +12,14 @@ import java.util.TreeMap;
 import java.util.jar.Manifest;
 
 public interface MavenRepository {
-    Collection<Plugin> listHudsonPlugins() throws IOException;
+    Collection<Plugin> listJenkinsPlugins() throws IOException;
 
     /**
-     * Discover all hudson.war versions. Map must be sorted by version number, descending.
+     * Discover all jenkins.war / hudson.war versions. Map must be sorted by version number, descending.
      */
-    TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException;
+    TreeMap<VersionNumber, JenkinsWar> getJenkinsWarsByVersionNumber() throws IOException;
 
-    void listWar(TreeMap<VersionNumber, JenkinsWar> r, String groupId, VersionNumber cap) throws IOException;
+    void addWarsInGroupIdToMap(Map<VersionNumber, JenkinsWar> r, String groupId, VersionNumber cap) throws IOException;
 
     Collection<ArtifactCoordinates> listAllPlugins() throws IOException;
 
@@ -38,8 +38,8 @@ public interface MavenRepository {
     /**
      * Discover all plugins from this Maven repository in order released, not using PluginHistory.
      */
-    default Map<Date,Map<String,HPI>> listHudsonPluginsByReleaseDate() throws IOException {
-        Collection<Plugin> all = listHudsonPlugins();
+    default Map<Date,Map<String,HPI>> listPluginsByReleaseDate() throws IOException {
+        Collection<Plugin> all = listJenkinsPlugins();
 
         Map<Date, Map<String,HPI>> plugins = new TreeMap<>();
 

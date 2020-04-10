@@ -26,6 +26,7 @@ package org.jvnet.hudson.update_center;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -35,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -55,7 +57,7 @@ public class MavenArtifact {
 
     private Manifest manifest;
 
-    public MavenArtifact(BaseMavenRepository repository, ArtifactCoordinates artifact) {
+    public MavenArtifact(@Nonnull BaseMavenRepository repository, @Nonnull ArtifactCoordinates artifact) {
         this.artifact = artifact;
         this.repository = repository;
         version = artifact.version;
