@@ -40,13 +40,13 @@ public class PluginTest extends TestCase {
     }
 
     private static void assertSimpleName(String original, String expected) {
-        assertEquals(expected, Plugin.simplifyPluginName(original));
+        assertEquals(expected, PluginUpdateCenterEntry.simplifyPluginName(original));
     }
 
     public void testTopLevelUrl() {
         assertEquals("https://github.com/jenkinsci/repo",
-                Plugin.requireTopLevelUrl("https://github.com/jenkinsci/repo"));
-        assertNull(Plugin.requireTopLevelUrl("https://github.com/jenkinsci/repo/subfolder"));
+                PluginUpdateCenterEntry.requireTopLevelUrl("https://github.com/jenkinsci/repo"));
+        assertNull(PluginUpdateCenterEntry.requireTopLevelUrl("https://github.com/jenkinsci/repo/subfolder"));
     }
 
 }

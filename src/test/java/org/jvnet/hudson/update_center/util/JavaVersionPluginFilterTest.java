@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.jvnet.hudson.update_center.ArtifactCoordinates;
 import org.jvnet.hudson.update_center.HPI;
-import org.jvnet.hudson.update_center.PluginHistory;
 import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
 
 import javax.annotation.CheckForNull;

@@ -1,7 +1,7 @@
 import org.jvnet.hudson.update_center.DefaultMavenRepositoryBuilder;
 import org.jvnet.hudson.update_center.HPI;
 import org.jvnet.hudson.update_center.MavenRepository;
-import org.jvnet.hudson.update_center.PluginHistory;
+import org.jvnet.hudson.update_center.Plugin;
 
 import java.util.Collection;
 
@@ -16,8 +16,8 @@ public class ListPluginsAndVersions {
 
         System.out.println(r.getHudsonWar().firstKey());
 
-        Collection<PluginHistory> all = r.listHudsonPlugins();
-        for (PluginHistory p : all) {
+        Collection<Plugin> all = r.listHudsonPlugins();
+        for (Plugin p : all) {
             HPI hpi = p.latest();
             System.out.printf("%s\t%s\n", p.artifactId, hpi.toString());
         }

@@ -33,9 +33,9 @@ public abstract class BaseMavenRepository implements MavenRepository {
             throw new Error(e);
         }
     }
-    public Collection<PluginHistory> listHudsonPlugins() throws IOException {
+    public Collection<Plugin> listHudsonPlugins() throws IOException {
 
-        Map<String, PluginHistory> plugins =
+        Map<String, Plugin> plugins =
                 new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
         Set<String> excluded = new HashSet<>();
@@ -55,9 +55,9 @@ public abstract class BaseMavenRepository implements MavenRepository {
                 continue;
             }
 
-            PluginHistory p = plugins.get(a.artifactId);
+            Plugin p = plugins.get(a.artifactId);
             if (p==null) {
-                p=new PluginHistory(a.artifactId);
+                p=new Plugin(a.artifactId);
                 plugins.put(a.artifactId, p);
             }
             HPI hpi = createHpiArtifact(a);
@@ -134,9 +134,9 @@ public abstract class BaseMavenRepository implements MavenRepository {
      * @return the found HPI or null
      */
     public HPI findPlugin(String groupId, String artifactId, String version) throws IOException {
-        Collection<PluginHistory> all = listHudsonPlugins();
+        Collection<Plugin> all = listHudsonPlugins();
 
-        for (PluginHistory p : all) {
+        for (Plugin p : all) {
             for (HPI h : p.artifacts.values()) {
                 if (h.isEqualsTo(groupId, artifactId, version))
                   return h;

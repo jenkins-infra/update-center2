@@ -5,7 +5,7 @@ import org.jvnet.hudson.update_center.BaseMavenRepository;
 import org.jvnet.hudson.update_center.HPI;
 import org.jvnet.hudson.update_center.JenkinsWar;
 import org.jvnet.hudson.update_center.MavenRepository;
-import org.jvnet.hudson.update_center.PluginHistory;
+import org.jvnet.hudson.update_center.Plugin;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -41,11 +41,11 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
     }
 
     @Override
-    public Collection<PluginHistory> listHudsonPlugins() throws IOException {
-        Collection<PluginHistory> r = base.listHudsonPlugins();
+    public Collection<Plugin> listHudsonPlugins() throws IOException {
+        Collection<Plugin> r = base.listHudsonPlugins();
 
-        for (Iterator<PluginHistory> jtr = r.iterator(); jtr.hasNext();) {
-            PluginHistory h = jtr.next();
+        for (Iterator<Plugin> jtr = r.iterator(); jtr.hasNext();) {
+            Plugin h = jtr.next();
 
 
             Map<VersionNumber, HPI> versionNumberHPIMap = new TreeMap<>(VersionNumber.DESCENDING);

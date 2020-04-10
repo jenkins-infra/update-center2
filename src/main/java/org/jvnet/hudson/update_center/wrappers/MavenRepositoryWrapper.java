@@ -6,7 +6,7 @@ import org.jvnet.hudson.update_center.HPI;
 import org.jvnet.hudson.update_center.JenkinsWar;
 import org.jvnet.hudson.update_center.MavenArtifact;
 import org.jvnet.hudson.update_center.MavenRepository;
-import org.jvnet.hudson.update_center.PluginHistory;
+import org.jvnet.hudson.update_center.Plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +65,7 @@ public class MavenRepositoryWrapper implements MavenRepository {
     }
 
     @Override
-    public Collection<PluginHistory> listHudsonPlugins() throws IOException {
+    public Collection<Plugin> listHudsonPlugins() throws IOException {
         return base.listHudsonPlugins();
     }
 }

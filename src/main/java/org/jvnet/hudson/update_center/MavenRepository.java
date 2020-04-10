@@ -12,7 +12,7 @@ import java.util.TreeMap;
 import java.util.jar.Manifest;
 
 public interface MavenRepository {
-    Collection<PluginHistory> listHudsonPlugins() throws IOException;
+    Collection<Plugin> listHudsonPlugins() throws IOException;
 
     HPI createHpiArtifact(ArtifactCoordinates a);
 
@@ -41,11 +41,11 @@ public interface MavenRepository {
      * Discover all plugins from this Maven repository in order released, not using PluginHistory.
      */
     default Map<Date,Map<String,HPI>> listHudsonPluginsByReleaseDate() throws IOException {
-        Collection<PluginHistory> all = listHudsonPlugins();
+        Collection<Plugin> all = listHudsonPlugins();
 
         Map<Date, Map<String,HPI>> plugins = new TreeMap<>();
 
-        for (PluginHistory p : all) {
+        for (Plugin p : all) {
             for (HPI h : p.artifacts.values()) {
                 Date releaseDate = h.getTimestampAsDate();
                 System.out.println("adding " + h.artifact.artifactId + ":" + h.version);

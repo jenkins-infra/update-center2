@@ -1,7 +1,7 @@
 package org.jvnet.hudson.update_center.wrappers;
 
 import org.jvnet.hudson.update_center.MavenRepository;
-import org.jvnet.hudson.update_center.PluginHistory;
+import org.jvnet.hudson.update_center.Plugin;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,8 +22,8 @@ public class TruncatedMavenRepository extends MavenRepositoryWrapper {
     }
 
     @Override
-    public Collection<PluginHistory> listHudsonPlugins() throws IOException {
-        List<PluginHistory> result = new ArrayList<PluginHistory>(base.listHudsonPlugins());
+    public Collection<Plugin> listHudsonPlugins() throws IOException {
+        List<Plugin> result = new ArrayList<Plugin>(base.listHudsonPlugins());
         return result.subList(0, Math.min(cap,result.size()));
     }
 }

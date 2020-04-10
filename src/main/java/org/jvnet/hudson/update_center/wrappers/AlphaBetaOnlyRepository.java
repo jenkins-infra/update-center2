@@ -3,7 +3,7 @@ package org.jvnet.hudson.update_center.wrappers;
 import hudson.util.VersionNumber;
 import org.jvnet.hudson.update_center.HPI;
 import org.jvnet.hudson.update_center.MavenRepository;
-import org.jvnet.hudson.update_center.PluginHistory;
+import org.jvnet.hudson.update_center.Plugin;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -28,10 +28,10 @@ public class AlphaBetaOnlyRepository extends MavenRepositoryWrapper {
     }
 
     @Override
-    public Collection<PluginHistory> listHudsonPlugins() throws IOException {
-        Collection<PluginHistory> r = base.listHudsonPlugins();
-        for (Iterator<PluginHistory> jtr = r.iterator(); jtr.hasNext();) {
-            PluginHistory h = jtr.next();
+    public Collection<Plugin> listHudsonPlugins() throws IOException {
+        Collection<Plugin> r = base.listHudsonPlugins();
+        for (Iterator<Plugin> jtr = r.iterator(); jtr.hasNext();) {
+            Plugin h = jtr.next();
 
             for (Iterator<Entry<VersionNumber, HPI>> itr = h.artifacts.entrySet().iterator(); itr.hasNext();) {
                 Entry<VersionNumber, HPI> e =  itr.next();

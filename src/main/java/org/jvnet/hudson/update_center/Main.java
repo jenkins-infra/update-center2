@@ -399,7 +399,7 @@ public class Main {
         JSONObject plugins = new JSONObject();
         System.err.println("Build plugin versions index from the maven repo...");
 
-        for (PluginHistory plugin : repository.listHudsonPlugins()) {
+        for (Plugin plugin : repository.listHudsonPlugins()) {
                 System.out.println(plugin.artifactId);
 
                 JSONObject versions = new JSONObject();
@@ -452,34 +452,34 @@ public class Main {
             redirector = new ArtifactoryRedirector(downloadFallback);
         }
         System.err.println("Gathering list of plugins and versions from the maven repo...");
-        for (PluginHistory hpi : repository.listHudsonPlugins()) {
+        for (Plugin hpi : repository.listHudsonPlugins()) {
             try {
                 System.out.println(hpi.artifactId);
 
                 // Gather the plugin properties from the plugin file and the wiki
-                Plugin plugin = new Plugin(hpi);
+                PluginUpdateCenterEntry pluginUpdateCenterEntry = new PluginUpdateCenterEntry(hpi);
 
-                pluginToDocumentationUrl.put(plugin.artifactId, plugin.getPluginUrl());
+                pluginToDocumentationUrl.put(pluginUpdateCenterEntry.artifactId, pluginUpdateCenterEntry.getPluginUrl());
 
-                JSONObject json = plugin.toJSON();
+                JSONObject json = pluginUpdateCenterEntry.toJSON();
                 if (json == null) {
-                    System.out.println("Skipping due to lack of checksums: " + plugin.getName());
+                    System.out.println("Skipping due to lack of checksums: " + pluginUpdateCenterEntry.getName());
                     continue;
                 }
                 System.out.println("=> " + hpi.latest().getGavId());
-                plugins.put(plugin.artifactId, json);
-                latest.add(plugin.artifactId+".hpi", plugin.latest.getURL().getPath());
+                plugins.put(pluginUpdateCenterEntry.artifactId, json);
+                latest.add(pluginUpdateCenterEntry.artifactId+".hpi", pluginUpdateCenterEntry.latest.getURL().getPath());
 
                 if (download!=null) {
                     for (HPI v : hpi.artifacts.values()) {
                         stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
                     }
                     if (!hpi.artifacts.isEmpty())
-                        createLatestSymlink(hpi, plugin.latest);
+                        createLatestSymlink(hpi, pluginUpdateCenterEntry.latest);
                 }
 
                 if (wwwDownload!=null) {
-                    String permalink = String.format("/latest/%s.hpi", plugin.artifactId);
+                    String permalink = String.format("/latest/%s.hpi", pluginUpdateCenterEntry.artifactId);
                     buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
                 }
 
@@ -509,7 +509,7 @@ public class Main {
     /**
      * Generates symlink to the latest version.
      */
-    protected void createLatestSymlink(PluginHistory hpi, HPI latest) throws InterruptedException, IOException {
+    protected void createLatestSymlink(Plugin hpi, HPI latest) throws InterruptedException, IOException {
         File dir = new File(download, "plugins/" + hpi.artifactId);
         new File(dir,"latest").delete();
 
@@ -571,16 +571,16 @@ public class Main {
                 HPI h = rel.getValue();
                 JSONObject o = new JSONObject();
                 try {
-                    Plugin plugin = new Plugin(h);
+                    PluginUpdateCenterEntry pluginUpdateCenterEntry = new PluginUpdateCenterEntry(h);
 
                     if (h.getTimestampAsDate().after(oldestDate.getTime())) {
-                        String title = plugin.getName();
+                        String title = pluginUpdateCenterEntry.getName();
                         if ((title==null) || (title.equals(""))) {
                             title = h.artifact.artifactId;
                         }
 
                         o.put("title", title);
-                        o.put("wiki", plugin.getPluginUrl());
+                        o.put("wiki", pluginUpdateCenterEntry.getPluginUrl());
                     }
                     o.put("gav", h.getGavId());
                     o.put("timestamp", h.getTimestamp());
