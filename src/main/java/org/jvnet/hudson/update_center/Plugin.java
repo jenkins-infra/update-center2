@@ -60,7 +60,7 @@ public class Plugin {
      */
     private Document pom;
 
-    public Plugin(String artifactId, HPI latest, HPI previous) {
+    private Plugin(String artifactId, HPI latest, HPI previous) {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
