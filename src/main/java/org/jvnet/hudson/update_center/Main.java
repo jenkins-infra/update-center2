@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2004-2009, Sun Microsystems, Inc.
+ * Copyright (c) 2004-2020, Sun Microsystems, Inc. and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,6 @@ import org.kohsuke.args4j.Option;
 import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;

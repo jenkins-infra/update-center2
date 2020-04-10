@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2004-2009, Sun Microsystems, Inc.
+ * Copyright (c) 2004-2020, Sun Microsystems, Inc. and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,22 +24,16 @@
 package org.jvnet.hudson.update_center;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.NullWriter;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.io.Closeable;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -1,13 +1,7 @@
 package org.jvnet.hudson.update_center;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
