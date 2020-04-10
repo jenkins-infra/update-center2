@@ -28,9 +28,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -109,68 +111,83 @@ public class PluginUpdateCenterEntry {
         return latest.getName();
     }
 
+    private static Map<ArtifactCoordinates, JSONObject> toJsonCache = new HashMap<>();
+
     /**
      * Converts the plugin definition to JSON.
      * @return Generated JSON
      * @throws Exception Generation error, e.g. Manifest read failure
      */
     public JSONObject toJSON() throws Exception {
-        JSONObject json = latest.toJSON(artifactId);
-        if (json == null) {
+        final JSONObject jsonObject = toJsonCache.computeIfAbsent(latest.artifact, unused -> computeJSON());
+        if (jsonObject == null) {
+            throw new IOException("Failed to serialize " + latest.artifact.artifactId);
+        }
+        return jsonObject;
+    }
+
+    private JSONObject computeJSON() {
+        try {
+            JSONObject json = latest.toJSON(artifactId);
+            if (json == null) {
+                return null;
+            }
+
+            SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
+            json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));
+            if (previous != null) {
+                json.put("previousVersion", previous.version);
+                json.put("previousTimestamp", fisheyeDateFormatter.format(previous.getTimestamp()));
+            }
+
+            json.put("title", getName());
+            String scm = latest.getScmUrl();
+            if (scm != null) {
+                json.put("scm", scm);
+            }
+
+            json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
+            json.put("labels", latest.getLabels());
+
+            String description = latest.getDescription();
+
+            json.put("excerpt", description);
+
+            HPI hpi = latest;
+            json.put("requiredCore", hpi.getRequiredJenkinsVersion());
+
+            if (hpi.getCompatibleSinceVersion() != null) {
+                json.put("compatibleSinceVersion", hpi.getCompatibleSinceVersion());
+            }
+
+            VersionNumber minimumJavaVersion = hpi.getMinimumJavaVersion();
+            if (minimumJavaVersion != null) {
+                json.put("minimumJavaVersion", minimumJavaVersion.toString());
+            }
+
+            JSONArray deps = new JSONArray();
+            for (HPI.Dependency d : hpi.getDependencies())
+                deps.add(d.toJSON());
+            json.put("dependencies", deps);
+
+            JSONArray devs = new JSONArray();
+            List<HPI.Developer> devList = hpi.getDevelopers();
+            if (!devList.isEmpty()) {
+                for (HPI.Developer dev : devList)
+                    devs.add(dev.toJSON());
+            } else {
+                String builtBy = latest.getBuiltBy();
+                if (builtBy != null)
+                    devs.add(new HPI.Developer("", builtBy, "").toJSON());
+            }
+            json.put("developers", devs);
+            json.put("gav", hpi.getGavId());
+
+            return json;
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "Failed to serialize " + artifactId, ex);
             return null;
         }
-
-        SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
-        json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));
-        if (previous!=null) {
-            json.put("previousVersion", previous.version);
-            json.put("previousTimestamp", fisheyeDateFormatter.format(previous.getTimestamp()));
-        }
-
-        json.put("title", getName());
-        String scm = latest.getScmUrl();
-        if (scm!=null) {
-            json.put("scm", scm);
-        }
-
-        json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
-        json.put("labels", latest.getLabels());
-
-        String description = latest.getDescription();
-
-        json.put("excerpt", description);
-
-        HPI hpi = latest;
-        json.put("requiredCore", hpi.getRequiredJenkinsVersion());
-
-        if (hpi.getCompatibleSinceVersion() != null) {
-            json.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
-        }
-
-        VersionNumber minimumJavaVersion = hpi.getMinimumJavaVersion();
-        if (minimumJavaVersion != null) {
-            json.put("minimumJavaVersion", minimumJavaVersion.toString());
-        }
-
-        JSONArray deps = new JSONArray();
-        for (HPI.Dependency d : hpi.getDependencies())
-            deps.add(d.toJSON());
-        json.put("dependencies",deps);
-
-        JSONArray devs = new JSONArray();
-        List<HPI.Developer> devList = hpi.getDevelopers();
-        if (!devList.isEmpty()) {
-            for (HPI.Developer dev : devList)
-                devs.add(dev.toJSON());
-        } else {
-            String builtBy = latest.getBuiltBy();
-            if (builtBy!=null)
-                devs.add(new HPI.Developer("", builtBy, "").toJSON());
-        }
-        json.put("developers", devs);
-        json.put("gav", hpi.getGavId());
-
-        return json;
     }
 
     private static final Logger LOGGER = Logger.getLogger(PluginUpdateCenterEntry.class.getName());
