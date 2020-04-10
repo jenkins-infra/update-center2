@@ -53,8 +53,12 @@ mkdir -p "$WWW_ROOT_DIR"
 # Generate htaccess file
 $( dirname "$0" )/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
 
-# build update center generator
-mvn -e clean verify -DskipTests
+FILENAME=update-center2-3.0-20200410.120540-1-bin.zip
+
+rm -rfv generator/
+rm -rfv "$FILENAME"
+wget "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/$FILENAME"
+unzip "$FILENAME" -d generator/
 
 
 # Reset arguments file
@@ -111,7 +115,7 @@ generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experim
 generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
 
 # actually run the update center build
-java -jar target/update-center2-*-bin*/update-center2-*.jar -resources-dir resources -arguments-file args.lst
+java -jar generator/update-center2-*.jar -resources-dir resources -arguments-file args.lst
 
 # generate symlinks to global /updates directory (created by crawler)
 for ltsv in ${RELEASES[@]}; do
