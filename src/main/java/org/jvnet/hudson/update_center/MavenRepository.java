@@ -42,6 +42,7 @@ public interface MavenRepository {
         Collection<Plugin> all = listJenkinsPlugins();
 
         Map<Date, Map<String,HPI>> plugins = new TreeMap<>();
+        // TODO this is weird, we only include one release per plugin and day, and it's random which one if there are multiple
 
         for (Plugin plugin : all) {
             for (HPI hpi : plugin.getArtifacts().values()) {
