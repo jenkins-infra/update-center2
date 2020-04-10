@@ -77,6 +77,10 @@ public class HPI extends MavenArtifact {
         this.plugin = plugin;
     }
 
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
     /**
      * Download a plugin via more intuitive URL. This also helps us track download counts.
      */

@@ -20,24 +20,34 @@ class ReleaseHistoryEntry {
     public final long timestamp;
     @JSONField
     public final String url;
+    @JSONField
+    public Boolean latestRelease;
+    @JSONField
+    public Boolean firstRelease;
 
     private static final Calendar DATE_CUTOFF = new GregorianCalendar();
 
-    {
+    static {
         DATE_CUTOFF.add(Calendar.DAY_OF_MONTH, -31);
     }
 
     ReleaseHistoryEntry(HPI hpi) throws IOException {
-        if (DATE_CUTOFF.before(hpi.getTimestampAsDate())) {
+        if (hpi.getTimestampAsDate().after(DATE_CUTOFF.getTime())) {
             title = hpi.getName();
             wiki = hpi.getPluginUrl();
         } else {
             title = null;
             wiki = null;
         }
+        if (hpi.getPlugin().getLatest() == hpi) {
+            latestRelease = true;
+        }
+        if (hpi.getPlugin().getFirst() == hpi) {
+            firstRelease = true;
+        }
         version = hpi.version;
         this.gav = hpi.artifact.getGav();
         timestamp = hpi.artifact.timestamp;
-        url = hpi.getDownloadUrl().toString();
+        url = "https://plugins.jenkins.io/" + hpi.artifact.artifactId;
     }
 }
