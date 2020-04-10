@@ -37,7 +37,7 @@ public class JenkinsWar extends MavenArtifact {
     }
 
     @Override
-    public URL getURL() throws MalformedURLException {
+    public URL getDownloadUrl() throws MalformedURLException {
         return new URL("http://updates.jenkins-ci.org/download/war/"+version+"/"+ getFileName());
     }
 

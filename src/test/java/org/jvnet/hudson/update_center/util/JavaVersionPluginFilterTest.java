@@ -14,7 +14,7 @@ public class JavaVersionPluginFilterTest {
         private final JavaSpecificationVersion minimumJavaVersion;
 
         public MockHPI(ArtifactCoordinates info, JavaSpecificationVersion minimumJavaVersion) throws Exception {
-            super(null, info);
+            super(null, info, null);
             this.minimumJavaVersion = minimumJavaVersion;
         }
 

@@ -40,27 +40,27 @@ public abstract class BaseMavenRepository implements MavenRepository {
 
         Set<String> excluded = new HashSet<>();
         final Collection<ArtifactCoordinates> results = listAllPlugins();
-        ARTIFACTS: for (ArtifactCoordinates a : results) {
-            if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-            if (a.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
+        ARTIFACTS: for (ArtifactCoordinates artifactCoordinates : results) {
+            if (artifactCoordinates.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
+            if (artifactCoordinates.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
             // Don't add blacklisted artifacts
-            if (IGNORE.containsKey(a.artifactId)) {
-                if (excluded.add(a.artifactId)) {
-                    System.out.println("=> Ignoring " + a.artifactId + " because this artifact is blacklisted");
+            if (IGNORE.containsKey(artifactCoordinates.artifactId)) {
+                if (excluded.add(artifactCoordinates.artifactId)) {
+                    System.out.println("=> Ignoring " + artifactCoordinates.artifactId + " because this artifact is blacklisted");
                 }
                 continue;
             }
-            if (IGNORE.containsKey(a.artifactId + "-" + a.version)) {
-                System.out.println("=> Ignoring " + a.artifactId + ", version " + a.version + " because this version is blacklisted");
+            if (IGNORE.containsKey(artifactCoordinates.artifactId + "-" + artifactCoordinates.version)) {
+                System.out.println("=> Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is blacklisted");
                 continue;
             }
 
-            Plugin p = plugins.get(a.artifactId);
-            if (p==null) {
-                p=new Plugin(a.artifactId);
-                plugins.put(a.artifactId, p);
+            Plugin plugin = plugins.get(artifactCoordinates.artifactId);
+            if (plugin == null) {
+                plugin = new Plugin(artifactCoordinates.artifactId);
+                plugins.put(artifactCoordinates.artifactId, plugin);
             }
-            HPI hpi = createHpiArtifact(a);
+            HPI hpi = new HPI(this, artifactCoordinates, plugin);
 
             for (PluginFilter pluginFilter : pluginFilters) {
                 if (pluginFilter.shouldIgnore(hpi)) {
@@ -68,8 +68,8 @@ public abstract class BaseMavenRepository implements MavenRepository {
                 }
             }
 
-            p.addArtifact(hpi);
-            p.groupId.add(a.groupId);
+            plugin.addArtifact(hpi);
+            plugin.groupId.add(artifactCoordinates.groupId);
         }
         return plugins.values();
     }
@@ -96,11 +96,6 @@ public abstract class BaseMavenRepository implements MavenRepository {
         listWar(r, "org.jenkins-ci.main", null);
         listWar(r, "org.jvnet.hudson.main", HUDSON_CUT_OFF);
         return r;
-    }
-
-    @Override
-    public HPI createHpiArtifact(ArtifactCoordinates a) {
-        return new HPI(this,a);
     }
 
     protected abstract Set<ArtifactCoordinates> listAllJenkinsWars(String groupId) throws IOException;

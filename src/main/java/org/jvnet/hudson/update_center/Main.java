@@ -416,10 +416,6 @@ public class Main {
                         if (hpi.getCompatibleSinceVersion() != null) {
                             hpiJson.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
                         }
-                        if (hpi.getSandboxStatus() != null) {
-                            hpiJson.put("sandboxStatus",hpi.getSandboxStatus());
-                        }
-
                         JSONArray deps = new JSONArray();
                         for (HPI.Dependency d : hpi.getDependencies())
                             deps.add(d.toJSON());
@@ -452,12 +448,12 @@ public class Main {
             redirector = new ArtifactoryRedirector(downloadFallback);
         }
         System.err.println("Gathering list of plugins and versions from the maven repo...");
-        for (Plugin hpi : repository.listHudsonPlugins()) {
+        for (Plugin plugin : repository.listHudsonPlugins()) {
             try {
-                System.out.println(hpi.artifactId);
+                System.out.println(plugin.artifactId);
 
                 // Gather the plugin properties from the plugin file and the wiki
-                PluginUpdateCenterEntry pluginUpdateCenterEntry = new PluginUpdateCenterEntry(hpi);
+                PluginUpdateCenterEntry pluginUpdateCenterEntry = new PluginUpdateCenterEntry(plugin);
 
                 pluginToDocumentationUrl.put(pluginUpdateCenterEntry.artifactId, pluginUpdateCenterEntry.getPluginUrl());
 
@@ -466,26 +462,26 @@ public class Main {
                     System.out.println("Skipping due to lack of checksums: " + pluginUpdateCenterEntry.getName());
                     continue;
                 }
-                System.out.println("=> " + hpi.latest().getGavId());
+                System.out.println("=> " + plugin.latest().getGavId());
                 plugins.put(pluginUpdateCenterEntry.artifactId, json);
-                latest.add(pluginUpdateCenterEntry.artifactId+".hpi", pluginUpdateCenterEntry.latest.getURL().getPath());
+                latest.add(pluginUpdateCenterEntry.artifactId+".hpi", pluginUpdateCenterEntry.latest.getDownloadUrl().getPath());
 
                 if (download!=null) {
-                    for (HPI v : hpi.artifacts.values()) {
-                        stage(v, new File(download, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi"));
+                    for (HPI v : plugin.artifacts.values()) {
+                        stage(v, new File(download, "plugins/" + plugin.artifactId + "/" + v.version + "/" + plugin.artifactId + ".hpi"));
                     }
-                    if (!hpi.artifacts.isEmpty())
-                        createLatestSymlink(hpi, pluginUpdateCenterEntry.latest);
+                    if (!plugin.artifacts.isEmpty())
+                        createLatestSymlink(plugin, pluginUpdateCenterEntry.latest);
                 }
 
                 if (wwwDownload!=null) {
                     String permalink = String.format("/latest/%s.hpi", pluginUpdateCenterEntry.artifactId);
-                    buildIndex(new File(wwwDownload, "plugins/" + hpi.artifactId), hpi.artifactId, hpi.artifacts.values(), permalink);
+                    buildIndex(new File(wwwDownload, "plugins/" + plugin.artifactId), plugin.artifactId, plugin.artifacts.values(), permalink);
                 }
 
                 if (redirector != null) {
-                    for (HPI v : hpi.artifacts.values()) {
-                        redirector.recordRedirect(v, "plugins/" + hpi.artifactId + "/" + v.version + "/" + hpi.artifactId + ".hpi");
+                    for (HPI v : plugin.artifacts.values()) {
+                        redirector.recordRedirect(v, "plugins/" + plugin.artifactId + "/" + v.version + "/" + plugin.artifactId + ".hpi");
                     }
                 }
 
@@ -646,7 +642,7 @@ public class Main {
         JSONObject core = latest.toJSON("core");
         System.out.println("core\n=> "+ core);
 
-        redirect.add("jenkins.war", latest.getURL().getPath());
+        redirect.add("jenkins.war", latest.getDownloadUrl().getPath());
 
         if (latestCoreTxt !=null)
             writeToFile(latest.getVersion().toString(), latestCoreTxt);

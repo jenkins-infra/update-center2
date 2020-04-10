@@ -505,10 +505,6 @@ public class PluginUpdateCenterEntry {
             json.put("minimumJavaVersion", minimumJavaVersion.toString());
         }
 
-        if (hpi.getSandboxStatus() != null) {
-            json.put("sandboxStatus",hpi.getSandboxStatus());
-        }
-
         JSONArray deps = new JSONArray();
         for (HPI.Dependency d : hpi.getDependencies())
             deps.add(d.toJSON());

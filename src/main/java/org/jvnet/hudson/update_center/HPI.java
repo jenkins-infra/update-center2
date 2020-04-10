@@ -42,19 +42,23 @@ import static org.jvnet.hudson.update_center.JenkinsWar.HUDSON_CUT_OFF;
 /**
  * A particular version of a plugin and its metadata.
  *
+ * For version independent metadata, see {@link Plugin}.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class HPI extends MavenArtifact {
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
+    private final Plugin plugin;
 
-    public HPI(BaseMavenRepository repository, ArtifactCoordinates artifact) {
+    public HPI(BaseMavenRepository repository, ArtifactCoordinates artifact, Plugin plugin) {
         super(repository, artifact);
+        this.plugin = plugin;
     }
 
     /**
      * Download a plugin via more intuitive URL. This also helps us track download counts.
      */
-    public URL getURL() throws MalformedURLException {
+    public URL getDownloadUrl() throws MalformedURLException {
         return new URL("http://updates.jenkins-ci.org/download/plugins/"+artifact.artifactId+"/"+version+"/"+artifact.artifactId+".hpi");
     }
 
@@ -112,14 +116,6 @@ public class HPI extends MavenArtifact {
         }
 
         return null;
-    }
-
-    public String getDisplayName() throws IOException {
-        return getManifestAttributes().getValue("Long-Name");
-    }
-
-    public String getSandboxStatus() throws IOException {
-        return getManifestAttributes().getValue("Sandbox-Status");
     }
 
     public List<Dependency> getDependencies() throws IOException {

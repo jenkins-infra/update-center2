@@ -105,7 +105,7 @@ public class MavenArtifact {
         o.put("name", name);
         o.put("version", version);
 
-        o.put("url", getURL().toExternalForm());
+        o.put("url", getDownloadUrl().toExternalForm());
         o.put("buildDate", getTimestampAsString());
         MavenRepository.Digests d = getDigests();
         if (d == null) {
@@ -171,7 +171,7 @@ public class MavenArtifact {
     /**
      * Where to download from?
      */
-    public URL getURL() throws MalformedURLException {
+    public URL getDownloadUrl() throws MalformedURLException {
         return new URL("repo.jenkins-ci.org/public/"+artifact.groupId.replace('.','/')+"/"+artifact.artifactId+"/"+artifact.version+"/"+artifact.artifactId+"-"+artifact.version+"."+artifact.packaging);
     }
 

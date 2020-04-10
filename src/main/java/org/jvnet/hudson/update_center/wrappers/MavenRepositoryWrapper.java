@@ -25,11 +25,6 @@ public class MavenRepositoryWrapper implements MavenRepository {
     }
 
     @Override
-    public HPI createHpiArtifact(ArtifactCoordinates a) {
-        return base.createHpiArtifact(a);
-    }
-
-    @Override
     public TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException {
         return base.getHudsonWar();
     }

@@ -14,8 +14,6 @@ import java.util.jar.Manifest;
 public interface MavenRepository {
     Collection<Plugin> listHudsonPlugins() throws IOException;
 
-    HPI createHpiArtifact(ArtifactCoordinates a);
-
     /**
      * Discover all hudson.war versions. Map must be sorted by version number, descending.
      */
@@ -45,12 +43,12 @@ public interface MavenRepository {
 
         Map<Date, Map<String,HPI>> plugins = new TreeMap<>();
 
-        for (Plugin p : all) {
-            for (HPI h : p.artifacts.values()) {
-                Date releaseDate = h.getTimestampAsDate();
-                System.out.println("adding " + h.artifact.artifactId + ":" + h.version);
+        for (Plugin plugin : all) {
+            for (HPI hpi : plugin.artifacts.values()) {
+                Date releaseDate = hpi.getTimestampAsDate();
+                System.out.println("adding " + hpi.artifact.artifactId + ":" + hpi.version);
                 Map<String, HPI> pluginsOnDate = plugins.computeIfAbsent(releaseDate, k -> new TreeMap<>());
-                pluginsOnDate.put(p.artifactId,h);
+                pluginsOnDate.put(plugin.artifactId,hpi);
             }
         }
 

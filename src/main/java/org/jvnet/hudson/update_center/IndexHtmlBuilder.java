@@ -91,7 +91,7 @@ public class IndexHtmlBuilder implements Closeable {
         if (digests.sha256 != null) {
             checksums += ", SHA-256: " + base64ToHex(digests.sha256);
         }
-        add(a.getURL().getPath(), a.getTimestampAsDate(), a.version, checksums);
+        add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, checksums);
     }
 
     public void add(String url, String caption) throws MalformedURLException {
