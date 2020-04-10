@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jvnet.hudson.update_center.impl.pluginFilter;
+package org.jvnet.hudson.update_center.filters;
 
 import hudson.util.VersionNumber;
 import org.jvnet.hudson.update_center.HPI;

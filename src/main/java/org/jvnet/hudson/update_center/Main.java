@@ -29,10 +29,11 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
+import org.jvnet.hudson.update_center.filters.JavaVersionPluginFilter;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 import org.jvnet.hudson.update_center.wrappers.AlphaBetaOnlyRepository;
-import org.jvnet.hudson.update_center.wrappers.StableMavenRepository;
+import org.jvnet.hudson.update_center.wrappers.FilteringRepository;
+import org.jvnet.hudson.update_center.wrappers.StableWarMavenRepository;
 import org.jvnet.hudson.update_center.wrappers.TruncatedMavenRepository;
 import org.jvnet.hudson.update_center.wrappers.VersionCappedMavenRepository;
 import org.kohsuke.args4j.ClassParser;
@@ -362,22 +363,7 @@ public class Main {
 
     protected MavenRepository createRepository() throws Exception {
 
-        BaseMavenRepository base = DefaultMavenRepositoryBuilder.getInstance();
-
-        // ensure that we reset plugin filters between batch executions
-        base.resetPluginFilters();
-
-        if (javaVersion != null) {
-            JavaSpecificationVersion specificationVersion = new JavaSpecificationVersion(this.javaVersion);
-            base.addPluginFilter(new JavaVersionPluginFilter(specificationVersion));
-            System.out.println("INFO: Filtering plugins for compatibility with Java version " + specificationVersion);
-        } else {
-            System.out.println("WARNING: Target Java version is not defined, version filters will not be applied");
-            //TODO: Default to the version actually supported by the target core if `-cap` is set?
-            // base.addPluginFilter(new JavaVersionPluginFilter(JavaVersionUtil.JAVA_8));
-        }
-
-        MavenRepository repo = base;
+        MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
         if (maxPlugins != null)
             repo = new TruncatedMavenRepository(repo,maxPlugins);
         if (experimentalOnly)
@@ -385,12 +371,15 @@ public class Main {
         if (noExperimental)
             repo = new AlphaBetaOnlyRepository(repo,true);
         if (stableCore) {
-            repo = new StableMavenRepository(repo);
+            repo = new StableWarMavenRepository(repo);
         }
         if (capPlugin != null || getCapCore() != null) {
             VersionNumber vp = capPlugin == null ? null : new VersionNumber(capPlugin);
             VersionNumber vc = getCapCore() == null ? ANY_VERSION : new VersionNumber(getCapCore());
             repo = new VersionCappedMavenRepository(repo, vp, vc);
+        }
+        if (javaVersion != null) {
+            repo = new FilteringRepository(repo).withPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(this.javaVersion)));
         }
         return repo;
     }
@@ -400,14 +389,14 @@ public class Main {
         System.err.println("Build plugin versions index from the maven repo...");
 
         for (Plugin plugin : repository.listHudsonPlugins()) {
-                System.out.println(plugin.artifactId);
+                System.out.println(plugin.getArtifactId());
 
                 JSONObject versions = new JSONObject();
 
                 // Gather the plugin properties from the plugin file and the wiki
-                for (HPI hpi : plugin.artifacts.values()) {
+                for (HPI hpi : plugin.getArtifacts().values()) {
                     try {
-                        JSONObject hpiJson = hpi.toJSON(plugin.artifactId);
+                        JSONObject hpiJson = hpi.toJSON(plugin.getArtifactId());
                         if (hpiJson == null) {
                             continue;
                         }
@@ -428,7 +417,7 @@ public class Main {
                     }
                 }
 
-                plugins.put(plugin.artifactId, versions);
+                plugins.put(plugin.getArtifactId(), versions);
         }
         return plugins;
     }
@@ -443,14 +432,12 @@ public class Main {
         int validCount = 0;
 
         JSONObject plugins = new JSONObject();
-        ArtifactoryRedirector redirector = null;
-        if (downloadFallback != null) {
-            redirector = new ArtifactoryRedirector(downloadFallback);
-        }
+
         System.err.println("Gathering list of plugins and versions from the maven repo...");
         for (Plugin plugin : repository.listHudsonPlugins()) {
+
             try {
-                System.out.println(plugin.artifactId);
+                System.out.println(plugin.getArtifactId());
 
                 // Gather the plugin properties from the plugin file and the wiki
                 PluginUpdateCenterEntry pluginUpdateCenterEntry = new PluginUpdateCenterEntry(plugin);
@@ -459,30 +446,22 @@ public class Main {
 
                 JSONObject json = pluginUpdateCenterEntry.toJSON();
                 if (json == null) {
-                    System.out.println("Skipping due to lack of checksums: " + pluginUpdateCenterEntry.getName());
                     continue;
                 }
-                System.out.println("=> " + plugin.latest().getGavId());
                 plugins.put(pluginUpdateCenterEntry.artifactId, json);
                 latest.add(pluginUpdateCenterEntry.artifactId+".hpi", pluginUpdateCenterEntry.latest.getDownloadUrl().getPath());
 
                 if (download!=null) {
-                    for (HPI v : plugin.artifacts.values()) {
-                        stage(v, new File(download, "plugins/" + plugin.artifactId + "/" + v.version + "/" + plugin.artifactId + ".hpi"));
+                    for (HPI v : plugin.getArtifacts().values()) {
+                        stage(v, new File(download, "plugins/" + plugin.getArtifactId() + "/" + v.version + "/" + plugin.getArtifactId() + ".hpi"));
                     }
-                    if (!plugin.artifacts.isEmpty())
+                    if (!plugin.getArtifacts().isEmpty())
                         createLatestSymlink(plugin, pluginUpdateCenterEntry.latest);
                 }
 
                 if (wwwDownload!=null) {
                     String permalink = String.format("/latest/%s.hpi", pluginUpdateCenterEntry.artifactId);
-                    buildIndex(new File(wwwDownload, "plugins/" + plugin.artifactId), plugin.artifactId, plugin.artifacts.values(), permalink);
-                }
-
-                if (redirector != null) {
-                    for (HPI v : plugin.artifacts.values()) {
-                        redirector.recordRedirect(v, "plugins/" + plugin.artifactId + "/" + v.version + "/" + plugin.artifactId + ".hpi");
-                    }
+                    buildIndex(new File(wwwDownload, "plugins/" + plugin.getArtifactId()), plugin.getArtifactId(), plugin.getArtifacts().values(), permalink);
                 }
 
                 validCount++;
@@ -490,10 +469,6 @@ public class Main {
                 e.printStackTrace();
                 // move on to the next plugin
             }
-        }
-
-        if (redirector != null) {
-            redirector.writeRedirects();
         }
 
         if (pluginCountTxt!=null)
@@ -506,7 +481,7 @@ public class Main {
      * Generates symlink to the latest version.
      */
     protected void createLatestSymlink(Plugin hpi, HPI latest) throws InterruptedException, IOException {
-        File dir = new File(download, "plugins/" + hpi.artifactId);
+        File dir = new File(download, "plugins/" + hpi.getArtifactId());
         new File(dir,"latest").delete();
 
         ProcessBuilder pb = new ProcessBuilder();

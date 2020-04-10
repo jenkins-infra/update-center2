@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 /**
  * Delegating {@link MavenRepositoryWrapper} to limit core releases to those with LTS version numbers.
  */
-public class StableMavenRepository extends MavenRepositoryWrapper {
+public class StableWarMavenRepository extends MavenRepositoryWrapper {
 
-    public StableMavenRepository(MavenRepository base) {
+    public StableWarMavenRepository(MavenRepository base) {
         setBaseRepository(base);
     }
 

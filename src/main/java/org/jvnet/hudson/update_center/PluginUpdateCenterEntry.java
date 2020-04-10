@@ -67,10 +67,10 @@ public class PluginUpdateCenterEntry {
     }
 
     public PluginUpdateCenterEntry(Plugin plugin) {
-        this.artifactId = plugin.artifactId;
+        this.artifactId = plugin.getArtifactId();
         HPI previous = null, latest = null;
 
-        Iterator<HPI> it = plugin.artifacts.values().iterator();
+        Iterator<HPI> it = plugin.getArtifacts().values().iterator();
 
         while (latest == null && it.hasNext()) {
             HPI h = it.next();

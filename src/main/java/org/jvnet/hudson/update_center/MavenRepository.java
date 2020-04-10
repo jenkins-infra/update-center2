@@ -44,11 +44,11 @@ public interface MavenRepository {
         Map<Date, Map<String,HPI>> plugins = new TreeMap<>();
 
         for (Plugin plugin : all) {
-            for (HPI hpi : plugin.artifacts.values()) {
+            for (HPI hpi : plugin.getArtifacts().values()) {
                 Date releaseDate = hpi.getTimestampAsDate();
                 System.out.println("adding " + hpi.artifact.artifactId + ":" + hpi.version);
                 Map<String, HPI> pluginsOnDate = plugins.computeIfAbsent(releaseDate, k -> new TreeMap<>());
-                pluginsOnDate.put(plugin.artifactId,hpi);
+                pluginsOnDate.put(plugin.getArtifactId(),hpi);
             }
         }
 

@@ -16,7 +16,7 @@ public class ListExisting {
         Set<String> groupIds = new TreeSet<String>();
         Collection<Plugin> all = r.listHudsonPlugins();
         for (Plugin p : all) {
-            HPI hpi = p.latest();
+            HPI hpi = p.getLatest();
             groupIds.add(hpi.artifact.groupId);
         }
 

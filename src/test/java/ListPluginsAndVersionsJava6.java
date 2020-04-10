@@ -2,8 +2,9 @@ import org.jvnet.hudson.update_center.BaseMavenRepository;
 import org.jvnet.hudson.update_center.DefaultMavenRepositoryBuilder;
 import org.jvnet.hudson.update_center.HPI;
 import org.jvnet.hudson.update_center.Plugin;
-import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
+import org.jvnet.hudson.update_center.filters.JavaVersionPluginFilter;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
+import org.jvnet.hudson.update_center.wrappers.FilteringRepository;
 
 import java.util.Collection;
 
@@ -15,14 +16,14 @@ import java.util.Collection;
 public class ListPluginsAndVersionsJava6 {
     public static void main(String[] args) throws Exception{
         BaseMavenRepository r = DefaultMavenRepositoryBuilder.getInstance();
-        r.addPluginFilter(new JavaVersionPluginFilter(JavaSpecificationVersion.JAVA_6));
+        FilteringRepository f = new FilteringRepository(r).withPluginFilter(new JavaVersionPluginFilter(JavaSpecificationVersion.JAVA_6));
 
-        System.out.println(r.getHudsonWar().firstKey());
+        System.out.println(f.getHudsonWar().firstKey());
 
-        Collection<Plugin> all = r.listHudsonPlugins();
+        Collection<Plugin> all = f.listHudsonPlugins();
         for (Plugin p : all) {
-            HPI hpi = p.latest();
-            System.out.printf("%s\t%s\n", p.artifactId, hpi.toString());
+            HPI hpi = p.getLatest();
+            System.out.printf("%s\t%s\n", p.getArtifactId(), hpi.toString());
         }
     }
 }

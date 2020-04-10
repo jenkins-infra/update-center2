@@ -50,7 +50,7 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
 
             Map<VersionNumber, HPI> versionNumberHPIMap = new TreeMap<>(VersionNumber.DESCENDING);
 
-            for (Iterator<Entry<VersionNumber, HPI>> itr = h.artifacts.entrySet().iterator(); itr.hasNext();) {
+            for (Iterator<Entry<VersionNumber, HPI>> itr = h.getArtifacts().entrySet().iterator(); itr.hasNext();) {
                 Entry<VersionNumber, HPI> e =  itr.next();
                 if (capPlugin == null) {
                     // no cap
@@ -74,9 +74,9 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
                 }
             }
 
-            h.artifacts.entrySet().retainAll(versionNumberHPIMap.entrySet());
+            h.getArtifacts().entrySet().retainAll(versionNumberHPIMap.entrySet());
 
-            if (h.artifacts.isEmpty())
+            if (h.getArtifacts().isEmpty())
                 jtr.remove();
         }
 

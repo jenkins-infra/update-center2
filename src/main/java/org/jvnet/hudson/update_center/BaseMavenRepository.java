@@ -2,14 +2,11 @@ package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -40,7 +37,8 @@ public abstract class BaseMavenRepository implements MavenRepository {
 
         Set<String> excluded = new HashSet<>();
         final Collection<ArtifactCoordinates> results = listAllPlugins();
-        ARTIFACTS: for (ArtifactCoordinates artifactCoordinates : results) {
+
+        for (ArtifactCoordinates artifactCoordinates : results) {
             if (artifactCoordinates.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
             if (artifactCoordinates.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
             // Don't add blacklisted artifacts
@@ -62,31 +60,12 @@ public abstract class BaseMavenRepository implements MavenRepository {
             }
             HPI hpi = new HPI(this, artifactCoordinates, plugin);
 
-            for (PluginFilter pluginFilter : pluginFilters) {
-                if (pluginFilter.shouldIgnore(hpi)) {
-                    continue ARTIFACTS;
-                }
-            }
-
             plugin.addArtifact(hpi);
-            plugin.groupId.add(artifactCoordinates.groupId);
         }
-        return plugins.values();
+        final TreeMap<String, Plugin> ret = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        ret.putAll(plugins);
+        return ret.values();
     }
-
-    /**
-     * Adds a plugin filter.
-     * @param filter Filter to be added.
-     */
-    public void addPluginFilter(@Nonnull PluginFilter filter) {
-        pluginFilters.add(filter);
-    }
-
-    public void resetPluginFilters() {
-        this.pluginFilters.clear();
-    }
-
-    private List<PluginFilter> pluginFilters = new ArrayList<>();
 
     /**
      * Discover all hudson.war versions. Map must be sorted by version number, descending.
@@ -132,7 +111,7 @@ public abstract class BaseMavenRepository implements MavenRepository {
         Collection<Plugin> all = listHudsonPlugins();
 
         for (Plugin p : all) {
-            for (HPI h : p.artifacts.values()) {
+            for (HPI h : p.getArtifacts().values()) {
                 if (h.isEqualsTo(groupId, artifactId, version))
                   return h;
             }

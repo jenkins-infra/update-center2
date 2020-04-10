@@ -27,37 +27,28 @@ import hudson.util.VersionNumber;
 
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * Information about a Jenkins plugin and its release history, discovered from Maven repository.
  *
  * This includes 'canonical' information about a plugin such as its URL or labels that is version independent.
+ * TODO the above is aspirational
  */
 public final class Plugin {
-    /**
-     * ArtifactID equals short name.
-     */
-    public final String artifactId;
+    private final String artifactId;
 
-    /**
-     * All discovered versions, by the version numbers, newer versions first.
-     */
-    public final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<>(VersionNumber.DESCENDING);
-
-    final Set<String> groupId = new TreeSet<>();
+    private final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<>(VersionNumber.DESCENDING);
 
     public Plugin(String shortName) {
         this.artifactId = shortName;
     }
 
-    public HPI latest() {
+    public HPI getLatest() {
         return artifacts.get(artifacts.firstKey());
     }
 
-    public HPI first() {
+    public HPI getFirst() {
         return artifacts.get(artifacts.lastKey());
     }
 
@@ -92,7 +83,7 @@ public final class Plugin {
     /**
      * Returns the youngest version of the artifact that's authentic Jenkins artifact.
      */
-    public Map.Entry<VersionNumber,HPI> findYoungestJenkinsArtifact() {
+    private Map.Entry<VersionNumber,HPI> findYoungestJenkinsArtifact() {
         for (Map.Entry<VersionNumber,HPI> e : artifacts.descendingMap().entrySet()) {
             if (e.getValue().isAuthenticJenkinsArtifact())
                 return e;
@@ -109,4 +100,18 @@ public final class Plugin {
             return h.isAuthenticJenkinsArtifact() ? 1 : 0;
         }
     };
+
+    /**
+     * ArtifactID equals short name.
+     */
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    /**
+     * All discovered versions, by the version numbers, newer versions first.
+     */
+    public TreeMap<VersionNumber, HPI> getArtifacts() {
+        return artifacts;
+    }
 }

@@ -33,14 +33,14 @@ public class AlphaBetaOnlyRepository extends MavenRepositoryWrapper {
         for (Iterator<Plugin> jtr = r.iterator(); jtr.hasNext();) {
             Plugin h = jtr.next();
 
-            for (Iterator<Entry<VersionNumber, HPI>> itr = h.artifacts.entrySet().iterator(); itr.hasNext();) {
+            for (Iterator<Entry<VersionNumber, HPI>> itr = h.getArtifacts().entrySet().iterator(); itr.hasNext();) {
                 Entry<VersionNumber, HPI> e =  itr.next();
                 if (e.getValue().isAlphaOrBeta()^negative)
                     continue;
                 itr.remove();
             }
 
-            if (h.artifacts.isEmpty())
+            if (h.getArtifacts().isEmpty())
                 jtr.remove();
         }
 

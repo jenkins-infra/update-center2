@@ -18,8 +18,8 @@ public class ListPluginsAndVersions {
 
         Collection<Plugin> all = r.listHudsonPlugins();
         for (Plugin p : all) {
-            HPI hpi = p.latest();
-            System.out.printf("%s\t%s\n", p.artifactId, hpi.toString());
+            HPI hpi = p.getLatest();
+            System.out.printf("%s\t%s\n", p.getArtifactId(), hpi.toString());
         }
     }
 }

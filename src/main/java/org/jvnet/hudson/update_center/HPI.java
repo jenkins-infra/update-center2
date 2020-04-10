@@ -43,8 +43,6 @@ import static org.jvnet.hudson.update_center.JenkinsWar.HUDSON_CUT_OFF;
  * A particular version of a plugin and its metadata.
  *
  * For version independent metadata, see {@link Plugin}.
- *
- * @author Kohsuke Kawaguchi
  */
 public class HPI extends MavenArtifact {
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
