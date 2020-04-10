@@ -3,13 +3,22 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.35</version>
+    <version>1.54</version>
   </parent>
+
   <artifactId>update-center2</artifactId>
   
   <version>3.0-SNAPSHOT</version>
   <name>Update center generator for jenkins-ci.org</name>
   <description>Generates update center script</description>
+
+  <properties>
+    <java.level>8</java.level>
+    <keyName>${project.basedir}/test</keyName>
+    <main.class>org.jvnet.hudson.update_center.Main</main.class>
+    <spotbugs.failOnError>false</spotbugs.failOnError>
+    <spotbugs.threshold>High</spotbugs.threshold>
+  </properties>
 
   <build>
     <plugins>
@@ -32,11 +41,53 @@
         </configuration>
       </plugin>
       <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>display-info</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>display-info</goal>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <enforceBytecodeVersion>
+                  <maxJdkVersion>1.${java.level}</maxJdkVersion>
+                  <ignoredScopes>
+                    <ignoredScope>test</ignoredScope>
+                  </ignoredScopes>
+                </enforceBytecodeVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>animal-sniffer-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <id>check</id>
+            <phase>test</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <signature>
+            <groupId>org.codehaus.mojo.signature</groupId>
+            <artifactId>java1${java.level}</artifactId>
+          </signature>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
             <goals>
-              <goal>attached</goal>
+              <goal>single</goal>
             </goals>
             <phase>package</phase>
             <configuration>
@@ -47,7 +98,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>appassembler-maven-plugin</artifactId>
@@ -71,11 +121,6 @@
       </plugin>
     </plugins>
   </build>
-
-  <properties>
-    <keyName>${project.basedir}/test</keyName>
-    <main.class>org.jvnet.hudson.update_center.Main</main.class>
-  </properties>
 
   <dependencies>
     <dependency>

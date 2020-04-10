@@ -148,8 +148,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(ARTIFACTORY_AQL_URL).addHeader("Authorization", Credentials.basic(username, password)).post(RequestBody.create(AQL_QUERY, MediaType.parse("text/plain; charset=utf-8"))).build();
         Gson gson = new Gson();
-        GsonResponse json = gson.fromJson(new InputStreamReader(client.newCall(request).execute().body().byteStream()), GsonResponse.class);
-        json.results.stream().forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
+        GsonResponse json = gson.fromJson(Objects.requireNonNull(client.newCall(request).execute().body()).charStream(), GsonResponse.class);
+        json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
         this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).filter(Objects::nonNull).collect(Collectors.toSet());
         this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
         System.err.println("Initialized " + this.getClass().getName());
@@ -223,7 +223,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private File getFile(String url) throws IOException {
-        String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes());
+        String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes(StandardCharsets.UTF_8));
         File cacheFile = new File(cacheDirectory, urlBase64);
         if (!cacheFile.exists()) {
             System.err.println("Downloading: " + url);

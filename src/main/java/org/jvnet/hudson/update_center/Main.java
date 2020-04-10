@@ -23,6 +23,7 @@
  */
 package org.jvnet.hudson.update_center;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -173,9 +174,11 @@ public class Main {
     public boolean skipPluginVersions;
 
     @Option(name="-arguments-file",usage="Specify invocation arguments in a file, with each line being a separate update site build. This argument cannot be re-set via arguments-file.")
+    @SuppressFBWarnings
     public static File argumentsFile;
 
     @Option(name="-resources-dir", usage = "Specify the path to the resources directory containing warnings.json, artifact-ignores.properties, etc. This argument cannot be re-set via arguments-file.")
+    @SuppressFBWarnings
     public static File resourcesDir = new File("resources"); // default for tests
 
     private Signer signer = new Signer();
@@ -195,7 +198,7 @@ public class Main {
             if (argumentsFile == null) {
                 run();
             } else {
-                List<String> invocations = IOUtils.readLines(new FileReader(argumentsFile));
+                List<String> invocations = IOUtils.readLines(Files.newBufferedReader(argumentsFile.toPath(), StandardCharsets.UTF_8));
                 for (String line : invocations) {
                     if (!line.trim().startsWith("#") && !line.trim().isEmpty()) {
 

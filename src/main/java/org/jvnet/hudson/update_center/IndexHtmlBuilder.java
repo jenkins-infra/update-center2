@@ -24,11 +24,15 @@
 package org.jvnet.hudson.update_center;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.io.output.NullWriter;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.io.Closeable;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.File;
@@ -36,6 +40,7 @@ import java.io.FileWriter;
 import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -52,10 +57,14 @@ public class IndexHtmlBuilder implements Closeable {
     }
 
     private static PrintWriter openIndexHtml(File dir) throws IOException {
-        if (dir==null)  return new PrintWriter(new ByteArrayOutputStream()); // ignore output
+        if (dir == null) {
+            return new PrintWriter(new NullWriter()); // ignore output
+        }
         
-        dir.mkdirs();
-        return new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,"index.html")), "UTF-8"));
+        if (!dir.mkdirs() && !dir.isDirectory()) {
+            throw new IllegalStateException("Failed to create " + dir);
+        }
+        return new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,"index.html")), StandardCharsets.UTF_8));
     }
 
     public IndexHtmlBuilder(PrintWriter out, String title) {
@@ -75,7 +84,7 @@ public class IndexHtmlBuilder implements Closeable {
     }
 
     private String base64ToHex(String base64) {
-        byte[] decodedBase64 = Base64.decode(base64.getBytes());
+        byte[] decodedBase64 = Base64.decode(base64.getBytes(StandardCharsets.US_ASCII));
         return Hex.encodeHexString(decodedBase64);
     }
 

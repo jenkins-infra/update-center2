@@ -1,11 +1,13 @@
 package org.jvnet.hudson.update_center;
 
+import com.google.common.io.Files;
+
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 public class ArtifactoryRedirector {
     private final File directory;
@@ -39,7 +41,7 @@ public class ArtifactoryRedirector {
 
     public void writeRedirects() throws IOException {
         directory.mkdirs();
-        FileWriter writer = new FileWriter(new File(directory, ".htaccess"));
+        BufferedWriter writer = Files.newWriter(new File(directory, ".htaccess"), StandardCharsets.UTF_8);
         for (Map.Entry<String, MavenArtifact> entry : redirects.entrySet()) {
             writer.write(String.format("Redirect \"/%s\" \"%s\"\n", regexEscape(entry.getKey()), getUri(entry.getValue())));
         }
