@@ -1,41 +1,18 @@
 package org.jvnet.hudson.update_center;
 
-import com.google.common.annotations.VisibleForTesting;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentFactory;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
-import org.owasp.html.HtmlSanitizer;
-import org.owasp.html.HtmlStreamRenderer;
-import org.owasp.html.PolicyFactory;
-import org.owasp.html.Sanitizers;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
