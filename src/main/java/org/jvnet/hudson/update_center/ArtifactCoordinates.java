@@ -1,7 +1,10 @@
 package org.jvnet.hudson.update_center;
 
-public class ArtifactCoordinates extends Gav {
+public class ArtifactCoordinates {
 
+    public final String groupId;
+    public final String artifactId;
+    public final String version;
     public final String packaging;
     public final String classifier;
 
@@ -13,14 +16,18 @@ public class ArtifactCoordinates extends Gav {
     public final long timestamp;
 
     public ArtifactCoordinates(String groupId, String artifactId, String version, String packaging, String classifier) {
-        super(groupId, artifactId, version);
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
         this.packaging = packaging;
         this.classifier = classifier;
         this.timestamp = 0;
     }
 
     public ArtifactCoordinates(String groupId, String artifactId, String version, String packaging, String classifier, long timestamp) {
-        super(groupId, artifactId, version);
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
         this.packaging = packaging;
         this.classifier = classifier;
         this.timestamp = timestamp;
