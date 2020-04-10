@@ -18,8 +18,12 @@ import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -544,9 +548,9 @@ public class Plugin {
 
     static {
         try {
-            URL_OVERRIDES.load(Plugin.class.getClassLoader().getResourceAsStream("wiki-overrides.properties"));
-            LABEL_DEFINITIONS.load(Plugin.class.getClassLoader().getResourceAsStream("label-definitions.properties"));
-            ALLOWED_GITHUB_LABELS.load(Plugin.class.getClassLoader().getResourceAsStream("allowed-github-topics.properties"));
+            URL_OVERRIDES.load(Files.newInputStream(new File(Main.resourcesDir, "wiki-overrides.properties").toPath()));
+            LABEL_DEFINITIONS.load(Files.newInputStream(new File(Main.resourcesDir, "label-definitions.properties").toPath()));
+            ALLOWED_GITHUB_LABELS.load(Files.newInputStream(new File(Main.resourcesDir, "allowed-github-topics.properties").toPath()));
         } catch (IOException e) {
             throw new Error(e);
         }

@@ -111,7 +111,7 @@ generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experim
 generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
 
 # actually run the update center build
-java -jar target/update-center2-*-bin*/update-center2-*.jar -arguments-file args.lst
+java -jar target/update-center2-*-bin*/update-center2-*.jar -resources-dir resources -arguments-file args.lst
 
 # generate symlinks to global /updates directory (created by crawler)
 for ltsv in ${RELEASES[@]}; do

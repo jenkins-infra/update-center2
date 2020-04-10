@@ -3,7 +3,9 @@ package org.jvnet.hudson.update_center;
 import hudson.util.VersionNumber;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,7 +28,7 @@ public abstract class BaseMavenRepository implements MavenRepository {
 
     static {
         try {
-            IGNORE.load(Plugin.class.getClassLoader().getResourceAsStream("artifact-ignores.properties"));
+            IGNORE.load(Files.newInputStream(new File(Main.resourcesDir, "artifact-ignores.properties").toPath()));
         } catch (IOException e) {
             throw new Error(e);
         }

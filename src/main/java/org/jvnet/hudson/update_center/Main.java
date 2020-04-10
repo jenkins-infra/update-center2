@@ -47,6 +47,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -169,8 +172,11 @@ public class Main {
     @Option(name="-skip-plugin-versions",usage="Skip generation of plugin versions")
     public boolean skipPluginVersions;
 
-    @Option(name="-arguments-file",usage="Specify invocation arguments in a file, with each line being a separate update site build")
-    public File argumentsFile;
+    @Option(name="-arguments-file",usage="Specify invocation arguments in a file, with each line being a separate update site build. This argument cannot be re-set via arguments-file.")
+    public static File argumentsFile;
+
+    @Option(name="-resources-dir", usage = "Specify the path to the resources directory containing warnings.json, artifact-ignores.properties, etc. This argument cannot be re-set via arguments-file.")
+    public static File resourcesDir = new File("resources"); // default for tests
 
     private Signer signer = new Signer();
 
@@ -217,7 +223,7 @@ public class Main {
 
     private void resetArguments() {
         for (Field field : this.getClass().getFields()) {
-            if (field.getAnnotation(Option.class) != null) {
+            if (field.getAnnotation(Option.class) != null && !Modifier.isStatic(field.getModifiers())) {
                 if (Object.class.isAssignableFrom(field.getType())) {
                     try {
                         field.set(this, null);
@@ -337,13 +343,13 @@ public class Main {
     }
 
     private JSONArray buildWarnings() throws IOException {
-        String warningsText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("warnings.json"));
+        String warningsText = IOUtils.toString(Files.newBufferedReader(new File(Main.resourcesDir, "warnings.json").toPath()));
         JSONArray warnings = JSONArray.fromObject(warningsText);
         return warnings;
     }
 
     private static void writeToFile(String string, final File file) throws IOException {
-        PrintWriter rhpw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file),"UTF-8"));
+        PrintWriter rhpw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
         rhpw.print(string);
         rhpw.close();
     }

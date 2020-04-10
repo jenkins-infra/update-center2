@@ -9,7 +9,10 @@ import okhttp3.Request;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +22,7 @@ import java.util.regex.Pattern;
 public class WarningsTest {
     @Test
     public void testValidJsonFile() throws Exception {
-        String warningsText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("warnings.json"));
+        String warningsText = IOUtils.toString(new FileInputStream(new File("resources/warnings.json")));
         JSONArray warnings = JSONArray.fromObject(warningsText);
 
         for (int i = 0 ; i < warnings.size() ; i++) {
@@ -52,7 +55,7 @@ public class WarningsTest {
     private Map<String, List<Warning>> loadPluginWarnings() throws IOException {
         Map<String, List<Warning>> loadedWarnings = new HashMap<>();
 
-        String warningsText = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("warnings.json"));
+        String warningsText = IOUtils.toString(Files.newInputStream(new File(Main.resourcesDir, "warnings.json").toPath()));
         JSONArray warnings = JSONArray.fromObject(warningsText);
 
         for (int i = 0 ; i < warnings.size() ; i++) {
