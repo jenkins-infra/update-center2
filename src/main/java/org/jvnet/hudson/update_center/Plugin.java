@@ -340,7 +340,7 @@ public class Plugin {
      * Get hostname of SCM specified in POM of latest release, or null.
      * Used to determine if source lives in github or svn.
      */
-    public String getScmUrl() throws IOException {
+    private String getScmUrl() throws IOException {
         if (latest.resolvePOM().exists()) {
             String scm = _getScmUrl();
             if (scm == null) {

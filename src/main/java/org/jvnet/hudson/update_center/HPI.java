@@ -65,15 +65,6 @@ public class HPI extends MavenArtifact {
         return getManifestAttributes().getValue("Built-By");
     }
 
-    /**
-     * @deprecated
-     *      Most probably you should be using {@link #getRequiredJenkinsVersion()}
-     */
-    @Deprecated
-    public String getRequiredHudsonVersion() throws IOException {
-        return getManifestAttributes().getValue("Hudson-Version");
-    }
-
     public String getRequiredJenkinsVersion() throws IOException {
         String v = getManifestAttributes().getValue("Jenkins-Version");
         if (v!=null)        return v;
