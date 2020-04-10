@@ -61,7 +61,7 @@ mvn -e clean verify -DskipTests
 echo "# one update site per line" > args.lst
 
 function generate() {
-    echo "-id default -connectionCheckUrl http://www.google.com/ -key $SECRET/update-center.key -certificate $SECRET/update-center.cert $@" >> args.lst
+    echo "-key $SECRET/update-center.key -certificate $SECRET/update-center.cert $@" >> args.lst
 }
 
 function sanity-check() {
@@ -114,7 +114,7 @@ generate -javaVersion 11 -skip-release-history -skip-plugin-versions -www "$WWW_
 generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
 
 # actually run the update center build
-java -jar target/update-center2-*-bin*/update-center2-*.jar -id default -arguments-file args.lst
+java -jar target/update-center2-*-bin*/update-center2-*.jar -arguments-file args.lst
 
 # generate symlinks to global /updates directory (created by crawler)
 for ltsv in ${RELEASES[@]}; do
