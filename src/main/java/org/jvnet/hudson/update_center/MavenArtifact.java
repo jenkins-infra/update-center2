@@ -131,7 +131,6 @@ public class MavenArtifact {
     
     public static SimpleDateFormat getDateFormat() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf;
     }
 

@@ -32,4 +32,8 @@ public class ArtifactCoordinates {
         this.classifier = classifier;
         this.timestamp = timestamp;
     }
+
+    public String getGav() {
+        return groupId + ":" + artifactId + ":" + version;
+    }
 }

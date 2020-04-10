@@ -163,6 +163,9 @@ public class Main {
     @Option(name="-no-experimental",usage="Exclude alpha/beta releases")
     public boolean noExperimental;
 
+    @Option(name="-skip-update-center", usage="Skip generation of update center files (mostly useful during development)")
+    public boolean skipUpdateCenter;
+
     @Option(name="-skip-release-history",usage="Skip generation of release history")
     public boolean skipReleaseHistory;
 
@@ -273,11 +276,13 @@ public class Main {
 
         LatestLinkBuilder latest = createHtaccessWriter();
 
-        JSONObject ucRoot = buildUpdateCenterJson(repo, latest);
-        writeToFile(mapPluginToDocumentationUrl(), urlmap);
-        writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
-        writeToFile(prettyPrintJson(ucRoot), json);
-        writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath()+".html"));
+        if (!skipUpdateCenter) {
+            JSONObject ucRoot = buildUpdateCenterJson(repo, latest);
+            writeToFile(mapPluginToDocumentationUrl(), urlmap);
+            writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
+            writeToFile(prettyPrintJson(ucRoot), json);
+            writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath() + ".html"));
+        }
 
         if (!skipPluginVersions) {
             writeToFile(prettyPrintJson(buildPluginVersionsJson(repo)), pluginVersions);
