@@ -179,7 +179,7 @@ public class Main {
 
     @Option(name="-resources-dir", usage = "Specify the path to the resources directory containing warnings.json, artifact-ignores.properties, etc. This argument cannot be re-set via arguments-file.")
     @SuppressFBWarnings
-    public static File resourcesDir = new File("resources"); // default for tests
+    public static File resourcesDir = new File("resources"); // Default value for tests -- TODO find a better way to set a value for tests
 
     private Signer signer = new Signer();
 
