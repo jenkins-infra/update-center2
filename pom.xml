@@ -14,7 +14,6 @@
 
   <properties>
     <java.level>8</java.level>
-    <keyName>${project.basedir}/test</keyName>
     <main.class>org.jvnet.hudson.update_center.Main</main.class>
     <spotbugs.failOnError>false</spotbugs.failOnError>
     <spotbugs.threshold>High</spotbugs.threshold>
