@@ -113,6 +113,7 @@ public class PluginUpdateCenterEntry {
             SimpleDateFormat fisheyeDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
             json.put("releaseTimestamp", fisheyeDateFormatter.format(latest.getTimestamp()));
             if (previous != null) {
+                // TODO this isn't cleanly cachable -- e.g. an experimental update site may have a beta here but we cached an earlier non-beta release
                 json.put("previousVersion", previous.version);
                 json.put("previousTimestamp", fisheyeDateFormatter.format(previous.getTimestamp()));
             }
