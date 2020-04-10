@@ -30,6 +30,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jvnet.hudson.update_center.filters.JavaVersionPluginFilter;
+import org.jvnet.hudson.update_center.json.ReleaseHistory;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 import org.jvnet.hudson.update_center.wrappers.AlphaBetaOnlyRepository;
 import org.jvnet.hudson.update_center.wrappers.FilteringRepository;
@@ -283,9 +284,7 @@ public class Main {
         }
 
         if (!skipReleaseHistory) {
-            JSONObject rhRoot = buildFullReleaseHistory(repo);
-            String rh = prettyPrintJson(rhRoot);
-            writeToFile(rh, releaseHistory);
+            new ReleaseHistory(repo).writeToFile(releaseHistory);
         }
 
         latest.close();
@@ -450,7 +449,7 @@ public class Main {
                     continue;
                 }
                 plugins.put(pluginUpdateCenterEntry.artifactId, json);
-                latest.add(pluginUpdateCenterEntry.artifactId+".hpi", pluginUpdateCenterEntry.latest.getDownloadUrl().getPath());
+                latest.add(pluginUpdateCenterEntry.artifactId+".hpi", pluginUpdateCenterEntry.getDownloadUrl().getPath());
 
                 if (download!=null) {
                     for (HPI v : plugin.getArtifacts().values()) {
@@ -528,8 +527,8 @@ public class Main {
 
     protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
 
-        Calendar oldestDate = new GregorianCalendar();
-        oldestDate.add(Calendar.DAY_OF_MONTH, -31);
+        Calendar dateCutoffForExtraMetadata = new GregorianCalendar();
+        dateCutoffForExtraMetadata.add(Calendar.DAY_OF_MONTH, -31);
 
         JSONArray releaseHistory = new JSONArray();
         System.err.println("Building release history");
@@ -545,7 +544,7 @@ public class Main {
                 try {
                     PluginUpdateCenterEntry pluginUpdateCenterEntry = new PluginUpdateCenterEntry(h);
 
-                    if (h.getTimestampAsDate().after(oldestDate.getTime())) {
+                    if (h.getTimestampAsDate().after(dateCutoffForExtraMetadata.getTime())) {
                         String title = pluginUpdateCenterEntry.getName();
                         if ((title==null) || (title.equals(""))) {
                             title = h.artifact.artifactId;
