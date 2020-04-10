@@ -18,6 +18,7 @@
     <main.class>org.jvnet.hudson.update_center.Main</main.class>
     <spotbugs.failOnError>false</spotbugs.failOnError>
     <spotbugs.threshold>High</spotbugs.threshold>
+    <!-- TODO reduce threshold and resolve further issues -->
   </properties>
 
   <build>
