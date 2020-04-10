@@ -10,6 +10,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -54,20 +55,16 @@ public class GitHubSource {
             return this.topicNames;
         }
         this.topicNames = new HashMap<>();
-        this.repoNames = new TreeSet<>((o1, o2) -> o1.compareToIgnoreCase(o2));
+        this.repoNames = new TreeSet<>(String::compareToIgnoreCase);
 
         System.err.println("Retrieving GitHub repo data...");
         Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.cache(cache);
         if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null) {
-            builder.authenticator(new Authenticator() {
-                @Nullable
-                @Override
-                public Request authenticate(Route route, Response response) throws IOException {
-                    String credential = Credentials.basic(GITHUB_API_USERNAME, GITHUB_API_PASSWORD);
-                    return response.request().newBuilder().header("Authorization", credential).build();
-                }
+            builder.authenticator((route, response) -> {
+                String credential = Credentials.basic(GITHUB_API_USERNAME, GITHUB_API_PASSWORD);
+                return response.request().newBuilder().header("Authorization", credential).build();
             });
         }
         OkHttpClient client = builder.build();
@@ -109,7 +106,7 @@ public class GitHubSource {
 
             Request request = new Request.Builder()
                     .url(this.getGraphqlUrl())
-                    .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString()))
+                    .post(RequestBody.create(jsonObject.toString(), MediaType.parse("application/json; charset=utf-8")))
                     .build();
 
             String bodyString = client.newCall(request).execute().body().string();
