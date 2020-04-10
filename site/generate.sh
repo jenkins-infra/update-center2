@@ -40,7 +40,6 @@ test_which curl
 test_which wget
 test_which $SORT
 test_which jq
-test_which mvn
 
 set -x
 
