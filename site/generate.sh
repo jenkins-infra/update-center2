@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
 # Usage: SECRET=dirname ./site/generate.sh "./www2" "./download"
-[[ $# -eq 3 ]] || { echo "Usage: $0 <www root dir> <download root dir> <fallback dir>" >&2 ; exit 1 ; }
+[[ $# -eq 2 ]] || { echo "Usage: $0 <www root dir> <download root dir> <fallback dir>" >&2 ; exit 1 ; }
 [[ -n "$1" ]] || { echo "Non-empty www root dir required" >&2 ; exit 1 ; }
 [[ -n "$2" ]] || { echo "Non-empty download root dir required" >&2 ; exit 1 ; }
-[[ -n "$3" ]] || { echo "Non-empty fallback dir required" >&2 ; exit 1 ; }
 
 [[ -n "$SECRET" ]] || { echo "SECRET env var not defined" >&2 ; exit 1 ; }
 [[ -d "$SECRET" ]] || { echo "SECRET env var not a directory" >&2 ; exit 1 ; }
@@ -13,7 +12,6 @@
 
 WWW_ROOT_DIR="$1"
 DOWNLOAD_ROOT_DIR="$2"
-FALLBACK_DIR="$3"
 
 set -o nounset
 set -o pipefail
@@ -24,16 +22,16 @@ echo "Bash: $BASH_VERSION" >&2
 # platform specific behavior
 UNAME="$( uname )"
 if [[ $UNAME == Linux ]] ; then
-  SORT=sort
+  SORT="sort"
 elif [[ $UNAME == Darwin ]] ; then
-  SORT=gsort
+  SORT="gsort"
 else
   echo "Unknown platform: $UNAME" >&2
   exit 1
 fi
 
 function test_which() {
-  which "$1" >/dev/null || { echo "Not on PATH: $1" >&2 ; exit 1 ; }
+  command -v "$1" >/dev/null || { echo "Not on PATH: $1" >&2 ; exit 1 ; }
 }
 
 test_which curl
@@ -50,27 +48,25 @@ rm -rf "$WWW_ROOT_DIR"
 mkdir -p "$WWW_ROOT_DIR"
 
 # Generate htaccess file
-$( dirname "$0" )/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
-
-FILENAME=update-center2-3.0-20200410.120540-1-bin.zip
+"$( dirname "$0" )"/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
 
 rm -rfv generator/
-rm -rfv "$FILENAME"
-wget "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/$FILENAME"
-unzip "$FILENAME" -d generator/
+rm -rfv generator.zip
+wget -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200410.120540-1-bin.zip"
+unzip generator.zip -d generator/
 
 
 # Reset arguments file
 echo "# one update site per line" > args.lst
 
 function generate() {
-    echo "-key $SECRET/update-center.key -certificate $SECRET/update-center.cert $@" >> args.lst
+    echo "-key $SECRET/update-center.key -certificate $SECRET/update-center.cert $*" >> args.lst
 }
 
 function sanity-check() {
     dir="$1"
     file="$dir/update-center.json"
-    if [[ 700000 -ge $(cat  "$file" | wc -c ) ]] ; then
+    if [[ 700000 -ge $( wc -c < "$file" ) ]] ; then
         echo "$file looks too small" >&2
         exit 1
     fi
@@ -94,10 +90,10 @@ function sanity-check() {
 for ltsv in ${RELEASES[@]}; do
     v="${ltsv/%.1/}"
     # for mainline up to $v, which advertises the latest core
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap $v.999 -capCore 2.999
+    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap "$v.999" -capCore 2.999
 
     # for LTS
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap $v.999 -capCore 2.999 -stableCore
+    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap "$v.999" -capCore 2.999 -stableCore
 done
 
 
@@ -132,15 +128,15 @@ done
 sanity-check "$WWW_ROOT_DIR/experimental"
 sanity-check "$WWW_ROOT_DIR/current"
 ln -sf ../updates "$WWW_ROOT_DIR/experimental/updates"
-ln -sf ../updates $WWW_ROOT_DIR/current/updates
+ln -sf ../updates "$WWW_ROOT_DIR/current/updates"
 
 
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd "$WWW_ROOT_DIR"
-    ln -s stable-$lastLTS stable
+    ln -s "stable-$lastLTS" stable
     for f in latest latestCore.txt plugin-documentation-urls.json release-history.json plugin-versions.json update-center.*; do
-        ln -s current/$f .
+        ln -s "current/$f" .
     done
 popd
 
