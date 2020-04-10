@@ -47,15 +47,10 @@ public interface MavenRepository {
 
         for (PluginHistory p : all) {
             for (HPI h : p.artifacts.values()) {
-                try {
-                    Date releaseDate = h.getTimestampAsDate();
-                    System.out.println("adding " + h.artifact.artifactId + ":" + h.version);
-                    Map<String, HPI> pluginsOnDate = plugins.computeIfAbsent(releaseDate, k -> new TreeMap<>());
-                    pluginsOnDate.put(p.artifactId,h);
-                } catch (IOException e) {
-                    // if we fail to resolve artifact, move on
-                    e.printStackTrace();
-                }
+                Date releaseDate = h.getTimestampAsDate();
+                System.out.println("adding " + h.artifact.artifactId + ":" + h.version);
+                Map<String, HPI> pluginsOnDate = plugins.computeIfAbsent(releaseDate, k -> new TreeMap<>());
+                pluginsOnDate.put(p.artifactId,h);
             }
         }
 

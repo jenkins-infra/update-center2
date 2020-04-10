@@ -20,6 +20,7 @@ import org.owasp.html.Sanitizers;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,13 +60,13 @@ public class Plugin {
      */
     private Document pom;
 
-    public Plugin(String artifactId, HPI latest, HPI previous) throws IOException {
+    public Plugin(String artifactId, HPI latest, HPI previous) {
         this.artifactId = artifactId;
         this.latest = latest;
         this.previous = previous;
     }
 
-    public Plugin(PluginHistory hpi) throws IOException {
+    public Plugin(PluginHistory hpi) {
         this.artifactId = hpi.artifactId;
         HPI previous = null, latest = null;
 
@@ -97,7 +98,7 @@ public class Plugin {
         this.previous = previous == latest ? null : previous;
     }
 
-    public Plugin(HPI hpi) throws IOException {
+    public Plugin(HPI hpi) {
         this(hpi.artifact.artifactId, hpi,  null);
     }
 
@@ -112,8 +113,7 @@ public class Plugin {
         DocumentFactory factory = new DocumentFactory();
         factory.setXPathNamespaceURIs(
                 Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
-        final SAXReader saxReader = new SAXReader(factory);
-        return saxReader;
+        return new SAXReader(factory);
     }
 
     private Document readPOM() throws IOException {
@@ -325,7 +325,7 @@ public class Plugin {
             } else {
                 return cached.value;
             }
-        } catch (IOException|DocumentException e) {
+        } catch (DocumentException e) {
             return null;
         }
     }
@@ -483,17 +483,15 @@ public class Plugin {
         try (InputStream is = latest.repository.getZipFileEntry(new MavenArtifact(latest.repository, coordinates), "index.jelly")) {
             StringBuilder b = new StringBuilder();
             HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
-            HtmlSanitizer.sanitize(IOUtils.toString(is), HTML_POLICY.apply(renderer));
+            HtmlSanitizer.sanitize(IOUtils.toString(is, StandardCharsets.UTF_8), HTML_POLICY.apply(renderer));
             description = b.toString().trim().replaceAll("\\s+", " ");
         } catch (IOException e) {
             LOGGER.log(Level.FINE, () -> "Failed to read description from index.jelly: " + e.getMessage());
         }
         if (latest.isAlphaOrBeta()) {
-            description = "<b>(This version is experimental and may change in backward-incompatible ways)</b>" + (description == null ? "" : ("<br><br>" + description));
+            description = "<b>(This version is experimental and may change in backward-incompatible ways)</b><br><br>" + description;
         }
-        if (description!=null) {
-            json.put("excerpt",description);
-        }
+        json.put("excerpt", description);
 
         HPI hpi = latest;
         json.put("requiredCore", hpi.getRequiredJenkinsVersion());

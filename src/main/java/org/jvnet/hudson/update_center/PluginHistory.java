@@ -26,9 +26,7 @@ package org.jvnet.hudson.update_center;
 import hudson.util.VersionNumber;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -45,9 +43,9 @@ public final class PluginHistory {
     /**
      * All discovered versions, by the version numbers, newer versions first.
      */
-    public final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<VersionNumber, HPI>(VersionNumber.DESCENDING);
+    public final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<>(VersionNumber.DESCENDING);
 
-    final Set<String> groupId = new TreeSet<String>();
+    final Set<String> groupId = new TreeSet<>();
 
     public PluginHistory(String shortName) {
         this.artifactId = shortName;
@@ -77,20 +75,15 @@ public final class PluginHistory {
         }
 
         HPI existing = artifacts.get(v);
-        if (existing==null || PRIORITY.compare(existing,hpi)<=0)
-            artifacts.put(v,hpi);
+        if (existing == null || PRIORITY.compare(existing, hpi)<=0)
+            artifacts.put(v, hpi);
 
 
         // if we have any authentic Jenkins artifact, we don't want to pick up non-authentic versions that are newer than that
         // drop entries so that this constraint is satisfied
         Map.Entry<VersionNumber,HPI> tippingPoint = findYoungestJenkinsArtifact();
         if (tippingPoint!=null) {
-            Iterator<Map.Entry<VersionNumber,HPI>> itr = artifacts.headMap(tippingPoint.getKey()).entrySet().iterator();
-            while (itr.hasNext()) {
-                Entry<VersionNumber, HPI> e = itr.next();
-                if (!e.getValue().isAuthenticJenkinsArtifact())
-                    itr.remove();
-            }
+            artifacts.headMap(tippingPoint.getKey()).entrySet().removeIf(e -> !e.getValue().isAuthenticJenkinsArtifact());
         }
     }
 

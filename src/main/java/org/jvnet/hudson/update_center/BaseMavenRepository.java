@@ -36,9 +36,9 @@ public abstract class BaseMavenRepository implements MavenRepository {
     public Collection<PluginHistory> listHudsonPlugins() throws IOException {
 
         Map<String, PluginHistory> plugins =
-                new TreeMap<String, PluginHistory>(String.CASE_INSENSITIVE_ORDER);
+                new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-        Set<String> excluded = new HashSet<String>();
+        Set<String> excluded = new HashSet<>();
         final Collection<ArtifactCoordinates> results = listAllPlugins();
         ARTIFACTS: for (ArtifactCoordinates a : results) {
             if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
@@ -92,7 +92,7 @@ public abstract class BaseMavenRepository implements MavenRepository {
      * Discover all hudson.war versions. Map must be sorted by version number, descending.
      */
     public TreeMap<VersionNumber, JenkinsWar> getHudsonWar() throws IOException {
-        TreeMap<VersionNumber, JenkinsWar> r = new TreeMap<VersionNumber, JenkinsWar>(VersionNumber.DESCENDING);
+        TreeMap<VersionNumber, JenkinsWar> r = new TreeMap<>(VersionNumber.DESCENDING);
         listWar(r, "org.jenkins-ci.main", null);
         listWar(r, "org.jvnet.hudson.main", HUDSON_CUT_OFF);
         return r;

@@ -98,7 +98,7 @@ public class IndexHtmlBuilder implements Closeable {
         add(url, null, caption, null);
     }
 
-    public void add(String url, Date releaseDate, String caption, String metadata) throws MalformedURLException {
+    public void add(String url, Date releaseDate, String caption, String metadata) {
         String metadataString = "";
         if (metadata != null) {
             metadataString = "<td>" + metadata + "</td>";
@@ -113,7 +113,7 @@ public class IndexHtmlBuilder implements Closeable {
                 + caption + "</a></td>" + metadataString + "</tr>");
     }
 
-    public void close() throws IOException {
+    public void close() {
         out.println("</table>\n" +
                 "<hr>\n" +
                 "</body></html>");

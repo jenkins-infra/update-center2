@@ -11,7 +11,7 @@ public class DefaultMavenRepositoryBuilder {
 
     private static BaseMavenRepository instance;
     
-    public static BaseMavenRepository getInstance() throws Exception {
+    public static BaseMavenRepository getInstance() {
         if (instance == null) {
             if (ARTIFACTORY_API_PASSWORD != null && ARTIFACTORY_API_USERNAME != null) {
                 instance = new ArtifactoryRepositoryImpl(ARTIFACTORY_API_USERNAME, ARTIFACTORY_API_PASSWORD);

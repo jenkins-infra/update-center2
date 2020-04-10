@@ -88,7 +88,7 @@ public class MavenArtifact {
                     at org.jvnet.hudson.update_center.Main.checkLatestDate(Main.java:301)
                     at org.jvnet.hudson.update_center.Main.buildPlugins(Main.java:269)
              */
-            throw (IOException)new IOException("Failed to resolve artifact "+artifact).initCause(e);
+            throw new IOException("Failed to resolve artifact "+artifact, e);
         }
     }
 
@@ -126,14 +126,14 @@ public class MavenArtifact {
         return s.contains("alpha") || s.contains("beta");
     }
 
-    public String getTimestampAsString() throws IOException {
+    public String getTimestampAsString() {
         long lastModified = getTimestamp();
         SimpleDateFormat bdf = getDateFormat();
 
         return bdf.format(lastModified);
     }
 
-    public Date getTimestampAsDate() throws IOException {
+    public Date getTimestampAsDate() {
         long lastModified = getTimestamp();
         
 
@@ -153,7 +153,7 @@ public class MavenArtifact {
         return sdf;
     }
 
-    public long getTimestamp() throws IOException {
+    public long getTimestamp() {
         return this.artifact.timestamp;
     }
 

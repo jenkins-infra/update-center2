@@ -6,13 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Generates latest/index.html and latest/.htaccess
  *
  * The former lists all the available symlinks, and the latter actually defines the redirects.
  *
- * @author Kohsuke Kawaguchi
  */
 public class LatestLinkBuilder implements Closeable {
     private final IndexHtmlBuilder index;
@@ -22,7 +22,7 @@ public class LatestLinkBuilder implements Closeable {
         System.out.println(String.format("Writing plugin symlinks and redirects to dir: %s", dir));
 
         index = new IndexHtmlBuilder(dir,"Permalinks to latest files");
-        htaccess = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,".htaccess"), true), "UTF-8"));
+        htaccess = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,".htaccess"), true), StandardCharsets.UTF_8));
 
         htaccess.println("# GENERATED. DO NOT MODIFY.");
         // Redirect directive doesn't let us write redirect rules relative to the directory .htaccess exists,
@@ -30,7 +30,7 @@ public class LatestLinkBuilder implements Closeable {
         htaccess.println("RewriteEngine on");
     }
 
-    public void close() throws IOException {
+    public void close() {
         index.close();
         htaccess.close();
     }

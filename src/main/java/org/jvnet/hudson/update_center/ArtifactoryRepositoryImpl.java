@@ -6,6 +6,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -21,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -66,15 +68,15 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         return wars;
     }
 
-    private static boolean isPrintableAscii(String test) {
-        return test.chars().allMatch(c -> c >= 0x20 && c < 0x7F);
+    private static boolean isNotOnlyPrintableAscii(String test) {
+        return !test.chars().allMatch(c -> c >= 0x20 && c < 0x7F);
     }
 
     private static ArtifactCoordinates coordinatesFromGsonFile(GsonFile f) {
         String fileName = f.name;
         String path = f.path;
 
-        if (!isPrintableAscii(fileName) || !isPrintableAscii(path)) {
+        if (isNotOnlyPrintableAscii(fileName) || isNotOnlyPrintableAscii(path)) {
             System.out.println("coordinatesFromGsonFile: Not only printable ascii: " + f.path + " / " + f.name);
             return null;
         }
@@ -106,13 +108,11 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         }
 
         final int classifierBeginIndex = artifactId.length() + 1 + version.length() + 1;
-        String classifier = null;
         if (classifierBeginIndex < baseName.length()) {
-            classifier = baseName.substring(classifierBeginIndex);
             System.out.println("coordinatesFromGsonFile: Unexpectedly have classifier for path: " + path + " name: " + fileName);
             return null;
         }
-        return new ArtifactCoordinates(groupId, artifactId, version, extension, classifier, f.modified.getTime());
+        return new ArtifactCoordinates(groupId, artifactId, version, extension, null, f.modified.getTime());
     }
 
     @Override
@@ -198,8 +198,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         } else {
             filename = basename + "." + a.packaging;
         }
-        String ret = a.groupId.replace(".", "/") + "/" + a.artifactId + "/" + a.version + "/" + filename;
-        return ret;
+        return a.groupId.replace(".", "/") + "/" + a.artifactId + "/" + a.version + "/" + filename;
     }
 
     @Override
@@ -226,13 +225,17 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         File cacheFile = new File(cacheDirectory, urlBase64);
         if (!cacheFile.exists()) {
             System.err.println("Downloading: " + url);
-            cacheFile.getParentFile().mkdirs();
+            final File parentFile = cacheFile.getParentFile();
+            if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
+                throw new IllegalStateException("Failed to create non-existing directory " + parentFile);
+            }
             try {
                 OkHttpClient.Builder builder = new OkHttpClient.Builder();
                 OkHttpClient client = builder.build();
                 Request request = new Request.Builder().url(url).get().build();
-                try (InputStream stream = client.newCall(request).execute().body().byteStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
-                    IOUtils.copy(stream, tos);
+                final ResponseBody body = client.newCall(request).execute().body();
+                try (Reader reader = body.charStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
+                    IOUtils.copy(reader, tos, body.contentType().charset(StandardCharsets.UTF_8));
                     if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
                         this.cache.put(url, baos.toString("UTF-8"));
                     }

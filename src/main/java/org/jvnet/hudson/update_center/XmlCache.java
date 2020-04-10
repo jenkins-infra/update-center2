@@ -1,7 +1,6 @@
 package org.jvnet.hudson.update_center;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public class XmlCache {
         return cache.getOrDefault(file + ":" + xpath, null);
     }
 
-    public static void writeCache(File file, String xpath, String value) throws IOException {
+    public static void writeCache(File file, String xpath, String value) {
         cache.put(file + ":" + xpath, new CachedValue(value));
     }
 }
