@@ -23,6 +23,7 @@
  */
 package org.jvnet.hudson.update_center;
 
+import com.alibaba.fastjson.JSON;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
@@ -30,6 +31,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jvnet.hudson.update_center.filters.JavaVersionPluginFilter;
+import org.jvnet.hudson.update_center.json.PluginVersionsRoot;
 import org.jvnet.hudson.update_center.json.ReleaseHistory;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 import org.jvnet.hudson.update_center.wrappers.AlphaBetaOnlyRepository;
@@ -54,7 +56,9 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -289,7 +293,10 @@ public class Main {
         }
 
         if (!skipPluginVersions) {
-            writeToFile(prettyPrintJson(buildPluginVersionsJson(repo)), pluginVersions);
+            // TODO The next two lines are just to enable comparisons:
+//            writeToFile(prettyPrintJson(buildPluginVersionsJson(repo)), pluginVersions);
+//            Files.copy(pluginVersions.toPath(), pluginVersions.toPath().resolveSibling("old-" + pluginVersions.getName()), StandardCopyOption.REPLACE_EXISTING);
+            new PluginVersionsRoot("1", repo).writeToFile(pluginVersions);
         }
 
         if (!skipReleaseHistory) {
@@ -326,6 +333,7 @@ public class Main {
         return new LatestLinkBuilder(latest);
     }
 
+    @Deprecated // Kept around for now to allow comparisons
     private JSONObject buildPluginVersionsJson(MavenRepository repo) throws Exception {
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
@@ -398,6 +406,7 @@ public class Main {
         return repo;
     }
 
+    @Deprecated // Kept around for now to allow comparisons
     private JSONObject buildPluginVersions(MavenRepository repository) throws Exception {
         JSONObject plugins = new JSONObject();
         System.err.println("Build plugin versions index from the maven repo...");

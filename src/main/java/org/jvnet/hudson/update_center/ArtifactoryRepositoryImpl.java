@@ -49,7 +49,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private final String username;
     private final String password;
 
-    private File cacheDirectory = new File("artifactoryFileCache");
+    private File cacheDirectory = new File("artifactoryFileCache"); // TODO make configurable
 
     private boolean initialized = false;
 
