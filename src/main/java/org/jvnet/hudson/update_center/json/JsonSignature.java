@@ -6,17 +6,21 @@ import java.util.List;
 
 public class JsonSignature {
     @JSONField
-    public final List<String> certificates;
+    public List<String> certificates;
 
     @JSONField
-    public final String correct_digest;
+    public String correct_digest;
     @JSONField
-    public final String correct_signature;
+    public String correct_signature;
 
     @JSONField
-    public final String correct_digest512;
+    public String correct_digest512;
     @JSONField
-    public final String correct_signature512;
+    public String correct_signature512;
+
+    public JsonSignature() {
+
+    }
 
     public JsonSignature(List<String> certificates, String correct_digest, String correct_signature, String correct_digest512, String correct_signature512) {
         this.certificates = certificates;

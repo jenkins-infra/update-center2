@@ -6,12 +6,14 @@ import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.jvnet.hudson.crypto.CertificateUtil;
 import org.jvnet.hudson.crypto.SignatureOutputStream;
+import org.jvnet.hudson.update_center.json.JsonSignature;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
 
@@ -56,6 +58,7 @@ public class Signer {
 
     // debug option. spits out the canonical update center file used to compute the signature
     @Option(name="-canonical")
+    @Deprecated
     public File canonical = null;
 
     /**
@@ -64,12 +67,41 @@ public class Signer {
      * @throws CmdLineException
      *      If the configuration is partial and it's not clear whether the user intended to sign or not to sign.
      */
-    public boolean isConfigured() throws CmdLineException {
+    public boolean isConfigured() {
         if(privateKey!=null && !certificates.isEmpty())
             return true;
         if (privateKey!=null || !certificates.isEmpty())
-            throw new CmdLineException("private key and certificate must be both specified");
+            throw new IllegalStateException("private key and certificate must be both specified");
         return false;
+    }
+
+    public JsonSignature sign(String json) throws GeneralSecurityException, IOException {
+        if (!isConfigured()) {
+            return null;
+        }
+
+        JsonSignature sign = new JsonSignature();
+
+        List<X509Certificate> certs = getCertificateChain();
+        X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
+
+        PrivateKey key = ((KeyPair) new PEMReader(Files.newBufferedReader(privateKey.toPath(), StandardCharsets.UTF_8)).readObject()).getPrivate();
+
+        // the correct signature (since Jenkins 1.433); no longer generate wrong signatures for older releases.
+        SignatureGenerator sg = new SignatureGenerator(signer, key);
+
+        try (OutputStreamWriter osw = new OutputStreamWriter(sg.getOut(), StandardCharsets.UTF_8)) {
+            IOUtils.write(json, osw);
+        }
+        sg.fill(sign);
+
+        // and certificate chain
+        List<String> certificates = new ArrayList<>();
+        for (X509Certificate cert : certs)
+            certificates.add(new String(Base64.encodeBase64(cert.getEncoded()), StandardCharsets.UTF_8));
+        sign.certificates = certificates;
+
+        return sign;
     }
 
     /**
@@ -160,6 +192,25 @@ public class Signer {
 
         public TeeOutputStream getOut() {
             return out;
+        }
+
+        public void fill(JsonSignature signature) throws GeneralSecurityException {
+            // digest
+            byte[] digest = sha1.digest();
+            signature.correct_digest = new String(Base64.encodeBase64(digest), StandardCharsets.UTF_8);
+            signature.correct_digest512 = Hex.encodeHexString(sha512.digest());
+
+            // signature
+            byte[] s1 = sha1sig.sign();
+            byte[] s512 = sha512sig.sign();
+            signature.correct_signature = new String(Base64.encodeBase64(s1), StandardCharsets.UTF_8);
+            signature.correct_signature512 = Hex.encodeHexString(s512);
+
+            // did the signature validate?
+            if (!verifier1.verify(s1))
+                throw new GeneralSecurityException("Signature (SHA-1) failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
+            if (!verifier512.verify(s512))
+                throw new GeneralSecurityException("Signature (SHA-512) failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
         }
 
         public void addRecord(JSONObject sign, String prefix) throws GeneralSecurityException, IOException {

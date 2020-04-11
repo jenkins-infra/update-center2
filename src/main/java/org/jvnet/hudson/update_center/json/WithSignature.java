@@ -8,13 +8,16 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.TeeOutputStream;
+import org.jvnet.hudson.update_center.Signer;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.DigestOutputStream;
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 
 /**
@@ -43,23 +46,15 @@ public abstract class WithSignature {
      * @param outputFile the file to write to
      * @throws IOException when any IO error occurs
      */
-    public void writeWithSignature(File outputFile) throws IOException {
-        // TODO actually compute signatures, for now this only does checksums
+    public void writeWithSignature(File outputFile, Signer signer) throws IOException, GeneralSecurityException {
         signature = null;
-        MessageDigest sha1 = DigestUtils.getSha1Digest();
-        MessageDigest sha512 = DigestUtils.getSha512Digest();
-        DigestOutputStream dos1 = new DigestOutputStream(new NullOutputStream(), sha1);
-        DigestOutputStream dos512 = new DigestOutputStream(new NullOutputStream(), sha512);
 
-        OutputStream out = new TeeOutputStream(dos1, dos512);
+        StringWriter writer = new StringWriter();
 
-        JSON.writeJSONString(out, this, SerializerFeature.DisableCircularReferenceDetect);
-        out.flush();
+        JSON.writeJSONString(writer, this, SerializerFeature.DisableCircularReferenceDetect);
+        final String unsignedJson = writer.getBuffer().toString();
+        signature = signer.sign(unsignedJson);
 
-        byte[] digest = sha1.digest();
-        String sha1s = new String(Base64.encodeBase64(digest), StandardCharsets.UTF_8);
-        String sha256s = Hex.encodeHexString(sha512.digest());
-        signature = new JsonSignature(null, sha1s, null, sha256s, null);
         JSON.writeJSONString(Files.newBufferedWriter(outputFile.toPath(), StandardCharsets.UTF_8), this, SerializerFeature.DisableCircularReferenceDetect);
     }
 }
