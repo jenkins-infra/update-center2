@@ -64,11 +64,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- * @author Kohsuke Kawaguchi
- */
 public class Main {
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+
     public static final String DEFAULT_ID = "default";
     public static final String DEFAULT_CONNECTION_CHECK_URL = "http://www.google.com/"; // TODO go to https
     public File jsonp = new File("output.json");
@@ -425,8 +426,7 @@ public class Main {
 
                         versions.put(hpi.version, hpiJson);
                     } catch (IOException e) {
-                        e.printStackTrace();
-                        // skip this version
+                        LOGGER.log(Level.INFO, "Failed to process " + hpi.artifact.getGav() + " for history, skipping", e);
                     }
                 }
 
