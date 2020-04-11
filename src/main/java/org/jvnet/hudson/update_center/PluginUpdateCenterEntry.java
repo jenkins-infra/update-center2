@@ -1,13 +1,17 @@
 package org.jvnet.hudson.update_center;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 
+import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,15 +28,17 @@ public class PluginUpdateCenterEntry {
     /**
      * Plugin artifact ID.
      */
+    @JSONField(name = "name")
     public final String artifactId;
     /**
      * Latest version of this plugin.
      */
-    public final HPI latest;
+    public transient final HPI latest;
     /**
      * Previous version of this plugin.
      */
-    public final HPI previous;
+    @CheckForNull
+    public transient final HPI previous;
 
     private PluginUpdateCenterEntry(String artifactId, HPI latest, HPI previous) {
         this.artifactId = artifactId;
@@ -76,14 +82,21 @@ public class PluginUpdateCenterEntry {
         this(hpi.artifact.artifactId, hpi,  null);
     }
 
-    public String getPluginUrl() throws IOException {
+    @JSONField
+    public String getWiki() {
+        return "https://plugins.jenkins.io/" + artifactId;
+    }
+
+    String getPluginUrl() throws IOException {
         return latest.getPluginUrl();
     }
 
+    @JSONField(name = "url")
     public URL getDownloadUrl() throws MalformedURLException {
         return latest.getDownloadUrl();
     }
 
+    @JSONField(name = "title")
     public String getName() throws IOException {
         return latest.getName();
     }
@@ -155,7 +168,7 @@ public class PluginUpdateCenterEntry {
                     devs.add(dev.toJSON());
             } else {
                 String builtBy = latest.getBuiltBy();
-                if (builtBy != null)
+                if (fixEmptyAndTrim(builtBy) != null)
                     devs.add(new HPI.Developer("", builtBy, "").toJSON());
             }
             json.put("developers", devs);
@@ -167,6 +180,89 @@ public class PluginUpdateCenterEntry {
             return null;
         }
     }
+
+    public String getVersion() {
+        return latest.version;
+    }
+
+    public String getPreviousVersion() {
+        return previous == null? null : previous.version;
+    }
+
+    public String getScm() throws IOException {
+        return latest.getScmUrl();
+    }
+
+    public String getRequiredCore() throws IOException {
+        return latest.getRequiredJenkinsVersion();
+    }
+
+    public String getCompatibleSinceVersion() throws IOException {
+        return latest.getCompatibleSinceVersion();
+    }
+
+    public String getMinimumJavaVersion() throws IOException {
+        final JavaSpecificationVersion minimumJavaVersion = latest.getMinimumJavaVersion();
+        return minimumJavaVersion == null ? null : minimumJavaVersion.toString();
+    }
+
+    public String getBuildDate() {
+        return latest.getTimestampAsString();
+    }
+
+    public List<String> getLabels() throws IOException {
+        return latest.getLabels();
+    }
+
+    public List<HPI.Dependency> getDependencies() throws IOException {
+        return latest.getDependencies();
+    }
+
+    public String getSha1() throws IOException {
+        return latest.getDigests().sha1;
+    }
+
+    public String getSha256() throws IOException {
+        return latest.getDigests().sha256;
+    }
+
+    public String getGav() {
+        return latest.getGavId();
+    }
+
+    private static String fixEmptyAndTrim(String value) {
+        if (value == null) {
+            return null;
+        }
+        final String trim = value.trim();
+        if (trim.length() == 0) {
+            return null;
+        }
+        return trim;
+    }
+
+    public List<HPI.Developer> getDevelopers() throws IOException {
+        final List<HPI.Developer> developers = latest.getDevelopers();
+        final String builtBy = fixEmptyAndTrim(latest.getBuiltBy());
+        if (developers.isEmpty() && builtBy != null) {
+            return Collections.singletonList(new HPI.Developer(null, builtBy, null));
+        }
+        return developers;
+    }
+
+    public String getExcerpt() throws IOException {
+        return latest.getDescription();
+    }
+
+    public String getReleaseTimestamp() {
+        return TIMESTAMP_FORMATTER.format(latest.getTimestamp());
+    }
+
+    public String getPreviousTimestamp() {
+        return previous == null ? null : TIMESTAMP_FORMATTER.format(previous.getTimestamp());
+    }
+
+    private static final SimpleDateFormat TIMESTAMP_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
 
     private static final Logger LOGGER = Logger.getLogger(PluginUpdateCenterEntry.class.getName());
 }

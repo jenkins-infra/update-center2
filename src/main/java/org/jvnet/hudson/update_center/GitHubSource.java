@@ -144,7 +144,7 @@ public class GitHubSource {
         return this.topicNames;
     }
 
-    public List<String> getRepositoryTopics(String org, String repo) throws IOException {
+    public List<String> getRepositoryTopics(String org, String repo) throws IOException { // TODO get rid of throws
         return this.topicNames == null ? Collections.emptyList() : this.topicNames.getOrDefault(org + "/" + repo, Collections.emptyList());
     }
 

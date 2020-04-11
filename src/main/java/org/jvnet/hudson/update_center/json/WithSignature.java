@@ -3,22 +3,16 @@ package org.jvnet.hudson.update_center.json;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.output.NullOutputStream;
-import org.apache.commons.io.output.TeeOutputStream;
 import org.jvnet.hudson.update_center.Signer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.DigestOutputStream;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 
 /**
  * Support generation of JSON output with included checksum + signatures block for the same JSON output.
@@ -49,12 +43,11 @@ public abstract class WithSignature {
     public void writeWithSignature(File outputFile, Signer signer) throws IOException, GeneralSecurityException {
         signature = null;
 
-        StringWriter writer = new StringWriter();
-
-        JSON.writeJSONString(writer, this, SerializerFeature.DisableCircularReferenceDetect);
-        final String unsignedJson = writer.getBuffer().toString();
+        final String unsignedJson = JSON.toJSONString(this, SerializerFeature.DisableCircularReferenceDetect);
         signature = signer.sign(unsignedJson);
 
-        JSON.writeJSONString(Files.newBufferedWriter(outputFile.toPath(), StandardCharsets.UTF_8), this, SerializerFeature.DisableCircularReferenceDetect);
+        try (OutputStream os = Files.newOutputStream(outputFile.toPath()); OutputStreamWriter writer = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
+            JSON.writeJSONString(writer, this, SerializerFeature.DisableCircularReferenceDetect);
+        }
     }
 }

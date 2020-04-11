@@ -4,8 +4,11 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class UpdateCenterWarningVersionRange {
     @JSONField
+    public String firstVersion;
+
+    @JSONField
     public String lastVersion;
 
     @JSONField
-    public String Pattern;
+    public String pattern;
 }

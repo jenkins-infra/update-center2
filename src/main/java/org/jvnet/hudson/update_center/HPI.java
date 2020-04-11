@@ -23,6 +23,7 @@
  */
 package org.jvnet.hudson.update_center;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.annotations.VisibleForTesting;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
@@ -175,6 +176,17 @@ public class HPI extends MavenArtifact {
         }
     }
 
+    private static String fixEmptyAndTrim(String value) {
+        if (value == null) {
+            return null;
+        }
+        final String trim = value.trim();
+        if (trim.length() == 0) {
+            return null;
+        }
+        return trim;
+    }
+
     public List<Developer> getDevelopers() throws IOException {
         String devs = getManifestAttributes().getValue("Plugin-Developers");
         if (devs == null || devs.trim().length()==0) return Collections.emptyList();
@@ -183,7 +195,12 @@ public class HPI extends MavenArtifact {
         Matcher m = developersPattern.matcher(devs);
         int totalMatched = 0;
         while (m.find()) {
-            r.add(new Developer(m.group(1).trim(), m.group(2).trim(), m.group(3).trim()));
+            final String name = fixEmptyAndTrim(m.group(1));
+            final String id = fixEmptyAndTrim(m.group(2));
+            final String email = fixEmptyAndTrim(m.group(3));
+            if (name != null && id != null && email != null) {
+                r.add(new Developer(name, id, email));
+            }
             totalMatched += m.end() - m.start();
         }
         if (totalMatched < devs.length())
@@ -211,8 +228,11 @@ public class HPI extends MavenArtifact {
     }
 
     public static class Dependency {
+        @JSONField
         public final String name;
+        @JSONField
         public final String version;
+        @JSONField
         public final boolean optional;
 
         public Dependency(String token) {
@@ -238,14 +258,17 @@ public class HPI extends MavenArtifact {
     }
 
     public static class Developer {
+        @JSONField
         public final String name;
+        @JSONField
         public final String developerId;
+        @JSONField
         public final String email;
 
         public Developer(String name, String developerId, String email) {
-            this.name = name;
-            this.developerId = developerId;
-            this.email = email;
+            this.name = has(name) ? name : null;
+            this.developerId = has(developerId) ? developerId : null;
+            this.email = has(email) ? email : null;
         }
 
         @Deprecated
@@ -594,7 +617,7 @@ public class HPI extends MavenArtifact {
         return null;
     }
 
-    public List<String> getLabels() throws IOException {
+    public List<String> getLabels() throws IOException { // TODO this would be better in a different class, doesn't fit HPI type
         String scm = getScmUrl();
 
         List<String> gitHubLabels = new ArrayList<>();
