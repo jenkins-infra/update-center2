@@ -37,6 +37,7 @@ import org.jvnet.hudson.update_center.wrappers.FilteringRepository;
 import org.jvnet.hudson.update_center.wrappers.StableWarMavenRepository;
 import org.jvnet.hudson.update_center.wrappers.TruncatedMavenRepository;
 import org.jvnet.hudson.update_center.wrappers.VersionCappedMavenRepository;
+import org.jvnet.hudson.update_center.wrappers.WhitelistMavenRepository;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -45,6 +46,7 @@ import org.kohsuke.args4j.Option;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -54,15 +56,13 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 /**
@@ -185,6 +185,9 @@ public class Main {
     @Option(name="-resources-dir", usage = "Specify the path to the resources directory containing warnings.json, artifact-ignores.properties, etc. This argument cannot be re-set via arguments-file.")
     @SuppressFBWarnings
     public static File resourcesDir = new File("resources"); // Default value for tests -- TODO find a better way to set a value for tests
+
+    @Option(name="-whitelist-file", usage = "A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
+    public File whitelistFile;
 
     private Signer signer = new Signer();
 
@@ -369,6 +372,11 @@ public class Main {
     protected MavenRepository createRepository() throws Exception {
 
         MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
+        if (whitelistFile != null) {
+            final Properties properties = new Properties();
+            properties.load(new FileInputStream(whitelistFile));
+            repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
+        }
         if (maxPlugins != null)
             repo = new TruncatedMavenRepository(maxPlugins).withBaseRepository(repo);
         if (experimentalOnly)
