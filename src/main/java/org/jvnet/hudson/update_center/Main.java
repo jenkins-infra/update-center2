@@ -479,8 +479,7 @@ public class Main {
 
                 validCount++;
             } catch (IOException e) {
-                e.printStackTrace();
-                // move on to the next plugin
+                LOGGER.log(Level.INFO, "Failed to add " + plugin.getArtifactId() + " to update center", e);
             }
         }
 
