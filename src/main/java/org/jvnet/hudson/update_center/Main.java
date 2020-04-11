@@ -520,68 +520,6 @@ public class Main {
 
     }
 
-    /**
-     * Build JSON for the release history list.
-     * @param repo
-     */
-    protected JSONObject buildFullReleaseHistory(MavenRepository repo) throws Exception {
-        JSONObject rhRoot = new JSONObject();
-        rhRoot.put("releaseHistory", buildReleaseHistory(repo));
-        return rhRoot;
-    }
-
-    protected JSONArray buildReleaseHistory(MavenRepository repository) throws Exception {
-
-        Calendar dateCutoffForExtraMetadata = new GregorianCalendar();
-        dateCutoffForExtraMetadata.add(Calendar.DAY_OF_MONTH, -31);
-
-        JSONArray releaseHistory = new JSONArray();
-        System.err.println("Building release history");
-        for( Map.Entry<Date,Map<String,HPI>> relsOnDate : repository.listPluginsByReleaseDate().entrySet() ) {
-            String relDate = MavenArtifact.getDateFormat().format(relsOnDate.getKey());
-            System.out.println("Releases on " + relDate);
-            
-            JSONArray releases = new JSONArray();
-
-            for (Map.Entry<String,HPI> rel : relsOnDate.getValue().entrySet()) {
-                HPI h = rel.getValue();
-                JSONObject o = new JSONObject();
-                try {
-                    PluginUpdateCenterEntry pluginUpdateCenterEntry = new PluginUpdateCenterEntry(h);
-
-                    if (h.getTimestampAsDate().after(dateCutoffForExtraMetadata.getTime())) {
-                        String title = pluginUpdateCenterEntry.getName();
-                        if ((title==null) || (title.equals(""))) {
-                            title = h.artifact.artifactId;
-                        }
-
-                        o.put("title", title);
-                        o.put("wiki", pluginUpdateCenterEntry.getPluginUrl());
-                    }
-                    o.put("gav", h.getGavId());
-                    o.put("timestamp", h.getTimestamp());
-                    o.put("url", "https://plugins.jenkins.io/" + h.artifact.artifactId);
-
-                    System.out.println("\t" + h.getGavId());
-                } catch (IOException e) {
-                    System.out.println("Failed to resolve plugin " + h.artifact.artifactId + " so using defaults");
-                    o.put("title", h.artifact.artifactId);
-                    o.put("wiki", "");
-                }
-
-                o.put("version", h.version);
-
-                releases.add(o);
-            }
-            JSONObject d = new JSONObject();
-            d.put("date", relDate);
-            d.put("releases", releases);
-            releaseHistory.add(d);
-        }
-        
-        return releaseHistory;
-    }
-
     private void buildIndex(File dir, String title, Collection<? extends MavenArtifact> versions, String permalink) throws IOException {
         List<MavenArtifact> list = new ArrayList<MavenArtifact>(versions);
         Collections.sort(list,new Comparator<MavenArtifact>() {
