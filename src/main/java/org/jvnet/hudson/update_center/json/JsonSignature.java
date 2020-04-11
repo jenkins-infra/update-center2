@@ -18,7 +18,7 @@ public class JsonSignature {
     @JSONField
     public final String correct_signature512;
 
-    public JsonSignature(List<String> certificates, String correct_digest, String correct_signature, String correct_digest512, String correct_signature512, String digest, String signature, String digest512, String signature512) {
+    public JsonSignature(List<String> certificates, String correct_digest, String correct_signature, String correct_digest512, String correct_signature512) {
         this.certificates = certificates;
         this.correct_digest = correct_digest;
         this.correct_signature = correct_signature;

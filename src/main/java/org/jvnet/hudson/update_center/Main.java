@@ -294,7 +294,7 @@ public class Main {
             // TODO The next two lines are just to enable comparisons:
 //            writeToFile(prettyPrintJson(buildPluginVersionsJson(repo)), pluginVersions);
 //            Files.copy(pluginVersions.toPath(), pluginVersions.toPath().resolveSibling("old-" + pluginVersions.getName()), StandardCopyOption.REPLACE_EXISTING);
-            new PluginVersionsRoot("1", repo).writeToFile(pluginVersions);
+            new PluginVersionsRoot("1", repo).writeWithSignature(pluginVersions);
         }
 
         if (!skipReleaseHistory) {
