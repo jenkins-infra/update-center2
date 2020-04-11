@@ -110,7 +110,8 @@ generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experim
 generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
 
 # actually run the update center build
-java -Dfile-encoding=UTF-8 -jar generator/update-center2-*.jar -resources-dir resources -arguments-file args.lst
+# fastjson cannot handle a file.encoding of US-ASCII, so set a sane default here
+java -Dfile.encoding=UTF-8 -jar generator/update-center2-*.jar -resources-dir resources -arguments-file args.lst
 
 # generate symlinks to global /updates directory (created by crawler)
 for ltsv in ${RELEASES[@]}; do
