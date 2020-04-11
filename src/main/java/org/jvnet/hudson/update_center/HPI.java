@@ -271,9 +271,24 @@ public class HPI extends MavenArtifact {
     /**
      * Does this artifact come from the jenkins community?
      */
+    @Deprecated
     public boolean isAuthenticJenkinsArtifact() {
         // mayebe it should be startWith("org.jenkins")?
         return artifact.groupId.contains("jenkins");
+    }
+
+    /**
+     * Does this artifact come from the jenkins community?
+     */
+    @Deprecated
+    public boolean isAuthenticJenkinsArtifactWithLog() {
+        // mayebe it should be startWith("org.jenkins")?
+
+        final boolean authentic = artifact.groupId.contains("jenkins");
+        if (!authentic) {
+            System.err.println("Not authentic: " + artifact.getGav());
+        }
+        return authentic;
     }
 
 

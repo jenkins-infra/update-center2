@@ -27,7 +27,9 @@ import hudson.util.VersionNumber;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Information about a Jenkins plugin and its release history, discovered from Maven repository.
@@ -76,13 +78,16 @@ public final class Plugin {
         // drop entries so that this constraint is satisfied
         Map.Entry<VersionNumber,HPI> tippingPoint = findYoungestJenkinsArtifact();
         if (tippingPoint!=null) {
-            artifacts.headMap(tippingPoint.getKey()).entrySet().removeIf(e -> !e.getValue().isAuthenticJenkinsArtifact());
+            if (artifacts.headMap(tippingPoint.getKey()).entrySet().removeIf(e -> !e.getValue().isAuthenticJenkinsArtifactWithLog())) {
+                System.err.println("Removed versions from " + getArtifactId() + " because of #isAuthenticJenkinsArtifact(). Versions left: " + artifacts.keySet().stream().map(Objects::toString).collect(Collectors.joining(", ")));
+            }
         }
     }
 
     /**
      * Returns the youngest version of the artifact that's authentic Jenkins artifact.
      */
+    @Deprecated
     private Map.Entry<VersionNumber,HPI> findYoungestJenkinsArtifact() {
         for (Map.Entry<VersionNumber,HPI> e : artifacts.descendingMap().entrySet()) {
             if (e.getValue().isAuthenticJenkinsArtifact())
