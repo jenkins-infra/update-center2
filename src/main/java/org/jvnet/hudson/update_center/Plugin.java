@@ -29,6 +29,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
  * TODO the above is aspirational
  */
 public final class Plugin {
+    public static final Logger LOGGER = Logger.getLogger(Plugin.class.getName());
     private final String artifactId;
 
     private final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<>(VersionNumber.DESCENDING);
@@ -70,9 +73,14 @@ public final class Plugin {
         }
 
         HPI existing = artifacts.get(v);
-        if (existing == null || PRIORITY.compare(existing, hpi)<=0)
+        if (existing == null) {
             artifacts.put(v, hpi);
-
+        } else if(PRIORITY.compare(existing, hpi)<=0) {
+            LOGGER.log(Level.INFO, "Found a higher priority artifact " + hpi.artifact.getGav() + " replacing " + existing.artifact.getGav());
+            artifacts.put(v, hpi);
+        } else {
+            LOGGER.log(Level.INFO, "Found a duplicate artifact " + hpi.artifact.getGav() + " but will continue to use existing " + existing.artifact.getGav());
+        }
 
         // if we have any authentic Jenkins artifact, we don't want to pick up non-authentic versions that are newer than that
         // drop entries so that this constraint is satisfied
