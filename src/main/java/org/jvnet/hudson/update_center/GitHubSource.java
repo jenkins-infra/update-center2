@@ -1,18 +1,13 @@
 package org.jvnet.hudson.update_center;
 
 import net.sf.json.JSONObject;
-import okhttp3.Authenticator;
 import okhttp3.Cache;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.Route;
-import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
