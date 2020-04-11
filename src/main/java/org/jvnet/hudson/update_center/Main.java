@@ -495,17 +495,17 @@ public class Main {
                     continue;
                 }
                 plugins.put(pluginUpdateCenterEntry.artifactId, json);
-                latest.add(pluginUpdateCenterEntry.artifactId+".hpi", pluginUpdateCenterEntry.getDownloadUrl().getPath());
+                latest.add(pluginUpdateCenterEntry.artifactId+".hpi", pluginUpdateCenterEntry.getDownloadUrl().getPath()); // TODO FIXME recover this call for fastjson variant
 
-                if (download!=null) {
+                if (download!=null) { // TODO FIXME recover this call for fastjson variant
                     for (HPI v : plugin.getArtifacts().values()) {
                         stage(v, new File(download, "plugins/" + plugin.getArtifactId() + "/" + v.version + "/" + plugin.getArtifactId() + ".hpi"));
                     }
                     if (!plugin.getArtifacts().isEmpty())
-                        createLatestSymlink(plugin, pluginUpdateCenterEntry.latest);
+                        createLatestSymlink(plugin, pluginUpdateCenterEntry.latest); // TODO FIXME recover this call for fastjson variant
                 }
 
-                if (wwwDownload!=null) {
+                if (wwwDownload!=null) { // TODO FIXME recover this call for fastjson variant
                     String permalink = String.format("/latest/%s.hpi", pluginUpdateCenterEntry.artifactId);
                     buildIndex(new File(wwwDownload, "plugins/" + plugin.getArtifactId()), plugin.getArtifactId(), plugin.getArtifacts().values(), permalink);
                 }
@@ -516,7 +516,7 @@ public class Main {
             }
         }
 
-        if (pluginCountTxt!=null)
+        if (pluginCountTxt!=null) // TODO FIXME recover this call for fastjson variant
             FileUtils.writeStringToFile(pluginCountTxt,String.valueOf(validCount));
         System.err.println("Total " + validCount + " plugins listed.");
         return plugins;
