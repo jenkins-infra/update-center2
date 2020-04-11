@@ -13,9 +13,7 @@ import org.bouncycastle.openssl.PEMReader;
 import org.jvnet.hudson.crypto.CertificateUtil;
 import org.jvnet.hudson.crypto.SignatureOutputStream;
 import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.mortbay.util.QuotedStringTokenizer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,23 +57,6 @@ public class Signer {
     // debug option. spits out the canonical update center file used to compute the signature
     @Option(name="-canonical")
     public File canonical = null;
-
-    /**
-     * Parses JENKINS_SIGNER environment variable as the argument list and configure the instance.
-     */
-    public Signer configureFromEnvironment() throws CmdLineException {
-        List<String> args = new ArrayList<String>();
-
-        String env = System.getenv("JENKINS_SIGNER");
-        if (env==null)      return this;
-
-        QuotedStringTokenizer qst = new QuotedStringTokenizer(env," ");
-        while (qst.hasMoreTokens()) {
-            args.add(qst.nextToken());
-        }
-        new CmdLineParser(this).parseArgument(args);
-        return this;
-    }
 
     /**
      * Checks if the signer is properly configured to generate a signature
