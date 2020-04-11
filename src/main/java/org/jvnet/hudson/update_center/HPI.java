@@ -227,6 +227,7 @@ public class HPI extends MavenArtifact {
 
         private static final String OPTIONAL_RESOLUTION = ";resolution:=optional";
 
+        @Deprecated
         public JSONObject toJSON() {
             JSONObject o = new JSONObject();
             o.put("name",name);
@@ -247,6 +248,7 @@ public class HPI extends MavenArtifact {
             this.email = email;
         }
 
+        @Deprecated
         public JSONObject toJSON() {
             JSONObject o = new JSONObject();
             if (has(name))

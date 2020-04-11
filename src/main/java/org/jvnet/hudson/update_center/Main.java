@@ -282,8 +282,9 @@ public class Main {
         LatestLinkBuilder latest = createHtaccessWriter();
 
         if (!skipUpdateCenter) {
-            JSONObject ucRoot = buildUpdateCenterJson(repo, latest);
+            JSONObject ucRoot = buildUpdateCenterJson(repo, latest); // this also has latest link builder etc.
             writeToFile(mapPluginToDocumentationUrl(), urlmap);
+
             writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
             writeToFile(prettyPrintJson(ucRoot), json);
             writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath() + ".html"));
