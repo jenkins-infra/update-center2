@@ -14,11 +14,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class ReleaseHistory {
+public class ReleaseHistoryRoot {
     @JSONField
     public final List<ReleaseHistoryDate> releaseHistory;
 
-    public ReleaseHistory(MavenRepository repository) throws IOException {
+    public ReleaseHistoryRoot(MavenRepository repository) throws IOException {
         List<ReleaseHistoryDate> list = new ArrayList<>();
         for (Map.Entry<Date, Map<String, HPI>> entry : repository.listPluginsByReleaseDate().entrySet()) {
             ReleaseHistoryDate releaseHistoryDate = new ReleaseHistoryDate(entry.getKey(), entry.getValue());

@@ -23,7 +23,6 @@
  */
 package org.jvnet.hudson.update_center;
 
-import com.alibaba.fastjson.JSON;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
@@ -32,7 +31,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jvnet.hudson.update_center.filters.JavaVersionPluginFilter;
 import org.jvnet.hudson.update_center.json.PluginVersionsRoot;
-import org.jvnet.hudson.update_center.json.ReleaseHistory;
+import org.jvnet.hudson.update_center.json.ReleaseHistoryRoot;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 import org.jvnet.hudson.update_center.wrappers.AlphaBetaOnlyRepository;
 import org.jvnet.hudson.update_center.wrappers.FilteringRepository;
@@ -56,9 +55,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -300,7 +297,7 @@ public class Main {
         }
 
         if (!skipReleaseHistory) {
-            new ReleaseHistory(repo).writeToFile(releaseHistory);
+            new ReleaseHistoryRoot(repo).writeToFile(releaseHistory);
         }
 
         latest.close();
