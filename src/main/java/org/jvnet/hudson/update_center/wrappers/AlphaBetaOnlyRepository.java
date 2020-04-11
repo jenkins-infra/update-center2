@@ -22,8 +22,7 @@ public class AlphaBetaOnlyRepository extends MavenRepositoryWrapper {
      */
     private boolean negative;
 
-    public AlphaBetaOnlyRepository(MavenRepository base, boolean negative) {
-        setBaseRepository(base);
+    public AlphaBetaOnlyRepository(boolean negative) {
         this.negative = negative;
     }
 

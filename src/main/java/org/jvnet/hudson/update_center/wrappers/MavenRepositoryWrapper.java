@@ -19,9 +19,9 @@ public class MavenRepositoryWrapper implements MavenRepository {
 
     protected MavenRepository base;
 
-    /** Should be called by subclasses who are decorating an existing MavenRepository instance. */
-    void setBaseRepository(MavenRepository base) {
+    public MavenRepositoryWrapper withBaseRepository(MavenRepository base) {
         this.base = base;
+        return this;
     }
 
     @Override

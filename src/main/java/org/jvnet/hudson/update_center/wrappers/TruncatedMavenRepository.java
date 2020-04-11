@@ -16,8 +16,7 @@ import java.util.List;
 public class TruncatedMavenRepository extends MavenRepositoryWrapper {
     private final int cap;
 
-    public TruncatedMavenRepository(MavenRepository base, int cap) {
-        setBaseRepository(base);
+    public TruncatedMavenRepository(int cap) {
         this.cap = cap;
     }
 

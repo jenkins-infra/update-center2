@@ -16,10 +16,6 @@ import java.util.Map;
 
 public class FilteringRepository extends MavenRepositoryWrapper {
 
-    public FilteringRepository(MavenRepository base) {
-        setBaseRepository(base);
-    }
-
     /**
      * Adds a plugin filter.
      * @param filter Filter to be added.

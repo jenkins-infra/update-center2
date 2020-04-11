@@ -370,21 +370,21 @@ public class Main {
 
         MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
         if (maxPlugins != null)
-            repo = new TruncatedMavenRepository(repo,maxPlugins);
+            repo = new TruncatedMavenRepository(maxPlugins).withBaseRepository(repo);
         if (experimentalOnly)
-            repo = new AlphaBetaOnlyRepository(repo,false);
+            repo = new AlphaBetaOnlyRepository(false).withBaseRepository(repo);
         if (noExperimental)
-            repo = new AlphaBetaOnlyRepository(repo,true);
+            repo = new AlphaBetaOnlyRepository(true).withBaseRepository(repo);
         if (stableCore) {
-            repo = new StableWarMavenRepository(repo);
+            repo = new StableWarMavenRepository().withBaseRepository(repo);
         }
         if (capPlugin != null || getCapCore() != null) {
             VersionNumber vp = capPlugin == null ? null : new VersionNumber(capPlugin);
             VersionNumber vc = getCapCore() == null ? ANY_VERSION : new VersionNumber(getCapCore());
-            repo = new VersionCappedMavenRepository(repo, vp, vc);
+            repo = new VersionCappedMavenRepository(vp, vc).withBaseRepository(repo);
         }
         if (javaVersion != null) {
-            repo = new FilteringRepository(repo).withPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(this.javaVersion)));
+            repo = new FilteringRepository().withPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(this.javaVersion))).withBaseRepository(repo);
         }
         return repo;
     }

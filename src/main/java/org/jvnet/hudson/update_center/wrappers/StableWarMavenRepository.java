@@ -2,7 +2,6 @@ package org.jvnet.hudson.update_center.wrappers;
 
 import hudson.util.VersionNumber;
 import org.jvnet.hudson.update_center.JenkinsWar;
-import org.jvnet.hudson.update_center.MavenRepository;
 
 import java.io.IOException;
 import java.util.TreeMap;
@@ -12,10 +11,6 @@ import java.util.stream.Collectors;
  * Delegating {@link MavenRepositoryWrapper} to limit core releases to those with LTS version numbers.
  */
 public class StableWarMavenRepository extends MavenRepositoryWrapper {
-
-    public StableWarMavenRepository(MavenRepository base) {
-        setBaseRepository(base);
-    }
 
     @Override
     public TreeMap<VersionNumber, JenkinsWar> getJenkinsWarsByVersionNumber() throws IOException {

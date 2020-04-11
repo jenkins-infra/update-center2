@@ -29,8 +29,7 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
      */
     private final VersionNumber capCore;
 
-    public VersionCappedMavenRepository(MavenRepository base, VersionNumber capPlugin, VersionNumber capCore) {
-        setBaseRepository(base);
+    public VersionCappedMavenRepository(VersionNumber capPlugin, VersionNumber capCore) {
         this.capPlugin = capPlugin;
         this.capCore = capCore;
     }

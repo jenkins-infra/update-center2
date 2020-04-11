@@ -1,6 +1,7 @@
 import org.jvnet.hudson.update_center.BaseMavenRepository;
 import org.jvnet.hudson.update_center.DefaultMavenRepositoryBuilder;
 import org.jvnet.hudson.update_center.HPI;
+import org.jvnet.hudson.update_center.MavenRepository;
 import org.jvnet.hudson.update_center.Plugin;
 import org.jvnet.hudson.update_center.filters.JavaVersionPluginFilter;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
@@ -16,7 +17,7 @@ import java.util.Collection;
 public class ListPluginsAndVersionsJava6 {
     public static void main(String[] args) throws Exception{
         BaseMavenRepository r = DefaultMavenRepositoryBuilder.getInstance();
-        FilteringRepository f = new FilteringRepository(r).withPluginFilter(new JavaVersionPluginFilter(JavaSpecificationVersion.JAVA_6));
+        MavenRepository f = new FilteringRepository().withPluginFilter(new JavaVersionPluginFilter(JavaSpecificationVersion.JAVA_6)).withBaseRepository(r);
 
         System.out.println(f.getJenkinsWarsByVersionNumber().firstKey());
 
