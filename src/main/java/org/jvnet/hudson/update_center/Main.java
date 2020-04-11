@@ -284,16 +284,21 @@ public class Main {
         LatestLinkBuilder latest = createHtaccessWriter();
 
         if (!skipUpdateCenter) {
-            JSONObject ucRoot = buildUpdateCenterJson(repo, latest); // this also has latest link builder etc.
-            writeToFile(mapPluginToDocumentationUrl(), urlmap);
+            // TODO extract the other output variants from the buildUpdateCenterJson call
+//            JSONObject ucRoot = buildUpdateCenterJson(repo, latest); // this also has latest link builder etc.
+//            writeToFile(mapPluginToDocumentationUrl(), urlmap);
+//
+//            writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
+//            writeToFile(prettyPrintJson(ucRoot), json);
+//            writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath() + ".html"));
 
-            writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
-            writeToFile(prettyPrintJson(ucRoot), json);
-            writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath() + ".html"));
+//            Files.copy(json.toPath(), json.toPath().resolveSibling("old-" + json.getName()), StandardCopyOption.REPLACE_EXISTING);
+//            Files.copy(jsonp.toPath(), jsonp.toPath().resolveSibling("old-" + jsonp.getName()), StandardCopyOption.REPLACE_EXISTING);
 
-            Files.copy(json.toPath(), json.toPath().resolveSibling("old-" + json.getName()), StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(jsonp.toPath(), jsonp.toPath().resolveSibling("old-" + jsonp.getName()), StandardCopyOption.REPLACE_EXISTING);
-            new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).writeWithSignature(json, signer); // TODO add support for additional output files
+            final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer);// TODO add support for additional output files
+            writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), jsonp);
+            writeToFile(signedUpdateCenterJson, json);
+            writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(jsonp.getPath() + ".html"));
 
         }
 
@@ -324,13 +329,23 @@ public class Main {
         return root.toString();
     }
 
+    @Deprecated
     String updateCenterPostCallJson(JSONObject ucRoot) {
-        return "updateCenter.post(" + EOL + prettyPrintJson(ucRoot) + EOL + ");";
+        return updateCenterPostCallJson(prettyPrintJson(ucRoot));
     }
 
+    String updateCenterPostCallJson(String updateCenterJson) {
+        return "updateCenter.post(" + EOL + updateCenterJson + EOL + ");";
+    }
+
+    @Deprecated
     String updateCenterPostMessageHtml(JSONObject ucRoot) {
+        return updateCenterPostMessageHtml(prettyPrintJson(ucRoot));
+    }
+
+    String updateCenterPostMessageHtml(String updateCenterJson) {
         // needs the DOCTYPE to make JSON.stringify work on IE8
-        return "\uFEFF<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + prettyPrintJson(ucRoot) + EOL + "),'*'); };</script></body></html>";
+        return "\uFEFF<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + updateCenterJson+ EOL + "),'*'); };</script></body></html>";
     }
 
     private LatestLinkBuilder createHtaccessWriter() throws IOException {
@@ -350,6 +365,7 @@ public class Main {
         return root;
     }
 
+    @Deprecated
     private JSONObject buildUpdateCenterJson(MavenRepository repo, LatestLinkBuilder latest) throws Exception {
         JSONObject root = new JSONObject();
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
@@ -367,6 +383,7 @@ public class Main {
         return root;
     }
 
+    @Deprecated
     private JSONArray buildWarnings() throws IOException {
         String warningsText = IOUtils.toString(Files.newBufferedReader(new File(Main.resourcesDir, "warnings.json").toPath()));
         JSONArray warnings = JSONArray.fromObject(warningsText);
@@ -379,6 +396,7 @@ public class Main {
         rhpw.close();
     }
 
+    @Deprecated
     private String prettyPrintJson(JSONObject json) {
         return prettyPrint? json.toString(2): json.toString();
     }
@@ -454,6 +472,7 @@ public class Main {
      * @param repository
      * @param latest
      */
+    @Deprecated
     protected JSONObject buildPlugins(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
 
         int validCount = 0;
@@ -572,6 +591,7 @@ public class Main {
      * Identify the latest core, populates the htaccess redirect file, optionally download the core wars and build the index.html
      * @return the JSON for the core Jenkins
      */
+    @Deprecated
     protected JSONObject buildCore(@Nonnull MavenRepository repository, @Nonnull LatestLinkBuilder latestLink) throws Exception {
         System.err.println("Finding latest Jenkins core WAR...");
         TreeMap<VersionNumber, JenkinsWar> wars = repository.getJenkinsWarsByVersionNumber();

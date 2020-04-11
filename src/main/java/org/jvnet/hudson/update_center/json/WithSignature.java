@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
@@ -26,7 +28,7 @@ public abstract class WithSignature {
     }
 
     /**
-     * Generate JSON checksums and add a signature block to the JSON written to the file.
+     * Generate JSON checksums and add a signature block to the JSON written to the specified {@link Writer}.
      *
      * This will run JSON generation twice: Once without the signature block to compute checksums, and a second time to
      * include the signature block and write it to the output file.
@@ -37,17 +39,37 @@ public abstract class WithSignature {
      * Additionally, implementations of this class, and all types reachable via fields and getters used during JSON
      * generation should employ some sort of caching to prevent expensive computations from being invoked twice.
      *
-     * @param outputFile the file to write to
+     * @param writer the writer to write to
      * @throws IOException when any IO error occurs
      */
-    public void writeWithSignature(File outputFile, Signer signer) throws IOException, GeneralSecurityException {
+    public void writeWithSignature(Writer writer, Signer signer) throws IOException, GeneralSecurityException {
         signature = null;
 
         final String unsignedJson = JSON.toJSONString(this, SerializerFeature.DisableCircularReferenceDetect);
         signature = signer.sign(unsignedJson);
 
+        JSON.writeJSONString(writer, this, SerializerFeature.DisableCircularReferenceDetect);
+        writer.flush();
+    }
+
+    /**
+     * Convenience wrapper for {@link #writeWithSignature(Writer, Signer)} writing to a file.
+     *
+     */
+    public void writeWithSignature(File outputFile, Signer signer) throws IOException, GeneralSecurityException {
         try (OutputStream os = Files.newOutputStream(outputFile.toPath()); OutputStreamWriter writer = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
-            JSON.writeJSONString(writer, this, SerializerFeature.DisableCircularReferenceDetect);
+            writeWithSignature(writer, signer);
         }
+    }
+
+    /**
+     * Like {@link #writeWithSignature(File, Signer)} but the output is returned as a String.
+     * @param signer the signer
+     * @return the JSON output
+     */
+    public String encodeWithSignature(Signer signer)  throws IOException, GeneralSecurityException {
+        StringWriter writer = new StringWriter();
+        writeWithSignature(writer, signer);
+        return writer.getBuffer().toString();
     }
 }
