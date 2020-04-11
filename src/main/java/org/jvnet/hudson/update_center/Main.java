@@ -32,6 +32,7 @@ import org.apache.commons.io.IOUtils;
 import org.jvnet.hudson.update_center.filters.JavaVersionPluginFilter;
 import org.jvnet.hudson.update_center.json.PluginVersionsRoot;
 import org.jvnet.hudson.update_center.json.ReleaseHistoryRoot;
+import org.jvnet.hudson.update_center.json.UpdateCenterRoot;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
 import org.jvnet.hudson.update_center.wrappers.AlphaBetaOnlyRepository;
 import org.jvnet.hudson.update_center.wrappers.FilteringRepository;
@@ -56,6 +57,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -288,6 +290,11 @@ public class Main {
             writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
             writeToFile(prettyPrintJson(ucRoot), json);
             writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath() + ".html"));
+
+            Files.copy(json.toPath(), json.toPath().resolveSibling("old-" + json.getName()), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(jsonp.toPath(), jsonp.toPath().resolveSibling("old-" + jsonp.getName()), StandardCopyOption.REPLACE_EXISTING);
+            new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).writeWithSignature(json, signer); // TODO add support for additional output files
+
         }
 
         if (!skipPluginVersions) {
