@@ -17,8 +17,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GitHubSource {
+    private static final Logger LOGGER = Logger.getLogger(GitHubSource.class.getName());
 
     private static String GITHUB_API_USERNAME = System.getenv("GITHUB_USERNAME");
     private static String GITHUB_API_PASSWORD = System.getenv("GITHUB_PASSWORD");
@@ -52,7 +55,7 @@ public class GitHubSource {
         this.topicNames = new HashMap<>();
         this.repoNames = new TreeSet<>(String::compareToIgnoreCase);
 
-        System.err.println("Retrieving GitHub repo data...");
+        LOGGER.log(Level.INFO, "Retrieving GitHub repo data...");
         Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.cache(cache);
@@ -140,7 +143,7 @@ public class GitHubSource {
                 }
             }
         }
-        System.err.println("Retrieved GitHub repo data");
+        LOGGER.log(Level.INFO, "Retrieved GitHub repo data");
         return this.topicNames;
     }
 
