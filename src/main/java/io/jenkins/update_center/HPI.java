@@ -1,0 +1,705 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2004-2020, Sun Microsystems, Inc. and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package io.jenkins.update_center;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import com.google.common.annotations.VisibleForTesting;
+import hudson.util.VersionNumber;
+import io.jenkins.update_center.util.JavaSpecificationVersion;
+import net.sf.json.JSONObject;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentFactory;
+import org.dom4j.Element;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
+import org.owasp.html.HtmlSanitizer;
+import org.owasp.html.HtmlStreamRenderer;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
+
+import javax.annotation.CheckForNull;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.*;
+import java.net.URL;
+import java.net.MalformedURLException;
+
+/**
+ * A particular version of a plugin and its metadata.
+ *
+ * For version independent metadata, see {@link Plugin}.
+ */
+public class HPI extends MavenArtifact {
+    private static final Logger LOGGER = Logger.getLogger(HPI.class.getName());
+
+    private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
+    private final Plugin plugin;
+
+    public HPI(BaseMavenRepository repository, ArtifactCoordinates artifact, Plugin plugin) {
+        super(repository, artifact);
+        this.plugin = plugin;
+    }
+
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
+    /**
+     * Download a plugin via more intuitive URL. This also helps us track download counts.
+     */
+    public URL getDownloadUrl() throws MalformedURLException {
+        return new URL("http://updates.jenkins-ci.org/download/plugins/"+artifact.artifactId+"/"+version+"/"+artifact.artifactId+".hpi");
+    }
+
+    /**
+     * Who built this release?
+     */
+    public String getBuiltBy() throws IOException {
+        return getManifestAttributes().getValue("Built-By");
+    }
+
+    public String getRequiredJenkinsVersion() throws IOException {
+        String v = getManifestAttributes().getValue("Jenkins-Version");
+        if (v!=null)        return v;
+
+        v = getManifestAttributes().getValue("Hudson-Version");
+        if (fixNull(v) != null) {
+            try {
+                VersionNumber n = new VersionNumber(v);
+                if (n.compareTo(JenkinsWar.HUDSON_CUT_OFF)<=0)
+                    return v;   // Hudson <= 1.395 is treated as Jenkins
+                // TODO: Jenkins-Version started appearing from Jenkins 1.401 POM.
+                // so maybe Hudson > 1.400 shouldn't be considered as a Jenkins plugin?
+            } catch (IllegalArgumentException e) {
+            }
+        }
+
+        // Parent versions 1.393 to 1.398 failed to record requiredCore.
+        // If value is missing, let's default to 1.398 for now.
+        return "1.398";
+    }
+
+    /**
+     * Earlier versions of the maven-hpi-plugin put "null" string literal, so we need to treat it as real null.
+     */
+    private static String fixNull(String v) {
+        if("null".equals(v))    return null;
+        return v;
+    }
+
+    public String getCompatibleSinceVersion() throws IOException {
+        return getManifestAttributes().getValue("Compatible-Since-Version");
+    }
+
+    /**
+     * Gets Minimum Java Version required by the plugin.
+     * This uses the value of the {@code Minimum-Java-Version} manifest entry
+     * @return Minimum Java Version or {@code null} if it is unknown
+     * @throws IOException Manifest read error
+     */
+    @CheckForNull
+    public JavaSpecificationVersion getMinimumJavaVersion() throws IOException {
+        String manifestEntry = getManifestAttributes().getValue("Minimum-Java-Version");
+        if (StringUtils.isNotBlank(manifestEntry)) {
+            return new JavaSpecificationVersion(manifestEntry);
+        }
+
+        return null;
+    }
+
+    public List<Dependency> getDependencies() throws IOException {
+        String deps = getManifestAttributes().getValue("Plugin-Dependencies");
+        if(deps==null)  return Collections.emptyList();
+
+        List<Dependency> r = new ArrayList<Dependency>();
+        for(String token : deps.split(","))
+            r.add(new Dependency(token));
+        return r;
+    }
+
+    private String plainText2html(String plainText) {
+        if (plainText == null || plainText.length() == 0) {
+            return "";
+        }
+        return plainText.replace("&","&amp;").replace("<","&lt;");
+    }
+
+    private static final Properties URL_OVERRIDES = new Properties();
+    private static final Properties LABEL_DEFINITIONS = new Properties();
+    private static final Properties ALLOWED_GITHUB_LABELS = new Properties();
+
+    static {
+        try {
+            URL_OVERRIDES.load(Files.newInputStream(new File(Main.resourcesDir, "wiki-overrides.properties").toPath()));
+            LABEL_DEFINITIONS.load(Files.newInputStream(new File(Main.resourcesDir, "label-definitions.properties").toPath()));
+            ALLOWED_GITHUB_LABELS.load(Files.newInputStream(new File(Main.resourcesDir, "allowed-github-topics.properties").toPath()));
+        } catch (IOException e) {
+            throw new Error(e);
+        }
+    }
+
+    private static String fixEmptyAndTrim(String value) {
+        if (value == null) {
+            return null;
+        }
+        final String trim = value.trim();
+        if (trim.length() == 0) {
+            return null;
+        }
+        return trim;
+    }
+
+    private List<Developer> developers;
+
+    public List<Developer> getDevelopers() throws IOException {
+        if (developers == null) {
+            String devs = getManifestAttributes().getValue("Plugin-Developers");
+            if (devs == null || devs.trim().length() == 0) {
+                developers = Collections.emptyList();
+            } else {
+
+                List<Developer> r = new ArrayList<Developer>();
+                Matcher m = developersPattern.matcher(devs);
+                int totalMatched = 0;
+                while (m.find()) {
+                    final String name = fixEmptyAndTrim(m.group(1));
+                    final String id = fixEmptyAndTrim(m.group(2));
+                    final String email = fixEmptyAndTrim(m.group(3));
+                    if (name != null && id != null && email != null) {
+                        r.add(new Developer(name, id, email));
+                    }
+                    totalMatched += m.end() - m.start();
+                }
+                if (totalMatched < devs.length()) {
+                    // ignore and move on
+                    LOGGER.log(Level.INFO, "Unparsable developer info: '" + devs.substring(totalMatched) + "' for" + artifact.getGav());
+                }
+                developers = r;
+            }
+        }
+        return developers;
+    }
+
+    private String description;
+
+    public String getDescription() throws IOException {
+        if (description == null) {
+            String description = plainText2html(readSingleValueFromXmlFile(resolvePOM(), "/project/description"));
+
+            ArtifactCoordinates coordinates = new ArtifactCoordinates(artifact.groupId, artifact.artifactId, artifact.version, "jar", null);
+            try (InputStream is = repository.getZipFileEntry(new MavenArtifact(repository, coordinates), "index.jelly")) {
+                StringBuilder b = new StringBuilder();
+                HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> LOGGER.log(Level.INFO, "Bad HTML: '" + html + "' in " + artifact.getGav()));
+                HtmlSanitizer.sanitize(IOUtils.toString(is, StandardCharsets.UTF_8), HTML_POLICY.apply(renderer));
+                description = b.toString().trim().replaceAll("\\s+", " ");
+            } catch (IOException e) {
+                LOGGER.log(Level.FINE, () -> "Failed to read description from index.jelly: " + e.getMessage());
+            }
+            if (isAlphaOrBeta()) {
+                description = "<b>(This version is experimental and may change in backward-incompatible ways)</b><br><br>" + description;
+            }
+            this.description = description;
+        }
+        return description;
+    }
+
+    public static class Dependency {
+        @JSONField
+        public final String name;
+        @JSONField
+        public final String version;
+        @JSONField
+        public final boolean optional;
+
+        public Dependency(String token) {
+            this.optional = token.endsWith(OPTIONAL_RESOLUTION);
+            if(optional)
+                token = token.substring(0, token.length()-OPTIONAL_RESOLUTION.length());
+
+            String[] pieces = token.split(":");
+            name = pieces[0];
+            version = pieces[1];
+        }
+
+        private static final String OPTIONAL_RESOLUTION = ";resolution:=optional";
+
+        @Deprecated
+        public JSONObject toJSON() {
+            JSONObject o = new JSONObject();
+            o.put("name",name);
+            o.put("version",version);
+            o.put("optional",optional);
+            return o;
+        }
+    }
+
+    public static class Developer {
+        @JSONField
+        public final String name;
+        @JSONField
+        public final String developerId;
+        @JSONField
+        public final String email;
+
+        public Developer(String name, String developerId, String email) {
+            this.name = has(name) ? name : null;
+            this.developerId = has(developerId) ? developerId : null;
+            this.email = has(email) ? email : null;
+        }
+
+        @Deprecated
+        public JSONObject toJSON() {
+            JSONObject o = new JSONObject();
+            if (has(name))
+                o.put("name", name);
+            if (has(developerId))
+                o.put("developerId", developerId);
+            if (has(email))
+                o.put("email", email);
+
+            if (!o.isEmpty()) {
+                return o;
+            } else {
+                return null;
+            }
+        }
+
+        private boolean has(String s) {
+            return s!=null && s.length()>0;
+        }
+    }
+
+    /**
+     * Does this artifact come from the jenkins community?
+     */
+    @Deprecated
+    public boolean isAuthenticJenkinsArtifact() {
+        // mayebe it should be startWith("org.jenkins")?
+        return artifact.groupId.contains("jenkins");
+    }
+
+    /**
+     * Does this artifact come from the jenkins community?
+     */
+    @Deprecated
+    public boolean isAuthenticJenkinsArtifactWithLog() {
+        // mayebe it should be startWith("org.jenkins")?
+
+        final boolean authentic = artifact.groupId.contains("jenkins");
+        if (!authentic) {
+            LOGGER.log(Level.INFO, "Not an 'authentic' Jenkins artifact: " + artifact.getGav());
+        }
+        return authentic;
+    }
+
+    private String name;
+
+    /** @return The plugin name defined in the POM &lt;name> modified by simplication rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
+    public String getName() throws IOException {
+        if (name == null) {
+            String title = readSingleValueFromXmlFile(resolvePOM(), "/project/name");
+            if (title == null || "".equals(title)) {
+                title = artifact.artifactId;
+            } else {
+                title = simplifyPluginName(title);
+            }
+            name = title;
+        }
+        return name;
+    }
+
+    @VisibleForTesting
+    static String simplifyPluginName(String name) {
+        name = org.apache.commons.lang3.StringUtils.removeStart(name, "Jenkins ");
+        name = org.apache.commons.lang3.StringUtils.removeStart(name, "Hudson ");
+        name = org.apache.commons.lang3.StringUtils.removeEndIgnoreCase(name, " for Jenkins");
+        name = org.apache.commons.lang3.StringUtils.removeEndIgnoreCase(name, " Jenkins Plugin");
+        name = org.apache.commons.lang3.StringUtils.removeEndIgnoreCase(name, " Plugin");
+        name = org.apache.commons.lang3.StringUtils.removeEndIgnoreCase(name, " Plug-In");
+        name = name.replaceAll("[- .!]+$", ""); // remove trailing punctuation e.g. for 'Acme Foo - Jenkins Plugin'
+        return name;
+    }
+
+    private String readSingleValueFromXmlFile(File file, String xpath) {
+        try {
+            XmlCache.CachedValue cached = XmlCache.readCache(file, xpath);
+            if (cached == null) {
+                Document doc = xmlReader.read(file);
+                Node node = selectSingleNode(doc, xpath);
+                String ret = node != null ? ((Element) node).getTextTrim() : null;
+                XmlCache.writeCache(file, xpath, ret);
+                return ret;
+            } else {
+                return cached.value;
+            }
+        } catch (DocumentException e) {
+            return null;
+        }
+    }
+
+    private static Node selectSingleNode(Document pom, String path) {
+        Node result = pom.selectSingleNode(path);
+        if (result == null)
+            result = pom.selectSingleNode(path.replaceAll("/", "/m:"));
+        return result;
+    }
+
+    private Document getPom() throws IOException {
+        if (pom == null) {
+            pom = readPOM();
+        }
+        return pom;
+    }
+
+    /**
+     * POM parsed as a DOM.
+     */
+    private Document pom;
+
+    private static SAXReader createXmlReader() {
+        DocumentFactory factory = new DocumentFactory();
+        factory.setXPathNamespaceURIs(
+                Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
+        return new SAXReader(factory);
+    }
+
+    private Document readPOM() throws IOException {
+        try {
+            return xmlReader.read(resolvePOM());
+        } catch (DocumentException e) {
+            LOGGER.log(Level.INFO, "Failed to parse POM for " + artifact.getGav(), e);
+            return null;
+        }
+    }
+
+    private String pluginUrl;
+
+    /** @return The URL as specified in the POM, or the overrides file. */
+    public String getPluginUrl() throws IOException {
+        if (pluginUrl == null) {
+            // Check whether the wiki URL should be overridden
+            String url = URL_OVERRIDES.getProperty(artifact.artifactId);
+
+            // Otherwise read *.hpi!/META-INF/MANIFEST.MF#Url, if defined
+            if (url == null) {
+                url = getManifestAttributes().getValue("Url");
+            }
+
+            // Otherwise read the wiki URL from the POM, if any
+            if (url == null) {
+                url = readSingleValueFromXmlFile(resolvePOM(), "/project/url");
+            }
+            // last fallback: GitHub URL; also prevent plugins.j.io referencing itself
+            if (url == null || url.startsWith("https://plugins.jenkins.io")) {
+                url = requireTopLevelUrl(getScmUrl());
+            }
+            String originalUrl = url;
+
+            if (url != null) {
+                url = url.replace("wiki.hudson-ci.org/display/HUDSON/", "wiki.jenkins-ci.org/display/JENKINS/");
+                url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins.io");
+            }
+
+            if (url != null && !url.equals(originalUrl)) {
+                LOGGER.fine("Rewrote URL for plugin " + artifact.artifactId + " from " + originalUrl + " to " + url);
+            }
+            pluginUrl = url;
+        }
+        return pluginUrl;
+    }
+
+    @VisibleForTesting
+    static String requireTopLevelUrl(String scmUrl) {
+        if (scmUrl == null) {
+            return null;
+        }
+        String[] parts = scmUrl.split("/");
+        if (parts.length > 5){
+            return null;
+        }
+        return scmUrl;
+    }
+
+    private String filterKnownObsoleteUrls(String scm) {
+        if (scm == null) {
+            // couldn't be determined from /project/scm/url in pom or parent pom
+            return null;
+        }
+        if (scm.contains("fisheye.jenkins-ci.org")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("svn.jenkins-ci.org")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("svn.java.net")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("svn.dev.java.net")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("hudson.dev.java.net")) {
+            // well known historical URL that won't help
+            return null;
+        }
+        if (scm.contains("jenkinsci/plugin-pom")) {
+            // this is a plugin based on the parent POM without a <scm> blocck
+            return null;
+        }
+        return scm;
+    }
+
+    private String _getScmUrl() {
+        try {
+            String scm = readSingleValueFromXmlFile(resolvePOM(), "/project/scm/url");
+            // Try parent pom
+            if (scm == null) {
+                System.out.println("** No SCM URL found in POM");
+                Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
+                if (parent != null) {
+                    try {
+                        File parentPomFile = repository.resolve(
+                                new ArtifactCoordinates(parent.element("groupId").getTextTrim(),
+                                        parent.element("artifactId").getTextTrim(),
+                                        parent.element("version").getTextTrim(), "pom", null));
+                        scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/url");
+                        if (scm == null) {
+                            System.out.println("** No SCM URL found in parent POM");
+                            // grandparent is pointless, no additional hits
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("** Failed to read parent pom");
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            if (scm == null) {
+                return null;
+            }
+            if (filterKnownObsoleteUrls(scm) == null) {
+                System.out.println("** Filtered obsolete URL in SCM URL");
+                return null;
+            }
+            return scm;
+        } catch (IOException ex) {
+            // ignore
+        }
+        return null;
+    }
+
+    private String getScmUrlFromDeveloperConnection() {
+        try {
+            String scm = readSingleValueFromXmlFile(resolvePOM(), "/project/scm/developerConnection");
+            // Try parent pom
+            if (scm == null) {
+                System.out.println("** No SCM developerConnection found in POM");
+                Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
+                if (parent != null) {
+                    try {
+                        File parentPomFile = repository.resolve(
+                                new ArtifactCoordinates(parent.element("groupId").getTextTrim(),
+                                        parent.element("artifactId").getTextTrim(),
+                                        parent.element("version").getTextTrim(), "pom", null));
+                        scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/developerConnection");
+                        if (scm == null) {
+                            System.out.println("** No SCM developerConnection found in parent POM");
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("** Failed to read parent pom");
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            if (scm == null) {
+                return null;
+            }
+            if (filterKnownObsoleteUrls(scm) == null) {
+                System.out.println("** Filtered obsolete URL in SCM developerConnection");
+                return null;
+            }
+            return scm;
+        } catch (IOException ex) {
+            // ignore
+        }
+        return null;
+    }
+
+    private String interpolateProjectName(String str) {
+        if (str == null) {
+            return null;
+        }
+        str = str.replace("${project.artifactId}", artifact.artifactId);
+        str = str.replace("${artifactId}", artifact.artifactId);
+        return str;
+    }
+
+    private String requireHttpsGitHubJenkinsciUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        if (url.contains("github.com:jenkinsci/") || url.contains("github.com/jenkinsci/")) {
+            // We're only doing weird thing for GitHub URLs that map somewhat cleanly from developerConnection to browsable URL.
+            // Also limit to jenkinsci because that's what people should be using anyway.
+            String githubUrl = url.substring(url.indexOf("github.com"));
+            githubUrl = githubUrl.replace(":", "/");
+            if (githubUrl.endsWith(".git")) {
+                // all should, but not all do
+                githubUrl = githubUrl.substring(0, githubUrl.lastIndexOf(".git"));
+            }
+            if (githubUrl.endsWith("/")) {
+                githubUrl = githubUrl.substring(0, githubUrl.lastIndexOf("/"));
+            }
+            return "https://" + githubUrl;
+        }
+        return null;
+    }
+
+    private String requireGitHubRepoExistence(String url) {
+        GitHubSource gh = GitHubSource.getInstance();
+        String shortenedUrl = org.apache.commons.lang3.StringUtils.removeEndIgnoreCase(url, "-plugin");
+        return gh.isRepoExisting(url) ? url : (gh.isRepoExisting(shortenedUrl) ? shortenedUrl : null);
+    }
+
+    private String scmUrl;
+    private boolean scmUrlCached; // separate status variable because 'null' has the 'undefined' meaning
+
+    /**
+     * Get hostname of SCM specified in POM of latest release, or null.
+     * Used to determine if source lives in github or svn.
+     */
+    public String getScmUrl() throws IOException {
+        if (!scmUrlCached) {
+            scmUrlCached = true;
+            if (resolvePOM().exists()) {
+                String scm = _getScmUrl();
+                if (scm == null) {
+                    scm = getScmUrlFromDeveloperConnection();
+                }
+                if (scm == null) {
+                    System.out.println("** Failed to determine SCM URL from POM or parent POM of " + artifact.artifactId);
+                }
+                scm = interpolateProjectName(scm);
+                String originalScm = scm;
+                scm = requireHttpsGitHubJenkinsciUrl(scm);
+                if (originalScm != null && scm == null) {
+                    System.out.println("** Rejecting URL outside GitHub.com/jenkinsci for " + artifact.artifactId + ": " + originalScm);
+                }
+
+                if (scm == null) {
+                    // Last resort: check whether a ${artifactId}-plugin repo in jenkinsci exists, if so, use that
+                    scm = "https://github.com/jenkinsci/" + artifact.artifactId + "-plugin";
+                    System.out.println("** Falling back to default repo for " + artifact.artifactId + ": " + scm);
+
+                    String checkedScm = scm;
+                    // Check whether the fallback repo actually exists, if not, don't publish the repo name
+                    scm = requireGitHubRepoExistence(scm);
+                    if (scm == null) {
+                        System.out.println("** Repository does not actually exist: " + checkedScm);
+                    }
+                }
+                scmUrl = scm;
+            }
+        }
+        return scmUrl;
+    }
+
+    private List<String> labels;
+
+    public List<String> getLabels() throws IOException { // TODO this would be better in a different class, doesn't fit HPI type
+        if (labels == null) {
+            String scm = getScmUrl();
+
+            List<String> gitHubLabels = new ArrayList<>();
+            if (scm != null && scm.contains("https://github.com/")) {
+
+                List<String> unsanitizedLabels = new ArrayList<>();
+                String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
+                if (parts.length >= 2) {
+                    unsanitizedLabels.addAll(
+                            Arrays.asList(
+                                    GitHubSource.getInstance().getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
+                            )
+                    );
+                }
+
+                for (String label : unsanitizedLabels) {
+                    if (label.startsWith("jenkins-")) {
+                        label = label.replaceFirst("jenkins-", "");
+                    }
+
+                    if (ALLOWED_GITHUB_LABELS.containsKey(label)) {
+                        gitHubLabels.add(label);
+                    }
+                }
+
+                if (!gitHubLabels.isEmpty()) {
+                    System.out.println(artifact.artifactId + " got the following labels contributed from GitHub: " + org.apache.commons.lang3.StringUtils.join(gitHubLabels, ", "));
+                }
+            }
+
+            Set<String> labels = new TreeSet<>(Arrays.asList(getLabelsFromFile()));
+            labels.addAll(gitHubLabels);
+
+            this.labels = new ArrayList<>(labels);
+        }
+        return this.labels;
+    }
+
+    private static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+
+    private String[] getLabelsFromFile() {
+        Object ret = LABEL_DEFINITIONS.get(artifact.artifactId);
+        if (ret == null) {
+            // handle missing entry in properties file
+            return new String[0];
+        }
+        String labels = ret.toString();
+        if (labels.trim().length() == 0) {
+            // handle empty entry in properties file
+            return new String[0];
+        }
+        return labels.split("\\s+");
+    }
+
+    private static final SAXReader xmlReader = createXmlReader();
+
+}

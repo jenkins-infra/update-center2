@@ -1,4 +1,7 @@
-import org.jvnet.hudson.update_center.*;
+import io.jenkins.update_center.DefaultMavenRepositoryBuilder;
+import io.jenkins.update_center.HPI;
+import io.jenkins.update_center.MavenRepository;
+import io.jenkins.update_center.Plugin;
 
 import java.util.Collection;
 import java.util.Set;

@@ -1,11 +1,11 @@
-import org.jvnet.hudson.update_center.BaseMavenRepository;
-import org.jvnet.hudson.update_center.DefaultMavenRepositoryBuilder;
-import org.jvnet.hudson.update_center.HPI;
-import org.jvnet.hudson.update_center.MavenRepository;
-import org.jvnet.hudson.update_center.Plugin;
-import org.jvnet.hudson.update_center.filters.JavaVersionPluginFilter;
-import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
-import org.jvnet.hudson.update_center.wrappers.FilteringRepository;
+import io.jenkins.update_center.BaseMavenRepository;
+import io.jenkins.update_center.DefaultMavenRepositoryBuilder;
+import io.jenkins.update_center.HPI;
+import io.jenkins.update_center.MavenRepository;
+import io.jenkins.update_center.Plugin;
+import io.jenkins.update_center.filters.JavaVersionPluginFilter;
+import io.jenkins.update_center.util.JavaSpecificationVersion;
+import io.jenkins.update_center.wrappers.FilteringRepository;
 
 import java.util.Collection;
 
