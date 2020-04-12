@@ -210,7 +210,7 @@ public class HPI extends MavenArtifact {
                 }
                 if (totalMatched < devs.length()) {
                     // ignore and move on
-                    System.err.println("Unparsable developer info: '" + devs.substring(totalMatched) + "'");
+                    LOGGER.log(Level.INFO, "Unparsable developer info: '" + devs.substring(totalMatched) + "' for" + artifact.getGav());
                 }
                 developers = r;
             }
@@ -227,7 +227,7 @@ public class HPI extends MavenArtifact {
             ArtifactCoordinates coordinates = new ArtifactCoordinates(artifact.groupId, artifact.artifactId, artifact.version, "jar", null);
             try (InputStream is = repository.getZipFileEntry(new MavenArtifact(repository, coordinates), "index.jelly")) {
                 StringBuilder b = new StringBuilder();
-                HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
+                HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> LOGGER.log(Level.INFO, "Bad HTML: '" + html + "' in " + artifact.getGav()));
                 HtmlSanitizer.sanitize(IOUtils.toString(is, StandardCharsets.UTF_8), HTML_POLICY.apply(renderer));
                 description = b.toString().trim().replaceAll("\\s+", " ");
             } catch (IOException e) {
@@ -325,7 +325,7 @@ public class HPI extends MavenArtifact {
 
         final boolean authentic = artifact.groupId.contains("jenkins");
         if (!authentic) {
-            System.err.println("Not authentic: " + artifact.getGav());
+            LOGGER.log(Level.INFO, "Not an 'authentic' Jenkins artifact: " + artifact.getGav());
         }
         return authentic;
     }
@@ -405,8 +405,7 @@ public class HPI extends MavenArtifact {
         try {
             return xmlReader.read(resolvePOM());
         } catch (DocumentException e) {
-            System.err.println("** Can't parse POM for "+artifact.artifactId);
-            e.printStackTrace();
+            LOGGER.log(Level.INFO, "Failed to parse POM for " + artifact.getGav(), e);
             return null;
         }
     }
