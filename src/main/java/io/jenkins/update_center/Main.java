@@ -376,8 +376,8 @@ public class Main {
         root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
         root.put("plugins", buildPluginVersions(repo));
 
-        if (signer.isConfigured())
-            signer.sign(root);
+//        if (signer.isConfigured())
+//            signer.sign(root);
 
         return root;
     }
@@ -394,8 +394,8 @@ public class Main {
         root.put("id",id == null ? DEFAULT_ID : id);
         root.put("connectionCheckUrl",connectionCheckUrl == null ? DEFAULT_CONNECTION_CHECK_URL : connectionCheckUrl);
 
-        if (signer.isConfigured())
-            signer.sign(root);
+//        if (signer.isConfigured())
+//            signer.sign(root);
 
         return root;
     }

@@ -1,8 +1,6 @@
 package io.jenkins.update_center;
 
-import io.jenkins.update_center.json.JsonSignature;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import io.jenkins.update_center.json.JsonSignature;;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -14,14 +12,11 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.jvnet.hudson.crypto.CertificateUtil;
 import org.jvnet.hudson.crypto.SignatureOutputStream;
-import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.Option;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -56,22 +51,17 @@ public class Signer {
     @Option(name="-root-certificate",usage="Additional root certificates")
     public List<File> rootCA = new ArrayList<File>();
 
-    // debug option. spits out the canonical update center file used to compute the signature
-    @Option(name="-canonical")
-    @Deprecated
-    public File canonical = null;
-
     /**
      * Checks if the signer is properly configured to generate a signature
-     *
-     * @throws CmdLineException
-     *      If the configuration is partial and it's not clear whether the user intended to sign or not to sign.
      */
     public boolean isConfigured() {
-        if(privateKey!=null && !certificates.isEmpty())
+        if(privateKey != null && !certificates.isEmpty()) {
             return true;
-        if (privateKey!=null || !certificates.isEmpty())
-            throw new IllegalStateException("private key and certificate must be both specified");
+        }
+        if (privateKey != null || !certificates.isEmpty()) {
+            throw new IllegalStateException("Both -key and -certificate must be specified");
+        }
+        // neither argument is provided, so we just don't sign the JSON
         return false;
     }
 
@@ -90,7 +80,7 @@ public class Signer {
         // the correct signature (since Jenkins 1.433); no longer generate wrong signatures for older releases.
         SignatureGenerator sg = new SignatureGenerator(signer, key);
 
-        try (OutputStreamWriter osw = new OutputStreamWriter(sg.getOut(), StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter osw = new OutputStreamWriter(sg.out, StandardCharsets.UTF_8)) {
             IOUtils.write(json, osw);
         }
         sg.fill(sign);
@@ -102,52 +92,6 @@ public class Signer {
         sign.setCertificates(certificates);
 
         return sign;
-    }
-
-    /**
-     * Generates a canonicalized JSON format of the given object, and put the signature in it.
-     * Because it mutates the signed object itself, validating the signature needs a bit of work,
-     * but this enables a signature to be added transparently.
-     *
-     * @return
-     *      The same value passed as the argument so that the method can be used like a filter.
-     */
-    public JSONObject sign(JSONObject o) throws GeneralSecurityException, IOException, CmdLineException {
-        if (!isConfigured())    return o;
-
-        JSONObject sign = new JSONObject();
-
-        List<X509Certificate> certs = getCertificateChain();
-        X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
-
-        PrivateKey key = ((KeyPair) new PEMReader(Files.newBufferedReader(privateKey.toPath(), StandardCharsets.UTF_8)).readObject()).getPrivate();
-
-        // first, backward compatible signature for <1.433 Jenkins that forgets to flush the stream.
-        // we generate this in the original names that those Jenkins understands.
-        SignatureGenerator sg = new SignatureGenerator(signer, key);
-        o.writeCanonical(new OutputStreamWriter(sg.getOut(), StandardCharsets.UTF_8));
-        sg.addRecord(sign,"");
-
-        // then the correct signature, into names that don't collide.
-        OutputStream raw = new NullOutputStream();
-        if (canonical!=null) {
-            raw = new FileOutputStream(canonical);
-        }
-        sg = new SignatureGenerator(signer, key);        
-        try(OutputStreamWriter osw = new OutputStreamWriter(new TeeOutputStream(sg.getOut(),raw), StandardCharsets.UTF_8)) {
-            o.writeCanonical(osw);
-        }
-        sg.addRecord(sign,"correct_");
-
-        // and certificate chain
-        JSONArray a = new JSONArray();
-        for (X509Certificate cert : certs)
-            a.add(new String(Base64.encodeBase64(cert.getEncoded()), StandardCharsets.UTF_8));
-        sign.put("certificates",a);
-
-        o.put("signature",sign);
-
-        return o;
     }
 
     /**
@@ -205,25 +149,6 @@ public class Signer {
             byte[] s512 = sha512sig.sign();
             signature.setSignature(new String(Base64.encodeBase64(s1), StandardCharsets.UTF_8));
             signature.setSignature512(Hex.encodeHexString(s512));
-
-            // did the signature validate?
-            if (!verifier1.verify(s1))
-                throw new GeneralSecurityException("Signature (SHA-1) failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
-            if (!verifier512.verify(s512))
-                throw new GeneralSecurityException("Signature (SHA-512) failed to validate. Either the certificate and the private key weren't matching, or a bug in the program.");
-        }
-
-        public void addRecord(JSONObject sign, String prefix) throws GeneralSecurityException, IOException {
-            // digest
-            byte[] digest = sha1.digest();
-            sign.put(prefix+"digest",new String(Base64.encodeBase64(digest), StandardCharsets.UTF_8));
-            sign.put(prefix+"digest512", Hex.encodeHexString(sha512.digest()));
-
-            // signature
-            byte[] s1 = sha1sig.sign();
-            byte[] s512 = sha512sig.sign();
-            sign.put(prefix+"signature",new String(Base64.encodeBase64(s1), StandardCharsets.UTF_8));
-            sign.put(prefix+"signature512",Hex.encodeHexString(s512));
 
             // did the signature validate?
             if (!verifier1.verify(s1))
