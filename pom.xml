@@ -188,6 +188,11 @@
       <version>2.33</version>
     </dependency>
     <dependency>
+      <groupId>io.jenkins.lib</groupId>
+      <artifactId>support-log-formatter</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>version-number</artifactId>
       <version>1.7</version>

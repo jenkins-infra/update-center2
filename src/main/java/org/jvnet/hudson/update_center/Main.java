@@ -25,6 +25,7 @@ package org.jvnet.hudson.update_center;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
+import io.jenkins.lib.support_log_formatter.SupportLogFormatter;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
@@ -57,7 +58,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,6 +67,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -146,7 +148,7 @@ public class Main {
             usage="Specify an URL of the 'always up' server for performing connection check.")
     public String connectionCheckUrl;
 
-    @Option(name="-pretty",usage="Pretty-print the result")
+    @Option(name="-pretty",usage="Pretty-print the result") // TODO add support for that in fastjson
     public boolean prettyPrint;
 
     @Option(name="-cap",usage="Cap the version number and only report plugins that are compatible with ")
@@ -201,6 +203,12 @@ public class Main {
         if (!System.getProperty("file.encoding").equals("UTF-8")) {
             System.err.println("This tool must be launched with -Dfile.encoding=UTF-8");
             System.exit(1);
+        }
+
+        for (Handler h : java.util.logging.Logger.getLogger("").getHandlers()) {
+            if (h instanceof ConsoleHandler) {
+                h.setFormatter(new SupportLogFormatter());
+            }
         }
 
         System.exit(new Main().run(args));
@@ -321,6 +329,7 @@ public class Main {
         latest.close();
     }
 
+    // TODO Reimplement based on fastjson
     String mapPluginToDocumentationUrl() {
         if (pluginToDocumentationUrl.isEmpty()) {
             throw new IllegalStateException("Must run after buildUpdateCenterJson");
