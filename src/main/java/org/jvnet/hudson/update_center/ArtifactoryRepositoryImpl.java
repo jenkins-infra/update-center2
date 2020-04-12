@@ -125,12 +125,12 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private static class GsonFile {
-        public String path; // example: org/acme/whatever/1.0
-        public String name; // example: whatever-1.0.jar
-        public String actual_sha1; // base64
-        public String sha256; // base64
-        public Date modified;
-        public Date created;
+        String path; // example: org/acme/whatever/1.0
+        String name; // example: whatever-1.0.jar
+        String actual_sha1; // base64
+        String sha256; // base64
+        Date modified;
+        Date created;
     }
 
     private static class GsonResponse {
