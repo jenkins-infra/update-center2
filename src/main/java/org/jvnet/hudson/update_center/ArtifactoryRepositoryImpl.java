@@ -136,7 +136,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
     private Map<String, String> cache = new HashMap<>();
 
-    private static final int CACHE_ENTRY_MAX_LENGTH = 1024 * 50;
+    private static final int CACHE_ENTRY_MAX_LENGTH = 1024 * 64;
 
     private void initialize() throws IOException {
         if (initialized) {
