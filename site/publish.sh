@@ -9,7 +9,7 @@ chmod +x jq || { echo "Failed to make jq executable" >&2 ; exit 1; }
 
 export PATH=.:$PATH
 
-"$( dirname "$0" )/generate.sh" ./www2 ./download ./fallback
+"$( dirname "$0" )/generate.sh" ./www2 ./download
 
 # push plugins to mirrors.jenkins-ci.org
 chmod -R a+r download
@@ -20,13 +20,3 @@ rsync -avz --size-only download/plugins/ ${RSYNC_USER}@${UPDATES_SITE}:/srv/rele
 # delete old sites
 chmod -R a+r www2
 rsync -acvz www2/ --exclude=/updates --delete ${RSYNC_USER}@${UPDATES_SITE}:/var/www/${UPDATES_SITE}
-
-# push generated htaccess file on the azure file storage produpdatesproxy
-# This file is used by updates.azure.jenkins.io as fallback service for updates.jenkins.io
-
-az storage file upload-batch \
-    --account-name produpdatesproxy \
-    --account-key "${UPDATESPROXY_STORAGEACCOUNTKEY}" \
-    --source ./fallback \
-    --destination updates-proxy \
-    --validate-content
