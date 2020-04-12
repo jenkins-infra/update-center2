@@ -87,7 +87,7 @@ public final class Plugin {
         Map.Entry<VersionNumber,HPI> tippingPoint = findYoungestJenkinsArtifact();
         if (tippingPoint!=null) {
             if (artifacts.headMap(tippingPoint.getKey()).entrySet().removeIf(e -> !e.getValue().isAuthenticJenkinsArtifactWithLog())) {
-                System.err.println("Removed versions from " + getArtifactId() + " because of #isAuthenticJenkinsArtifact(). Versions left: " + artifacts.keySet().stream().map(Objects::toString).collect(Collectors.joining(", ")));
+                LOGGER.log(Level.INFO, () -> "Removed versions from " + getArtifactId() + " because of #isAuthenticJenkinsArtifact(). Versions left: " + artifacts.keySet().stream().map(Objects::toString).collect(Collectors.joining(", ")));
             }
         }
     }

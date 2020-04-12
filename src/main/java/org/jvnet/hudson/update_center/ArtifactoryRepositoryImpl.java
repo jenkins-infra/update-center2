@@ -223,11 +223,14 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         return new FileInputStream(cacheFile);
     }
 
-    private File getFile(String url) throws IOException {
+    private File getFile(final String url) throws IOException {
         String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes(StandardCharsets.UTF_8));
         File cacheFile = new File(cacheDirectory, urlBase64);
+
         if (!cacheFile.exists()) {
-            System.err.println("Downloading: " + url);
+            // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
+            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache)");
+
             final File parentFile = cacheFile.getParentFile();
             if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
                 throw new IllegalStateException("Failed to create non-existing directory " + parentFile);
