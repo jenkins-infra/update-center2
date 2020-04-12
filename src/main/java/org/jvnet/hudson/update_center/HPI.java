@@ -187,42 +187,56 @@ public class HPI extends MavenArtifact {
         return trim;
     }
 
-    public List<Developer> getDevelopers() throws IOException {
-        String devs = getManifestAttributes().getValue("Plugin-Developers");
-        if (devs == null || devs.trim().length()==0) return Collections.emptyList();
+    private List<Developer> developers;
 
-        List<Developer> r = new ArrayList<Developer>();
-        Matcher m = developersPattern.matcher(devs);
-        int totalMatched = 0;
-        while (m.find()) {
-            final String name = fixEmptyAndTrim(m.group(1));
-            final String id = fixEmptyAndTrim(m.group(2));
-            final String email = fixEmptyAndTrim(m.group(3));
-            if (name != null && id != null && email != null) {
-                r.add(new Developer(name, id, email));
+    public List<Developer> getDevelopers() throws IOException {
+        if (developers == null) {
+            String devs = getManifestAttributes().getValue("Plugin-Developers");
+            if (devs == null || devs.trim().length() == 0) {
+                developers = Collections.emptyList();
+            } else {
+
+                List<Developer> r = new ArrayList<Developer>();
+                Matcher m = developersPattern.matcher(devs);
+                int totalMatched = 0;
+                while (m.find()) {
+                    final String name = fixEmptyAndTrim(m.group(1));
+                    final String id = fixEmptyAndTrim(m.group(2));
+                    final String email = fixEmptyAndTrim(m.group(3));
+                    if (name != null && id != null && email != null) {
+                        r.add(new Developer(name, id, email));
+                    }
+                    totalMatched += m.end() - m.start();
+                }
+                if (totalMatched < devs.length()) {
+                    // ignore and move on
+                    System.err.println("Unparsable developer info: '" + devs.substring(totalMatched) + "'");
+                }
+                developers = r;
             }
-            totalMatched += m.end() - m.start();
         }
-        if (totalMatched < devs.length())
-            // ignore and move on
-            System.err.println("Unparsable developer info: '" + devs.substring(totalMatched)+"'");
-        return r;
+        return developers;
     }
 
-    public String getDescription() throws IOException {
-        String description = plainText2html(readSingleValueFromXmlFile(resolvePOM(), "/project/description"));
+    private String description;
 
-        ArtifactCoordinates coordinates = new ArtifactCoordinates(artifact.groupId, artifact.artifactId, artifact.version, "jar", null);
-        try (InputStream is = repository.getZipFileEntry(new MavenArtifact(repository, coordinates), "index.jelly")) {
-            StringBuilder b = new StringBuilder();
-            HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
-            HtmlSanitizer.sanitize(IOUtils.toString(is, StandardCharsets.UTF_8), HTML_POLICY.apply(renderer));
-            description = b.toString().trim().replaceAll("\\s+", " ");
-        } catch (IOException e) {
-            LOGGER.log(Level.FINE, () -> "Failed to read description from index.jelly: " + e.getMessage());
-        }
-        if (isAlphaOrBeta()) {
-            description = "<b>(This version is experimental and may change in backward-incompatible ways)</b><br><br>" + description;
+    public String getDescription() throws IOException {
+        if (description == null) {
+            String description = plainText2html(readSingleValueFromXmlFile(resolvePOM(), "/project/description"));
+
+            ArtifactCoordinates coordinates = new ArtifactCoordinates(artifact.groupId, artifact.artifactId, artifact.version, "jar", null);
+            try (InputStream is = repository.getZipFileEntry(new MavenArtifact(repository, coordinates), "index.jelly")) {
+                StringBuilder b = new StringBuilder();
+                HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> System.err.println("Bad HTML: " + html));
+                HtmlSanitizer.sanitize(IOUtils.toString(is, StandardCharsets.UTF_8), HTML_POLICY.apply(renderer));
+                description = b.toString().trim().replaceAll("\\s+", " ");
+            } catch (IOException e) {
+                LOGGER.log(Level.FINE, () -> "Failed to read description from index.jelly: " + e.getMessage());
+            }
+            if (isAlphaOrBeta()) {
+                description = "<b>(This version is experimental and may change in backward-incompatible ways)</b><br><br>" + description;
+            }
+            this.description = description;
         }
         return description;
     }
@@ -316,16 +330,20 @@ public class HPI extends MavenArtifact {
         return authentic;
     }
 
+    private String name;
 
     /** @return The plugin name defined in the POM &lt;name> modified by simplication rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
     public String getName() throws IOException {
-        String title = readSingleValueFromXmlFile(resolvePOM(), "/project/name");
-        if (title == null || "".equals(title)) {
-            title = artifact.artifactId;
-        } else {
-            title = simplifyPluginName(title);
+        if (name == null) {
+            String title = readSingleValueFromXmlFile(resolvePOM(), "/project/name");
+            if (title == null || "".equals(title)) {
+                title = artifact.artifactId;
+            } else {
+                title = simplifyPluginName(title);
+            }
+            name = title;
         }
-        return title;
+        return name;
     }
 
     @VisibleForTesting
@@ -393,35 +411,40 @@ public class HPI extends MavenArtifact {
         }
     }
 
+    private String pluginUrl;
+
     /** @return The URL as specified in the POM, or the overrides file. */
     public String getPluginUrl() throws IOException {
-        // Check whether the wiki URL should be overridden
-        String url = URL_OVERRIDES.getProperty(artifact.artifactId);
+        if (pluginUrl == null) {
+            // Check whether the wiki URL should be overridden
+            String url = URL_OVERRIDES.getProperty(artifact.artifactId);
 
-        // Otherwise read *.hpi!/META-INF/MANIFEST.MF#Url, if defined
-        if (url == null) {
-            url = getManifestAttributes().getValue("Url");
-        }
+            // Otherwise read *.hpi!/META-INF/MANIFEST.MF#Url, if defined
+            if (url == null) {
+                url = getManifestAttributes().getValue("Url");
+            }
 
-        // Otherwise read the wiki URL from the POM, if any
-        if (url == null) {
-            url = readSingleValueFromXmlFile(resolvePOM(), "/project/url");
-        }
-        // last fallback: GitHub URL; also prevent plugins.j.io referencing itself
-        if (url == null || url.startsWith("https://plugins.jenkins.io")) {
-            url = requireTopLevelUrl(getScmUrl());
-        }
-        String originalUrl = url;
+            // Otherwise read the wiki URL from the POM, if any
+            if (url == null) {
+                url = readSingleValueFromXmlFile(resolvePOM(), "/project/url");
+            }
+            // last fallback: GitHub URL; also prevent plugins.j.io referencing itself
+            if (url == null || url.startsWith("https://plugins.jenkins.io")) {
+                url = requireTopLevelUrl(getScmUrl());
+            }
+            String originalUrl = url;
 
-        if (url != null) {
-            url = url.replace("wiki.hudson-ci.org/display/HUDSON/", "wiki.jenkins-ci.org/display/JENKINS/");
-            url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins.io");
-        }
+            if (url != null) {
+                url = url.replace("wiki.hudson-ci.org/display/HUDSON/", "wiki.jenkins-ci.org/display/JENKINS/");
+                url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins.io");
+            }
 
-        if (url != null && !url.equals(originalUrl)) {
-            LOGGER.fine("Rewrote URL for plugin " + artifact.artifactId + " from " + originalUrl + " to " + url);
+            if (url != null && !url.equals(originalUrl)) {
+                LOGGER.fine("Rewrote URL for plugin " + artifact.artifactId + " from " + originalUrl + " to " + url);
+            }
+            pluginUrl = url;
         }
-        return url;
+        return pluginUrl;
     }
 
     @VisibleForTesting
@@ -579,79 +602,89 @@ public class HPI extends MavenArtifact {
         return gh.isRepoExisting(url) ? url : (gh.isRepoExisting(shortenedUrl) ? shortenedUrl : null);
     }
 
+    private String scmUrl;
+    private boolean scmUrlCached; // separate status variable because 'null' has the 'undefined' meaning
+
     /**
      * Get hostname of SCM specified in POM of latest release, or null.
      * Used to determine if source lives in github or svn.
      */
     public String getScmUrl() throws IOException {
-        if (resolvePOM().exists()) {
-            String scm = _getScmUrl();
-            if (scm == null) {
-                scm = getScmUrlFromDeveloperConnection();
-            }
-            if (scm == null) {
-                System.out.println("** Failed to determine SCM URL from POM or parent POM of " + artifact.artifactId);
-            }
-            scm = interpolateProjectName(scm);
-            String originalScm = scm;
-            scm = requireHttpsGitHubJenkinsciUrl(scm);
-            if (originalScm != null && scm == null) {
-                System.out.println("** Rejecting URL outside GitHub.com/jenkinsci for " + artifact.artifactId + ": " + originalScm);
-            }
-
-            if (scm == null) {
-                // Last resort: check whether a ${artifactId}-plugin repo in jenkinsci exists, if so, use that
-                scm = "https://github.com/jenkinsci/" + artifact.artifactId + "-plugin";
-                System.out.println("** Falling back to default repo for " + artifact.artifactId + ": " + scm);
-
-                String checkedScm = scm;
-                // Check whether the fallback repo actually exists, if not, don't publish the repo name
-                scm = requireGitHubRepoExistence(scm);
+        if (!scmUrlCached) {
+            scmUrlCached = true;
+            if (resolvePOM().exists()) {
+                String scm = _getScmUrl();
                 if (scm == null) {
-                    System.out.println("** Repository does not actually exist: " + checkedScm);
+                    scm = getScmUrlFromDeveloperConnection();
                 }
-            }
+                if (scm == null) {
+                    System.out.println("** Failed to determine SCM URL from POM or parent POM of " + artifact.artifactId);
+                }
+                scm = interpolateProjectName(scm);
+                String originalScm = scm;
+                scm = requireHttpsGitHubJenkinsciUrl(scm);
+                if (originalScm != null && scm == null) {
+                    System.out.println("** Rejecting URL outside GitHub.com/jenkinsci for " + artifact.artifactId + ": " + originalScm);
+                }
 
-            return scm;
+                if (scm == null) {
+                    // Last resort: check whether a ${artifactId}-plugin repo in jenkinsci exists, if so, use that
+                    scm = "https://github.com/jenkinsci/" + artifact.artifactId + "-plugin";
+                    System.out.println("** Falling back to default repo for " + artifact.artifactId + ": " + scm);
+
+                    String checkedScm = scm;
+                    // Check whether the fallback repo actually exists, if not, don't publish the repo name
+                    scm = requireGitHubRepoExistence(scm);
+                    if (scm == null) {
+                        System.out.println("** Repository does not actually exist: " + checkedScm);
+                    }
+                }
+                scmUrl = scm;
+            }
         }
-        return null;
+        return scmUrl;
     }
 
+    private List<String> labels;
+
     public List<String> getLabels() throws IOException { // TODO this would be better in a different class, doesn't fit HPI type
-        String scm = getScmUrl();
+        if (labels == null) {
+            String scm = getScmUrl();
 
-        List<String> gitHubLabels = new ArrayList<>();
-        if (scm != null && scm.contains("https://github.com/")) {
+            List<String> gitHubLabels = new ArrayList<>();
+            if (scm != null && scm.contains("https://github.com/")) {
 
-            List<String> unsanitizedLabels = new ArrayList<>();
-            String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
-            if (parts.length >= 2) {
-                unsanitizedLabels.addAll(
-                        Arrays.asList(
-                                GitHubSource.getInstance().getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
-                        )
-                );
-            }
-
-            for (String label : unsanitizedLabels) {
-                if (label.startsWith("jenkins-")) {
-                    label = label.replaceFirst("jenkins-", "");
+                List<String> unsanitizedLabels = new ArrayList<>();
+                String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
+                if (parts.length >= 2) {
+                    unsanitizedLabels.addAll(
+                            Arrays.asList(
+                                    GitHubSource.getInstance().getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
+                            )
+                    );
                 }
 
-                if (ALLOWED_GITHUB_LABELS.containsKey(label)) {
-                    gitHubLabels.add(label);
+                for (String label : unsanitizedLabels) {
+                    if (label.startsWith("jenkins-")) {
+                        label = label.replaceFirst("jenkins-", "");
+                    }
+
+                    if (ALLOWED_GITHUB_LABELS.containsKey(label)) {
+                        gitHubLabels.add(label);
+                    }
+                }
+
+                if (!gitHubLabels.isEmpty()) {
+                    System.out.println(artifact.artifactId + " got the following labels contributed from GitHub: " + org.apache.commons.lang3.StringUtils.join(gitHubLabels, ", "));
                 }
             }
 
-            if (!gitHubLabels.isEmpty()) {
-                System.out.println(artifact.artifactId + " got the following labels contributed from GitHub: " + org.apache.commons.lang3.StringUtils.join(gitHubLabels, ", "));
-            }
+            Set<String> labels = new TreeSet<>(Arrays.asList(getLabelsFromFile()));
+            labels.addAll(gitHubLabels);
+
+            this.labels = new ArrayList<>(labels);
         }
-
-        Set<String> labels = new TreeSet<>(Arrays.asList(getLabelsFromFile()));
-        labels.addAll(gitHubLabels);
-
-        return new ArrayList<>(labels);
+        return this.labels;
     }
 
     private static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
