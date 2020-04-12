@@ -75,7 +75,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         return !test.chars().allMatch(c -> c >= 0x2B && c < 0x7B);
     }
 
-    private static ArtifactCoordinates coordinatesFromGsonFile(GsonFile f) {
+    private static ArtifactCoordinates toGav(GsonFile f) {
         String fileName = f.name;
         String path = f.path;
 
@@ -152,8 +152,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         Gson gson = new Gson();
         GsonResponse json = gson.fromJson(Objects.requireNonNull(client.newCall(request).execute().body()).charStream(), GsonResponse.class);
         json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
-        this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).filter(Objects::nonNull).collect(Collectors.toSet());
-        this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
+        this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::toGav).filter(Objects::nonNull).collect(Collectors.toSet());
+        this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::toGav).collect(Collectors.toSet());
         LOGGER.log(Level.INFO, "Initialized " + this.getClass().getName());
     }
 
