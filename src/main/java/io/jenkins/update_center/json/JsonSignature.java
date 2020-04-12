@@ -5,28 +5,55 @@ import com.alibaba.fastjson.annotation.JSONField;
 import java.util.List;
 
 public class JsonSignature {
-    @JSONField
-    public List<String> certificates;
+    private List<String> certificates;
 
-    @JSONField
-    public String correct_digest;
-    @JSONField
-    public String correct_signature;
+    private String digest;
+    private String signature;
 
-    @JSONField
-    public String correct_digest512;
-    @JSONField
-    public String correct_signature512;
+    private String digest512;
+    private String signature512;
 
-    public JsonSignature() {
-
+    public void setCertificates(List<String> certificates) {
+        this.certificates = certificates;
     }
 
-    public JsonSignature(List<String> certificates, String correct_digest, String correct_signature, String correct_digest512, String correct_signature512) {
-        this.certificates = certificates;
-        this.correct_digest = correct_digest;
-        this.correct_signature = correct_signature;
-        this.correct_digest512 = correct_digest512;
-        this.correct_signature512 = correct_signature512;
+    public void setDigest(String digest) {
+        this.digest = digest;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public void setDigest512(String digest512) {
+        this.digest512 = digest512;
+    }
+
+    public void setSignature512(String signature512) {
+        this.signature512 = signature512;
+    }
+
+    public List<String> getCertificates() {
+        return certificates;
+    }
+
+    @JSONField(name = "correct_digest")
+    public String getDigest() {
+        return digest;
+    }
+
+    @JSONField(name = "correct_signature")
+    public String getSignature() {
+        return signature;
+    }
+
+    @JSONField(name = "correct_digest512")
+    public String getDigest512() {
+        return digest512;
+    }
+
+    @JSONField(name = "correct_signature512")
+    public String getSignature512() {
+        return signature512;
     }
 }

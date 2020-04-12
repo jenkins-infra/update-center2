@@ -99,7 +99,7 @@ public class Signer {
         List<String> certificates = new ArrayList<>();
         for (X509Certificate cert : certs)
             certificates.add(new String(Base64.encodeBase64(cert.getEncoded()), StandardCharsets.UTF_8));
-        sign.certificates = certificates;
+        sign.setCertificates(certificates);
 
         return sign;
     }
@@ -197,14 +197,14 @@ public class Signer {
         public void fill(JsonSignature signature) throws GeneralSecurityException {
             // digest
             byte[] digest = sha1.digest();
-            signature.correct_digest = new String(Base64.encodeBase64(digest), StandardCharsets.UTF_8);
-            signature.correct_digest512 = Hex.encodeHexString(sha512.digest());
+            signature.setDigest(new String(Base64.encodeBase64(digest), StandardCharsets.UTF_8));
+            signature.setDigest512(Hex.encodeHexString(sha512.digest()));
 
             // signature
             byte[] s1 = sha1sig.sign();
             byte[] s512 = sha512sig.sign();
-            signature.correct_signature = new String(Base64.encodeBase64(s1), StandardCharsets.UTF_8);
-            signature.correct_signature512 = Hex.encodeHexString(s512);
+            signature.setSignature(new String(Base64.encodeBase64(s1), StandardCharsets.UTF_8));
+            signature.setSignature512(Hex.encodeHexString(s512));
 
             // did the signature validate?
             if (!verifier1.verify(s1))
