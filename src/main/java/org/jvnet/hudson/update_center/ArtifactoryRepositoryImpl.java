@@ -33,9 +33,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
+    private static final Logger LOGGER = Logger.getLogger(ArtifactoryRepositoryImpl.class.getName());
 
     private static final String ARTIFACTORY_URL = "https://repo.jenkins-ci.org/";
     private static final String ARTIFACTORY_API_URL = "https://repo.jenkins-ci.org/api/";
@@ -68,22 +71,22 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         return wars;
     }
 
-    private static boolean isNotOnlyPrintableAscii(String test) {
-        return !test.chars().allMatch(c -> c >= 0x20 && c < 0x7F);
+    private static boolean containsIllegalChars(String test) {
+        return !test.chars().allMatch(c -> c >= 0x2B && c < 0x7B);
     }
 
     private static ArtifactCoordinates coordinatesFromGsonFile(GsonFile f) {
         String fileName = f.name;
         String path = f.path;
 
-        if (isNotOnlyPrintableAscii(fileName) || isNotOnlyPrintableAscii(path)) {
-            System.out.println("coordinatesFromGsonFile: Not only printable ascii: " + f.path + " / " + f.name);
+        if (containsIllegalChars(fileName) || containsIllegalChars(path)) {
+            LOGGER.log(Level.INFO, "Not only printable ascii: " + f.path + " / " + f.name);
             return null;
         }
 
         int gaToV = path.lastIndexOf('/');
         if (gaToV <= 0) {
-            System.out.println("coordinatesFromGsonFile: Unexpected path/name: " + f.path + " / " + f.name);
+            LOGGER.log(Level.INFO, "Unexpected path/name: " + f.path + " / " + f.name);
             return null;
         }
         String version = path.substring(gaToV + 1);
@@ -91,7 +94,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
         int gToA = ga.lastIndexOf('/');
         if (gToA <= 0) {
-            System.out.println("coordinatesFromGsonFile: Unexpected path/name: " + f.path + " / " + f.name);
+            LOGGER.log(Level.INFO, "Unexpected path/name: " + f.path + " / " + f.name);
             return null;
         }
         String artifactId = ga.substring(gToA + 1);
@@ -103,13 +106,13 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
         final String expectedFileName = artifactId + "-" + version + "." + extension;
         if (!fileName.equals(expectedFileName)) {
-            System.out.println("coordinatesFromGsonFile: File name: " + fileName + " does not match expected file name: " + expectedFileName);
+            LOGGER.log(Level.INFO, "File name: " + fileName + " does not match expected file name: " + expectedFileName);
             return null;
         }
 
         final int classifierBeginIndex = artifactId.length() + 1 + version.length() + 1;
         if (classifierBeginIndex < baseName.length()) {
-            System.out.println("coordinatesFromGsonFile: Unexpectedly have classifier for path: " + path + " name: " + fileName);
+            LOGGER.log(Level.INFO, "Unexpectedly have classifier for path: " + path + " name: " + fileName);
             return null;
         }
         return new ArtifactCoordinates(groupId, artifactId, version, extension, null, f.modified.getTime());
@@ -142,7 +145,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         if (initialized) {
             throw new IllegalStateException("re-initialized");
         }
-        System.err.println("Initializing " + this.getClass().getName());
+        LOGGER.log(Level.INFO, "Initializing " + this.getClass().getName());
 
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(ARTIFACTORY_AQL_URL).addHeader("Authorization", Credentials.basic(username, password)).post(RequestBody.create(AQL_QUERY, MediaType.parse("text/plain; charset=utf-8"))).build();
@@ -151,7 +154,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
         this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).filter(Objects::nonNull).collect(Collectors.toSet());
         this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::coordinatesFromGsonFile).collect(Collectors.toSet());
-        System.err.println("Initialized " + this.getClass().getName());
+        LOGGER.log(Level.INFO, "Initialized " + this.getClass().getName());
     }
 
     private String hexToBase64(String hex) throws IOException {
