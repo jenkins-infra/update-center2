@@ -198,6 +198,11 @@ public class Main {
     public static final String EOL = System.getProperty("line.separator");
 
     public static void main(String[] args) throws Exception {
+        if (!System.getProperty("file.encoding").equals("UTF-8")) {
+            System.err.println("This tool must be launched with -Dfile.encoding=UTF-8");
+            System.exit(1);
+        }
+
         System.exit(new Main().run(args));
     }
 
