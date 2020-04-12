@@ -224,10 +224,11 @@ public class Main {
                 run();
             } else {
                 List<String> invocations = IOUtils.readLines(Files.newBufferedReader(argumentsFile.toPath(), StandardCharsets.UTF_8));
+                int executions = 0;
                 for (String line : invocations) {
-                    if (!line.trim().startsWith("#") && !line.trim().isEmpty()) {
+                    if (!line.trim().startsWith("#") && !line.trim().isEmpty()) { // TODO more flexible comments support, e.g. end-of-line
 
-                        System.err.println("Running with args: " + line);
+                        LOGGER.log(Level.INFO, "Running with args: " + line);
                         // TODO combine args array and this list
                         String[] invocationArgs = line.split(" +");
 
@@ -237,13 +238,15 @@ public class Main {
                         new ClassParser().parse(signer, p);
                         p.parseArgument(invocationArgs);
                         run();
+                        executions++;
                     }
                 }
+                LOGGER.log(Level.INFO, "Finished " + executions + " executions found in parameters file " + argumentsFile);
             }
 
             return 0;
         } catch (CmdLineException e) {
-            System.err.println(e.getMessage());
+            LOGGER.log(Level.SEVERE, e.getMessage());
             p.printUsage(System.err);
             return 1;
         }
