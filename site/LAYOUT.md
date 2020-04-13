@@ -82,6 +82,9 @@ Directories with names containing Jenkins LTS baselines like `2.204` are version
 * `stable-2.204/` contains the tiered update site for Jenkins 2.204.x.
 
 Each of these update sites only offer plugins compatible with the respective baseline, as well as the newest weekly or LTS release, depending on the variant (LTS or weekly).
+This increases the usefulness of the update sites to users of slightly older releases of Jenkins, as they won't regularly be offered incompatible releases of plugins.
+
+The Jenkins project publishes a limited, fixed number of tiered update sites to encourage users to regularly update Jenkins.  
 
 ```
 2.204/
@@ -136,13 +139,8 @@ current/
 ├── update-center.actual.json
 ├── update-center.json
 ├── update-center.json.html
-└── updates/
+└── updates  ->  ../updates
 ```
-
-* `update-center.json` (JSONP)
-* `update-center.json.html` (HTML with JS)
-* `update-center.actual.json` (actual JSON)
-* `updates/`
 
 
 ## Stable update site
@@ -156,7 +154,8 @@ stable/
 ├── plugin-documentation-urls.json   (Unused, may be removed)
 ├── update-center.actual.json
 ├── update-center.json
-└── update-center.json.html
+├── update-center.json.html
+└── updates  ->  ../updates
 ```
 
 This is a copy of/symlink to the LTS update site for the most recent LTS baseline.
@@ -170,6 +169,19 @@ It exists for compatibility with older LTS masters that explicitly configure thi
 Regular update site filter out version numbers containing `alpha` and `beta`.
 This is an update site that users can use to download those release.
 Otherwise, this is similar to `current/` in that no version caps exist.
+
+```
+experimental/
+├── latest/                          (Unused, may be removed)
+│   ├── .htaccess                    (Unused, may be removed)
+│   └── index.html                   (Unused, may be removed)
+├── latestCore.txt                   (Unused, may be removed)
+├── plugin-documentation-urls.json   (Unused, may be removed)
+├── update-center.actual.json
+├── update-center.json
+├── update-center.json.html
+└── updates  ->  ../updates
+```
 
 See also: https://jenkins.io/doc/developer/publishing/releasing-experimental-updates/
 
