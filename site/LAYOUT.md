@@ -159,7 +159,7 @@ stable/
 ```
 
 This is a copy of/symlink to the LTS update site for the most recent LTS baseline.
-`.htaccess` forwards requests to the latest `stable-x.xxx` update site.
+The top-level `.htaccess` file forwards requests to the latest `stable-x.xxx` update site.
 
 It exists for compatibility with older LTS masters that explicitly configure this URL as their update center and is also used by the jenkins-infra/jenkins.io build to determine the current LTS release (`latestCore.txt`). 
 
@@ -201,3 +201,13 @@ download/
 Each `index.html` file contains a list of links to `.war` (for core) and `.hpi` (for plugins) files.
 Notably, all links apparently go to the _same_ directory and take e.g. the form `/download/war/2.2.204.6/jenkins.war`.
 This is handled through the _top-level_ `.htaccess` file which redirects such download requests to the mirrors site.
+
+## Top-level `.htaccess` file
+
+The top-level `.htaccess` file is created by `generate-htaccess.sh` and implements the following redirects:
+
+* Redirects from top-level update center files to tiered update sites (or `current`).
+* Redirects from `stable/` to the latest LTS update site.
+* Redirects from top-level release history and plugin versions JSON files to the real files in `current`
+* Redirects for any other `.json` / `.json.html` files (i.e. tool downloader metadata in `updates/`) to the mirrors network. <!-- does this even work / matter? -->
+* Redirects for `.war` and `.hpi` files in the `download/` directory tree to the mirrors network.
