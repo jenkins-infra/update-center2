@@ -63,7 +63,7 @@ public class Popularities {
         return instance;
     }
 
-    public float getPopularity(String pluginId) {
-        return (float)this.popularities.getOrDefault(pluginId, 0) / (float)maxPopularity;
+    public double getPopularity(String pluginId) {
+        return this.popularities.getOrDefault(pluginId, 0).doubleValue();
     }
 }
