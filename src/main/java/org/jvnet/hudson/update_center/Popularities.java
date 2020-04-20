@@ -63,8 +63,8 @@ public class Popularities {
         return instance;
     }
 
-    public double getPopularity(String pluginId) {
+    public float getPopularity(String pluginId) {
         // TODO divide by maxPopularity again once we've identified and resolved the problem with inconsistent number of fractional digits
-        return this.popularities.getOrDefault(pluginId, 0).doubleValue();
+        return this.popularities.getOrDefault(pluginId, 0).floatValue() / Integer.valueOf(maxPopularity).floatValue();
     }
 }
