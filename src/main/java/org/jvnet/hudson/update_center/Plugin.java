@@ -505,6 +505,7 @@ public class Plugin {
         }
 
         json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
+        json.put("popularity", Popularities.getInstance().getPopularity(artifactId));
         json.put("labels", getLabels());
 
         String description = plainText2html(readSingleValueFromXmlFile(latest.resolvePOM(), "/project/description"));
