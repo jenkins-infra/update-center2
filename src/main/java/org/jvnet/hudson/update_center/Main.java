@@ -40,6 +40,8 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import javax.annotation.CheckForNull;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -47,6 +49,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -135,7 +138,7 @@ public class Main {
     public String connectionCheckUrl;
 
     @Option(name="-pretty",usage="Pretty-print the result")
-    public boolean prettyPrint;
+    public boolean prettyPrint; // TODO currently doesn't work anymore
 
     @Option(name="-cap",usage="Cap the version number and only report plugins that are compatible with ")
     public String capPlugin = null;
@@ -292,11 +295,11 @@ public class Main {
         return root.toString();
     }
 
-    String updateCenterPostCallJson(JSONObject ucRoot) {
+    String updateCenterPostCallJson(JSONObject ucRoot) throws IOException {
         return "updateCenter.post(" + EOL + prettyPrintJson(ucRoot) + EOL + ");";
     }
 
-    String updateCenterPostMessageHtml(JSONObject ucRoot) {
+    String updateCenterPostMessageHtml(JSONObject ucRoot) throws IOException {
         // needs the DOCTYPE to make JSON.stringify work on IE8
         return "\uFEFF<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + prettyPrintJson(ucRoot) + EOL + "),'*'); };</script></body></html>";
     }
@@ -347,8 +350,12 @@ public class Main {
         rhpw.close();
     }
 
-    private String prettyPrintJson(JSONObject json) {
-        return prettyPrint? json.toString(2): json.toString();
+    private String prettyPrintJson(JSONObject json) throws IOException {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final BufferedWriter w = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8));
+        json.writeCanonical(w);
+        w.flush();
+        return baos.toString(StandardCharsets.UTF_8.name());
     }
 
     protected MavenRepository createRepository() throws Exception {
