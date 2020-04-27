@@ -6026,7 +6026,7 @@
     "versions": [
       {
         "lastVersion": "1.9",
-        "pattern": ".*"
+        "pattern": "1[.].*"
       }
     ]
   },
