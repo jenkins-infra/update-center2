@@ -48,6 +48,8 @@ import org.kohsuke.args4j.Option;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -347,7 +349,7 @@ public class Main {
     }
 
     @Deprecated
-    String updateCenterPostCallJson(JSONObject ucRoot) {
+    String updateCenterPostCallJson(JSONObject ucRoot) throws IOException {
         return updateCenterPostCallJson(prettyPrintJson(ucRoot));
     }
 
@@ -356,7 +358,7 @@ public class Main {
     }
 
     @Deprecated
-    String updateCenterPostMessageHtml(JSONObject ucRoot) {
+    String updateCenterPostMessageHtml(JSONObject ucRoot) throws IOException {
         return updateCenterPostMessageHtml(prettyPrintJson(ucRoot));
     }
 
@@ -413,9 +415,12 @@ public class Main {
         rhpw.close();
     }
 
-    @Deprecated
-    private String prettyPrintJson(JSONObject json) {
-        return prettyPrint? json.toString(2): json.toString();
+    private String prettyPrintJson(JSONObject json) throws IOException {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final BufferedWriter w = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8));
+        json.writeCanonical(w);
+        w.flush();
+        return baos.toString(StandardCharsets.UTF_8.name());
     }
 
     protected MavenRepository createRepository() throws Exception {

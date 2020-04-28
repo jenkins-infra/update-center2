@@ -59,10 +59,10 @@ public class JsonChecksumTest {
         };
 
         @JSONField
-        public double random;
+        public float random;
 
         public Root() {
-            random = Math.random();
+            random = (float) Math.random();
             entries = new ArrayList<>();
             entries.add(new ListEntry("one"));
             entries.add(new ListEntry("two"));

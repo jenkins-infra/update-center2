@@ -138,6 +138,7 @@ public class PluginUpdateCenterEntry {
             }
 
             json.put("wiki", "https://plugins.jenkins.io/" + artifactId);
+            json.put("popularity", Popularities.getInstance().getPopularity(artifactId));
             json.put("labels", latest.getLabels());
 
             String description = latest.getDescription();
