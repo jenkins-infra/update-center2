@@ -52,7 +52,7 @@ mkdir -p "$WWW_ROOT_DIR"
 
 rm -rfv generator/
 rm -rfv generator.zip
-wget -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200412.223725-11-bin.zip"
+wget -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200428.093624-12-bin.zip"
 unzip generator.zip -d generator/
 
 
