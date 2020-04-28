@@ -80,7 +80,7 @@ public class IndexHtmlBuilder implements Closeable {
     }
 
     public void add(MavenArtifact a) throws IOException {
-        ArtifactSource.Digests digests = a.getDigests();
+        MavenRepository.Digests digests = a.getDigests();
         if (digests == null) {
             return;
         }

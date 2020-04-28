@@ -23,15 +23,13 @@
  */
 package org.jvnet.hudson.update_center;
 
-import hudson.util.VersionNumber;
-
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
 /**
- * Filters plugins in {@link MavenRepositoryImpl}.
- * @author Oleg Nenashev
- * @see MavenRepositoryImpl
+ * Filters plugins in {@link BaseMavenRepository}.
+ *
+ * @see BaseMavenRepository
  */
 public interface PluginFilter {
 

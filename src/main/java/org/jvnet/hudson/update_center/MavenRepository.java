@@ -1,51 +1,56 @@
 package org.jvnet.hudson.update_center;
 
 import hudson.util.VersionNumber;
-import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
-import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.sonatype.nexus.index.ArtifactInfo;
-import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.jar.Manifest;
 
-/**
- * A collection of artifacts from which we build index.
- *
- * @author Kohsuke Kawaguchi
- */
-public abstract class MavenRepository {
+public interface MavenRepository {
+    Collection<PluginHistory> listHudsonPlugins() throws IOException;
 
-    protected MavenRepository base;
+    HPI createHpiArtifact(ArtifactCoordinates a, PluginHistory p);
 
     /**
-     * Discover all plugins from this Maven repository.
+     * Discover all hudson.war versions. Map must be sorted by version number, descending.
      */
-    public abstract Collection<PluginHistory> listHudsonPlugins() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException;
+    TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException;
+
+    void listWar(TreeMap<VersionNumber, HudsonWar> r, String groupId, VersionNumber cap) throws IOException;
+
+    Collection<ArtifactCoordinates> listAllPlugins() throws IOException;
+
+    Digests getDigests(MavenArtifact artifact) throws IOException;
+
+    Manifest getManifest(MavenArtifact artifact) throws IOException;
+
+    InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException;
+
+    File resolve(ArtifactCoordinates artifact) throws IOException;
+
+    default File resolve(ArtifactCoordinates a, String packaging, String classifier) throws IOException {
+        return resolve(new ArtifactCoordinates(a.groupId, a.artifactId, a.version, packaging, classifier));
+    }
 
     /**
      * Discover all plugins from this Maven repository in order released, not using PluginHistory.
      */
-    public Map<Date,Map<String,HPI>> listHudsonPluginsByReleaseDate() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
+    default Map<Date,Map<String,HPI>> listHudsonPluginsByReleaseDate() throws IOException {
         Collection<PluginHistory> all = listHudsonPlugins();
 
-        Map<Date, Map<String,HPI>> plugins = new TreeMap<Date, Map<String,HPI>>();
+        Map<Date, Map<String,HPI>> plugins = new TreeMap<>();
 
         for (PluginHistory p : all) {
             for (HPI h : p.artifacts.values()) {
                 try {
                     Date releaseDate = h.getTimestampAsDate();
                     System.out.println("adding " + h.artifact.artifactId + ":" + h.version);
-                    Map<String,HPI> pluginsOnDate = plugins.get(releaseDate);
-                    if (pluginsOnDate==null) {
-                        pluginsOnDate = new TreeMap<String,HPI>();
-                        plugins.put(releaseDate, pluginsOnDate);
-                    }
+                    Map<String, HPI> pluginsOnDate = plugins.computeIfAbsent(releaseDate, k -> new TreeMap<>());
                     pluginsOnDate.put(p.artifactId,h);
                 } catch (IOException e) {
                     // if we fail to resolve artifact, move on
@@ -57,42 +62,8 @@ public abstract class MavenRepository {
         return plugins;
     }
 
-    /**
-     * find the HPI for the specified plugin
-     * @return the found HPI or null
-     */
-    public HPI findPlugin(String groupId, String artifactId, String version) throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
-        Collection<PluginHistory> all = listHudsonPlugins();
-
-        for (PluginHistory p : all) {
-            for (HPI h : p.artifacts.values()) {
-                if (h.isEqualsTo(groupId, artifactId, version))
-                  return h;
-            }
-        }
-        return null;
+    class Digests {
+        public String sha1;
+        public String sha256;
     }
-
-
-    /**
-     * Discover all hudson.war versions. Map must be sorted by version number, descending.
-     */
-    public abstract TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException;
-
-    protected File resolve(ArtifactInfo a) throws AbstractArtifactResolutionException {
-        return resolve(a,a.packaging, null);
-    }
-
-    protected abstract File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException;
-
-    /** Should be called by subclasses who are decorating an existing MavenRepository instance. */
-    protected void setBaseRepository(MavenRepository base) {
-        this.base = base;
-    }
-
-    /** @return The base instance that this repository is wrapping; or {@code null} if this is the base instance. */
-    public MavenRepository getBaseRepository() {
-        return base;
-    }
-
 }

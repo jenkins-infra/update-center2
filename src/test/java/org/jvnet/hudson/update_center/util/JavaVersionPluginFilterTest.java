@@ -2,10 +2,10 @@ package org.jvnet.hudson.update_center.util;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.jvnet.hudson.update_center.ArtifactCoordinates;
 import org.jvnet.hudson.update_center.HPI;
 import org.jvnet.hudson.update_center.PluginHistory;
 import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
-import org.sonatype.nexus.index.ArtifactInfo;
 
 import javax.annotation.CheckForNull;
 
@@ -14,7 +14,7 @@ public class JavaVersionPluginFilterTest {
 
         private final JavaSpecificationVersion minimumJavaVersion;
 
-        public MockHPI(ArtifactInfo info, JavaSpecificationVersion minimumJavaVersion) throws Exception {
+        public MockHPI(ArtifactCoordinates info, JavaSpecificationVersion minimumJavaVersion) throws Exception {
             super(null, new PluginHistory(info.artifactId), info);
             this.minimumJavaVersion = minimumJavaVersion;
         }
@@ -28,9 +28,7 @@ public class JavaVersionPluginFilterTest {
 
     @Test
     public void testFilter() throws Exception {
-        ArtifactInfo info = new ArtifactInfo();
-        info.artifactId = "test-plugin";
-        info.version = "1.0";
+        ArtifactCoordinates info = new ArtifactCoordinates(null, "test-plugin", "1.0", null, null);
         JavaSpecificationVersion version11 = new JavaSpecificationVersion("11");
         JavaSpecificationVersion version8 = new JavaSpecificationVersion("1.8");
         JavaSpecificationVersion version7 = new JavaSpecificationVersion("1.7");

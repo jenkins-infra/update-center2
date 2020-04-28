@@ -23,7 +23,7 @@
  */
 package org.jvnet.hudson.update_center;
 
-import hudson.util.VersionNumber;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -33,9 +33,8 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
-import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
+import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.transform.ArtifactTransformationManager;
@@ -44,10 +43,8 @@ import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.sonatype.nexus.index.ArtifactInfo;
 import org.sonatype.nexus.index.FlatSearchRequest;
 import org.sonatype.nexus.index.FlatSearchResponse;
@@ -60,22 +57,27 @@ import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 import org.sonatype.nexus.index.updater.IndexDataReader;
 import org.sonatype.nexus.index.updater.IndexDataReader.IndexDataReadResult;
 
-import javax.annotation.Nonnull;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.jar.Manifest;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Maven repository and its nexus index.
@@ -84,7 +86,7 @@ import java.util.TreeMap;
  *
  * @author Kohsuke Kawaguchi
  */
-public class MavenRepositoryImpl extends MavenRepository {
+public class MavenRepositoryImpl extends BaseMavenRepository {
     protected NexusIndexer indexer;
     protected ArtifactFactory af;
     protected ArtifactResolver ar;
@@ -93,8 +95,6 @@ public class MavenRepositoryImpl extends MavenRepository {
     protected ArtifactRepository local;
     protected ArtifactRepositoryFactory arf;
     private PlexusContainer plexus;
-    private boolean offlineIndex;
-    protected List<PluginFilter> pluginFilters = new ArrayList<>();
 
     public MavenRepositoryImpl() throws Exception {
         ClassWorld classWorld = new ClassWorld( "plexus.core", MavenRepositoryImpl.class.getClassLoader() );
@@ -120,33 +120,6 @@ public class MavenRepositoryImpl extends MavenRepository {
     }
 
     /**
-     * Adds a plugin filter.
-     * @param filter Filter to be added.
-     */
-    public void addPluginFilter(@Nonnull PluginFilter filter) {
-        pluginFilters.add(filter);
-    }
-
-    public void resetPluginFilters() {
-        this.pluginFilters.clear();
-    }
-
-    /**
-     * Set to true to force reusing locally cached index and not download new versions.
-     * Useful for debugging.
-     */
-    public void setOfflineIndex(boolean offline) {
-        this.offlineIndex = offline;
-    }
-
-    /**
-     * Plexus container that's hosting the Maven components.
-     */
-    public PlexusContainer getPlexus() {
-        return plexus;
-    }
-
-    /**
      * @param id
      *      Repository ID. This ID has to match the ID in the repository index, due to a design bug in Maven.
      * @param indexDirectory
@@ -154,25 +127,29 @@ public class MavenRepositoryImpl extends MavenRepository {
      * @param repository
      *      URL of the Maven repository. Used to resolve artifacts.
      */
-    public void addRemoteRepository(String id, File indexDirectory, URL repository) throws IOException, UnsupportedExistingLuceneIndexException {
-        indexer.addIndexingContext(id, id,null, indexDirectory,null,null, NexusIndexer.DEFAULT_INDEX);
-        remoteRepositories.add(
-                arf.createArtifactRepository(id, repository.toExternalForm(),
-                        new DefaultRepositoryLayout(), POLICY, POLICY));
+    public void addRemoteRepository(String id, File indexDirectory, URL repository) throws IOException {
+        try {
+            indexer.addIndexingContext(id, id, null, indexDirectory, null, null, NexusIndexer.DEFAULT_INDEX);
+            remoteRepositories.add(
+                    arf.createArtifactRepository(id, repository.toExternalForm(),
+                            new DefaultRepositoryLayout(), POLICY, POLICY));
+        } catch (UnsupportedExistingLuceneIndexException ex) {
+            throw new IOException(ex);
+        }
     }
 
-    public void addRemoteRepository(String id, URL repository) throws IOException, UnsupportedExistingLuceneIndexException {
+    public void addRemoteRepository(String id, URL repository) throws IOException {
         addRemoteRepository(id,new URL(repository,".index/nexus-maven-repository-index.gz"), repository);
     }
 
-    public void addRemoteRepository(String id, URL remoteIndex, URL repository) throws IOException, UnsupportedExistingLuceneIndexException {
+    public void addRemoteRepository(String id, URL remoteIndex, URL repository) throws IOException {
         addRemoteRepository(id,loadIndex(id,remoteIndex), repository);
     }
 
     /**
      * Loads a remote repository index (.zip or .gz), convert it to Lucene index and return it.
      */
-    private File loadIndex(String id, URL url) throws IOException, UnsupportedExistingLuceneIndexException {
+    private File loadIndex(String id, URL url) throws IOException {
         File dir = new File(new File(System.getProperty("java.io.tmpdir")), "maven-index/" + id);
         File local = new File(dir,"index"+getExtension(url));
         File expanded = new File(dir,"expanded");
@@ -182,7 +159,7 @@ public class MavenRepositoryImpl extends MavenRepository {
             con.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(url.getUserInfo().getBytes("UTF-8")));
         }
 
-        if (!expanded.exists() || !local.exists() || (local.lastModified() < con.getLastModified() && !offlineIndex)) {
+        if (!expanded.exists() || !local.exists() || (local.lastModified() < con.getLastModified())) {
             System.out.println("Downloading "+url);
             // if the download fail in the middle, only leave a broken tmp file
             dir.mkdirs();
@@ -204,6 +181,8 @@ public class MavenRepositoryImpl extends MavenRepository {
                     IndexDataReader dr = new IndexDataReader(in);
                     IndexDataReadResult result = dr.readIndex(w,
                             new DefaultIndexingContext(id,id,null,expanded,null,null,NexusIndexer.DEFAULT_INDEX,true));
+                } catch (UnsupportedExistingLuceneIndexException ex) {
+                    throw new IOException(ex);
                 } finally {
                     IndexUtils.close(w);
                     IOUtils.closeQuietly(in);
@@ -236,20 +215,7 @@ public class MavenRepositoryImpl extends MavenRepository {
         else        return s.substring(idx);
     }
 
-    protected File resolve(ArtifactInfo a, String type, String classifier) throws AbstractArtifactResolutionException {
-        Artifact artifact = af.createArtifactWithClassifier(a.groupId, a.artifactId, a.version, type, classifier);
-        if (!new File(localRepo, local.pathOf(artifact)).isFile()) {
-            System.err.println("Downloading " + artifact);
-        }
-        try {
-            ar.resolve(artifact, remoteRepositories, local);
-        } catch (RuntimeException e) {
-            throw new ArtifactResolutionException(e.getMessage(), artifact);
-        }
-        return artifact.getFile();
-    }
-
-    public Collection<PluginHistory> listHudsonPlugins() throws PlexusContainerException, ComponentLookupException, IOException, UnsupportedExistingLuceneIndexException, AbstractArtifactResolutionException {
+    public Collection<ArtifactCoordinates> listAllPlugins() throws IOException {
         BooleanQuery q = new BooleanQuery();
         q.setMinimumNumberShouldMatch(1);
         q.add(indexer.constructQuery(ArtifactInfo.PACKAGING,"hpi"), Occur.SHOULD);
@@ -258,52 +224,10 @@ public class MavenRepositoryImpl extends MavenRepository {
         FlatSearchRequest request = new FlatSearchRequest(q);
         FlatSearchResponse response = indexer.searchFlat(request);
 
-        Map<String, PluginHistory> plugins =
-            new TreeMap<String, PluginHistory>(String.CASE_INSENSITIVE_ORDER);
-
-        Set<String> excluded = new HashSet<String>();
-        ARTIFACTS: for (ArtifactInfo a : response.getResults()) {
-            if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-            if (a.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
-            // Don't add blacklisted artifacts
-            if (IGNORE.containsKey(a.artifactId)) {
-                if (excluded.add(a.artifactId)) {
-                    System.out.println("=> Ignoring " + a.artifactId + " because this artifact is blacklisted");
-                }
-                continue;
-            }
-            if (IGNORE.containsKey(a.artifactId + "-" + a.version)) {
-                System.out.println("=> Ignoring " + a.artifactId + ", version " + a.version + " because this version is blacklisted");
-                continue;
-            }
-
-            PluginHistory p = plugins.get(a.artifactId);
-            if (p==null) {
-                p=new PluginHistory(a.artifactId);
-                plugins.put(a.artifactId, p);
-            }
-            HPI hpi = createHpiArtifact(a, p);
-
-            for (PluginFilter pluginFilter : pluginFilters) {
-                if (pluginFilter.shouldIgnore(hpi)) {
-                    continue ARTIFACTS;
-                }
-            }
-
-            p.addArtifact(hpi);
-            p.groupId.add(a.groupId);
-        }
-        return plugins.values();
+        return response.getResults().stream().map(a -> new ArtifactCoordinates(a.groupId, a.artifactId, a.version, a.packaging, a.classifier, a.lastModified)).collect(Collectors.toSet());
     }
 
-    public TreeMap<VersionNumber,HudsonWar> getHudsonWar() throws IOException, AbstractArtifactResolutionException {
-        TreeMap<VersionNumber,HudsonWar> r = new TreeMap<VersionNumber, HudsonWar>(VersionNumber.DESCENDING);
-        listWar(r, "org.jenkins-ci.main", null);
-        listWar(r, "org.jvnet.hudson.main", CUT_OFF);
-        return r;
-    }
-
-    private void listWar(TreeMap<VersionNumber, HudsonWar> r, String groupId, VersionNumber cap) throws IOException {
+    protected Set<ArtifactCoordinates> listAllJenkinsWars(String groupId) throws IOException {
         BooleanQuery q = new BooleanQuery();
         q.add(indexer.constructQuery(ArtifactInfo.GROUP_ID,groupId), Occur.MUST);
         q.add(indexer.constructQuery(ArtifactInfo.PACKAGING,"war"), Occur.MUST);
@@ -311,49 +235,77 @@ public class MavenRepositoryImpl extends MavenRepository {
         FlatSearchRequest request = new FlatSearchRequest(q);
         FlatSearchResponse response = indexer.searchFlat(request);
 
-        for (ArtifactInfo a : response.getResults()) {
-            if (a.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
-            if (a.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
-            if (!a.artifactId.equals("jenkins-war")
-             && !a.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
-            if (a.classifier!=null)  continue;          // just pick up the main war
-            if (IGNORE.containsKey(a.artifactId + "-" + a.version)) {
-                System.out.println("=> Ignoring " + a.artifactId + ", version " + a.version + " because this version is blacklisted");
-                continue;
+        return response.getResults().stream().map(a -> new ArtifactCoordinates(a.groupId, a.artifactId, a.version, a.packaging, a.classifier, a.lastModified)).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Digests getDigests(MavenArtifact artifact) throws IOException {
+        try (FileInputStream fin = new FileInputStream(artifact.resolve())) {
+            MessageDigest sha1 = DigestUtils.getSha1Digest();
+            MessageDigest sha256 = DigestUtils.getSha256Digest();
+            byte[] buf = new byte[2048];
+            int len;
+            while ((len=fin.read(buf,0,buf.length)) >= 0) {
+                sha1.update(buf, 0, len);
+                sha256.update(buf, 0, len);
             }
-            if (cap!=null && new VersionNumber(a.version).compareTo(cap)>0) continue;
 
-            VersionNumber v = new VersionNumber(a.version);
-            r.put(v, createHudsonWarArtifact(a));
+            Digests ret = new Digests();
+            ret.sha1 = new String(org.apache.commons.codec.binary.Base64.encodeBase64(sha1.digest()), "UTF-8");
+            ret.sha256 = new String(org.apache.commons.codec.binary.Base64.encodeBase64(sha256.digest()), "UTF-8");
+            return ret;
         }
     }
 
-/*
-    Hook for subtypes to use customized implementations.
- */
-
-    protected HPI createHpiArtifact(ArtifactInfo a, PluginHistory p) throws AbstractArtifactResolutionException {
-        return new HPI(this,p,a);
+    @Override
+    public Manifest getManifest(MavenArtifact artifact) throws IOException {
+        try (InputStream is = getZipFileEntry(artifact, "META-INF/MANIFEST.MF")) {
+            return new Manifest(is);
+        } catch (IOException x) {
+            throw new IOException("Failed to read manifest from "+artifact, x);
+        }
     }
 
-    protected HudsonWar createHudsonWarArtifact(ArtifactInfo a) {
-        return new HudsonWar(this,a);
+    @Override
+    public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException {
+        File f = artifact.resolve();
+        try (FileInputStream fis = new FileInputStream(f);
+             BufferedInputStream bis = new BufferedInputStream(fis);
+             ZipInputStream stream = new ZipInputStream(bis)) {
+
+            ZipEntry entry;
+            while ((entry = stream.getNextEntry()) != null) {
+                if (path.equals(entry.getName())) {
+                    // pull out the file from entire zip, copy it into memory, and throw away the rest
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = stream.read(buffer)) > -1 ) {
+                        baos.write(buffer, 0, len);
+                    }
+                    baos.flush();
+
+                    return new ByteArrayInputStream(baos.toByteArray());
+                }
+            }
+            throw new IOException("No entry " + path + " found in " + artifact);
+        } catch (IOException x) {
+            throw new IOException("Failed read from " + f + ": " + x.getMessage(), x);
+        }
     }
 
-    private static final Properties IGNORE = new Properties();
-
-    static {
+    @Override
+    public File resolve(ArtifactCoordinates a) throws IOException {
+        Artifact artifact = af.createArtifactWithClassifier(a.groupId, a.artifactId, a.version, a.packaging, a.classifier);
+        if (!new File(localRepo, local.pathOf(artifact)).isFile()) {
+            System.err.println("Downloading " + artifact);
+        }
         try {
-            IGNORE.load(Plugin.class.getClassLoader().getResourceAsStream("artifact-ignores.properties"));
-        } catch (IOException e) {
-            throw new Error(e);
+            ar.resolve(artifact, remoteRepositories, local);
+        } catch (RuntimeException | ArtifactResolutionException | ArtifactNotFoundException e) {
+            throw new IOException(e.getMessage(), e);
         }
+        return artifact.getFile();
     }
-
-    protected static final ArtifactRepositoryPolicy POLICY = new ArtifactRepositoryPolicy(true, "daily", "warn");
-
-    /**
-     * Hudson -> Jenkins cut-over version.
-     */
-    public static final VersionNumber CUT_OFF = new VersionNumber("1.395");
 }

@@ -41,7 +41,7 @@ public class GitHubSourceTest {
 
             @Override
             public List<String> getRepositoryTopics(String org, String repo) throws IOException {
-                return getOrganizationTopics(org).getOrDefault(org + "/" + repo, Collections.emptyList());
+                return initializeOrganizationData(org).getOrDefault(org + "/" + repo, Collections.emptyList());
             }
         };
         assertEquals(

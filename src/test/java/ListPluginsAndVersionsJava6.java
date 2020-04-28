@@ -1,7 +1,6 @@
-import hudson.util.VersionNumber;
+import org.jvnet.hudson.update_center.BaseMavenRepository;
 import org.jvnet.hudson.update_center.DefaultMavenRepositoryBuilder;
 import org.jvnet.hudson.update_center.HPI;
-import org.jvnet.hudson.update_center.MavenRepositoryImpl;
 import org.jvnet.hudson.update_center.PluginHistory;
 import org.jvnet.hudson.update_center.impl.pluginFilter.JavaVersionPluginFilter;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
@@ -15,7 +14,7 @@ import java.util.Collection;
  */
 public class ListPluginsAndVersionsJava6 {
     public static void main(String[] args) throws Exception{
-        MavenRepositoryImpl r = DefaultMavenRepositoryBuilder.getInstance();
+        BaseMavenRepository r = DefaultMavenRepositoryBuilder.getInstance();
         r.addPluginFilter(new JavaVersionPluginFilter(JavaSpecificationVersion.JAVA_6));
 
         System.out.println(r.getHudsonWar().firstKey());

@@ -1,5 +1,6 @@
 package org.jvnet.hudson.update_center;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.jar.Attributes;
@@ -12,15 +13,15 @@ public class MavenArtifactSourceTest {
 
     @Test
     public void getManifest() throws Exception {
-        MavenRepositoryImpl mavenRepository = DefaultMavenRepositoryBuilder.getInstance();
+        final BaseMavenRepository instance = DefaultMavenRepositoryBuilder.getInstance();
+        Assume.assumeTrue(instance instanceof MavenRepositoryImpl);
+        MavenRepositoryImpl mavenRepository = (MavenRepositoryImpl) instance;
 
         HPI plugin = mavenRepository.findPlugin("org.jenkins-ci.plugins", "active-directory", "2.10");
 
         MavenArtifact mavenArtifact = new MavenArtifact(mavenRepository, plugin.artifact);
 
-        MavenArtifactSource mas = new MavenArtifactSource();
-
-        Manifest manifest = mas.getManifest(mavenArtifact);
+        Manifest manifest = mavenRepository.getManifest(mavenArtifact);
         Attributes mainAttributes = manifest.getMainAttributes();
 
         Attributes expected = new Attributes();

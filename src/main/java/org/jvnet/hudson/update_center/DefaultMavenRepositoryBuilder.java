@@ -26,17 +26,24 @@ package org.jvnet.hudson.update_center;
 import java.net.URL;
 
 public class DefaultMavenRepositoryBuilder {
-    
+
+    private static String ARTIFACTORY_API_USERNAME = System.getenv("ARTIFACTORY_USERNAME");
+    private static String ARTIFACTORY_API_PASSWORD = System.getenv("ARTIFACTORY_PASSWORD");
+
     private DefaultMavenRepositoryBuilder () {
         
     }
 
-    private static MavenRepositoryImpl instance;
+    private static BaseMavenRepository instance;
     
-    public static MavenRepositoryImpl getInstance() throws Exception {
+    public static BaseMavenRepository getInstance() throws Exception {
         if (instance == null) {
-            instance = new MavenRepositoryImpl();
-            instance.addRemoteRepository("public", new URL("http://repo.jenkins-ci.org/public/"));
+            if (ARTIFACTORY_API_PASSWORD != null && ARTIFACTORY_API_USERNAME != null) {
+                instance = new ArtifactoryRepositoryImpl(ARTIFACTORY_API_USERNAME, ARTIFACTORY_API_PASSWORD);
+            } else {
+                instance = new MavenRepositoryImpl();
+                ((MavenRepositoryImpl)instance).addRemoteRepository("public", new URL("http://repo.jenkins-ci.org/public/"));
+            }
         }
         return instance;
     }

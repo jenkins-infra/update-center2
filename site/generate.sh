@@ -54,7 +54,7 @@ mkdir -p "$WWW_ROOT_DIR"
 $( dirname "$0" )/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
 
 # build update center generator
-mvn -e clean install
+mvn -e clean install -DskipTests
 
 
 # Reset arguments file

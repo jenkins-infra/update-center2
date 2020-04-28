@@ -26,9 +26,7 @@ package org.jvnet.hudson.update_center;
 import hudson.util.VersionNumber;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.artifact.resolver.AbstractArtifactResolutionException;
 import org.jvnet.hudson.update_center.util.JavaSpecificationVersion;
-import org.sonatype.nexus.index.ArtifactInfo;
 
 import javax.annotation.CheckForNull;
 import java.io.IOException;
@@ -38,6 +36,8 @@ import java.util.List;
 import java.util.regex.*;
 import java.net.URL;
 import java.net.MalformedURLException;
+
+import static org.jvnet.hudson.update_center.HudsonWar.HUDSON_CUT_OFF;
 
 /**
  * A particular version of a plugin and its metadata.
@@ -52,7 +52,7 @@ public class HPI extends MavenArtifact {
 
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
-    public HPI(MavenRepository repository, PluginHistory history, ArtifactInfo artifact) throws AbstractArtifactResolutionException {
+    public HPI(BaseMavenRepository repository, PluginHistory history, ArtifactCoordinates artifact) {
         super(repository, artifact);
         this.history = history;
     }
@@ -88,7 +88,7 @@ public class HPI extends MavenArtifact {
         if (fixNull(v) != null) {
             try {
                 VersionNumber n = new VersionNumber(v);
-                if (n.compareTo(MavenRepositoryImpl.CUT_OFF)<=0)
+                if (n.compareTo(HUDSON_CUT_OFF)<=0)
                     return v;   // Hudson <= 1.395 is treated as Jenkins
                 // TODO: Jenkins-Version started appearing from Jenkins 1.401 POM.
                 // so maybe Hudson > 1.400 shouldn't be considered as a Jenkins plugin?
