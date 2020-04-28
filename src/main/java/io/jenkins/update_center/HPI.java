@@ -201,7 +201,7 @@ public class HPI extends MavenArtifact {
                     final String name = fixEmptyAndTrim(m.group(1));
                     final String id = fixEmptyAndTrim(m.group(2));
                     final String email = fixEmptyAndTrim(m.group(3));
-                    if (name != null && id != null && email != null) {
+                    if (name != null || id != null || email != null) {
                         r.add(new Developer(name, id, email));
                     }
                     totalMatched += m.end() - m.start();
