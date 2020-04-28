@@ -263,6 +263,10 @@ public class PluginUpdateCenterEntry {
         return previous == null ? null : TIMESTAMP_FORMATTER.format(previous.getTimestamp());
     }
 
+    public float getPopularity() throws IOException {
+        return Popularities.getInstance().getPopularity(artifactId);
+    }
+
     private static final SimpleDateFormat TIMESTAMP_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
 
     private static final Logger LOGGER = Logger.getLogger(PluginUpdateCenterEntry.class.getName());
