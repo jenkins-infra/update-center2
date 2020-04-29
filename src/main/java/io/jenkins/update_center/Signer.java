@@ -171,10 +171,10 @@ public class Signer {
         }
 
         Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
-        rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/hudson-community.cert")),null));
+        // TODO why is this hardcoded rather than expected to be passed in as -root-certificate argument?
         rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/jenkins-update-center-root-ca.cert")),null));
         for (File f : rootCA) {
-            rootCAs.add(new TrustAnchor(loadCertificate(cf, f),null));
+            rootCAs.add(new TrustAnchor(loadCertificate(cf, f), null));
         }
 
         try {
