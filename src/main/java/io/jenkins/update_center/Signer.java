@@ -35,6 +35,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static java.security.Security.addProvider;
 
@@ -42,13 +44,15 @@ import static java.security.Security.addProvider;
  * @author Kohsuke Kawaguchi
  */
 public class Signer {
+    private static final Logger LOGGER = Logger.getLogger(Signer.class.getName());
+
     @Option(name="-key",usage="Private key to sign the update center. Must be used in conjunction with -certificate.")
     public File privateKey = null;
 
-    @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option. Specify additional -certificate options to pass in intermediate certificates, if any.")
+    @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option. Specify additional -certificate options to pass in intermediate certificates, if any. These certificates will be part of update site metadata.")
     public List<File> certificates = new ArrayList<File>();
 
-    @Option(name="-root-certificate",usage="Additional root certificates")
+    @Option(name="-root-certificate",usage="Additional root certificates for use in validation. These certificates will not be part of update site metadata.")
     public List<File> rootCA = new ArrayList<File>();
 
     /**
@@ -170,11 +174,19 @@ public class Signer {
             certs.add(c);
         }
 
+        for (X509Certificate certificate : certs) {
+            LOGGER.log(Level.INFO, "Certificate: " + certificate);
+        }
+
         Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
         // TODO why is this hardcoded rather than expected to be passed in as -root-certificate argument?
         rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/jenkins-update-center-root-ca.cert")),null));
         for (File f : rootCA) {
             rootCAs.add(new TrustAnchor(loadCertificate(cf, f), null));
+        }
+
+        for (TrustAnchor anchor : rootCAs) {
+            LOGGER.log(Level.INFO, "Trust anchor: " + anchor);
         }
 
         try {
