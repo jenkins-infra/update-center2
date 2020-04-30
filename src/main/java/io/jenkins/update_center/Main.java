@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.support_log_formatter.SupportLogFormatter;
 import io.jenkins.update_center.args4j.LevelOptionHandler;
+import io.jenkins.update_center.json.PluginDocumentationUrlsRoot;
 import io.jenkins.update_center.wrappers.AlphaBetaOnlyRepository;
 import io.jenkins.update_center.wrappers.StableWarMavenRepository;
 import io.jenkins.update_center.wrappers.VersionCappedMavenRepository;
@@ -89,8 +90,6 @@ public class Main {
     public File pluginVersions = new File("plugin-versions.json");
 
     public File urlmap = new File("plugin-to-documentation-url.json");
-
-    private Map<String, String> pluginToDocumentationUrl = new HashMap<>();
 
     /**
      * This file defines all the convenient symlinks in the form of
@@ -315,7 +314,6 @@ public class Main {
         if (!skipUpdateCenter) {
             // TODO extract the other output variants from the buildUpdateCenterJson call
 //            JSONObject ucRoot = buildUpdateCenterJson(repo, latest); // this also has latest link builder etc.
-//            writeToFile(mapPluginToDocumentationUrl(), urlmap);
 //
 //            writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
 //            writeToFile(prettyPrintJson(ucRoot), json);
@@ -325,6 +323,7 @@ public class Main {
 //            Files.copy(jsonp.toPath(), jsonp.toPath().resolveSibling("old-" + jsonp.getName()), StandardCopyOption.REPLACE_EXISTING);
 
             final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer, prettyPrint);// TODO add support for additional output files
+            new PluginDocumentationUrlsRoot(repo).write(urlmap, prettyPrint);
             writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), jsonp);
             writeToFile(signedUpdateCenterJson, json);
             writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(jsonp.getPath() + ".html"));
@@ -339,24 +338,10 @@ public class Main {
         }
 
         if (!skipReleaseHistory) {
-            new ReleaseHistoryRoot(repo).writeToFile(releaseHistory, prettyPrint);
+            new ReleaseHistoryRoot(repo).write(releaseHistory, prettyPrint);
         }
 
         latest.close();
-    }
-
-    // TODO Reimplement based on fastjson
-    String mapPluginToDocumentationUrl() {
-        if (pluginToDocumentationUrl.isEmpty()) {
-            throw new IllegalStateException("Must run after buildUpdateCenterJson");
-        }
-        JSONObject root = new JSONObject();
-        for (Map.Entry<String, String> entry : pluginToDocumentationUrl.entrySet()) {
-            JSONObject value = new JSONObject();
-            value.put("url", entry.getValue());
-            root.put(entry.getKey(), value);
-        }
-        return root.toString();
     }
 
     @Deprecated
@@ -520,8 +505,6 @@ public class Main {
 
                 // Gather the plugin properties from the plugin file and the wiki
                 PluginUpdateCenterEntry pluginUpdateCenterEntry = new PluginUpdateCenterEntry(plugin);
-
-                pluginToDocumentationUrl.put(pluginUpdateCenterEntry.artifactId, pluginUpdateCenterEntry.getPluginUrl());
 
                 JSONObject json = pluginUpdateCenterEntry.toJSON();
                 if (json == null) {
