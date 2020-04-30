@@ -33,7 +33,6 @@ import io.jenkins.update_center.wrappers.StableWarMavenRepository;
 import io.jenkins.update_center.wrappers.VersionCappedMavenRepository;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import io.jenkins.update_center.filters.JavaVersionPluginFilter;
 import io.jenkins.update_center.json.PluginVersionsRoot;
@@ -66,9 +65,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.ConsoleHandler;
@@ -138,8 +135,6 @@ public class Main {
 
     public File indexHtml = null;
 
-    public File latestCoreTxt = null;
-
     @Option(name="-id",usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
     public String id;
 
@@ -161,9 +156,6 @@ public class Main {
 
     @Option(name="-stableCore", usage="Limit core releases to stable (LTS) releases (those with three component version numbers)")
     public boolean stableCore;
-
-    @Option(name="-pluginCount.txt",usage="Report a number of plugins in a simple text file")
-    public File pluginCountTxt = null;
 
     @Option(name="-experimental-only",usage="Include alpha/beta releases only")
     public boolean experimentalOnly;
@@ -202,6 +194,8 @@ public class Main {
 
     private Signer signer = new Signer();
 
+    private MetadataWriter metadataWriter = new MetadataWriter();
+
     public static final String EOL = System.getProperty("line.separator");
 
     public static void main(String[] args) throws Exception {
@@ -225,6 +219,7 @@ public class Main {
     public int run(String[] args) throws Exception {
         CmdLineParser p = new CmdLineParser(this);
         new ClassParser().parse(signer, p);
+        new ClassParser().parse(metadataWriter, p);
         try {
             p.parseArgument(args);
 
@@ -241,9 +236,14 @@ public class Main {
                         String[] invocationArgs = line.split(" +");
 
                         resetArguments();
-                        this.signer = new Signer();
                         p = new CmdLineParser(this);
+
+                        this.signer = new Signer();
                         new ClassParser().parse(signer, p);
+
+                        this.metadataWriter = new MetadataWriter();
+                        new ClassParser().parse(metadataWriter, p);
+
                         p.parseArgument(invocationArgs);
                         run();
                         executions++;
@@ -294,7 +294,6 @@ public class Main {
         indexHtml = new File(www,"index.html");
         pluginVersions = new File(www, "plugin-versions.json");
         releaseHistory = new File(www,"release-history.json");
-        latestCoreTxt = new File(www,"latestCore.txt");
     }
 
     public void run() throws Exception {
@@ -308,6 +307,8 @@ public class Main {
         }
 
         MavenRepository repo = createRepository();
+
+        metadataWriter.writeMetadataFiles(repo);
 
         LatestLinkBuilder latest = createHtaccessWriter();
 
@@ -532,8 +533,6 @@ public class Main {
             }
         }
 
-        if (pluginCountTxt!=null) // TODO FIXME recover this call for fastjson variant
-            FileUtils.writeStringToFile(pluginCountTxt,String.valueOf(validCount));
         System.err.println("Total " + validCount + " plugins listed.");
         return plugins;
     }
@@ -620,9 +619,6 @@ public class Main {
         System.out.println("core\n=> "+ core);
 
         latestLink.add("jenkins.war", latest.getDownloadUrl().getPath());
-
-        if (latestCoreTxt !=null)
-            writeToFile(latest.getVersion().toString(), latestCoreTxt);
 
         if (download!=null) {
             // build the download server layout
