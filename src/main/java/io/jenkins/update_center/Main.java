@@ -233,16 +233,9 @@ public class Main {
 
                         LOGGER.log(Level.INFO, "Running with args: " + line);
                         // TODO combine args array and this list
-                        String[] invocationArgs = line.split(" +");
+                        String[] invocationArgs = line.trim().split(" +");
 
-                        resetArguments();
-                        p = new CmdLineParser(this);
-
-                        this.signer = new Signer();
-                        new ClassParser().parse(signer, p);
-
-                        this.metadataWriter = new MetadataWriter();
-                        new ClassParser().parse(metadataWriter, p);
+                        resetArguments(this, signer, metadataWriter);
 
                         p.parseArgument(invocationArgs);
                         run();
@@ -260,20 +253,22 @@ public class Main {
         }
     }
 
-    private void resetArguments() {
-        for (Field field : this.getClass().getFields()) {
-            if (field.getAnnotation(Option.class) != null && !Modifier.isStatic(field.getModifiers())) {
-                if (Object.class.isAssignableFrom(field.getType())) {
-                    try {
-                        field.set(this, null);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                } else if (boolean.class.isAssignableFrom(field.getType())) {
-                    try {
-                        field.set(this, false);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+    private void resetArguments(Object... optionHolders) {
+        for (Object o : optionHolders) {
+            for (Field field : o.getClass().getFields()) {
+                if (field.getAnnotation(Option.class) != null && !Modifier.isStatic(field.getModifiers())) {
+                    if (Object.class.isAssignableFrom(field.getType())) {
+                        try {
+                            field.set(o, null);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (boolean.class.isAssignableFrom(field.getType())) {
+                        try {
+                            field.set(o, false);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

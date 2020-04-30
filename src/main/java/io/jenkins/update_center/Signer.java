@@ -51,19 +51,19 @@ public class Signer {
     public File privateKey = null;
 
     @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option. Specify additional -certificate options to pass in intermediate certificates, if any. These certificates will be part of update site metadata.")
-    public List<File> certificates = new ArrayList<File>();
+    public List<File> certificates;
 
     @Option(name="-root-certificate",usage="Additional root certificates for use in validation. These certificates will not be part of update site metadata.")
-    public List<File> rootCA = new ArrayList<File>();
+    public List<File> rootCA;
 
     /**
      * Checks if the signer is properly configured to generate a signature
      */
     public boolean isConfigured() {
-        if(privateKey != null && !certificates.isEmpty()) {
+        if(privateKey != null && certificates != null && !certificates.isEmpty()) {
             return true;
         }
-        if (privateKey != null || !certificates.isEmpty()) {
+        if (privateKey != null || certificates != null && !certificates.isEmpty()) {
             throw new IllegalStateException("Both -key and -certificate must be specified");
         }
         // neither argument is provided, so we just don't sign the JSON
