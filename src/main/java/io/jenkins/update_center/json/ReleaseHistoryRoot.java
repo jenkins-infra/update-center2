@@ -2,6 +2,7 @@ package io.jenkins.update_center.json;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.jenkins.update_center.HPI;
 import io.jenkins.update_center.MavenRepository;
 
@@ -27,7 +28,11 @@ public class ReleaseHistoryRoot {
         this.releaseHistory = list;
     }
 
-    public void writeToFile(File file) throws IOException {
-        JSON.writeJSONString(Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8), this);
+    public void writeToFile(File file, boolean pretty) throws IOException {
+        if (pretty) {
+            JSON.writeJSONString(Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8), this, SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.PrettyFormat);
+        } else {
+            JSON.writeJSONString(Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8), this, SerializerFeature.DisableCircularReferenceDetect);
+        }
     }
 }

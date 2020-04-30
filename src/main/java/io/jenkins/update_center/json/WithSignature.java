@@ -41,13 +41,17 @@ public abstract class WithSignature {
      * @param writer the writer to write to
      * @throws IOException when any IO error occurs
      */
-    public void writeWithSignature(Writer writer, Signer signer) throws IOException, GeneralSecurityException {
+    public void writeWithSignature(Writer writer, Signer signer, boolean pretty) throws IOException, GeneralSecurityException {
         signature = null;
 
         final String unsignedJson = JSON.toJSONString(this, SerializerFeature.DisableCircularReferenceDetect);
         signature = signer.sign(unsignedJson);
 
-        JSON.writeJSONString(writer, this, SerializerFeature.DisableCircularReferenceDetect);
+        if (pretty) {
+            JSON.writeJSONString(writer, this, SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.PrettyFormat);
+        } else {
+            JSON.writeJSONString(writer, this, SerializerFeature.DisableCircularReferenceDetect);
+        }
         writer.flush();
     }
 
@@ -55,9 +59,9 @@ public abstract class WithSignature {
      * Convenience wrapper for {@link #writeWithSignature(Writer, Signer)} writing to a file.
      *
      */
-    public void writeWithSignature(File outputFile, Signer signer) throws IOException, GeneralSecurityException {
+    public void writeWithSignature(File outputFile, Signer signer, boolean pretty) throws IOException, GeneralSecurityException {
         try (OutputStream os = Files.newOutputStream(outputFile.toPath()); OutputStreamWriter writer = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
-            writeWithSignature(writer, signer);
+            writeWithSignature(writer, signer, pretty);
         }
     }
 
@@ -66,9 +70,9 @@ public abstract class WithSignature {
      * @param signer the signer
      * @return the JSON output
      */
-    public String encodeWithSignature(Signer signer)  throws IOException, GeneralSecurityException {
+    public String encodeWithSignature(Signer signer, boolean pretty)  throws IOException, GeneralSecurityException {
         StringWriter writer = new StringWriter();
-        writeWithSignature(writer, signer);
+        writeWithSignature(writer, signer, pretty);
         return writer.getBuffer().toString();
     }
 }

@@ -151,7 +151,7 @@ public class Main {
             usage="Specify an URL of the 'always up' server for performing connection check.")
     public String connectionCheckUrl;
 
-    @Option(name="-pretty",usage="Pretty-print the result") // TODO add support for that in fastjson
+    @Option(name="-pretty",usage="Pretty-print the result")
     public boolean prettyPrint;
 
     @Option(name="-cap",usage="Cap the version number and only report plugins that are compatible with ")
@@ -324,7 +324,7 @@ public class Main {
 //            Files.copy(json.toPath(), json.toPath().resolveSibling("old-" + json.getName()), StandardCopyOption.REPLACE_EXISTING);
 //            Files.copy(jsonp.toPath(), jsonp.toPath().resolveSibling("old-" + jsonp.getName()), StandardCopyOption.REPLACE_EXISTING);
 
-            final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer);// TODO add support for additional output files
+            final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer, prettyPrint);// TODO add support for additional output files
             writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), jsonp);
             writeToFile(signedUpdateCenterJson, json);
             writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(jsonp.getPath() + ".html"));
@@ -335,11 +335,11 @@ public class Main {
             // TODO The next two lines are just to enable comparisons:
 //            writeToFile(prettyPrintJson(buildPluginVersionsJson(repo)), pluginVersions);
 //            Files.copy(pluginVersions.toPath(), pluginVersions.toPath().resolveSibling("old-" + pluginVersions.getName()), StandardCopyOption.REPLACE_EXISTING);
-            new PluginVersionsRoot("1", repo).writeWithSignature(pluginVersions, signer);
+            new PluginVersionsRoot("1", repo).writeWithSignature(pluginVersions, signer, prettyPrint);
         }
 
         if (!skipReleaseHistory) {
-            new ReleaseHistoryRoot(repo).writeToFile(releaseHistory);
+            new ReleaseHistoryRoot(repo).writeToFile(releaseHistory, prettyPrint);
         }
 
         latest.close();
