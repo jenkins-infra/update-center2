@@ -26,6 +26,7 @@ package io.jenkins.update_center;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.support_log_formatter.SupportLogFormatter;
+import io.jenkins.update_center.args4j.LevelOptionHandler;
 import io.jenkins.update_center.wrappers.AlphaBetaOnlyRepository;
 import io.jenkins.update_center.wrappers.StableWarMavenRepository;
 import io.jenkins.update_center.wrappers.VersionCappedMavenRepository;
@@ -197,6 +198,9 @@ public class Main {
     @Option(name="-whitelist-file", usage = "A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
     public File whitelistFile;
 
+    @Option(name="-log-level", usage = "A java.util.logging.Level name. Use CONFIG, FINE, FINER, or FINEST to log more output.", handler = LevelOptionHandler.class)
+    public Level level = Level.INFO;
+
     private Signer signer = new Signer();
 
     public static final String EOL = System.getProperty("line.separator");
@@ -207,10 +211,13 @@ public class Main {
             System.exit(1);
         }
 
-        for (Handler h : java.util.logging.Logger.getLogger("").getHandlers()) {
+        final Logger rootLogger = Logger.getLogger("");
+        rootLogger.setLevel(Level.INFO);
+        for (Handler h : rootLogger.getHandlers()) {
             if (h instanceof ConsoleHandler) {
                 h.setFormatter(new SupportLogFormatter());
             }
+            h.setLevel(Level.ALL);
         }
 
         System.exit(new Main().run(args));
@@ -292,6 +299,10 @@ public class Main {
     }
 
     public void run() throws Exception {
+
+        if (level != null) {
+            Logger.getLogger(getClass().getPackage().getName()).setLevel(level);
+        }
 
         if (www!=null) {
             prepareStandardDirectoryLayout();

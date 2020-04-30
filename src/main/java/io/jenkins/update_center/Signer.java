@@ -32,6 +32,7 @@ import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -175,10 +176,10 @@ public class Signer {
         }
 
         for (X509Certificate certificate : certs) {
-            LOGGER.log(Level.INFO, "Certificate: " + certificate);
+            LOGGER.log(Level.CONFIG, "Certificate: " + certificate);
         }
 
-        Set<TrustAnchor> rootCAs = CertificateUtil.getDefaultRootCAs();
+        Set<TrustAnchor> rootCAs = new HashSet<>();
         // TODO why is this hardcoded rather than expected to be passed in as -root-certificate argument?
         rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/jenkins-update-center-root-ca.cert")),null));
         for (File f : rootCA) {
@@ -186,7 +187,7 @@ public class Signer {
         }
 
         for (TrustAnchor anchor : rootCAs) {
-            LOGGER.log(Level.INFO, "Trust anchor: " + anchor);
+            LOGGER.log(Level.CONFIG, "Trust anchor: " + anchor);
         }
 
         try {
