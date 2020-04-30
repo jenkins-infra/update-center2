@@ -75,44 +75,10 @@ public final class Plugin {
         HPI existing = artifacts.get(v);
         if (existing == null) {
             artifacts.put(v, hpi);
-        } else if(PRIORITY.compare(existing, hpi)<=0) {
-            LOGGER.log(Level.INFO, "Found a higher priority artifact " + hpi.artifact.getGav() + " replacing " + existing.artifact.getGav());
-            artifacts.put(v, hpi);
         } else {
             LOGGER.log(Level.INFO, "Found a duplicate artifact " + hpi.artifact.getGav() + " but will continue to use existing " + existing.artifact.getGav());
         }
-
-        // if we have any authentic Jenkins artifact, we don't want to pick up non-authentic versions that are newer than that
-        // drop entries so that this constraint is satisfied
-        Map.Entry<VersionNumber,HPI> tippingPoint = findYoungestJenkinsArtifact();
-        if (tippingPoint!=null) {
-            if (artifacts.headMap(tippingPoint.getKey()).entrySet().removeIf(e -> !e.getValue().isAuthenticJenkinsArtifactWithLog())) {
-                LOGGER.log(Level.INFO, () -> "Removed versions from " + getArtifactId() + " because of #isAuthenticJenkinsArtifact(). Versions left: " + artifacts.keySet().stream().map(Objects::toString).collect(Collectors.joining(", ")));
-            }
-        }
     }
-
-    /**
-     * Returns the youngest version of the artifact that's authentic Jenkins artifact.
-     */
-    @Deprecated
-    private Map.Entry<VersionNumber,HPI> findYoungestJenkinsArtifact() {
-        for (Map.Entry<VersionNumber,HPI> e : artifacts.descendingMap().entrySet()) {
-            if (e.getValue().isAuthenticJenkinsArtifact())
-                return e;
-        }
-        return null;
-    }
-
-    private static final Comparator<HPI> PRIORITY = new Comparator<HPI>() {
-        public int compare(HPI a, HPI b) {
-            return priority(a)-priority(b);
-        }
-
-        private int priority(HPI h) {
-            return h.isAuthenticJenkinsArtifact() ? 1 : 0;
-        }
-    };
 
     /**
      * ArtifactID equals short name.
