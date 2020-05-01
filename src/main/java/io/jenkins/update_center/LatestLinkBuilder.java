@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
  * The former lists all the available symlinks, and the latter actually defines the redirects.
  *
  */
-public class LatestLinkBuilder implements Closeable {
+public class LatestLinkBuilder implements AutoCloseable {
     private final IndexHtmlBuilder index;
     private final PrintWriter htaccess;
 

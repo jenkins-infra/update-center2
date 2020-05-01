@@ -156,7 +156,7 @@ public class MavenArtifact {
 
     @Override
     public String toString() {
-        return artifact.toString();
+        return artifact.toString(); // TODO this is actually useless
     }
 
     public String getGavId() {

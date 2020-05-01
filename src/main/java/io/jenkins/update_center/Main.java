@@ -226,7 +226,7 @@ public class Main {
         MavenRepository repo = createRepository();
 
         metadataWriter.writeMetadataFiles(repo);
-//        directoryTreeBuilder.build(repo);
+        directoryTreeBuilder.build(repo);
 
         if (!skipUpdateCenter) {
             final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer, prettyPrint);
