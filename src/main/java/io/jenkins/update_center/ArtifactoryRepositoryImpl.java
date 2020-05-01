@@ -244,6 +244,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                 final Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
                     final ResponseBody body = response.body();
+                    Objects.requireNonNull(body); // always non-null according to Javadoc
                     try (Reader reader = body.charStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
                         final MediaType contentType = body.contentType();
                         final Charset charset = contentType == null ? StandardCharsets.UTF_8 : contentType.charset(StandardCharsets.UTF_8); // assume UTF-8 if undefined
