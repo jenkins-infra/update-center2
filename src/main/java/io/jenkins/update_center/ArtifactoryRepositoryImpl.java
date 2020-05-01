@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
@@ -244,10 +245,12 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                 if (response.isSuccessful()) {
                     final ResponseBody body = response.body();
                     try (Reader reader = body.charStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
-                        IOUtils.copy(reader, tos, body.contentType().charset(StandardCharsets.UTF_8));
+                        final MediaType contentType = body.contentType();
+                        final Charset charset = contentType == null ? StandardCharsets.UTF_8 : contentType.charset(StandardCharsets.UTF_8); // assume UTF-8 if undefined
+                        IOUtils.copy(reader, tos, charset);
                         if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
                             final String value = baos.toString("UTF-8");
-                            LOGGER.log(Level.FINE, "Caching in memory: " + url + " with content: " + value);
+                            LOGGER.log(Level.FINE, () -> "Caching in memory: " + url + " with content: " + value);
                             this.cache.put(url, value);
                         }
                     }
