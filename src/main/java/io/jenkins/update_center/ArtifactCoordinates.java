@@ -36,4 +36,11 @@ public class ArtifactCoordinates {
     public String getGav() {
         return groupId + ":" + artifactId + ":" + version;
     }
+
+    public String toString() {
+        if (classifier == null) {
+            return groupId + ":" + artifactId + ":" + version + ":" + packaging;
+        }
+        return groupId + ":" + artifactId + ":" + version + ":" + classifier + ":" + packaging;
+    }
 }
