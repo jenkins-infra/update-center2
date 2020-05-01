@@ -413,7 +413,7 @@ public class HPI extends MavenArtifact {
             }
 
             if (url != null && !url.equals(originalUrl)) {
-                LOGGER.fine("Rewrote URL for plugin " + artifact.artifactId + " from " + originalUrl + " to " + url);
+                LOGGER.fine("Rewrote URL for plugin " + artifact.getGav() + " from " + originalUrl + " to " + url);
             }
             pluginUrl = url;
         }
@@ -469,7 +469,7 @@ public class HPI extends MavenArtifact {
             String scm = readSingleValueFromXmlFile(resolvePOM(), "/project/scm/url");
             // Try parent pom
             if (scm == null) {
-                LOGGER.log(Level.FINER, "No SCM URL found in POM for " + this.artifact);
+                LOGGER.log(Level.FINER, "No SCM URL found in POM for " + this.artifact.getGav());
                 Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
                 if (parent != null) {
                     try {
@@ -479,11 +479,11 @@ public class HPI extends MavenArtifact {
                                         parent.element("version").getTextTrim(), "pom", null));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/url");
                         if (scm == null) {
-                            LOGGER.log(Level.FINER, "No SCM URL found in parent POM for " + this.artifact);
+                            LOGGER.log(Level.FINER, "No SCM URL found in parent POM for " + this.artifact.getGav());
                             // grandparent is pointless, no additional hits
                         }
                     } catch (Exception ex) {
-                        LOGGER.log(Level.WARNING, "Failed to read parent POM for " + this.artifact, ex);
+                        LOGGER.log(Level.WARNING, "Failed to read parent POM for " + this.artifact.getGav(), ex);
                     }
                 }
             }
@@ -491,12 +491,12 @@ public class HPI extends MavenArtifact {
                 return null;
             }
             if (filterKnownObsoleteUrls(scm) == null) {
-                LOGGER.log(Level.FINE, "Filtered obsolete URL " + scm + " in SCM URL for " + this.artifact);
+                LOGGER.log(Level.FINE, "Filtered obsolete URL " + scm + " in SCM URL for " + this.artifact.getGav());
                 return null;
             }
             return scm;
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Failed to read POM for " + this.artifact, ex);
+            LOGGER.log(Level.WARNING, "Failed to read POM for " + this.artifact.getGav(), ex);
         }
         return null;
     }
@@ -506,7 +506,7 @@ public class HPI extends MavenArtifact {
             String scm = readSingleValueFromXmlFile(resolvePOM(), "/project/scm/developerConnection");
             // Try parent pom
             if (scm == null) {
-                LOGGER.log(Level.FINE, "No SCM developerConnection found in POM for " + this.artifact);
+                LOGGER.log(Level.FINE, "No SCM developerConnection found in POM for " + this.artifact.getGav());
                 Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
                 if (parent != null) {
                     try {
@@ -516,10 +516,10 @@ public class HPI extends MavenArtifact {
                                         parent.element("version").getTextTrim(), "pom", null));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/developerConnection");
                         if (scm == null) {
-                            LOGGER.log(Level.FINE, "No SCM developerConnection found in parent POM for " + this.artifact);
+                            LOGGER.log(Level.FINE, "No SCM developerConnection found in parent POM for " + this.artifact.getGav());
                         }
                     } catch (Exception ex) {
-                        LOGGER.log(Level.WARNING, "Failed to read parent POM for " + this.artifact, ex);
+                        LOGGER.log(Level.WARNING, "Failed to read parent POM for " + this.artifact.getGav(), ex);
                     }
                 }
             }
@@ -527,12 +527,12 @@ public class HPI extends MavenArtifact {
                 return null;
             }
             if (filterKnownObsoleteUrls(scm) == null) {
-                LOGGER.log(Level.FINE, "Filtered obsolete URL " + scm + " in SCM developerConnection for " + this.artifact);
+                LOGGER.log(Level.FINE, "Filtered obsolete URL " + scm + " in SCM developerConnection for " + this.artifact.getGav());
                 return null;
             }
             return scm;
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Failed to read POM for " + this.artifact, ex);
+            LOGGER.log(Level.WARNING, "Failed to read POM for " + this.artifact.getGav(), ex);
         }
         return null;
     }
@@ -589,19 +589,19 @@ public class HPI extends MavenArtifact {
                     scm = getScmUrlFromDeveloperConnection();
                 }
                 if (scm == null) {
-                    LOGGER.log(Level.FINE, "Failed to determine SCM URL from POM or parent POM of " + this.artifact);
+                    LOGGER.log(Level.FINE, "Failed to determine SCM URL from POM or parent POM of " + this.artifact.getGav());
                 }
                 scm = interpolateProjectName(scm);
                 String originalScm = scm;
                 scm = requireHttpsGitHubJenkinsciUrl(scm);
                 if (originalScm != null && scm == null) {
-                    LOGGER.log(Level.INFO, "Rejecting URL outside GitHub.com/jenkinsci for " + this.artifact + ": " + originalScm);
+                    LOGGER.log(Level.INFO, "Rejecting URL outside GitHub.com/jenkinsci for " + this.artifact.getGav() + ": " + originalScm);
                 }
 
                 if (scm == null) {
                     // Last resort: check whether a ${artifactId}-plugin repo in jenkinsci exists, if so, use that
                     scm = "https://github.com/jenkinsci/" + artifact.artifactId + "-plugin";
-                    LOGGER.log(Level.FINE, "Falling back to default pattern repo for " + this.artifact + ": " + scm);
+                    LOGGER.log(Level.FINE, "Falling back to default pattern repo for " + this.artifact.getGav() + ": " + scm);
 
                     String checkedScm = scm;
                     // Check whether the fallback repo actually exists, if not, don't publish the repo name
