@@ -30,7 +30,7 @@ else
   exit 1
 fi
 
-function test_which() {
+function test_which {
   command -v "$1" >/dev/null || { echo "Not on PATH: $1" >&2 ; exit 1 ; }
 }
 
@@ -39,9 +39,7 @@ test_which wget
 test_which $SORT
 test_which jq
 
-set -x
-
-RELEASES=$( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
+readarray -t RELEASES < <( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
 
 # prepare the www workspace for execution
 rm -rf "$WWW_ROOT_DIR"
@@ -52,24 +50,24 @@ mkdir -p "$WWW_ROOT_DIR"
 
 rm -rfv generator/
 rm -rfv generator.zip
-wget -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200501.213727-17-bin.zip"
+wget --no-verbose -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200501.213727-17-bin.zip"
 unzip generator.zip -d generator/
 
 
 # Reset arguments file
 echo "# one update site per line" > args.lst
 
-function generate() {
-    echo "-key $SECRET/update-center.key -certificate $SECRET/update-center.cert $*" >> args.lst
+function generate {
+  echo "-key $SECRET/update-center.key -certificate $SECRET/update-center.cert $*" >> args.lst
 }
 
-function sanity-check() {
-    dir="$1"
-    file="$dir/update-center.json"
-    if [[ 700000 -ge $( wc -c < "$file" ) ]] ; then
-        echo "$file looks too small" >&2
-        exit 1
-    fi
+function sanity-check {
+  dir="$1"
+  file="$dir/update-center.json"
+  if [[ 1500000 -ge $( wc -c < "$file" ) ]] ; then
+    echo "Sanity check: $file looks too small" >&2
+    exit 1
+  fi
 }
 
 # Generate several update sites for different segments so that plugins can
@@ -81,13 +79,13 @@ function sanity-check() {
 #
 # We generate tiered update sites for the five most recent LTS baselines, which
 # means admins get compatible updates offered on releases up to about one year old.
-for ltsv in ${RELEASES[@]}; do
-    v="${ltsv/%.1/}"
-    # For mainline up to $v, advertising the latest core
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap "$v.999" -capCore 2.999 -latestCore.txt "$WWW_ROOT_DIR/$v/latestCore.txt"
+for ltsv in "${RELEASES[@]}" ; do
+  v="${ltsv/%.1/}"
+  # For mainline up to $v, advertising the latest core
+  generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap "$v.999" -capCore 2.999 -latestCore.txt "$WWW_ROOT_DIR/$v/latestCore.txt"
 
-    # For LTS, advertising the latest LTS core
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap "$v.999" -capCore 2.999 -stableCore -latestCore.txt "$WWW_ROOT_DIR/stable-$v/latestCore.txt"
+  # For LTS, advertising the latest LTS core
+  generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap "$v.999" -capCore 2.999 -stableCore -latestCore.txt "$WWW_ROOT_DIR/stable-$v/latestCore.txt"
 done
 
 
@@ -106,16 +104,16 @@ generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_
 java -Dfile.encoding=UTF-8 -jar generator/update-center2-*.jar -resources-dir ./resources -arguments-file ./args.lst
 
 # Generate symlinks to global /updates directory (created by crawler)
-for ltsv in ${RELEASES[@]}; do
-    v="${ltsv/%.1/}"
+for ltsv in "${RELEASES[@]}" ; do
+  v="${ltsv/%.1/}"
 
-    sanity-check "$WWW_ROOT_DIR/$v"
-    sanity-check "$WWW_ROOT_DIR/stable-$v"
-    ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
-    ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
+  sanity-check "$WWW_ROOT_DIR/$v"
+  sanity-check "$WWW_ROOT_DIR/stable-$v"
+  ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
+  ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
 
-    # needed for the stable/ directory (below)
-    lastLTS=$v
+  # needed for the stable/ directory (below)
+  lastLTS=$v
 done
 
 sanity-check "$WWW_ROOT_DIR/experimental"
@@ -126,10 +124,10 @@ ln -sf ../updates "$WWW_ROOT_DIR/current/updates"
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd "$WWW_ROOT_DIR"
-    ln -s "stable-$lastLTS" stable
-    for f in latest latestCore.txt plugin-documentation-urls.json release-history.json plugin-versions.json update-center.json update-center.actual.json update-center.json.html ; do
-        ln -s "current/$f" .
-    done
+  ln -s "stable-$lastLTS" stable
+  for f in latest latestCore.txt plugin-documentation-urls.json release-history.json plugin-versions.json update-center.json update-center.actual.json update-center.json.html ; do
+    ln -s "current/$f" .
+  done
 popd
 
 # copy other static resource files
