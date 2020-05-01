@@ -40,6 +40,7 @@ public class Popularities {
             throw new IOException("null body");
         }
         String bodyString = body.string();
+        // TODO remove use of json-lib
         JSONObject jsonResponse = JSONObject.fromObject(bodyString);
         if (!jsonResponse.has("plugins")) {
             throw new IllegalArgumentException("Specified popularity URL '" + JSON_URL + "' does not contain a JSON object 'plugins'");

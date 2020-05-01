@@ -24,7 +24,6 @@
 package io.jenkins.update_center;
 
 import hudson.util.VersionNumber;
-import net.sf.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -78,23 +77,6 @@ public class MavenArtifact {
 
     public MavenRepository.Digests getDigests() throws IOException {
         return repository.getDigests(this);
-    }
-
-    public JSONObject toJSON(String name) throws IOException {
-        JSONObject o = new JSONObject();
-        o.put("name", name);
-        o.put("version", version);
-
-        o.put("url", getDownloadUrl().toExternalForm());
-        o.put("buildDate", getTimestampAsString());
-        MavenRepository.Digests d = getDigests();
-        if (d == null) {
-            return null; // no artifact
-        }
-        o.put("sha1", d.sha1);
-        o.put("sha256", d.sha256);
-
-        return o;
     }
 
     public VersionNumber getVersion() {

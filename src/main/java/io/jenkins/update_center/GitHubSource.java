@@ -73,6 +73,7 @@ public class GitHubSource {
         String endCursor = null;
 
         while (hasNextPage) {
+            // TODO remove use of json-lib
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("query", String.format("{\n" +
                             "  organization(login: %s) {\n" +

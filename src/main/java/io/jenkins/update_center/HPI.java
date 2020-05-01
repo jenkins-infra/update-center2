@@ -27,7 +27,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.annotations.VisibleForTesting;
 import hudson.util.VersionNumber;
 import io.jenkins.update_center.util.JavaSpecificationVersion;
-import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
@@ -257,15 +256,6 @@ public class HPI extends MavenArtifact {
         }
 
         private static final String OPTIONAL_RESOLUTION = ";resolution:=optional";
-
-        @Deprecated
-        public JSONObject toJSON() {
-            JSONObject o = new JSONObject();
-            o.put("name",name);
-            o.put("version",version);
-            o.put("optional",optional);
-            return o;
-        }
     }
 
     public static class Developer {
@@ -280,23 +270,6 @@ public class HPI extends MavenArtifact {
             this.name = has(name) ? name : null;
             this.developerId = has(developerId) ? developerId : null;
             this.email = has(email) ? email : null;
-        }
-
-        @Deprecated
-        public JSONObject toJSON() {
-            JSONObject o = new JSONObject();
-            if (has(name))
-                o.put("name", name);
-            if (has(developerId))
-                o.put("developerId", developerId);
-            if (has(email))
-                o.put("email", email);
-
-            if (!o.isEmpty()) {
-                return o;
-            } else {
-                return null;
-            }
         }
 
         private boolean has(String s) {
