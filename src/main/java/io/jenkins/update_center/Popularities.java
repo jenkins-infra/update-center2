@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Plugin popularity is a unit-less decimal value. A larger value means a plugin is more popular.
@@ -35,11 +36,12 @@ public class Popularities {
         Map<String, Integer> popularities = new HashMap<>();
         int maxPopularity = 0;
         Request request = new Request.Builder().url(JSON_URL).get().build();
-        final ResponseBody body = new OkHttpClient().newCall(request).execute().body();
-        if (body == null) {
-            throw new IOException("null body");
+
+        String bodyString;
+        try (final ResponseBody body = new OkHttpClient().newCall(request).execute().body()){
+            Objects.requireNonNull(body);
+            bodyString = body.string();
         }
-        String bodyString = body.string();
         // TODO remove use of json-lib
         JSONObject jsonResponse = JSONObject.fromObject(bodyString);
         if (!jsonResponse.has("plugins")) {

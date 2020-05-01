@@ -110,9 +110,11 @@ public class GitHubSource {
                     .post(RequestBody.create(jsonObject.toString(), MediaType.parse("application/json; charset=utf-8")))
                     .build();
 
-            final ResponseBody body = client.newCall(request).execute().body();
-            Objects.requireNonNull(body); // guaranteed to be non-null by Javadoc
-            String bodyString = body.string();
+            String bodyString;
+            try (final ResponseBody body = client.newCall(request).execute().body()) {
+                Objects.requireNonNull(body); // guaranteed to be non-null by Javadoc
+                bodyString = body.string();
+            }
 
             JSONObject jsonResponse = JSONObject.fromObject(bodyString);
             if (jsonResponse.has("errors")) {

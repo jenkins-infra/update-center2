@@ -152,8 +152,10 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(ARTIFACTORY_AQL_URL).addHeader("Authorization", Credentials.basic(username, password)).post(RequestBody.create(AQL_QUERY, MediaType.parse("text/plain; charset=utf-8"))).build();
         Gson gson = new Gson();
-        GsonResponse json = gson.fromJson(Objects.requireNonNull(client.newCall(request).execute().body()).charStream(), GsonResponse.class);
-        json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
+        try (final ResponseBody body = client.newCall(request).execute().body()) {
+            GsonResponse json = gson.fromJson(Objects.requireNonNull(body).charStream(), GsonResponse.class);
+            json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
+        }
         this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::toGav).filter(Objects::nonNull).collect(Collectors.toSet());
         this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::toGav).collect(Collectors.toSet());
         LOGGER.log(Level.INFO, "Initialized " + this.getClass().getName());
@@ -243,16 +245,17 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                 Request request = new Request.Builder().url(url).get().build();
                 final Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
-                    final ResponseBody body = response.body();
-                    Objects.requireNonNull(body); // always non-null according to Javadoc
-                    try (Reader reader = body.charStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
-                        final MediaType contentType = body.contentType();
-                        final Charset charset = contentType == null ? StandardCharsets.UTF_8 : contentType.charset(StandardCharsets.UTF_8); // assume UTF-8 if undefined
-                        IOUtils.copy(reader, tos, charset);
-                        if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
-                            final String value = baos.toString("UTF-8");
-                            LOGGER.log(Level.FINE, () -> "Caching in memory: " + url + " with content: " + value);
-                            this.cache.put(url, value);
+                    try (final ResponseBody body = response.body()) {
+                        Objects.requireNonNull(body); // always non-null according to Javadoc
+                        try (Reader reader = body.charStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
+                            final MediaType contentType = body.contentType();
+                            final Charset charset = contentType == null ? StandardCharsets.UTF_8 : contentType.charset(StandardCharsets.UTF_8); // assume UTF-8 if undefined
+                            IOUtils.copy(reader, tos, charset);
+                            if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
+                                final String value = baos.toString("UTF-8");
+                                LOGGER.log(Level.FINE, () -> "Caching in memory: " + url + " with content: " + value);
+                                this.cache.put(url, value);
+                            }
                         }
                     }
                 } else {
