@@ -25,6 +25,8 @@ The generator pulls information from:
 * GitHub
   - source code repository that actually exists
   - plugin labels from repositories)
+* stats.jenkins.io
+  - latest plugin installation numbers for `popularity` entries in update center JSON
 * link:resources/[Local resource files in this repository]
   - GitHub topic whitelist (`resources/allowed-github-topics.properties`)
   - Artifact ignore list (`resources/artifact-ignores.properties`)
