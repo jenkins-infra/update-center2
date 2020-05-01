@@ -6,6 +6,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
@@ -239,11 +240,18 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                 OkHttpClient.Builder builder = new OkHttpClient.Builder();
                 OkHttpClient client = builder.build();
                 Request request = new Request.Builder().url(url).get().build();
-                final ResponseBody body = client.newCall(request).execute().body();
-                try (Reader reader = body.charStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
-                    IOUtils.copy(reader, tos, body.contentType().charset(StandardCharsets.UTF_8));
-                    if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
-                        this.cache.put(url, baos.toString("UTF-8"));
+                final Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    final ResponseBody body = response.body();
+                    try (Reader reader = body.charStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
+                        IOUtils.copy(reader, tos, body.contentType().charset(StandardCharsets.UTF_8));
+                        if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
+                            this.cache.put(url, baos.toString("UTF-8"));
+                        }
+                    }
+                } else {
+                    if (!cacheFile.mkdir()) {
+                        LOGGER.log(Level.WARNING, "Failed to create cache directory" + cacheFile);
                     }
                 }
             } catch (RuntimeException e) {
