@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
 
 /**
  * A collection of artifacts from which we build index.
@@ -40,12 +41,12 @@ public abstract class BaseMavenRepository implements MavenRepository {
             // Don't add blacklisted artifacts
             if (IGNORE.containsKey(artifactCoordinates.artifactId)) {
                 if (excluded.add(artifactCoordinates.artifactId)) {
-                    System.out.println("=> Ignoring " + artifactCoordinates.artifactId + " because this artifact is blacklisted");
+                    LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + " because this artifact is blacklisted");
                 }
                 continue;
             }
             if (IGNORE.containsKey(artifactCoordinates.artifactId + "-" + artifactCoordinates.version)) {
-                System.out.println("=> Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is blacklisted");
+                LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is blacklisted");
                 continue;
             }
 
@@ -84,7 +85,7 @@ public abstract class BaseMavenRepository implements MavenRepository {
                     && !artifactCoordinates.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
             if (artifactCoordinates.classifier!=null)  continue;          // just pick up the main war
             if (IGNORE.containsKey(artifactCoordinates.artifactId + "-" + artifactCoordinates.version)) {
-                System.out.println("=> Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is blacklisted");
+                LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is blacklisted");
                 continue;
             }
             if (cap != null && new VersionNumber(artifactCoordinates.version).compareTo(cap) > 0) continue;

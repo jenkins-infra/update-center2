@@ -100,7 +100,7 @@ public class GitHubSource {
                     "\"" + organization.replace("\"", "\\\"") + "\"",
                     endCursor == null ? "null" : "\"" + endCursor.replace("\"", "\\\"") + "\""
             ));
-            System.out.println(String.format("Retrieving GitHub topics with end token... %s", endCursor));
+            LOGGER.log(Level.FINE, String.format("Retrieving GitHub topics with end token... %s", endCursor));
 
             Request request = new Request.Builder()
                     .url(this.getGraphqlUrl())

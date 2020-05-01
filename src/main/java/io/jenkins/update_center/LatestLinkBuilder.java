@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Generates latest/index.html and latest/.htaccess
@@ -15,11 +17,13 @@ import java.nio.charset.StandardCharsets;
  *
  */
 public class LatestLinkBuilder implements AutoCloseable {
+    private static final Logger LOGGER = Logger.getLogger(LatestLinkBuilder.class.getName());
+
     private final IndexHtmlBuilder index;
     private final PrintWriter htaccess;
 
     public LatestLinkBuilder(File dir) throws IOException {
-        System.out.println(String.format("Writing plugin symlinks and redirects to dir: %s", dir));
+        LOGGER.log(Level.FINE, String.format("Writing plugin symlinks and redirects to dir: %s", dir));
 
         index = new IndexHtmlBuilder(dir,"Permalinks to latest files");
         htaccess = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,".htaccess"), true), StandardCharsets.UTF_8));

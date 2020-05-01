@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * TODO the above is aspirational
  */
 public final class Plugin {
-    public static final Logger LOGGER = Logger.getLogger(Plugin.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Plugin.class.getName());
     private final String artifactId;
 
     private final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<>(VersionNumber.DESCENDING);
@@ -68,7 +68,7 @@ public final class Plugin {
         try {
             v = new VersionNumber(hpi.version);
         } catch (NumberFormatException e) {
-            System.out.println("Failed to parse version number "+hpi.version+" for "+hpi);
+            LOGGER.log(Level.WARNING, "Failed to parse version number " + hpi.version + " for " + hpi);
             return;
         }
 

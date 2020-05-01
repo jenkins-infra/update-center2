@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 public class DirectoryTreeBuilder {
 
-    public static final Logger LOGGER = Logger.getLogger(DirectoryTreeBuilder.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DirectoryTreeBuilder.class.getName());
     /**
      * Directory at https://updates.jenkins.io/latest/ containing index.html and .htaccess to latest releases of all components.
      */

@@ -173,14 +173,14 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         try {
             ret.sha1 = hexToBase64(files.get("/" + getUri(artifact.artifact)).actual_sha1);
         } catch (NullPointerException e) {
-            System.out.println("No artifact: " + artifact.toString());
+            LOGGER.log(Level.WARNING, "No artifact: " + artifact.toString());
             return null;
         }
         String hexSha256 = files.get("/" + getUri(artifact.artifact)).sha256;
         if (hexSha256 != null) {
             ret.sha256 = hexToBase64(hexSha256);
         } else {
-            System.out.println("No SHA-256: " + artifact.toString());
+            LOGGER.log(Level.WARNING, "No SHA-256: " + artifact.toString());
             return null;
         }
         return ret;

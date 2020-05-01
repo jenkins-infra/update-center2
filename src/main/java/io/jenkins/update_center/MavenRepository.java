@@ -10,8 +10,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public interface MavenRepository {
+    Logger LOGGER = Logger.getLogger(MavenRepository.class.getName());
+
     Collection<Plugin> listJenkinsPlugins() throws IOException;
 
     /**
@@ -47,7 +51,7 @@ public interface MavenRepository {
         for (Plugin plugin : all) {
             for (HPI hpi : plugin.getArtifacts().values()) {
                 Date releaseDate = hpi.getTimestampAsDate();
-                System.out.println("adding " + hpi.artifact.artifactId + ":" + hpi.version);
+                LOGGER.log(Level.FINE, "adding " + hpi.artifact.artifactId + ":" + hpi.version);
                 Map<String, HPI> pluginsOnDate = plugins.computeIfAbsent(releaseDate, k -> new TreeMap<>());
                 pluginsOnDate.put(plugin.getArtifactId(),hpi);
             }

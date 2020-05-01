@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 public class MetadataWriter {
 
-    public static final Logger LOGGER = Logger.getLogger(MetadataWriter.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MetadataWriter.class.getName());
     @Option(name="-pluginCount.txt",usage="Report the number of plugins published by the update site")
     public File pluginCountTxt;
 

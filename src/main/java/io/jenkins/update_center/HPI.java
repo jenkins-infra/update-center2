@@ -66,7 +66,6 @@ import java.net.MalformedURLException;
  * For version independent metadata, see {@link Plugin}.
  */
 public class HPI extends MavenArtifact {
-    private static final Logger LOGGER = Logger.getLogger(HPI.class.getName());
 
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
     private final Plugin plugin;
@@ -470,7 +469,7 @@ public class HPI extends MavenArtifact {
             String scm = readSingleValueFromXmlFile(resolvePOM(), "/project/scm/url");
             // Try parent pom
             if (scm == null) {
-                System.out.println("** No SCM URL found in POM");
+                LOGGER.log(Level.FINER, "No SCM URL found in POM for " + this.artifact);
                 Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
                 if (parent != null) {
                     try {
@@ -480,12 +479,11 @@ public class HPI extends MavenArtifact {
                                         parent.element("version").getTextTrim(), "pom", null));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/url");
                         if (scm == null) {
-                            System.out.println("** No SCM URL found in parent POM");
+                            LOGGER.log(Level.FINER, "No SCM URL found in parent POM for " + this.artifact);
                             // grandparent is pointless, no additional hits
                         }
                     } catch (Exception ex) {
-                        System.out.println("** Failed to read parent pom");
-                        ex.printStackTrace();
+                        LOGGER.log(Level.WARNING, "Failed to read parent POM for " + this.artifact, ex);
                     }
                 }
             }
@@ -493,12 +491,12 @@ public class HPI extends MavenArtifact {
                 return null;
             }
             if (filterKnownObsoleteUrls(scm) == null) {
-                System.out.println("** Filtered obsolete URL in SCM URL");
+                LOGGER.log(Level.FINE, "Filtered obsolete URL " + scm + " in SCM URL for " + this.artifact);
                 return null;
             }
             return scm;
         } catch (IOException ex) {
-            // ignore
+            LOGGER.log(Level.WARNING, "Failed to read POM for " + this.artifact, ex);
         }
         return null;
     }
@@ -508,7 +506,7 @@ public class HPI extends MavenArtifact {
             String scm = readSingleValueFromXmlFile(resolvePOM(), "/project/scm/developerConnection");
             // Try parent pom
             if (scm == null) {
-                System.out.println("** No SCM developerConnection found in POM");
+                LOGGER.log(Level.FINE, "No SCM developerConnection found in POM for " + this.artifact);
                 Element parent = (Element) selectSingleNode(getPom(), "/project/parent");
                 if (parent != null) {
                     try {
@@ -518,11 +516,10 @@ public class HPI extends MavenArtifact {
                                         parent.element("version").getTextTrim(), "pom", null));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/developerConnection");
                         if (scm == null) {
-                            System.out.println("** No SCM developerConnection found in parent POM");
+                            LOGGER.log(Level.FINE, "No SCM developerConnection found in parent POM for " + this.artifact);
                         }
                     } catch (Exception ex) {
-                        System.out.println("** Failed to read parent pom");
-                        ex.printStackTrace();
+                        LOGGER.log(Level.WARNING, "Failed to read parent POM for " + this.artifact, ex);
                     }
                 }
             }
@@ -530,12 +527,12 @@ public class HPI extends MavenArtifact {
                 return null;
             }
             if (filterKnownObsoleteUrls(scm) == null) {
-                System.out.println("** Filtered obsolete URL in SCM developerConnection");
+                LOGGER.log(Level.FINE, "Filtered obsolete URL " + scm + " in SCM developerConnection for " + this.artifact);
                 return null;
             }
             return scm;
         } catch (IOException ex) {
-            // ignore
+            LOGGER.log(Level.WARNING, "Failed to read POM for " + this.artifact, ex);
         }
         return null;
     }
@@ -592,25 +589,25 @@ public class HPI extends MavenArtifact {
                     scm = getScmUrlFromDeveloperConnection();
                 }
                 if (scm == null) {
-                    System.out.println("** Failed to determine SCM URL from POM or parent POM of " + artifact.artifactId);
+                    LOGGER.log(Level.FINE, "Failed to determine SCM URL from POM or parent POM of " + this.artifact);
                 }
                 scm = interpolateProjectName(scm);
                 String originalScm = scm;
                 scm = requireHttpsGitHubJenkinsciUrl(scm);
                 if (originalScm != null && scm == null) {
-                    System.out.println("** Rejecting URL outside GitHub.com/jenkinsci for " + artifact.artifactId + ": " + originalScm);
+                    LOGGER.log(Level.INFO, "Rejecting URL outside GitHub.com/jenkinsci for " + this.artifact + ": " + originalScm);
                 }
 
                 if (scm == null) {
                     // Last resort: check whether a ${artifactId}-plugin repo in jenkinsci exists, if so, use that
                     scm = "https://github.com/jenkinsci/" + artifact.artifactId + "-plugin";
-                    System.out.println("** Falling back to default repo for " + artifact.artifactId + ": " + scm);
+                    LOGGER.log(Level.FINE, "Falling back to default pattern repo for " + this.artifact + ": " + scm);
 
                     String checkedScm = scm;
                     // Check whether the fallback repo actually exists, if not, don't publish the repo name
                     scm = requireGitHubRepoExistence(scm);
                     if (scm == null) {
-                        System.out.println("** Repository does not actually exist: " + checkedScm);
+                        LOGGER.log(Level.FINE, "Repository does not actually exist: " + checkedScm);
                     }
                 }
                 scmUrl = scm;
@@ -649,7 +646,7 @@ public class HPI extends MavenArtifact {
                 }
 
                 if (!gitHubLabels.isEmpty()) {
-                    System.out.println(artifact.artifactId + " got the following labels contributed from GitHub: " + org.apache.commons.lang3.StringUtils.join(gitHubLabels, ", "));
+                    LOGGER.log(Level.FINE, () -> artifact.artifactId + " got the following labels contributed from GitHub: " + org.apache.commons.lang3.StringUtils.join(gitHubLabels, ", "));
                 }
             }
 
@@ -679,4 +676,5 @@ public class HPI extends MavenArtifact {
 
     private static final SAXReader xmlReader = createXmlReader();
 
+    private static final Logger LOGGER = Logger.getLogger(HPI.class.getName());
 }
