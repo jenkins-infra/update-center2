@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Usage: SECRET=dirname ./site/generate.sh "./www2" "./download"
-[[ $# -eq 2 ]] || { echo "Usage: $0 <www root dir> <download root dir> <fallback dir>" >&2 ; exit 1 ; }
+[[ $# -eq 2 ]] || { echo "Usage: $0 <www root dir> <download root dir>" >&2 ; exit 1 ; }
 [[ -n "$1" ]] || { echo "Non-empty www root dir required" >&2 ; exit 1 ; }
 [[ -n "$2" ]] || { echo "Non-empty download root dir required" >&2 ; exit 1 ; }
 
