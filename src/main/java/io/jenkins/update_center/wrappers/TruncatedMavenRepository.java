@@ -22,7 +22,7 @@ public class TruncatedMavenRepository extends MavenRepositoryWrapper {
 
     @Override
     public Collection<Plugin> listJenkinsPlugins() throws IOException {
-        List<Plugin> result = new ArrayList<Plugin>(base.listJenkinsPlugins());
+        List<Plugin> result = new ArrayList<>(base.listJenkinsPlugins());
         return result.subList(0, Math.min(cap,result.size()));
     }
 }

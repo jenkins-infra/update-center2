@@ -41,7 +41,7 @@ public abstract class WithSignature {
      * @param writer the writer to write to
      * @throws IOException when any IO error occurs
      */
-    public void writeWithSignature(Writer writer, Signer signer, boolean pretty) throws IOException, GeneralSecurityException {
+    private void writeWithSignature(Writer writer, Signer signer, boolean pretty) throws IOException, GeneralSecurityException {
         signature = null;
 
         final String unsignedJson = JSON.toJSONString(this, SerializerFeature.DisableCircularReferenceDetect);
@@ -56,7 +56,7 @@ public abstract class WithSignature {
     }
 
     /**
-     * Convenience wrapper for {@link #writeWithSignature(Writer, Signer)} writing to a file.
+     * Convenience wrapper for {@link #writeWithSignature(Writer, Signer, boolean)} writing to a file.
      *
      */
     public void writeWithSignature(File outputFile, Signer signer, boolean pretty) throws IOException, GeneralSecurityException {
@@ -66,7 +66,7 @@ public abstract class WithSignature {
     }
 
     /**
-     * Like {@link #writeWithSignature(File, Signer)} but the output is returned as a String.
+     * Like {@link #writeWithSignature(File, Signer, boolean)} but the output is returned as a String.
      * @param signer the signer
      * @return the JSON output
      */

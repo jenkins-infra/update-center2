@@ -19,12 +19,8 @@ public class FilteringRepository extends MavenRepositoryWrapper {
      * Adds a plugin filter.
      * @param filter Filter to be added.
      */
-    public void addPluginFilter(@Nonnull PluginFilter filter) {
+    private void addPluginFilter(@Nonnull PluginFilter filter) {
         pluginFilters.add(filter);
-    }
-
-    public void resetPluginFilters() {
-        this.pluginFilters.clear();
     }
 
     private List<PluginFilter> pluginFilters = new ArrayList<>();

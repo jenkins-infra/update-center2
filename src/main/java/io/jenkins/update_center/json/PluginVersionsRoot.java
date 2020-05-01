@@ -14,8 +14,6 @@ public class PluginVersionsRoot extends WithSignature {
     public final String updateCenterVersion;
     private final MavenRepository repository;
 
-    private JsonSignature signature;
-
     private Map<String, PluginVersions> plugins;
 
     public PluginVersionsRoot(String updateCenterVersion, MavenRepository repository) {

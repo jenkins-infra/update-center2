@@ -28,7 +28,7 @@ public class PluginVersionsEntry {
     @JSONField
     public final List<HPI.Dependency> dependencies;
 
-    public PluginVersionsEntry(HPI hpi) throws IOException {
+    PluginVersionsEntry(HPI hpi) throws IOException {
         final MavenRepository.Digests digests = hpi.getDigests();
         name = hpi.artifact.artifactId;
         requiredCore = hpi.getRequiredJenkinsVersion();

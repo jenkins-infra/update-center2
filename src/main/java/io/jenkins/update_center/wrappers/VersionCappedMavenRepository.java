@@ -48,8 +48,7 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
 
             Map<VersionNumber, HPI> versionNumberHPIMap = new TreeMap<>(VersionNumber.DESCENDING);
 
-            for (Iterator<Entry<VersionNumber, HPI>> itr = h.getArtifacts().entrySet().iterator(); itr.hasNext();) {
-                Entry<VersionNumber, HPI> e =  itr.next();
+            for (Entry<VersionNumber, HPI> e : h.getArtifacts().entrySet()) {
                 if (capPlugin == null) {
                     // no cap
                     versionNumberHPIMap.put(e.getKey(), e.getValue());
@@ -60,12 +59,11 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
                 }
                 try {
                     VersionNumber v = new VersionNumber(e.getValue().getRequiredJenkinsVersion());
-                    if (v.compareTo(capPlugin)<=0) {
+                    if (v.compareTo(capPlugin) <= 0) {
                         versionNumberHPIMap.put(e.getKey(), e.getValue());
                         if (versionNumberHPIMap.size() >= 2) {
                             break;
                         }
-                        continue;
                     }
                 } catch (IOException x) {
                     x.printStackTrace();

@@ -19,7 +19,7 @@ public class PluginVersions {
     @JSONField(unwrapped = true)
     public Map<String, PluginVersionsEntry> releases = new LinkedHashMap<>();
 
-    public PluginVersions(Map<VersionNumber, HPI> artifacts) {
+    PluginVersions(Map<VersionNumber, HPI> artifacts) {
         // TODO this is suboptimal sorting (we'd rather sort by VersionNumber, not its string representation) but imitates existing behavior
         for (VersionNumber versionNumber : artifacts.keySet().stream().sorted(Comparator.comparing(VersionNumber::toString)).collect(Collectors.toList())) {
             try {

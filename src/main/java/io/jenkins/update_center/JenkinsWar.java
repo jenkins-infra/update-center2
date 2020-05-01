@@ -43,10 +43,11 @@ public class JenkinsWar extends MavenArtifact {
 
     public String getFileName() {
         String fileName;
-        if (new VersionNumber(version).compareTo(HUDSON_CUT_OFF)<=0)
+        if (new VersionNumber(version).compareTo(HUDSON_CUT_OFF)<=0) {
             fileName = "hudson.war";
-        else
+        } else {
             fileName = "jenkins.war";
+        }
         return fileName;
     }
 

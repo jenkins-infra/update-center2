@@ -7,6 +7,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -107,7 +109,9 @@ public class GitHubSource {
                     .post(RequestBody.create(jsonObject.toString(), MediaType.parse("application/json; charset=utf-8")))
                     .build();
 
-            String bodyString = client.newCall(request).execute().body().string();
+            final ResponseBody body = client.newCall(request).execute().body();
+            Objects.requireNonNull(body); // guaranteed to be non-null by Javadoc
+            String bodyString = body.string();
 
             JSONObject jsonResponse = JSONObject.fromObject(bodyString);
             if (jsonResponse.has("errors")) {

@@ -42,7 +42,7 @@ public class WhitelistMavenRepository extends MavenRepositoryWrapper {
                 continue; // entire artifactId allowed
             }
 
-            final List<String> allowedVersions = Arrays.asList(whitelistEntry.split("\\s+")).stream().map(String::trim).collect(Collectors.toList());
+            final List<String> allowedVersions = Arrays.stream(whitelistEntry.split("\\s+")).map(String::trim).collect(Collectors.toList());
 
             for (Iterator<Map.Entry<VersionNumber, HPI>> versionIterator = plugin.getArtifacts().entrySet().iterator(); versionIterator.hasNext(); ) {
                 Map.Entry<VersionNumber, HPI> entry = versionIterator.next();
@@ -73,7 +73,7 @@ public class WhitelistMavenRepository extends MavenRepositoryWrapper {
             return releases;
         }
 
-        final List<String> allowedVersions = Arrays.asList(whitelistEntry.split("\\s+")).stream().map(String::trim).collect(Collectors.toList());
+        final List<String> allowedVersions = Arrays.stream(whitelistEntry.split("\\s+")).map(String::trim).collect(Collectors.toList());
 
         releases.keySet().retainAll(releases.keySet().stream().filter(it -> allowedVersions.contains(it.toString())).collect(Collectors.toSet()));
 

@@ -17,7 +17,7 @@ import java.util.jar.Manifest;
 
 public class MavenRepositoryWrapper implements MavenRepository {
 
-    protected MavenRepository base;
+    MavenRepository base;
 
     public MavenRepositoryWrapper withBaseRepository(MavenRepository base) {
         this.base = base;

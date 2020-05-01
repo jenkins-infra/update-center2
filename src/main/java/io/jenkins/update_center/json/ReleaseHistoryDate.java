@@ -4,7 +4,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import io.jenkins.update_center.HPI;
 import io.jenkins.update_center.MavenArtifact;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,7 +14,6 @@ import java.util.logging.Logger;
 
 class ReleaseHistoryDate {
     private static final Logger LOGGER = Logger.getLogger(ReleaseHistoryDate.class.getName());
-    private transient final SimpleDateFormat dateFormat = MavenArtifact.getDateFormat();
 
     @JSONField
     public final String date;
@@ -23,7 +21,8 @@ class ReleaseHistoryDate {
     @JSONField
     public final List<ReleaseHistoryEntry> releases;
 
-    ReleaseHistoryDate(Date date, Map<String, HPI> pluginsById) throws IOException {
+    ReleaseHistoryDate(Date date, Map<String, HPI> pluginsById) {
+        SimpleDateFormat dateFormat = MavenArtifact.getDateFormat();
         this.date = dateFormat.format(date);
         List<ReleaseHistoryEntry> list = new ArrayList<>();
         for (HPI hpi : pluginsById.values()) {

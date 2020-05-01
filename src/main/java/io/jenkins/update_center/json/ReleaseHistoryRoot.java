@@ -22,5 +22,4 @@ public class ReleaseHistoryRoot extends WithoutSignature {
         }
         this.releaseHistory = list;
     }
-
 }

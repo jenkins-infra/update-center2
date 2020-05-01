@@ -25,13 +25,9 @@ package io.jenkins.update_center;
 
 import hudson.util.VersionNumber;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Information about a Jenkins plugin and its release history, discovered from Maven repository.

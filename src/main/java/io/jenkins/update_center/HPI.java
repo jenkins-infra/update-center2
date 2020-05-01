@@ -146,7 +146,7 @@ public class HPI extends MavenArtifact {
         String deps = getManifestAttributes().getValue("Plugin-Dependencies");
         if(deps==null)  return Collections.emptyList();
 
-        List<Dependency> r = new ArrayList<Dependency>();
+        List<Dependency> r = new ArrayList<>();
         for(String token : deps.split(","))
             r.add(new Dependency(token));
         return r;
@@ -193,7 +193,7 @@ public class HPI extends MavenArtifact {
                 developers = Collections.emptyList();
             } else {
 
-                List<Developer> r = new ArrayList<Developer>();
+                List<Developer> r = new ArrayList<>();
                 Matcher m = developersPattern.matcher(devs);
                 int totalMatched = 0;
                 while (m.find()) {

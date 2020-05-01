@@ -65,6 +65,7 @@ import java.util.logging.Logger;
 
 public class Main {
 
+    public static final Logger PACKAGE_LOGGER = Logger.getLogger(Main.class.getPackage().getName());
     /* Control meta-execution options */
     @Option(name="-arguments-file", usage="Specify invocation arguments in a file, with each line being a separate update site build. This argument cannot be re-set via arguments-file.")
     @SuppressFBWarnings
@@ -75,6 +76,7 @@ public class Main {
     @CheckForNull public static File resourcesDir = new File("resources"); // Default value for tests -- TODO find a better way to set a value for tests
 
     @Option(name="-log-level", usage = "A java.util.logging.Level name. Use CONFIG, FINE, FINER, or FINEST to log more output.", handler = LevelOptionHandler.class)
+    @SuppressFBWarnings
     @CheckForNull public static Level level = Level.INFO;
 
 
@@ -221,7 +223,7 @@ public class Main {
     public void run() throws Exception {
 
         if (level != null) {
-            Logger.getLogger(getClass().getPackage().getName()).setLevel(level);
+            PACKAGE_LOGGER.setLevel(level);
         }
 
         MavenRepository repo = createRepository();

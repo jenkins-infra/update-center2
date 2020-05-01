@@ -128,8 +128,7 @@ public class MavenArtifact {
     }
     
     public static SimpleDateFormat getDateFormat() {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
-        return sdf;
+        return new SimpleDateFormat("MMM dd, yyyy", Locale.US);
     }
 
     public long getTimestamp() {

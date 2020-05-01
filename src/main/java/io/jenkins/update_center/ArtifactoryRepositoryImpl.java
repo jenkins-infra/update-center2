@@ -132,7 +132,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         String actual_sha1; // base64
         String sha256; // base64
         Date modified;
-        Date created;
+        // TODO record 'created' date and warn about large discrepancies
     }
 
     private static class GsonResponse {

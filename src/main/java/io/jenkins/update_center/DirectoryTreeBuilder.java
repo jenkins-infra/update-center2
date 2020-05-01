@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -101,9 +100,12 @@ public class DirectoryTreeBuilder {
     /**
      * Generates symlink to the latest version.
      */
-    protected void createLatestSymlink(Plugin hpi) throws IOException {
+    private void createLatestSymlink(Plugin hpi) throws IOException {
         File dir = new File(download, "plugins/" + hpi.getArtifactId());
-        new File(dir,"latest").delete();
+        final File latest = new File(dir, "latest");
+        if (latest.exists() && !latest.delete()) {
+            throw new IOException("Failed to delete " + latest);
+        }
 
         ProcessBuilder pb = new ProcessBuilder();
         pb.command("ln", "-s", hpi.getLatest().version, "latest");
@@ -152,7 +154,7 @@ public class DirectoryTreeBuilder {
 
     private void buildIndex(File dir, String title, Collection<? extends MavenArtifact> versions, String permalink) throws IOException {
         List<MavenArtifact> list = new ArrayList<>(versions);
-        Collections.sort(list, (o1, o2) -> -o1.getVersion().compareTo(o2.getVersion()));
+        list.sort((o1, o2) -> -o1.getVersion().compareTo(o2.getVersion()));
 
         try (IndexHtmlBuilder index = new IndexHtmlBuilder(dir, title)) {
             index.add(permalink, "permalink to the latest");
