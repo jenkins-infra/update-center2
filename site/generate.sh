@@ -50,7 +50,7 @@ mkdir -p "$WWW_ROOT_DIR"
 
 rm -rfv generator/
 rm -rfv generator.zip
-wget --no-verbose -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200501.213727-17-bin.zip"
+wget --no-verbose -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200502.000230-19-bin.zip"
 unzip generator.zip -d generator/
 
 
@@ -58,7 +58,7 @@ unzip generator.zip -d generator/
 echo "# one update site per line" > args.lst
 
 function generate {
-  echo "-key $SECRET/update-center.key -certificate $SECRET/update-center.cert $*" >> args.lst
+  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert $*" >> args.lst
 }
 
 function sanity-check {
@@ -82,26 +82,28 @@ function sanity-check {
 for ltsv in "${RELEASES[@]}" ; do
   v="${ltsv/%.1/}"
   # For mainline up to $v, advertising the latest core
-  generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap "$v.999" -capCore 2.999 -latestCore.txt "$WWW_ROOT_DIR/$v/latestCore.txt"
+  generate --www-dir "$WWW_ROOT_DIR/$v" --limit-plugin-core-dependency "$v.999" --write-latest-core
 
   # For LTS, advertising the latest LTS core
-  generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap "$v.999" -capCore 2.999 -stableCore -latestCore.txt "$WWW_ROOT_DIR/stable-$v/latestCore.txt"
+  generate --www-dir "$WWW_ROOT_DIR/$v" --limit-plugin-core-dependency "$v.999" --write-latest-core --only-stable-core
 done
 
 
 # Experimental update center without version caps, including experimental releases.
 # This is not a part of the version-based redirection rules, admins need to manually configure it.
 # Generate this first, including -download, as this includes all releases, experimental and otherwise.
-generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experimental" -download "$DOWNLOAD_ROOT_DIR"
+generate --www-dir "$WWW_ROOT_DIR/experimental" --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR"
 
 # Current update site without version caps, excluding experimental releases.
 # This generates -download after the experimental update site above to change the 'latest' symlinks to the latest released version.
 # This also generates -www-download to only visibly show real releases on index.html pages.
-generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt" -latest-links "$WWW_ROOT_DIR/current/latest" -latestCore.txt "$WWW_ROOT_DIR/current/latestCore.txt"
+generate --generate-release-history --generate-plugin-versions \
+    --write-latest-core --write-plugin-count \
+    --www-dir "$WWW_ROOT_DIR/current" --download-links-directory "$WWW_ROOT_DIR/download" --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/current/latest"
 
 # Actually run the update center build.
 # The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
-java -Dfile.encoding=UTF-8 -jar generator/update-center2-*.jar -resources-dir ./resources -arguments-file ./args.lst
+java -Dfile.encoding=UTF-8 -jar generator/update-center2-*.jar --resources-dir ./resources --arguments-file ./args.lst
 
 # Generate symlinks to global /updates directory (created by crawler)
 for ltsv in "${RELEASES[@]}" ; do

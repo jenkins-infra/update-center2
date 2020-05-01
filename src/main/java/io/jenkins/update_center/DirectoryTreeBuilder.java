@@ -15,12 +15,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DirectoryTreeBuilder {
-
     private static final Logger LOGGER = Logger.getLogger(DirectoryTreeBuilder.class.getName());
+
     /**
      * Directory at https://updates.jenkins.io/latest/ containing index.html and .htaccess to latest releases of all components.
      */
-    @Option(name="-latest-links", usage="Directory to contain links to latest releases and .htaccess redirects")
+    @Option(name = "--latest-links-directory", usage = "Directory to contain links to latest releases and .htaccess redirects")
     public File latest;
 
     /**
@@ -28,13 +28,13 @@ public class DirectoryTreeBuilder {
      *
      * TODO: it also currently produces war/ directory that we aren't actually using. Maybe remove?
      */
-    @Option(name="-download", usage="Build mirrors.jenkins-ci.org layout")
+    @Option(name = "--downloads-directory", usage = "Build mirrors.jenkins-ci.org layout (containing .war and .hpi files)")
     public File download = null;
 
     /**
      * Build the https://updates.jenkins.io/download/ directory structure that only contains index.html files.
      */
-    @Option(name="-www-download", usage="Build downloads web index files")
+    @Option(name = "--download-links-directory", usage = "Build downloads web index files")
     public File wwwDownload = null;
 
 

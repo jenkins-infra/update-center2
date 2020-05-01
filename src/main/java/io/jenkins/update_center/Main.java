@@ -64,70 +64,68 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
-
-    public static final Logger PACKAGE_LOGGER = Logger.getLogger(Main.class.getPackage().getName());
     /* Control meta-execution options */
-    @Option(name="-arguments-file", usage="Specify invocation arguments in a file, with each line being a separate update site build. This argument cannot be re-set via arguments-file.")
+    @Option(name = "--arguments-file", usage = "Specify invocation arguments in a file, with each line being a separate update site build. This argument cannot be re-set via arguments-file.")
     @SuppressFBWarnings
     @CheckForNull public static File argumentsFile;
 
-    @Option(name="-resources-dir", usage = "Specify the path to the resources directory containing warnings.json, artifact-ignores.properties, etc. This argument cannot be re-set via arguments-file.")
+    @Option(name = "--resources-dir", usage = "Specify the path to the resources directory containing warnings.json, artifact-ignores.properties, etc. This argument cannot be re-set via arguments-file.")
     @SuppressFBWarnings
     @CheckForNull public static File resourcesDir = new File("resources"); // Default value for tests -- TODO find a better way to set a value for tests
 
-    @Option(name="-log-level", usage = "A java.util.logging.Level name. Use CONFIG, FINE, FINER, or FINEST to log more output.", handler = LevelOptionHandler.class)
+    @Option(name = "--log-level", usage = "A java.util.logging.Level name. Use CONFIG, FINE, FINER, or FINEST to log more output.", handler = LevelOptionHandler.class)
     @SuppressFBWarnings
     @CheckForNull public static Level level = Level.INFO;
 
 
     /* Configure repository source */
-    @Option(name="-cap", usage="Cap the version number and only report plugins that are compatible with ")
+    @Option(name = "--limit-plugin-core-dependency", usage = "Cap the core dependency and only include plugins that are compatible with this core (or older)")
     @CheckForNull public String capPlugin;
 
-    @Option(name="-capCore", usage="Cap the version number and only core that's compatible with. Defaults to -cap")
-    @CheckForNull public String capCore;
+    @Option(name = "--limit-core-release", usage = "Cap the version number of Jenkins core offered. Not generally useful.")
+    @CheckForNull public String capCore; // TODO remove
 
-    @Option(name="-stableCore", usage="Limit core releases to stable (LTS) releases (those with three component version numbers)")
+    @Option(name = "--only-stable-core", usage = "Limit core releases to stable (LTS) releases (those with three component version numbers)")
     public boolean stableCore;
 
-    @Option(name="-experimental-only", usage="Include alpha/beta releases only")
-    public boolean experimentalOnly;
+    @Option(name = "--only-experimental", usage = "Only include experimental alpha/beta releases")
+    public boolean onlyExperimental; // TODO would it make more sense to generate this as the experimental update site?
 
-    @Option(name="-no-experimental", usage="Exclude alpha/beta releases")
-    public boolean noExperimental;
+    @Option(name = "--with-experimental", usage = "Include experimental alpha/beta releases")
+    public boolean includeExperimental;
 
-    @Option(name="-maxPlugins", usage="For testing purposes. Limit the number of plugins managed to the specified number.")
-    @CheckForNull public Integer maxPlugins;
-
-    @Option(name = "-javaVersion", usage = "Target Java version for the update center. Plugins will be excluded if their minimum Java version does not match. If not set, required Java version will be ignored")
+    @Option(name = "--java-version", usage = "Target Java version for the update center. Plugins will be excluded if their minimum Java version does not match. If not set, required Java version will be ignored")
     @CheckForNull public String javaVersion;
 
-    @Option(name="-whitelist-file", usage = "A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
+    @Option(name = "--max-plugins", usage = "For testing purposes: Limit the number of plugins included to the specified number.")
+    @CheckForNull public Integer maxPlugins;
+
+    @Option(name = "--whitelist-file", usage = "For testing purposes: A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
     @CheckForNull public File whitelistFile;
 
 
     /* Configure what kinds of output to generate */
-    @Option(name="-www", usage="Generate JSON(ish) output files into this directory")
+    @Option(name = "--www-dir", usage = "Generate simple output files, JSON(ish) and others, into this directory")
     @CheckForNull public File www;
 
-    @Option(name="-skip-update-center", usage="Skip generation of update center files (mostly useful during development)")
+    @Option(name = "--skip-update-center", usage = "Skip generation of update center files (mostly useful during development)")
     public boolean skipUpdateCenter;
 
-    @Option(name="-skip-release-history", usage="Skip generation of release history")
-    public boolean skipReleaseHistory;
+    @Option(name = "--generate-release-history", usage = "Generate release history")
+    public boolean generateReleaseHistory;
 
-    @Option(name="-skip-plugin-versions", usage="Skip generation of plugin versions")
-    public boolean skipPluginVersions;
+    @Option(name = "--generate-plugin-versions", usage = "Generate plugin versions")
+    public boolean generatePluginVersions;
 
 
     /* Configure options modifying output */
-    @Option(name="-pretty", usage="Pretty-print JSON files")
+    @Option(name = "--pretty-json", usage = "Pretty-print JSON files")
     public boolean prettyPrint;
 
-    @Option(name="-id", usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
+    @Option(name = "--id", usage = "Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
     @CheckForNull public String id;
 
-    @Option(name="-connectionCheckUrl", usage="Specify an URL of the 'always up' server for performing connection check.")
+    @Option(name = "--connection-check-url", usage = "Specify an URL of the 'always up' server for performing connection check.")
     @CheckForNull public String connectionCheckUrl;
 
 
@@ -215,11 +213,6 @@ public class Main {
         }
     }
 
-    private String getCapCore() {
-        // TODO Change this behavior, do not fall back to capPlugin when capCore is undefined
-        return capCore == null ? capPlugin : capCore;
-    }
-
     public void run() throws Exception {
 
         if (level != null) {
@@ -228,7 +221,7 @@ public class Main {
 
         MavenRepository repo = createRepository();
 
-        metadataWriter.writeMetadataFiles(repo);
+        metadataWriter.writeMetadataFiles(repo, www);
         directoryTreeBuilder.build(repo);
 
         if (!skipUpdateCenter) {
@@ -237,14 +230,13 @@ public class Main {
             writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), new File(www,"update-center.json"));
             writeToFile(signedUpdateCenterJson, new File(www,"update-center.actual.json"));
             writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(www,"update-center.json.html"));
-
         }
 
-        if (!skipPluginVersions) {
+        if (generatePluginVersions) {
             new PluginVersionsRoot("1", repo).writeWithSignature(new File(www, "plugin-versions.json"), signer, prettyPrint);
         }
 
-        if (!skipReleaseHistory) {
+        if (generateReleaseHistory) {
             new ReleaseHistoryRoot(repo).write(new File(www,"release-history.json"), prettyPrint);
         }
     }
@@ -272,18 +264,21 @@ public class Main {
             properties.load(new FileInputStream(whitelistFile));
             repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
         }
-        if (maxPlugins != null)
+        if (maxPlugins != null) {
             repo = new TruncatedMavenRepository(maxPlugins).withBaseRepository(repo);
-        if (experimentalOnly)
+        }
+        if (onlyExperimental) {
             repo = new AlphaBetaOnlyRepository(false).withBaseRepository(repo);
-        if (noExperimental)
+        }
+        if (!includeExperimental) {
             repo = new AlphaBetaOnlyRepository(true).withBaseRepository(repo);
+        }
         if (stableCore) {
             repo = new StableWarMavenRepository().withBaseRepository(repo);
         }
-        if (getCapCore() != null) {
+        if (capCore != null || capPlugin != null) {
             VersionNumber vp = capPlugin == null ? null : new VersionNumber(capPlugin);
-            VersionNumber vc = new VersionNumber(getCapCore());
+            VersionNumber vc = capCore == null ? null : new VersionNumber(capCore);
             repo = new VersionCappedMavenRepository(vp, vc).withBaseRepository(repo);
         }
         if (javaVersion != null) {
@@ -295,4 +290,5 @@ public class Main {
     private static final String EOL = System.getProperty("line.separator");
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+    private static final Logger PACKAGE_LOGGER = Logger.getLogger(Main.class.getPackage().getName());
 }

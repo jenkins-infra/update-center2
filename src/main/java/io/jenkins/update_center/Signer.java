@@ -47,13 +47,13 @@ import static java.security.Security.addProvider;
 public class Signer {
     private static final Logger LOGGER = Logger.getLogger(Signer.class.getName());
 
-    @Option(name="-key",usage="Private key to sign the update center. Must be used in conjunction with -certificate.")
+    @Option(name="--key",usage="Private key to sign the update center. Must be used in conjunction with -certificate.")
     public File privateKey = null;
 
-    @Option(name="-certificate",usage="X509 certificate for the private key given by the -key option. Specify additional -certificate options to pass in intermediate certificates, if any. These certificates will be part of update site metadata.")
+    @Option(name="--certificate",usage="X509 certificate for the private key given by the -key option. Specify additional -certificate options to pass in intermediate certificates, if any. These certificates will be part of update site metadata.")
     public List<File> certificates;
 
-    @Option(name="-root-certificate",usage="Additional root certificates for use in validation. These certificates will not be part of update site metadata.")
+    @Option(name="--root-certificate",usage="Additional root certificates for use in validation. These certificates will not be part of update site metadata.")
     public List<File> rootCA;
 
     /**

@@ -6,6 +6,7 @@ import io.jenkins.update_center.BaseMavenRepository;
 import io.jenkins.update_center.HPI;
 import io.jenkins.update_center.Plugin;
 
+import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -21,21 +22,27 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
     /**
      * Version number to cap. We only report plugins that are compatible with this core version.
      */
+    @CheckForNull
     private final VersionNumber capPlugin;
 
     /**
      * Version number to cap core. We only report core versions as high as this.
      */
+    @CheckForNull
     private final VersionNumber capCore;
 
-    public VersionCappedMavenRepository(VersionNumber capPlugin, VersionNumber capCore) {
+    public VersionCappedMavenRepository(@CheckForNull VersionNumber capPlugin, @CheckForNull VersionNumber capCore) {
         this.capPlugin = capPlugin;
         this.capCore = capCore;
     }
 
     @Override
     public TreeMap<VersionNumber, JenkinsWar> getJenkinsWarsByVersionNumber() throws IOException {
-        return new TreeMap<>(base.getJenkinsWarsByVersionNumber().tailMap(capCore,true));
+        final TreeMap<VersionNumber, JenkinsWar> allWars = base.getJenkinsWarsByVersionNumber();
+        if (capCore == null) {
+            return allWars;
+        }
+        return new TreeMap<>(allWars.tailMap(capCore,true));
     }
 
     @Override
