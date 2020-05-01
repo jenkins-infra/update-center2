@@ -169,10 +169,12 @@ public class Signer {
     private List<X509Certificate> getCertificateChain() throws IOException, GeneralSecurityException {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         List<X509Certificate> certs = new ArrayList<>();
-        for (File f : certificates) {
-            X509Certificate c = loadCertificate(cf, f);
-            c.checkValidity(new Date(System.currentTimeMillis()+ TimeUnit.DAYS.toMillis(30)));
-            certs.add(c);
+        if (certificates != null) {
+            for (File f : certificates) {
+                X509Certificate c = loadCertificate(cf, f);
+                c.checkValidity(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30)));
+                certs.add(c);
+            }
         }
 
         for (X509Certificate certificate : certs) {
@@ -182,8 +184,10 @@ public class Signer {
         Set<TrustAnchor> rootCAs = new HashSet<>();
         // TODO why is this hardcoded rather than expected to be passed in as -root-certificate argument?
         rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/jenkins-update-center-root-ca.cert")),null));
-        for (File f : rootCA) {
-            rootCAs.add(new TrustAnchor(loadCertificate(cf, f), null));
+        if (rootCA != null) {
+            for (File f : rootCA) {
+                rootCAs.add(new TrustAnchor(loadCertificate(cf, f), null));
+            }
         }
 
         for (TrustAnchor anchor : rootCAs) {
