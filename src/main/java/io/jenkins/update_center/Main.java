@@ -230,7 +230,7 @@ public class Main {
 
         if (!skipUpdateCenter) {
             final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer, prettyPrint);
-            new PluginDocumentationUrlsRoot(repo).write(new File("plugin-documentation-urls.json"), prettyPrint);
+            new PluginDocumentationUrlsRoot(repo).write(new File(www, "plugin-documentation-urls.json"), prettyPrint);
             writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), new File(www,"update-center.json"));
             writeToFile(signedUpdateCenterJson, new File(www,"update-center.actual.json"));
             writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(www,"update-center.json.html"));
