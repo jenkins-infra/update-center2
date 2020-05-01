@@ -84,10 +84,10 @@ function sanity-check() {
 for ltsv in ${RELEASES[@]}; do
     v="${ltsv/%.1/}"
     # For mainline up to $v, advertising the latest core
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap "$v.999" -capCore 2.999
+    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap "$v.999" -capCore 2.999 -latestCore.txt "$WWW_ROOT_DIR/$v/latestCore.txt"
 
     # For LTS, advertising the latest LTS core
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap "$v.999" -capCore 2.999 -stableCore
+    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap "$v.999" -capCore 2.999 -stableCore -latestCore.txt "$WWW_ROOT_DIR/stable-$v/latestCore.txt"
 done
 
 
@@ -98,7 +98,8 @@ generate -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experim
 
 # Current update site without version caps, excluding experimental releases.
 # This generates -download after the experimental update site above to change the 'latest' symlinks to the latest released version.
-generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
+# This also generates -www-download to only visibly show real releases on index.html pages.
+generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt" -latest-links "$WWW_ROOT_DIR/current/latest" -latestCore.txt "$WWW_ROOT_DIR/current/latestCore.txt"
 
 # Actually run the update center build.
 # The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
