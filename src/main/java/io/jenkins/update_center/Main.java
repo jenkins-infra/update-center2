@@ -214,6 +214,7 @@ public class Main {
     }
 
     private String getCapCore() {
+        // TODO Change this behavior, do not fall back to capPlugin when capCore is undefined
         return capCore == null ? capPlugin : capCore;
     }
 
