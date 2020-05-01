@@ -595,7 +595,7 @@ public class HPI extends MavenArtifact {
                 String originalScm = scm;
                 scm = requireHttpsGitHubJenkinsciUrl(scm);
                 if (originalScm != null && scm == null) {
-                    LOGGER.log(Level.INFO, "Rejecting URL outside GitHub.com/jenkinsci for " + this.artifact.getGav() + ": " + originalScm);
+                    LOGGER.log(Level.CONFIG, "Rejecting URL outside GitHub.com/jenkinsci for " + this.artifact.getGav() + ": " + originalScm);
                 }
 
                 if (scm == null) {
