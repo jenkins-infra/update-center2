@@ -31,8 +31,6 @@ import io.jenkins.update_center.json.PluginDocumentationUrlsRoot;
 import io.jenkins.update_center.wrappers.AlphaBetaOnlyRepository;
 import io.jenkins.update_center.wrappers.StableWarMavenRepository;
 import io.jenkins.update_center.wrappers.VersionCappedMavenRepository;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import io.jenkins.update_center.filters.JavaVersionPluginFilter;
 import io.jenkins.update_center.json.PluginVersionsRoot;
@@ -48,9 +46,6 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -61,142 +56,84 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
-import java.util.TreeMap;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
-    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
-    public static final String DEFAULT_ID = "default";
-    public static final String DEFAULT_CONNECTION_CHECK_URL = "http://www.google.com/"; // TODO go to https
-    public File jsonp = new File("output.json");
+    /* Control meta-execution options */
+    @Option(name="-arguments-file", usage="Specify invocation arguments in a file, with each line being a separate update site build. This argument cannot be re-set via arguments-file.")
+    @SuppressFBWarnings
+    @CheckForNull public static File argumentsFile;
 
-    public File json = new File("actual.json");
+    @Option(name="-resources-dir", usage = "Specify the path to the resources directory containing warnings.json, artifact-ignores.properties, etc. This argument cannot be re-set via arguments-file.")
+    @SuppressFBWarnings
+    @CheckForNull public static File resourcesDir = new File("resources"); // Default value for tests -- TODO find a better way to set a value for tests
 
-    public File releaseHistory = new File("release-history.json");
+    @Option(name="-log-level", usage = "A java.util.logging.Level name. Use CONFIG, FINE, FINER, or FINEST to log more output.", handler = LevelOptionHandler.class)
+    @CheckForNull public static Level level = Level.INFO;
 
-    public File pluginVersions = new File("plugin-versions.json");
 
-    public File urlmap = new File("plugin-to-documentation-url.json");
+    /* Configure repository source */
+    @Option(name="-cap", usage="Cap the version number and only report plugins that are compatible with ")
+    @CheckForNull public String capPlugin;
 
-    /**
-     * This file defines all the convenient symlinks in the form of
-     * ./latest/PLUGINNAME.hpi.
-     */
-    public File latest = new File("latest");
-
-    /**
-     * This option builds the directory image for the download server, which contains all the plugins
-     * ever released to date in a directory structure.
-     *
-     * This is what we push into http://mirrors.jenkins-ci.org/ and from there it gets rsynced to
-     * our mirror servers (some indirectly through OSUOSL.)
-     *
-     * TODO: it also currently produces war/ directory that we aren't actually using. Maybe remove?
-     */
-    @Option(name="-download",usage="Build mirrors.jenkins-ci.org layout")
-    public File download = null;
-
-    /**
-     * This option generates a directory layout containing htaccess files redirecting to Artifactory
-     * for all files contained therein. This can be used for the 'fallback' mirror server.
-     */
-    @Option(name="-download-fallback",usage="Build archives.jenkins-ci.org layout")
-    public File downloadFallback = null;
-
-    /**
-     * This options builds update site. update-center.json(.html) that contains metadata,
-     * latest symlinks, and download/ directories that are referenced from metadata and
-     * redirects to the actual download server.
-     */
-    @Option(name="-www",usage="Build updates.jenkins-ci.org layout")
-    public File www = null;
-
-    /**
-     * This options builds the http://updates.jenkins-ci.org/download files,
-     * which consists of a series of index.html that lists available versions of plugins and cores.
-     *
-     * <p>
-     * This is the URL space that gets referenced by update center metadata, and this is the
-     * entry point of all the inbound download traffic. Actual *.hpi downloads are redirected
-     * to mirrors.jenkins-ci.org via Apache .htaccess.
-     */
-    @Option(name="-www-download",usage="Build updates.jenkins-ci.org/download directory")
-    public File wwwDownload = null;
-
-    public File indexHtml = null;
-
-    @Option(name="-id",usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
-    public String id;
-
-    @Option(name="-maxPlugins",usage="For testing purposes. Limit the number of plugins managed to the specified number.")
-    public Integer maxPlugins;
-
-    @Option(name="-connectionCheckUrl",
-            usage="Specify an URL of the 'always up' server for performing connection check.")
-    public String connectionCheckUrl;
-
-    @Option(name="-pretty",usage="Pretty-print the result")
-    public boolean prettyPrint;
-
-    @Option(name="-cap",usage="Cap the version number and only report plugins that are compatible with ")
-    public String capPlugin = null;
-
-    @Option(name="-capCore",usage="Cap the version number and only core that's compatible with. Defaults to -cap")
-    public String capCore = null;
+    @Option(name="-capCore", usage="Cap the version number and only core that's compatible with. Defaults to -cap")
+    @CheckForNull public String capCore;
 
     @Option(name="-stableCore", usage="Limit core releases to stable (LTS) releases (those with three component version numbers)")
     public boolean stableCore;
 
-    @Option(name="-experimental-only",usage="Include alpha/beta releases only")
+    @Option(name="-experimental-only", usage="Include alpha/beta releases only")
     public boolean experimentalOnly;
 
-    @Option(name="-no-experimental",usage="Exclude alpha/beta releases")
+    @Option(name="-no-experimental", usage="Exclude alpha/beta releases")
     public boolean noExperimental;
+
+    @Option(name="-maxPlugins", usage="For testing purposes. Limit the number of plugins managed to the specified number.")
+    @CheckForNull public Integer maxPlugins;
+
+    @Option(name = "-javaVersion", usage = "Target Java version for the update center. Plugins will be excluded if their minimum Java version does not match. If not set, required Java version will be ignored")
+    @CheckForNull public String javaVersion;
+
+    @Option(name="-whitelist-file", usage = "A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
+    @CheckForNull public File whitelistFile;
+
+
+    /* Configure what kinds of output to generate */
+    @Option(name="-www", usage="Generate JSON(ish) output files into this directory")
+    @CheckForNull public File www;
 
     @Option(name="-skip-update-center", usage="Skip generation of update center files (mostly useful during development)")
     public boolean skipUpdateCenter;
 
-    @Option(name="-skip-release-history",usage="Skip generation of release history")
+    @Option(name="-skip-release-history", usage="Skip generation of release history")
     public boolean skipReleaseHistory;
 
-    @Option(name = "-javaVersion",usage = "Target Java version for the update center. " +
-            "Plugins will be excluded if their minimum Java version does not match. " +
-            "If not set, required Java version will be ignored")
-    @CheckForNull
-    public String javaVersion;
-
-    @Option(name="-skip-plugin-versions",usage="Skip generation of plugin versions")
+    @Option(name="-skip-plugin-versions", usage="Skip generation of plugin versions")
     public boolean skipPluginVersions;
 
-    @Option(name="-arguments-file",usage="Specify invocation arguments in a file, with each line being a separate update site build. This argument cannot be re-set via arguments-file.")
-    @SuppressFBWarnings
-    public static File argumentsFile;
 
-    @Option(name="-resources-dir", usage = "Specify the path to the resources directory containing warnings.json, artifact-ignores.properties, etc. This argument cannot be re-set via arguments-file.")
-    @SuppressFBWarnings
-    public static File resourcesDir = new File("resources"); // Default value for tests -- TODO find a better way to set a value for tests
+    /* Configure options modifying output */
+    @Option(name="-pretty", usage="Pretty-print JSON files")
+    public boolean prettyPrint;
 
-    @Option(name="-whitelist-file", usage = "A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
-    public File whitelistFile;
+    @Option(name="-id", usage="Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
+    @CheckForNull public String id;
 
-    @Option(name="-log-level", usage = "A java.util.logging.Level name. Use CONFIG, FINE, FINER, or FINEST to log more output.", handler = LevelOptionHandler.class)
-    public Level level = Level.INFO;
+    @Option(name="-connectionCheckUrl", usage="Specify an URL of the 'always up' server for performing connection check.")
+    @CheckForNull public String connectionCheckUrl;
 
+
+    /* These fields are other objects configurable with command-line options */
     private Signer signer = new Signer();
-
     private MetadataWriter metadataWriter = new MetadataWriter();
+    private DirectoryTreeBuilder directoryTreeBuilder = new DirectoryTreeBuilder();
 
-    public static final String EOL = System.getProperty("line.separator");
 
     public static void main(String[] args) throws Exception {
         if (!System.getProperty("file.encoding").equals("UTF-8")) {
@@ -220,6 +157,7 @@ public class Main {
         CmdLineParser p = new CmdLineParser(this);
         new ClassParser().parse(signer, p);
         new ClassParser().parse(metadataWriter, p);
+        new ClassParser().parse(directoryTreeBuilder, p);
         try {
             p.parseArgument(args);
 
@@ -235,7 +173,7 @@ public class Main {
                         // TODO combine args array and this list
                         String[] invocationArgs = line.trim().split(" +");
 
-                        resetArguments(this, signer, metadataWriter);
+                        resetArguments(this, signer, metadataWriter, directoryTreeBuilder);
 
                         p.parseArgument(invocationArgs);
                         run();
@@ -261,13 +199,13 @@ public class Main {
                         try {
                             field.set(o, null);
                         } catch (IllegalAccessException e) {
-                            e.printStackTrace();
+                            LOGGER.log(Level.WARNING, "Failed to reset argument", e);
                         }
                     } else if (boolean.class.isAssignableFrom(field.getType())) {
                         try {
                             field.set(o, false);
                         } catch (IllegalAccessException e) {
-                            e.printStackTrace();
+                            LOGGER.log(Level.WARNING, "Failed to reset boolean option", e);
                         }
                     }
                 }
@@ -276,19 +214,7 @@ public class Main {
     }
 
     private String getCapCore() {
-        if (capCore!=null)  return capCore;
-        return capPlugin;
-    }
-
-    private void prepareStandardDirectoryLayout() {
-        json = new File(www,"update-center.actual.json");
-        jsonp = new File(www,"update-center.json");
-        urlmap = new File(www, "plugin-documentation-urls.json");
-
-        latest = new File(www,"latest");
-        indexHtml = new File(www,"index.html");
-        pluginVersions = new File(www, "plugin-versions.json");
-        releaseHistory = new File(www,"release-history.json");
+        return capCore == null ? capPlugin : capCore;
     }
 
     public void run() throws Exception {
@@ -297,108 +223,36 @@ public class Main {
             Logger.getLogger(getClass().getPackage().getName()).setLevel(level);
         }
 
-        if (www!=null) {
-            prepareStandardDirectoryLayout();
-        }
-
         MavenRepository repo = createRepository();
 
         metadataWriter.writeMetadataFiles(repo);
-
-        LatestLinkBuilder latest = createHtaccessWriter();
+//        directoryTreeBuilder.build(repo);
 
         if (!skipUpdateCenter) {
-            // TODO extract the other output variants from the buildUpdateCenterJson call
-//            JSONObject ucRoot = buildUpdateCenterJson(repo, latest); // this also has latest link builder etc.
-//
-//            writeToFile(updateCenterPostCallJson(ucRoot), jsonp);
-//            writeToFile(prettyPrintJson(ucRoot), json);
-//            writeToFile(updateCenterPostMessageHtml(ucRoot), new File(jsonp.getPath() + ".html"));
-
-//            Files.copy(json.toPath(), json.toPath().resolveSibling("old-" + json.getName()), StandardCopyOption.REPLACE_EXISTING);
-//            Files.copy(jsonp.toPath(), jsonp.toPath().resolveSibling("old-" + jsonp.getName()), StandardCopyOption.REPLACE_EXISTING);
-
-            final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer, prettyPrint);// TODO add support for additional output files
-            new PluginDocumentationUrlsRoot(repo).write(urlmap, prettyPrint);
-            writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), jsonp);
-            writeToFile(signedUpdateCenterJson, json);
-            writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(jsonp.getPath() + ".html"));
+            final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer, prettyPrint);
+            new PluginDocumentationUrlsRoot(repo).write(new File("plugin-documentation-urls.json"), prettyPrint);
+            writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), new File(www,"update-center.json"));
+            writeToFile(signedUpdateCenterJson, new File(www,"update-center.actual.json"));
+            writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(www,"update-center.json.html"));
 
         }
 
         if (!skipPluginVersions) {
-            // TODO The next two lines are just to enable comparisons:
-//            writeToFile(prettyPrintJson(buildPluginVersionsJson(repo)), pluginVersions);
-//            Files.copy(pluginVersions.toPath(), pluginVersions.toPath().resolveSibling("old-" + pluginVersions.getName()), StandardCopyOption.REPLACE_EXISTING);
-            new PluginVersionsRoot("1", repo).writeWithSignature(pluginVersions, signer, prettyPrint);
+            new PluginVersionsRoot("1", repo).writeWithSignature(new File(www, "plugin-versions.json"), signer, prettyPrint);
         }
 
         if (!skipReleaseHistory) {
-            new ReleaseHistoryRoot(repo).write(releaseHistory, prettyPrint);
+            new ReleaseHistoryRoot(repo).write(new File(www,"release-history.json"), prettyPrint);
         }
-
-        latest.close();
     }
 
-    @Deprecated
-    String updateCenterPostCallJson(JSONObject ucRoot) throws IOException {
-        return updateCenterPostCallJson(prettyPrintJson(ucRoot));
-    }
-
-    String updateCenterPostCallJson(String updateCenterJson) {
+    private String updateCenterPostCallJson(String updateCenterJson) {
         return "updateCenter.post(" + EOL + updateCenterJson + EOL + ");";
     }
 
-    @Deprecated
-    String updateCenterPostMessageHtml(JSONObject ucRoot) throws IOException {
-        return updateCenterPostMessageHtml(prettyPrintJson(ucRoot));
-    }
-
-    String updateCenterPostMessageHtml(String updateCenterJson) {
+    private String updateCenterPostMessageHtml(String updateCenterJson) {
         // needs the DOCTYPE to make JSON.stringify work on IE8
         return "\uFEFF<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + updateCenterJson+ EOL + "),'*'); };</script></body></html>";
-    }
-
-    private LatestLinkBuilder createHtaccessWriter() throws IOException {
-        latest.mkdirs();
-        return new LatestLinkBuilder(latest);
-    }
-
-    @Deprecated // Kept around for now to allow comparisons
-    private JSONObject buildPluginVersionsJson(MavenRepository repo) throws Exception {
-        JSONObject root = new JSONObject();
-        root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
-        root.put("plugins", buildPluginVersions(repo));
-
-//        if (signer.isConfigured())
-//            signer.sign(root);
-
-        return root;
-    }
-
-    @Deprecated
-    private JSONObject buildUpdateCenterJson(MavenRepository repo, LatestLinkBuilder latest) throws Exception {
-        JSONObject root = new JSONObject();
-        root.put("updateCenterVersion","1");    // we'll bump the version when we make incompatible changes
-        JSONObject core = buildCore(repo, latest);
-        if (core!=null)
-            root.put("core", core);
-        root.put("warnings", buildWarnings());
-        root.put("plugins", buildPlugins(repo, latest));
-        root.put("id",id == null ? DEFAULT_ID : id);
-        root.put("connectionCheckUrl",connectionCheckUrl == null ? DEFAULT_CONNECTION_CHECK_URL : connectionCheckUrl);
-
-//        if (signer.isConfigured())
-//            signer.sign(root);
-
-        return root;
-    }
-
-    @Deprecated
-    private JSONArray buildWarnings() throws IOException {
-        String warningsText = IOUtils.toString(Files.newBufferedReader(new File(Main.resourcesDir, "warnings.json").toPath()));
-        JSONArray warnings = JSONArray.fromObject(warningsText);
-        return warnings;
     }
 
     private static void writeToFile(String string, final File file) throws IOException {
@@ -407,15 +261,7 @@ public class Main {
         rhpw.close();
     }
 
-    private String prettyPrintJson(JSONObject json) throws IOException {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final BufferedWriter w = new BufferedWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8));
-        json.writeCanonical(w);
-        w.flush();
-        return baos.toString(StandardCharsets.UTF_8.name());
-    }
-
-    protected MavenRepository createRepository() throws Exception {
+    private MavenRepository createRepository() throws Exception {
 
         MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
         if (whitelistFile != null) {
@@ -432,9 +278,9 @@ public class Main {
         if (stableCore) {
             repo = new StableWarMavenRepository().withBaseRepository(repo);
         }
-        if (capPlugin != null || getCapCore() != null) {
+        if (getCapCore() != null) {
             VersionNumber vp = capPlugin == null ? null : new VersionNumber(capPlugin);
-            VersionNumber vc = getCapCore() == null ? ANY_VERSION : new VersionNumber(getCapCore());
+            VersionNumber vc = new VersionNumber(getCapCore());
             repo = new VersionCappedMavenRepository(vp, vc).withBaseRepository(repo);
         }
         if (javaVersion != null) {
@@ -443,190 +289,7 @@ public class Main {
         return repo;
     }
 
-    @Deprecated // Kept around for now to allow comparisons
-    private JSONObject buildPluginVersions(MavenRepository repository) throws Exception {
-        JSONObject plugins = new JSONObject();
-        System.err.println("Build plugin versions index from the maven repo...");
+    private static final String EOL = System.getProperty("line.separator");
 
-        for (Plugin plugin : repository.listJenkinsPlugins()) {
-                System.out.println(plugin.getArtifactId());
-
-                JSONObject versions = new JSONObject();
-
-                // Gather the plugin properties from the plugin file and the wiki
-                for (HPI hpi : plugin.getArtifacts().values()) {
-                    try {
-                        JSONObject hpiJson = hpi.toJSON(plugin.getArtifactId());
-                        if (hpiJson == null) {
-                            continue;
-                        }
-                        hpiJson.put("requiredCore", hpi.getRequiredJenkinsVersion());
-
-                        if (hpi.getCompatibleSinceVersion() != null) {
-                            hpiJson.put("compatibleSinceVersion",hpi.getCompatibleSinceVersion());
-                        }
-                        JSONArray deps = new JSONArray();
-                        for (HPI.Dependency d : hpi.getDependencies())
-                            deps.add(d.toJSON());
-                        hpiJson.put("dependencies",deps);
-
-                        versions.put(hpi.version, hpiJson);
-                    } catch (IOException e) {
-                        LOGGER.log(Level.INFO, "Failed to process " + hpi.artifact.getGav() + " for history, skipping", e);
-                    }
-                }
-
-                plugins.put(plugin.getArtifactId(), versions);
-        }
-        return plugins;
-    }
-
-    /**
-     * Build JSON for the plugin list.
-     * @param repository
-     * @param latest
-     */
-    @Deprecated
-    protected JSONObject buildPlugins(MavenRepository repository, LatestLinkBuilder latest) throws Exception {
-
-        int validCount = 0;
-
-        JSONObject plugins = new JSONObject();
-
-        System.err.println("Gathering list of plugins and versions from the maven repo...");
-        for (Plugin plugin : repository.listJenkinsPlugins()) {
-
-            try {
-                System.out.println(plugin.getArtifactId());
-
-                // Gather the plugin properties from the plugin file and the wiki
-                PluginUpdateCenterEntry pluginUpdateCenterEntry = new PluginUpdateCenterEntry(plugin);
-
-                JSONObject json = pluginUpdateCenterEntry.toJSON();
-                if (json == null) {
-                    continue;
-                }
-                plugins.put(pluginUpdateCenterEntry.artifactId, json);
-                latest.add(pluginUpdateCenterEntry.artifactId+".hpi", pluginUpdateCenterEntry.getDownloadUrl().getPath()); // TODO FIXME recover this call for fastjson variant
-
-                if (download!=null) { // TODO FIXME recover this call for fastjson variant
-                    for (HPI v : plugin.getArtifacts().values()) {
-                        stage(v, new File(download, "plugins/" + plugin.getArtifactId() + "/" + v.version + "/" + plugin.getArtifactId() + ".hpi"));
-                    }
-                    if (!plugin.getArtifacts().isEmpty())
-                        createLatestSymlink(plugin, pluginUpdateCenterEntry.latest); // TODO FIXME recover this call for fastjson variant
-                }
-
-                if (wwwDownload!=null) { // TODO FIXME recover this call for fastjson variant
-                    String permalink = String.format("/latest/%s.hpi", pluginUpdateCenterEntry.artifactId);
-                    buildIndex(new File(wwwDownload, "plugins/" + plugin.getArtifactId()), plugin.getArtifactId(), plugin.getArtifacts().values(), permalink);
-                }
-
-                validCount++;
-            } catch (IOException e) {
-                LOGGER.log(Level.INFO, "Failed to add " + plugin.getArtifactId() + " to update center", e);
-            }
-        }
-
-        System.err.println("Total " + validCount + " plugins listed.");
-        return plugins;
-    }
-
-    /**
-     * Generates symlink to the latest version.
-     */
-    protected void createLatestSymlink(Plugin hpi, HPI latest) throws InterruptedException, IOException {
-        File dir = new File(download, "plugins/" + hpi.getArtifactId());
-        new File(dir,"latest").delete();
-
-        ProcessBuilder pb = new ProcessBuilder();
-        pb.command("ln","-s", latest.version, "latest");
-        pb.directory(dir);
-        int r = pb.start().waitFor();
-        if (r !=0)
-            throw new IOException("ln failed: "+r);
-    }
-
-    /**
-     * Stages an artifact into the specified location.
-     */
-    protected void stage(MavenArtifact a, File dst) throws IOException, InterruptedException {
-        File src = a.resolve();
-        if (dst.exists() && dst.lastModified()==src.lastModified() && dst.length()==src.length())
-            return;   // already up to date
-
-//        dst.getParentFile().mkdirs();
-//        FileUtils.copyFile(src,dst);
-
-        // TODO: directory and the war file should have the release timestamp
-        dst.getParentFile().mkdirs();
-
-        ProcessBuilder pb = new ProcessBuilder();
-        pb.command("ln","-f", src.getAbsolutePath(), dst.getAbsolutePath());
-        Process p = pb.start();
-        if (p.waitFor()!=0)
-            throw new IOException("'ln -f " + src.getAbsolutePath() + " " +dst.getAbsolutePath() +
-                    "' failed with code " + p.exitValue() + "\nError: " + IOUtils.toString(p.getErrorStream()) + "\nOutput: " + IOUtils.toString(p.getInputStream()));
-
-    }
-
-    private void buildIndex(File dir, String title, Collection<? extends MavenArtifact> versions, String permalink) throws IOException {
-        List<MavenArtifact> list = new ArrayList<MavenArtifact>(versions);
-        Collections.sort(list,new Comparator<MavenArtifact>() {
-            public int compare(MavenArtifact o1, MavenArtifact o2) {
-                return -o1.getVersion().compareTo(o2.getVersion());
-            }
-        });
-
-        IndexHtmlBuilder index = new IndexHtmlBuilder(dir, title);
-        index.add(permalink,"permalink to the latest");
-        for (MavenArtifact a : list)
-            index.add(a);
-        index.close();
-    }
-
-    /**
-     * Creates a symlink.
-     */
-    private void ln(String from, File to) throws InterruptedException, IOException {
-        to.getParentFile().mkdirs();
-
-        ProcessBuilder pb = new ProcessBuilder();
-        pb.command("ln","-sf", from,to.getAbsolutePath());
-        if (pb.start().waitFor()!=0)
-            throw new IOException("ln failed");
-    }
-
-    /**
-     * Identify the latest core, populates the htaccess redirect file, optionally download the core wars and build the index.html
-     * @return the JSON for the core Jenkins
-     */
-    @Deprecated
-    protected JSONObject buildCore(@Nonnull MavenRepository repository, @Nonnull LatestLinkBuilder latestLink) throws Exception {
-        System.err.println("Finding latest Jenkins core WAR...");
-        TreeMap<VersionNumber, JenkinsWar> wars = repository.getJenkinsWarsByVersionNumber();
-        if (wars.isEmpty()) {
-            return null;
-        }
-
-        JenkinsWar latest = wars.get(wars.firstKey());
-        JSONObject core = latest.toJSON("core");
-        System.out.println("core\n=> "+ core);
-
-        latestLink.add("jenkins.war", latest.getDownloadUrl().getPath());
-
-        if (download!=null) {
-            // build the download server layout
-            for (JenkinsWar w : wars.values()) {
-                 stage(w, new File(download,"war/"+w.version+"/"+w.getFileName()));
-            }
-        }
-
-        if (wwwDownload!=null)
-            buildIndex(new File(wwwDownload,"war/"),"jenkins.war", wars.values(), "/latest/jenkins.war");
-
-        return core;
-    }
-
-    private static final VersionNumber ANY_VERSION = new VersionNumber("999.999");
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 }

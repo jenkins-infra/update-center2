@@ -1,6 +1,6 @@
 package io.jenkins.update_center;
 
-import io.jenkins.update_center.json.JsonSignature;;
+import io.jenkins.update_center.json.JsonSignature;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -111,7 +111,7 @@ public class Signer {
         private final Signature verifier1;
         private final Signature verifier512;
 
-        SignatureGenerator(X509Certificate signer, PrivateKey key) throws GeneralSecurityException, IOException {
+        SignatureGenerator(X509Certificate signer, PrivateKey key) throws GeneralSecurityException {
             // this is for computing a digest
             sha1 = DigestUtils.getSha1Digest();
             sha512 = DigestUtils.getSha512Digest();
@@ -143,7 +143,7 @@ public class Signer {
             return out;
         }
 
-        public void fill(JsonSignature signature) throws GeneralSecurityException {
+        private void fill(JsonSignature signature) throws GeneralSecurityException {
             // digest
             byte[] digest = sha1.digest();
             signature.setDigest(new String(Base64.encodeBase64(digest), StandardCharsets.UTF_8));
@@ -166,7 +166,7 @@ public class Signer {
     /**
      * Loads a certificate chain and makes sure it's valid.
      */
-    protected List<X509Certificate> getCertificateChain() throws IOException, GeneralSecurityException {
+    private List<X509Certificate> getCertificateChain() throws IOException, GeneralSecurityException {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         List<X509Certificate> certs = new ArrayList<>();
         for (File f : certificates) {
@@ -198,7 +198,7 @@ public class Signer {
         return certs;
     }
 
-    private X509Certificate loadCertificate(CertificateFactory cf, File f) throws CertificateException, IOException {
+    private X509Certificate loadCertificate(CertificateFactory cf, File f) throws IOException {
         try {
             try (FileInputStream in = new FileInputStream(f)) {
                 X509Certificate c = (X509Certificate) cf.generateCertificate(in);
@@ -206,7 +206,7 @@ public class Signer {
                 return c;
             }
         } catch (CertificateException | IOException e) {
-            throw (IOException)new IOException("Failed to load certificate "+f).initCause(e);
+            throw (IOException) new IOException("Failed to load certificate "+f).initCause(e);
         }
     }
 

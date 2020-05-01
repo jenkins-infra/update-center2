@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class UpdateCenterRoot extends WithSignature {
     @JSONField
@@ -26,22 +25,18 @@ public class UpdateCenterRoot extends WithSignature {
     @JSONField
     public String id = "default"; // TODO pass in command line arg
 
-    private final MavenRepository repo;
+    @JSONField
+    public UpdateCenterCore core;
 
     @JSONField
-    public UpdateCenterCore core; // TODO compute value
-
-    @JSONField
-    public Map<String, PluginUpdateCenterEntry> plugins = new TreeMap<>(); // TODO compute value
+    public Map<String, PluginUpdateCenterEntry> plugins = new TreeMap<>();
 
     @JSONField
     public List<UpdateCenterWarning> warnings;
 
     public UpdateCenterRoot(MavenRepository repo, File warningsJsonFile) throws IOException {
-        this.repo = repo;
-
         // load warnings
-        final String warningsJsonText = Files.readAllLines(warningsJsonFile.toPath(), StandardCharsets.UTF_8).stream().collect(Collectors.joining());
+        final String warningsJsonText = String.join("", Files.readAllLines(warningsJsonFile.toPath(), StandardCharsets.UTF_8));
         warnings = Arrays.asList(JSON.parseObject(warningsJsonText, UpdateCenterWarning[].class));
 
         for (Plugin plugin : repo.listJenkinsPlugins()) {

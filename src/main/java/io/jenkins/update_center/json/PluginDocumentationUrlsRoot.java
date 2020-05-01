@@ -22,7 +22,7 @@ public class PluginDocumentationUrlsRoot extends WithoutSignature {
     public static class Entry {
         private final String url;
 
-        public Entry(String url) {
+        private Entry(String url) {
             this.url = url;
         }
 

@@ -94,7 +94,7 @@ public class IndexHtmlBuilder implements Closeable {
         add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, checksums);
     }
 
-    public void add(String url, String caption) throws MalformedURLException {
+    public void add(String url, String caption) {
         add(url, null, caption, null);
     }
 
