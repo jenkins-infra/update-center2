@@ -246,12 +246,15 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                     try (Reader reader = body.charStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
                         IOUtils.copy(reader, tos, body.contentType().charset(StandardCharsets.UTF_8));
                         if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
-                            this.cache.put(url, baos.toString("UTF-8"));
+                            final String value = baos.toString("UTF-8");
+                            LOGGER.log(Level.FINE, "Caching in memory: " + url + " with content: " + value);
+                            this.cache.put(url, value);
                         }
                     }
                 } else {
+                    LOGGER.log(Level.INFO, "Received HTTP error response: " + response.code() + " for URL: " + url);
                     if (!cacheFile.mkdir()) {
-                        LOGGER.log(Level.WARNING, "Failed to create cache directory" + cacheFile);
+                        LOGGER.log(Level.WARNING, "Failed to create cache 'not found' directory" + cacheFile);
                     }
                 }
             } catch (RuntimeException e) {
