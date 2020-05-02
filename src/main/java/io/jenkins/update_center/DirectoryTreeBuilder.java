@@ -42,25 +42,6 @@ public class DirectoryTreeBuilder {
 
         try (LatestLinkBuilder latestLinks = prepareLatestLinkBuilder()) {
 
-            /* Process Jenkins core */
-            final TreeMap<VersionNumber, JenkinsWar> jenkinsWars = repo.getJenkinsWarsByVersionNumber();
-
-            if (!jenkinsWars.isEmpty()) {
-                if (latestLinks != null) {
-                    latestLinks.add("jenkins.war", jenkinsWars.firstEntry().getValue().getDownloadUrl().getPath());
-                }
-
-                if (download != null) {
-                    for (JenkinsWar w : jenkinsWars.values()) {
-                        stage(w, new File(download, "war/" + w.version + "/" + w.getFileName()));
-                    }
-                }
-
-                if (wwwDownload != null) {
-                    buildIndex(new File(wwwDownload, "war/"), "jenkins.war", jenkinsWars.values(), "/latest/jenkins.war");
-                }
-            }
-
             /* Process plugins */
             for (Plugin plugin : repo.listJenkinsPlugins()) {
                 if (latestLinks != null) {
@@ -81,6 +62,25 @@ public class DirectoryTreeBuilder {
                 if (wwwDownload != null) {
                     String permalink = String.format("/latest/%s.hpi", plugin.getArtifactId());
                     buildIndex(new File(wwwDownload, "plugins/" + plugin.getArtifactId()), plugin.getArtifactId(), artifacts.values(), permalink);
+                }
+            }
+
+            /* Process Jenkins core */
+            final TreeMap<VersionNumber, JenkinsWar> jenkinsWars = repo.getJenkinsWarsByVersionNumber();
+
+            if (!jenkinsWars.isEmpty()) {
+                if (latestLinks != null) {
+                    latestLinks.add("jenkins.war", jenkinsWars.firstEntry().getValue().getDownloadUrl().getPath());
+                }
+
+                if (download != null) {
+                    for (JenkinsWar w : jenkinsWars.values()) {
+                        stage(w, new File(download, "war/" + w.version + "/" + w.getFileName()));
+                    }
+                }
+
+                if (wwwDownload != null) {
+                    buildIndex(new File(wwwDownload, "war/"), "jenkins.war", jenkinsWars.values(), "/latest/jenkins.war");
                 }
             }
         }
