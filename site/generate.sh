@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Usage: SECRET=dirname ./site/generate.sh "./www2" "./download"
-[[ $# -eq 2 ]] || { echo "Usage: $0 <www root dir> <download root dir>" >&2 ; exit 1 ; }
+[[ $# -gt 1 ]] || { echo "Usage: $0 <www root dir> <download root dir> [extra update-center2.jar args ...]" >&2 ; exit 1 ; }
 [[ -n "$1" ]] || { echo "Non-empty www root dir required" >&2 ; exit 1 ; }
 [[ -n "$2" ]] || { echo "Non-empty download root dir required" >&2 ; exit 1 ; }
 
@@ -12,6 +12,9 @@
 
 WWW_ROOT_DIR="$1"
 DOWNLOAD_ROOT_DIR="$2"
+shift
+shift
+EXTRA_ARGS="$@"
 
 set -o nounset
 set -o pipefail
@@ -51,7 +54,7 @@ mkdir -p "$WWW_ROOT_DIR"
 # TODO move this to a temporary directory
 rm -rf generator/
 rm -rfv generator.zip
-wget --no-verbose -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200502.003051-24-bin.zip"
+wget --no-verbose -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200502.232140-25-bin.zip"
 unzip -q generator.zip -d generator/
 
 
@@ -59,7 +62,7 @@ unzip -q generator.zip -d generator/
 echo "# one update site per line" > args.lst
 
 function generate {
-  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate "$( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca.crt" $*" >> args.lst
+  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate $( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca.crt ${EXTRA_ARGS[*]} $*" >> args.lst
 }
 
 function sanity-check {
