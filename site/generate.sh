@@ -48,7 +48,8 @@ mkdir -p "$WWW_ROOT_DIR"
 # Generate htaccess file
 "$( dirname "$0" )"/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
 
-rm -rfv generator/
+# TODO move this to a temporary directory
+rm -rf generator/
 rm -rfv generator.zip
 wget --no-verbose -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200502.003051-24-bin.zip"
 unzip -q generator.zip -d generator/
