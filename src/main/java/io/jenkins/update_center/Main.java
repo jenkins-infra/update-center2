@@ -227,22 +227,22 @@ public class Main {
         metadataWriter.writeMetadataFiles(repo, www);
 
         if (!skipUpdateCenter) {
-            final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer, prettyPrint);
-            writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), new File(www,"update-center.json"));
-            writeToFile(signedUpdateCenterJson, new File(www,"update-center.actual.json"));
-            writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(www,"update-center.json.html"));
+            final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, WARNINGS_JSON_FILENAME)).encodeWithSignature(signer, prettyPrint);
+            writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), new File(www, UPDATE_CENTER_JSON_FILENAME));
+            writeToFile(signedUpdateCenterJson, new File(www, UPDATE_CENTER_ACTUAL_JSON_FILENAME));
+            writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(www, UPDATE_CENTER_JSON_HTML_FILENAME));
         }
 
         if (generatePluginDocumentationUrls) {
-            new PluginDocumentationUrlsRoot(repo).write(new File(www, "plugin-documentation-urls.json"), prettyPrint);
+            new PluginDocumentationUrlsRoot(repo).write(new File(www, PLUGIN_DOCUMENTATION_URLS_JSON_FILENAME), prettyPrint);
         }
 
         if (generatePluginVersions) {
-            new PluginVersionsRoot("1", repo).writeWithSignature(new File(www, "plugin-versions.json"), signer, prettyPrint);
+            new PluginVersionsRoot("1", repo).writeWithSignature(new File(www, PLUGIN_VERSIONS_JSON_FILENAME), signer, prettyPrint);
         }
 
         if (generateReleaseHistory) {
-            new ReleaseHistoryRoot(repo).write(new File(www,"release-history.json"), prettyPrint);
+            new ReleaseHistoryRoot(repo).write(new File(www, RELEASE_HISTORY_JSON_FILENAME), prettyPrint);
         }
         directoryTreeBuilder.build(repo);
 
@@ -298,6 +298,13 @@ public class Main {
         return repo;
     }
 
+    private static final String WARNINGS_JSON_FILENAME = "warnings.json";
+    private static final String UPDATE_CENTER_JSON_FILENAME = "update-center.json";
+    private static final String UPDATE_CENTER_ACTUAL_JSON_FILENAME = "update-center.actual.json";
+    private static final String UPDATE_CENTER_JSON_HTML_FILENAME = "update-center.json.html";
+    private static final String PLUGIN_DOCUMENTATION_URLS_JSON_FILENAME = "plugin-documentation-urls.json";
+    private static final String PLUGIN_VERSIONS_JSON_FILENAME = "plugin-versions.json";
+    private static final String RELEASE_HISTORY_JSON_FILENAME = "release-history.json";
     private static final String EOL = System.getProperty("line.separator");
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
