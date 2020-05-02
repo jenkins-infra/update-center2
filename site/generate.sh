@@ -54,7 +54,7 @@ mkdir -p "$WWW_ROOT_DIR"
 # TODO move this to a temporary directory
 rm -rf generator/
 rm -rfv generator.zip
-wget --no-verbose -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200502.232140-25-bin.zip"
+wget --no-verbose -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200502.233044-26-bin.zip"
 unzip -q generator.zip -d generator/
 
 

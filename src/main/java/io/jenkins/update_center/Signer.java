@@ -173,6 +173,10 @@ public class Signer {
             for (File f : certificates) {
                 X509Certificate c = loadCertificate(cf, f);
                 c.checkValidity(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30)));
+                if (certs.isEmpty()) {
+                    // This is the first cert we add to the list, i.e. it's the one most likely to expire soonest
+                    LOGGER.log(Level.INFO, () -> "Update site certificate: Subject: " + c.getSubjectDN() + " Issuer: " + c.getIssuerDN() + " NotBefore: " + c.getNotBefore() + " NotAfter: " + c.getNotAfter());
+                }
                 certs.add(c);
             }
         }
