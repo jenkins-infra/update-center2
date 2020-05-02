@@ -222,7 +222,6 @@ public class Main {
         MavenRepository repo = createRepository();
 
         metadataWriter.writeMetadataFiles(repo, www);
-        directoryTreeBuilder.build(repo);
 
         if (!skipUpdateCenter) {
             final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer, prettyPrint);
@@ -239,6 +238,8 @@ public class Main {
         if (generateReleaseHistory) {
             new ReleaseHistoryRoot(repo).write(new File(www,"release-history.json"), prettyPrint);
         }
+        directoryTreeBuilder.build(repo);
+
     }
 
     private String updateCenterPostCallJson(String updateCenterJson) {
