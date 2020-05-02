@@ -117,6 +117,9 @@ public class Main {
     @Option(name = "--generate-plugin-versions", usage = "Generate plugin versions")
     public boolean generatePluginVersions;
 
+    @Option(name = "--generate-plugin-documentation-urls", usage = "Generate plugin documentation URL mapping (for plugins.jenkins.io)")
+    public boolean generatePluginDocumentationUrls;
+
 
     /* Configure options modifying output */
     @Option(name = "--pretty-json", usage = "Pretty-print JSON files")
@@ -225,10 +228,13 @@ public class Main {
 
         if (!skipUpdateCenter) {
             final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, "warnings.json")).encodeWithSignature(signer, prettyPrint);
-            new PluginDocumentationUrlsRoot(repo).write(new File(www, "plugin-documentation-urls.json"), prettyPrint);
             writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), new File(www,"update-center.json"));
             writeToFile(signedUpdateCenterJson, new File(www,"update-center.actual.json"));
             writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(www,"update-center.json.html"));
+        }
+
+        if (generatePluginDocumentationUrls) {
+            new PluginDocumentationUrlsRoot(repo).write(new File(www, "plugin-documentation-urls.json"), prettyPrint);
         }
 
         if (generatePluginVersions) {

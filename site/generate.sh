@@ -97,7 +97,7 @@ generate --www-dir "$WWW_ROOT_DIR/experimental" --with-experimental --downloads-
 # Current update site without version caps, excluding experimental releases.
 # This generates -download after the experimental update site above to change the 'latest' symlinks to the latest released version.
 # This also generates --download-links-directory to only visibly show real releases on index.html pages.
-generate --generate-release-history --generate-plugin-versions \
+generate --generate-release-history --generate-plugin-versions --generate-plugin-documentation-urls \
     --write-latest-core --write-plugin-count \
     --www-dir "$WWW_ROOT_DIR/current" --download-links-directory "$WWW_ROOT_DIR/download" --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/current/latest"
 
