@@ -4,7 +4,7 @@
 UPDATES_SITE="updates.jenkins.io"
 RSYNC_USER="www-data"
 
-wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 || { echo "Failed to download jq" >&2 ; exit 1; }
+wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 || { echo "Failed to download jq" >&2 ; exit 1; }
 chmod +x jq || { echo "Failed to make jq executable" >&2 ; exit 1; }
 
 export PATH=.:$PATH
