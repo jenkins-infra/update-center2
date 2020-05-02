@@ -258,6 +258,10 @@ public class Main {
     }
 
     private static void writeToFile(String string, final File file) throws IOException {
+        File parentFile = file.getParentFile();
+        if (!parentFile.isDirectory() && !parentFile.mkdirs()) {
+            throw new IOException("Failed to create parent directory " + parentFile);
+        }
         PrintWriter rhpw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
         rhpw.print(string);
         rhpw.close();
