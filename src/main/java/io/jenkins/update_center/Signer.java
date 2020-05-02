@@ -197,7 +197,7 @@ public class Signer {
         try {
             CertificateUtil.validatePath(certs,rootCAs);
         } catch (GeneralSecurityException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Failed path validation", e);
         }
         return certs;
     }

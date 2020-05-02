@@ -42,7 +42,7 @@ public class GitHubSource {
             }
         } catch (IOException e) {
             // ignore, fall back to dumb mode
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Failed to obtain data from GitHub", e);
         }
     }
 

@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.logging.Level;
 
 /**
  * Delegating {@link BaseMavenRepository} to limit the data to the subset compatible with the specific version.
@@ -73,7 +74,7 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
                         }
                     }
                 } catch (IOException x) {
-                    x.printStackTrace();
+                    LOGGER.log(Level.WARNING, "Failed to filter plugin for plugin: " + h.getArtifactId(), x);
                 }
             }
 
