@@ -90,21 +90,13 @@ The Jenkins project publishes a limited, fixed number of tiered update sites to 
 
 ```
 2.204/
-├── latest/                          (Unused, may be removed)
-│   ├── .htaccess                    (Unused, may be removed)
-│   └── index.html                   (Unused, may be removed)
 ├── latestCore.txt                   (Unused, may be removed)
-├── plugin-documentation-urls.json   (Unused, may be removed)
 ├── update-center.actual.json
 ├── update-center.json
 ├── update-center.json.html
 └── updates  ->  ../updates
 stable-2.204/
-├── latest/                          (Unused, may be removed)
-│   ├── .htaccess                    (Unused, may be removed)
-│   └── index.html                   (Unused, may be removed)
 ├── latestCore.txt                   (Unused, may be removed)
-├── plugin-documentation-urls.json   (Unused, may be removed)
 ├── update-center.actual.json
 ├── update-center.json
 ├── update-center.json.html
@@ -149,11 +141,7 @@ current/
 
 ```
 stable/
-├── latest/                          (Unused, may be removed)
-│   ├── .htaccess                    (Unused, may be removed)
-│   └── index.html                   (Unused, may be removed)
 ├── latestCore.txt
-├── plugin-documentation-urls.json   (Unused, may be removed)
 ├── update-center.actual.json
 ├── update-center.json
 ├── update-center.json.html
@@ -174,11 +162,6 @@ Otherwise, this is similar to `current/` in that no version caps exist.
 
 ```
 experimental/
-├── latest/                          (Unused, may be removed)
-│   ├── .htaccess                    (Unused, may be removed)
-│   └── index.html                   (Unused, may be removed)
-├── latestCore.txt                   (Unused, may be removed)
-├── plugin-documentation-urls.json   (Unused, may be removed)
 ├── update-center.actual.json
 ├── update-center.json
 ├── update-center.json.html
