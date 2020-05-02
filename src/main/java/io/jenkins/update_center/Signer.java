@@ -182,8 +182,6 @@ public class Signer {
         }
 
         Set<TrustAnchor> rootCAs = new HashSet<>();
-        // TODO why is this hardcoded rather than expected to be passed in as -root-certificate argument?
-        rootCAs.add(new TrustAnchor((X509Certificate)cf.generateCertificate(getClass().getResourceAsStream("/jenkins-update-center-root-ca.cert")),null));
         if (rootCA != null) {
             for (File f : rootCA) {
                 rootCAs.add(new TrustAnchor(loadCertificate(cf, f), null));
@@ -194,10 +192,14 @@ public class Signer {
             LOGGER.log(Level.CONFIG, "Trust anchor: " + anchor);
         }
 
-        try {
-            CertificateUtil.validatePath(certs,rootCAs);
-        } catch (GeneralSecurityException e) {
-            LOGGER.log(Level.WARNING, "Failed path validation", e);
+        if (rootCA == null || rootCA.size() == 0) {
+            LOGGER.log(Level.WARNING, "No root CA specified, skipping path validation");
+        } else {
+            try {
+                CertificateUtil.validatePath(certs, rootCAs);
+            } catch (GeneralSecurityException e) {
+                LOGGER.log(Level.WARNING, "Failed path validation", e);
+            }
         }
         return certs;
     }

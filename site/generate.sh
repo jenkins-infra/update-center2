@@ -59,7 +59,7 @@ unzip -q generator.zip -d generator/
 echo "# one update site per line" > args.lst
 
 function generate {
-  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert $*" >> args.lst
+  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate "$( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca.crt" $*" >> args.lst
 }
 
 function sanity-check {
