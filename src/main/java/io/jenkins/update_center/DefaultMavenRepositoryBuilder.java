@@ -1,9 +1,11 @@
 package io.jenkins.update_center;
 
+import io.jenkins.update_center.util.Environment;
+
 public class DefaultMavenRepositoryBuilder {
 
-    private static String ARTIFACTORY_API_USERNAME = System.getenv("ARTIFACTORY_USERNAME");
-    private static String ARTIFACTORY_API_PASSWORD = System.getenv("ARTIFACTORY_PASSWORD");
+    private static String ARTIFACTORY_API_USERNAME = Environment.getString("ARTIFACTORY_USERNAME");
+    private static String ARTIFACTORY_API_PASSWORD = Environment.getString("ARTIFACTORY_PASSWORD");
 
     private DefaultMavenRepositoryBuilder () {
         

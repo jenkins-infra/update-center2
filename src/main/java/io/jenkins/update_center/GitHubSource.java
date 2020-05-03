@@ -1,5 +1,6 @@
 package io.jenkins.update_center;
 
+import io.jenkins.update_center.util.Environment;
 import net.sf.json.JSONObject;
 import okhttp3.Cache;
 import okhttp3.Credentials;
@@ -25,9 +26,9 @@ import java.util.logging.Logger;
 public class GitHubSource {
     private static final Logger LOGGER = Logger.getLogger(GitHubSource.class.getName());
 
-    private static String GITHUB_API_USERNAME = System.getenv("GITHUB_USERNAME");
-    private static String GITHUB_API_PASSWORD = System.getenv("GITHUB_PASSWORD");
-    private static File GITHUB_API_CACHE = new File(System.getenv().getOrDefault("GITHUB_CACHEDIR", "githubCache"));
+    private static String GITHUB_API_USERNAME = Environment.getString("GITHUB_USERNAME");
+    private static String GITHUB_API_PASSWORD = Environment.getString("GITHUB_PASSWORD");
+    private static File GITHUB_API_CACHE = new File(Environment.getString("GITHUB_CACHEDIR", "caches/github"));
 
     private Set<String> repoNames;
     private Map<String, List<String>> topicNames;

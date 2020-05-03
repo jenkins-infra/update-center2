@@ -1,6 +1,7 @@
 package io.jenkins.update_center;
 
 import com.google.gson.Gson;
+import io.jenkins.update_center.util.Environment;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -54,7 +55,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private final String username;
     private final String password;
 
-    private File cacheDirectory = new File("artifactoryFileCache"); // TODO make configurable
+    private File cacheDirectory = new File(Environment.getString("ARTIFACTORY_CACHEDIR", "caches/artifactory"));
 
     private boolean initialized = false;
 
