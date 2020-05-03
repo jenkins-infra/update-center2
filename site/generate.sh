@@ -60,7 +60,7 @@ mkdir -p "$WWW_ROOT_DIR"
 
 rm -rf "$MAIN_DIR"/tmp/generator/
 rm -rf "$MAIN_DIR"/tmp/generator.zip
-wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200503.001236-27-bin.zip"
+wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200503.002106-28-bin.zip"
 unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 
 
