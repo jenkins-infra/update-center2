@@ -14,7 +14,7 @@ WWW_ROOT_DIR="$1"
 DOWNLOAD_ROOT_DIR="$2"
 shift
 shift
-EXTRA_ARGS="$@"
+EXTRA_ARGS="$*"
 
 set -o nounset
 set -o pipefail
@@ -37,10 +37,17 @@ function test_which {
   command -v "$1" >/dev/null || { echo "Not on PATH: $1" >&2 ; exit 1 ; }
 }
 
-test_which curl
-test_which wget
-test_which $SORT
-test_which jq
+TOOLS=( curl wget "$SORT" jq )
+
+for tool in "${TOOLS[@]}" ; do
+  test_which "$tool"
+done
+
+# We have associated resource files, so determine script directory -- greadlink is GNU coreutils readlink on Mac OS with Homebrew
+SIMPLE_SCRIPT_DIR="$( dirname "$0" )"
+MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$SIMPLE_SCRIPT_DIR/../" )" || { echo "Failed to determine script directory using (g)readlink -f" >&2 ; exit 1 ; }
+
+echo "Main directory: $MAIN_DIR"
 
 readarray -t RELEASES < <( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
 
@@ -51,18 +58,17 @@ mkdir -p "$WWW_ROOT_DIR"
 # Generate htaccess file
 "$( dirname "$0" )"/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
 
-# TODO move this to a temporary directory
-rm -rf generator/
-rm -rfv generator.zip
-wget --no-verbose -O generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200502.233044-26-bin.zip"
-unzip -q generator.zip -d generator/
+rm -rf "$MAIN_DIR"/tmp/generator/
+rm -rf "$MAIN_DIR"/tmp/generator.zip
+wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.0-SNAPSHOT/update-center2-3.0-20200503.001236-27-bin.zip"
+unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 
 
 # Reset arguments file
-echo "# one update site per line" > args.lst
+echo "# one update site per line" > "$MAIN_DIR"/tmp/args.lst
 
 function generate {
-  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate $( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca.crt ${EXTRA_ARGS[*]} $*" >> args.lst
+  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate $( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca.crt $EXTRA_ARGS $*" >> "$MAIN_DIR"/tmp/args.lst
 }
 
 function sanity-check {
@@ -107,7 +113,7 @@ generate --generate-release-history --generate-plugin-versions --generate-plugin
 
 # Actually run the update center build.
 # The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
-java -Dfile.encoding=UTF-8 -jar generator/update-center2-*.jar --resources-dir ./resources --arguments-file ./args.lst
+java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar --resources-dir "$MAIN_DIR"/resources --arguments-file "$MAIN_DIR"/tmp/args.lst
 
 # Generate symlinks to global /updates directory (created by crawler)
 for ltsv in "${RELEASES[@]}" ; do
