@@ -48,6 +48,7 @@ SIMPLE_SCRIPT_DIR="$( dirname "$0" )"
 MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$SIMPLE_SCRIPT_DIR/../" )" || { echo "Failed to determine script directory using (g)readlink -f" >&2 ; exit 1 ; }
 
 echo "Main directory: $MAIN_DIR"
+mkdir -p "$MAIN_DIR"/tmp/
 
 readarray -t RELEASES < <( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
 
