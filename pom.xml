@@ -9,8 +9,8 @@
   <artifactId>update-center2</artifactId>
   
   <version>3.0-SNAPSHOT</version>
-  <name>Update center generator for jenkins-ci.org</name>
-  <description>Generates update center script</description>
+  <name>Jenkins Update Center Generator</name>
+  <description>Generates update sites for updates.jenkins.io</description>
 
   <properties>
     <java.level>8</java.level>
