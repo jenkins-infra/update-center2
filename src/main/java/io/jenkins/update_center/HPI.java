@@ -26,6 +26,7 @@ package io.jenkins.update_center;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.annotations.VisibleForTesting;
 import hudson.util.VersionNumber;
+import io.jenkins.update_center.util.Environment;
 import io.jenkins.update_center.util.JavaSpecificationVersion;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -65,6 +66,7 @@ import java.net.MalformedURLException;
  * For version independent metadata, see {@link Plugin}.
  */
 public class HPI extends MavenArtifact {
+    private static final String DOWNLOADS_ROOT_URL = Environment.getString("DOWNLOADS_ROOT_URL", "http://updates.jenkins-ci.org/download");
 
     private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
     private final Plugin plugin;
@@ -82,7 +84,7 @@ public class HPI extends MavenArtifact {
      * Download a plugin via more intuitive URL. This also helps us track download counts.
      */
     public URL getDownloadUrl() throws MalformedURLException {
-        return new URL("http://updates.jenkins-ci.org/download/plugins/"+artifact.artifactId+"/"+version+"/"+artifact.artifactId+".hpi");
+        return new URL(StringUtils.removeEnd(DOWNLOADS_ROOT_URL, "/") + "/plugins/" + artifact.artifactId + "/" + version + "/" + artifact.artifactId + ".hpi");
     }
 
     /**
