@@ -46,7 +46,7 @@ public class UpdateCenterRoot extends WithSignature {
         warnings = Arrays.asList(JSON.parseObject(warningsJsonText, UpdateCenterWarning[].class));
 
         // load deprecations
-        deprecations = Deprecations.getDeprecatedPlugins().stream().collect(Collectors.toMap(Functions.identity(), it -> new UpdateCenterDeprecation(Deprecations.getCustomDeprecationUri(it))));
+        deprecations = new TreeMap<>(Deprecations.getDeprecatedPlugins().stream().collect(Collectors.toMap(Functions.identity(), UpdateCenterRoot::deprecationForPlugin)));
 
         for (Plugin plugin : repo.listJenkinsPlugins()) {
             PluginUpdateCenterEntry entry = new PluginUpdateCenterEntry(plugin);
@@ -54,5 +54,9 @@ public class UpdateCenterRoot extends WithSignature {
         }
 
         core = new UpdateCenterCore(repo.getJenkinsWarsByVersionNumber());
+    }
+
+    private static UpdateCenterDeprecation deprecationForPlugin(String artifactId) {
+        return new UpdateCenterDeprecation(Deprecations.getCustomDeprecationUri(artifactId));
     }
 }
