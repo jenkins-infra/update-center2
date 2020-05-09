@@ -177,7 +177,7 @@ public class PluginUpdateCenterEntry {
         return previous == null ? null : TIMESTAMP_FORMATTER.format(previous.getTimestamp());
     }
 
-    public float getPopularity() throws IOException {
+    public int getPopularity() throws IOException {
         return Popularities.getInstance().getPopularity(artifactId);
     }
 

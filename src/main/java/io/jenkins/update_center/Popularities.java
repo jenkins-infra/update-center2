@@ -24,17 +24,14 @@ public class Popularities {
     private static Popularities instance;
 
     private final Map<String, Integer> popularities;
-    private final int maxPopularity;
 
-    private Popularities(Map<String, Integer> popularities, int maxPopularity) {
+    private Popularities(Map<String, Integer> popularities) {
         this.popularities = popularities;
-        this.maxPopularity = maxPopularity;
     }
 
     private static void initialize() throws IOException {
 
         Map<String, Integer> popularities = new HashMap<>();
-        int maxPopularity = 0;
         Request request = new Request.Builder().url(JSON_URL).get().build();
 
         String bodyString;
@@ -51,12 +48,9 @@ public class Popularities {
         for (Iterator it = plugins.keys(); it.hasNext(); ) {
             String pluginId = it.next().toString();
             final int popularity = plugins.getInt(pluginId);
-            if (popularity > maxPopularity) {
-                maxPopularity = popularity;
-            }
             popularities.put(pluginId, popularity);
         }
-        instance = new Popularities(popularities, maxPopularity);
+        instance = new Popularities(popularities);
     }
 
     public static synchronized Popularities getInstance() throws IOException {
@@ -66,7 +60,7 @@ public class Popularities {
         return instance;
     }
 
-    public float getPopularity(String pluginId) {
-        return this.popularities.getOrDefault(pluginId, 0).floatValue() / Integer.valueOf(maxPopularity).floatValue();
+    public int getPopularity(String pluginId) {
+        return this.popularities.getOrDefault(pluginId, 0);
     }
 }
