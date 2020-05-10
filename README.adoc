@@ -144,7 +144,7 @@ The following steps are therefore useful when trying to generate output correspo
 1. Implement changes in `src/main/`.
 2. Run `./site/generate.sh` until the Java tool is actually launched, then abort. This requires some environment variables to be defined.
 3. Edit `tmp/args.lst`, changing or removing the `--key`, `--certificate`, and `--root-certificate` arguments as necessary.
-3. Run `+java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --arguments-file tmp/args.lst+`
+4. Run `+java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --arguments-file tmp/args.lst+`
 
 
 === Running within an IDE
