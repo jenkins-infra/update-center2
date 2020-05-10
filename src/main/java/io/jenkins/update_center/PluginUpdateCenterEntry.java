@@ -77,6 +77,15 @@ public class PluginUpdateCenterEntry {
         this(hpi.artifact.artifactId, hpi,  null);
     }
 
+    /**
+     *  Historical name for the plugin documentation URL field.
+     *
+     *  Now always links to plugins.jenkins.io, which in turn uses
+     *  {@link io.jenkins.update_center.json.PluginDocumentationUrlsRoot} to determine where the documentation is
+     *  actually located.
+     *
+     * @return a URL
+     */
     @JSONField
     public String getWiki() {
         return "https://plugins.jenkins.io/" + artifactId;

@@ -364,7 +364,7 @@ public class HPI extends MavenArtifact {
     /** @return The URL as specified in the POM, or the overrides file. */
     public String getPluginUrl() throws IOException {
         if (pluginUrl == null) {
-            // Check whether the wiki URL should be overridden
+            // Check whether the plugin documentation URL should be overridden
             String url = URL_OVERRIDES.getProperty(artifact.artifactId);
 
             // Otherwise read *.hpi!/META-INF/MANIFEST.MF#Url, if defined
@@ -372,7 +372,7 @@ public class HPI extends MavenArtifact {
                 url = getManifestAttributes().getValue("Url");
             }
 
-            // Otherwise read the wiki URL from the POM, if any
+            // Otherwise read the plugin URL from the POM, if any
             if (url == null) {
                 url = readSingleValueFromXmlFile(resolvePOM(), "/project/url");
             }

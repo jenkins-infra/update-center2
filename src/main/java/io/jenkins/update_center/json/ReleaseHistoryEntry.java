@@ -11,7 +11,7 @@ class ReleaseHistoryEntry {
     @JSONField
     public final String title;
     @JSONField
-    public final String wiki;
+    public final String wiki; // historical name for the plugin documentation URL field
     @JSONField
     public final String gav;
     @JSONField
