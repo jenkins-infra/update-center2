@@ -248,10 +248,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                 if (response.isSuccessful()) {
                     try (final ResponseBody body = response.body()) {
                         Objects.requireNonNull(body); // always non-null according to Javadoc
-                        try (Reader reader = body.charStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
-                            final MediaType contentType = body.contentType();
-                            final Charset charset = contentType == null ? StandardCharsets.UTF_8 : contentType.charset(StandardCharsets.UTF_8); // assume UTF-8 if undefined
-                            IOUtils.copy(reader, tos, charset);
+                        try (InputStream inputStream = body.byteStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
+                            IOUtils.copy(inputStream, tos);
                             if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
                                 final String value = baos.toString("UTF-8");
                                 LOGGER.log(Level.FINE, () -> "Caching in memory: " + url + " with content: " + value);
