@@ -93,17 +93,17 @@ function sanity-check {
 for ltsv in "${RELEASES[@]}" ; do
   v="${ltsv/%.1/}"
   # For mainline up to $v, advertising the latest core
-  generate --www-dir "$WWW_ROOT_DIR/$v" --limit-plugin-core-dependency "$v.999" --write-latest-core
+  generate --limit-plugin-core-dependency "$v.999" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/$v/latest" --www-dir "$WWW_ROOT_DIR/$v"
 
   # For LTS, advertising the latest LTS core
-  generate --www-dir "$WWW_ROOT_DIR/stable-$v" --limit-plugin-core-dependency "$v.999" --write-latest-core --only-stable-core
+  generate --limit-plugin-core-dependency "$v.999" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/stable-$v/latest" --www-dir "$WWW_ROOT_DIR/stable-$v" --only-stable-core
 done
 
 
 # Experimental update center without version caps, including experimental releases.
 # This is not a part of the version-based redirection rules, admins need to manually configure it.
 # Generate this first, including --downloads-directory, as this includes all releases, experimental and otherwise.
-generate --www-dir "$WWW_ROOT_DIR/experimental" --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR"
+generate --www-dir "$WWW_ROOT_DIR/experimental" --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/experimental/latest"
 
 # Current update site without version caps, excluding experimental releases.
 # This generates -download after the experimental update site above to change the 'latest' symlinks to the latest released version.
