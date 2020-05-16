@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.support_log_formatter.SupportLogFormatter;
 import io.jenkins.update_center.args4j.LevelOptionHandler;
+import io.jenkins.update_center.json.TieredUpdateSitesGenerator;
 import io.jenkins.update_center.json.PluginDocumentationUrlsRoot;
 import io.jenkins.update_center.wrappers.AlphaBetaOnlyRepository;
 import io.jenkins.update_center.wrappers.StableWarMavenRepository;
@@ -105,6 +106,9 @@ public class Main {
 
 
     /* Configure what kinds of output to generate */
+    @Option(name = "--dynamic-tier-list-file", usage = "Generate tier list JSON file at the specified path. If this option is set, we skip generating all other output.")
+    @CheckForNull public File tierListFile;
+
     @Option(name = "--www-dir", usage = "Generate simple output files, JSON(ish) and others, into this directory")
     @CheckForNull public File www;
 
@@ -224,6 +228,11 @@ public class Main {
 
         MavenRepository repo = createRepository();
 
+        if (tierListFile != null) {
+            new TieredUpdateSitesGenerator().withRepository(repo).write(tierListFile, prettyPrint);
+            return;
+        }
+
         metadataWriter.writeMetadataFiles(repo, www);
 
         if (!skipUpdateCenter) {
@@ -259,7 +268,7 @@ public class Main {
 
     private static void writeToFile(String string, final File file) throws IOException {
         File parentFile = file.getParentFile();
-        if (!parentFile.isDirectory() && !parentFile.mkdirs()) {
+        if (parentFile != null && !parentFile.isDirectory() && !parentFile.mkdirs()) {
             throw new IOException("Failed to create parent directory " + parentFile);
         }
         PrintWriter rhpw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
