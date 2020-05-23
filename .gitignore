@@ -1,12 +1,24 @@
-target
-*.iml
-*.ipr
-*.iws
-.classpath
-.project
-.settings
-www
-.htaccess
-.idea
-output
-githubCache/
+# Maven
+/target/
+
+# IntelliJ
+/.idea/
+/*.iml
+/*.ipr
+/*.iws
+
+# Eclipse
+/.settings/
+/.classpath
+/.project
+
+# Standard directory names (see site/publish.sh)
+/download/
+/www2/
+
+# Execution caches dirs
+/caches/
+/tmp/
+
+# Mac OS X
+.DS_Store

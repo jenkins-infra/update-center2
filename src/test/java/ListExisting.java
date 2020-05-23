@@ -1,4 +1,7 @@
-import org.jvnet.hudson.update_center.*;
+import io.jenkins.update_center.DefaultMavenRepositoryBuilder;
+import io.jenkins.update_center.HPI;
+import io.jenkins.update_center.MavenRepository;
+import io.jenkins.update_center.Plugin;
 
 import java.util.Collection;
 import java.util.Set;
@@ -14,9 +17,9 @@ public class ListExisting {
         MavenRepository r = DefaultMavenRepositoryBuilder.getInstance();
 
         Set<String> groupIds = new TreeSet<String>();
-        Collection<PluginHistory> all = r.listHudsonPlugins();
-        for (PluginHistory p : all) {
-            HPI hpi = p.latest();
+        Collection<Plugin> all = r.listJenkinsPlugins();
+        for (Plugin p : all) {
+            HPI hpi = p.getLatest();
             groupIds.add(hpi.artifact.groupId);
         }
 
