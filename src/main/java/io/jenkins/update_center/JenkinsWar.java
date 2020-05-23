@@ -52,7 +52,7 @@ public class JenkinsWar extends MavenArtifact {
     }
 
     /**
-     * Hudson -> Jenkins cut-over version.
+     * Hudson to Jenkins cut-over version.
      */
     public static final VersionNumber HUDSON_CUT_OFF = new VersionNumber("1.395");
 }

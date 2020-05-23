@@ -281,7 +281,7 @@ public class HPI extends MavenArtifact {
 
     private String name;
 
-    /** @return The plugin name defined in the POM &lt;name> modified by simplication rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
+    /** @return The plugin name defined in the POM &lt;name&gt; modified by simplification rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
     public String getName() throws IOException {
         if (name == null) {
             String title = readSingleValueFromXmlFile(resolvePOM(), "/project/name");
