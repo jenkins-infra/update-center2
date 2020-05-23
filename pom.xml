@@ -8,7 +8,7 @@
 
   <artifactId>update-center2</artifactId>
   
-  <version>3.1-SNAPSHOT</version>
+  <version>3.0.1</version>
   <name>Jenkins Update Center Generator</name>
   <description>Generates update sites for updates.jenkins.io</description>
 
@@ -249,7 +249,7 @@
   <scm>
     <connection>scm:git:git://github.com/jenkins-infra/update-center2.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkins-infra/update-center2.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>update-center2-3.0.1</tag>
   </scm>
 
   <distributionManagement>
