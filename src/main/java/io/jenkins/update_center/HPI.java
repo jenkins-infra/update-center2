@@ -67,8 +67,8 @@ import java.net.MalformedURLException;
  */
 public class HPI extends MavenArtifact {
     private static final String DOWNLOADS_ROOT_URL = Environment.getString("DOWNLOADS_ROOT_URL", "http://updates.jenkins-ci.org/download");
+    private static final Pattern DEVELOPERS_PATTERN = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
-    private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
     private final Plugin plugin;
 
     public HPI(BaseMavenRepository repository, ArtifactCoordinates artifact, Plugin plugin) {
@@ -195,7 +195,7 @@ public class HPI extends MavenArtifact {
             } else {
 
                 List<Developer> r = new ArrayList<>();
-                Matcher m = developersPattern.matcher(devs);
+                Matcher m = DEVELOPERS_PATTERN.matcher(devs);
                 int totalMatched = 0;
                 while (m.find()) {
                     final String name = fixEmptyAndTrim(m.group(1));
