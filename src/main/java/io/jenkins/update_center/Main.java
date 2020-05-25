@@ -223,6 +223,7 @@ public class Main {
         }
 
         MavenRepository repo = createRepository();
+        initializeLatestPluginVersions();
 
         metadataWriter.writeMetadataFiles(repo, www);
 
@@ -267,12 +268,35 @@ public class Main {
         rhpw.close();
     }
 
+    private void initializeLatestPluginVersions() throws IOException {
+        MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
+        if (whitelistFile != null) {
+            final Properties properties = new Properties();
+            try (FileInputStream fis = new FileInputStream(whitelistFile)) {
+                properties.load(fis);
+            }
+            repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
+        }
+        if (maxPlugins != null) {
+            repo = new TruncatedMavenRepository(maxPlugins).withBaseRepository(repo);
+        }
+        if (onlyExperimental) {
+            repo = new AlphaBetaOnlyRepository(false).withBaseRepository(repo);
+        }
+        if (!includeExperimental) {
+            repo = new AlphaBetaOnlyRepository(true).withBaseRepository(repo);
+        }
+        LatestPluginVersions.initialize(repo);
+    }
+
     private MavenRepository createRepository() throws Exception {
 
         MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
         if (whitelistFile != null) {
             final Properties properties = new Properties();
-            properties.load(new FileInputStream(whitelistFile));
+            try (FileInputStream fis = new FileInputStream(whitelistFile)) {
+                properties.load(fis);
+            }
             repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
         }
         if (maxPlugins != null) {

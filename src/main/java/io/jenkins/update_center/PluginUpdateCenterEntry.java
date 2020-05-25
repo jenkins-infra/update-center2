@@ -1,6 +1,7 @@
 package io.jenkins.update_center;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import hudson.util.VersionNumber;
 import io.jenkins.update_center.util.JavaSpecificationVersion;
 
 import javax.annotation.CheckForNull;
@@ -28,17 +29,17 @@ public class PluginUpdateCenterEntry {
     /**
      * Latest version of this plugin.
      */
-    public transient final HPI latest;
+    private transient final HPI latestOffered;
     /**
      * Previous version of this plugin.
      */
     @CheckForNull
-    public transient final HPI previous;
+    private transient final HPI previousOffered;
 
-    private PluginUpdateCenterEntry(String artifactId, HPI latest, HPI previous) {
+    private PluginUpdateCenterEntry(String artifactId, HPI latestOffered, HPI previousOffered) {
         this.artifactId = artifactId;
-        this.latest = latest;
-        this.previous = previous;
+        this.latestOffered = latestOffered;
+        this.previousOffered = previousOffered;
     }
 
     public PluginUpdateCenterEntry(Plugin plugin) {
@@ -69,8 +70,8 @@ public class PluginUpdateCenterEntry {
             previous = h;
         }
 
-        this.latest = latest;
-        this.previous = previous == latest ? null : previous;
+        this.latestOffered = latest;
+        this.previousOffered = previous == latest ? null : previous;
     }
 
     public PluginUpdateCenterEntry(HPI hpi) {
@@ -92,66 +93,66 @@ public class PluginUpdateCenterEntry {
     }
 
     String getPluginUrl() throws IOException {
-        return latest.getPluginUrl();
+        return latestOffered.getPluginUrl();
     }
 
     @JSONField(name = "url")
     public URL getDownloadUrl() throws MalformedURLException {
-        return latest.getDownloadUrl();
+        return latestOffered.getDownloadUrl();
     }
 
     @JSONField(name = "title")
     public String getName() throws IOException {
-        return latest.getName();
+        return latestOffered.getName();
     }
 
     public String getVersion() {
-        return latest.version;
+        return latestOffered.version;
     }
 
     public String getPreviousVersion() {
-        return previous == null? null : previous.version;
+        return previousOffered == null? null : previousOffered.version;
     }
 
     public String getScm() throws IOException {
-        return latest.getScmUrl();
+        return latestOffered.getScmUrl();
     }
 
     public String getRequiredCore() throws IOException {
-        return latest.getRequiredJenkinsVersion();
+        return latestOffered.getRequiredJenkinsVersion();
     }
 
     public String getCompatibleSinceVersion() throws IOException {
-        return latest.getCompatibleSinceVersion();
+        return latestOffered.getCompatibleSinceVersion();
     }
 
     public String getMinimumJavaVersion() throws IOException {
-        final JavaSpecificationVersion minimumJavaVersion = latest.getMinimumJavaVersion();
+        final JavaSpecificationVersion minimumJavaVersion = latestOffered.getMinimumJavaVersion();
         return minimumJavaVersion == null ? null : minimumJavaVersion.toString();
     }
 
     public String getBuildDate() {
-        return latest.getTimestampAsString();
+        return latestOffered.getTimestampAsString();
     }
 
     public List<String> getLabels() throws IOException {
-        return latest.getLabels();
+        return latestOffered.getLabels();
     }
 
     public List<HPI.Dependency> getDependencies() throws IOException {
-        return latest.getDependencies();
+        return latestOffered.getDependencies();
     }
 
     public String getSha1() throws IOException {
-        return latest.getDigests().sha1;
+        return latestOffered.getDigests().sha1;
     }
 
     public String getSha256() throws IOException {
-        return latest.getDigests().sha256;
+        return latestOffered.getDigests().sha256;
     }
 
     public String getGav() {
-        return latest.getGavId();
+        return latestOffered.getGavId();
     }
 
     private static String fixEmptyAndTrim(String value) {
@@ -166,8 +167,8 @@ public class PluginUpdateCenterEntry {
     }
 
     public List<HPI.Developer> getDevelopers() throws IOException {
-        final List<HPI.Developer> developers = latest.getDevelopers();
-        final String builtBy = fixEmptyAndTrim(latest.getBuiltBy());
+        final List<HPI.Developer> developers = latestOffered.getDevelopers();
+        final String builtBy = fixEmptyAndTrim(latestOffered.getBuiltBy());
         if (developers.isEmpty() && builtBy != null) {
             return Collections.singletonList(new HPI.Developer(null, builtBy, null));
         }
@@ -175,19 +176,28 @@ public class PluginUpdateCenterEntry {
     }
 
     public String getExcerpt() throws IOException {
-        return latest.getDescription();
+        return latestOffered.getDescription();
     }
 
     public String getReleaseTimestamp() {
-        return TIMESTAMP_FORMATTER.format(latest.getTimestamp());
+        return TIMESTAMP_FORMATTER.format(latestOffered.getTimestamp());
     }
 
     public String getPreviousTimestamp() {
-        return previous == null ? null : TIMESTAMP_FORMATTER.format(previous.getTimestamp());
+        return previousOffered == null ? null : TIMESTAMP_FORMATTER.format(previousOffered.getTimestamp());
     }
 
     public int getPopularity() throws IOException {
         return Popularities.getInstance().getPopularity(artifactId);
+    }
+
+    public String getLatest() {
+        final VersionNumber latestPublishedVersion = LatestPluginVersions.getInstance().getLatestVersion(artifactId);
+        if (latestPublishedVersion == null || latestPublishedVersion.equals(latestOffered.getVersion())) {
+            // only include latest version information if the currently published version isn't the latest
+            return null;
+        }
+        return latestPublishedVersion.toString();
     }
 
     private static final SimpleDateFormat TIMESTAMP_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
