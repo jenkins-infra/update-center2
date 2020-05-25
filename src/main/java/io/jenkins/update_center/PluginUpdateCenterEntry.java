@@ -192,7 +192,11 @@ public class PluginUpdateCenterEntry {
     }
 
     public String getLatest() {
-        final VersionNumber latestPublishedVersion = LatestPluginVersions.getInstance().getLatestVersion(artifactId);
+        final LatestPluginVersions instance = LatestPluginVersions.getInstance();
+        if (instance == null) {
+            return null;
+        }
+        final VersionNumber latestPublishedVersion = instance.getLatestVersion(artifactId);
         if (latestPublishedVersion == null || latestPublishedVersion.equals(latestOffered.getVersion())) {
             // only include latest version information if the currently published version isn't the latest
             return null;
