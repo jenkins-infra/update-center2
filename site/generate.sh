@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
 # Usage: SECRET=dirname ./site/generate.sh "./www2" "./download"
-[[ $# -eq 3 ]] || { echo "Usage: $0 <www root dir> <download root dir> <fallback dir>" >&2 ; exit 1 ; }
+[[ $# -gt 1 ]] || { echo "Usage: $0 <www root dir> <download root dir> [extra update-center2.jar args ...]" >&2 ; exit 1 ; }
 [[ -n "$1" ]] || { echo "Non-empty www root dir required" >&2 ; exit 1 ; }
 [[ -n "$2" ]] || { echo "Non-empty download root dir required" >&2 ; exit 1 ; }
-[[ -n "$3" ]] || { echo "Non-empty fallback dir required" >&2 ; exit 1 ; }
 
 [[ -n "$SECRET" ]] || { echo "SECRET env var not defined" >&2 ; exit 1 ; }
 [[ -d "$SECRET" ]] || { echo "SECRET env var not a directory" >&2 ; exit 1 ; }
@@ -13,7 +12,9 @@
 
 WWW_ROOT_DIR="$1"
 DOWNLOAD_ROOT_DIR="$2"
-FALLBACK_DIR="$3"
+shift
+shift
+EXTRA_ARGS="$*"
 
 set -o nounset
 set -o pipefail
@@ -24,126 +25,122 @@ echo "Bash: $BASH_VERSION" >&2
 # platform specific behavior
 UNAME="$( uname )"
 if [[ $UNAME == Linux ]] ; then
-  SORT=sort
+  SORT="sort"
 elif [[ $UNAME == Darwin ]] ; then
-  SORT=gsort
+  SORT="gsort"
 else
   echo "Unknown platform: $UNAME" >&2
   exit 1
 fi
 
-function test_which() {
-  which "$1" >/dev/null || { echo "Not on PATH: $1" >&2 ; exit 1 ; }
+function test_which {
+  command -v "$1" >/dev/null || { echo "Not on PATH: $1" >&2 ; exit 1 ; }
 }
 
-test_which curl
-test_which wget
-test_which $SORT
-test_which jq
-test_which mvn
+TOOLS=( curl wget "$SORT" jq )
 
-set -x
+for tool in "${TOOLS[@]}" ; do
+  test_which "$tool"
+done
 
-RELEASES=$( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
+# We have associated resource files, so determine script directory -- greadlink is GNU coreutils readlink on Mac OS with Homebrew
+SIMPLE_SCRIPT_DIR="$( dirname "$0" )"
+MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$SIMPLE_SCRIPT_DIR/../" )" || { echo "Failed to determine script directory using (g)readlink -f" >&2 ; exit 1 ; }
+
+echo "Main directory: $MAIN_DIR"
+mkdir -p "$MAIN_DIR"/tmp/
+
+readarray -t RELEASES < <( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
 
 # prepare the www workspace for execution
 rm -rf "$WWW_ROOT_DIR"
 mkdir -p "$WWW_ROOT_DIR"
 
 # Generate htaccess file
-$( dirname "$0" )/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
+"$( dirname "$0" )"/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
 
-# build update center generator
-mvn -e clean install
+rm -rf "$MAIN_DIR"/tmp/generator/
+rm -rf "$MAIN_DIR"/tmp/generator.zip
+wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.0.1/update-center2-3.0.1-bin.zip"
+unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 
 
 # Reset arguments file
-echo "# one update site per line" > args.lst
+echo "# one update site per line" > "$MAIN_DIR"/tmp/args.lst
 
-function generate() {
-    echo "-id default -connectionCheckUrl http://www.google.com/ -key $SECRET/update-center.key -certificate $SECRET/update-center.cert $@" >> args.lst
+function generate {
+  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate $( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca.crt $EXTRA_ARGS $*" >> "$MAIN_DIR"/tmp/args.lst
 }
 
-function sanity-check() {
-    dir="$1"
-    file="$dir/update-center.json"
-    if [[ 700000 -ge $(cat  "$file" | wc -c ) ]] ; then
-        echo "$file looks too small" >&2
-        exit 1
-    fi
+function sanity-check {
+  dir="$1"
+  file="$dir/update-center.json"
+  if [[ 1500000 -ge $( wc -c < "$file" ) ]] ; then
+    echo "Sanity check: $file looks too small" >&2
+    exit 1
+  fi
 }
 
-# generate several update centers for different segments
-# so that plugins can aggressively update baseline requirements
-# without strnding earlier users.
+# Generate several update sites for different segments so that plugins can
+# aggressively update baseline requirements without stranding earlier users.
 #
-# we use LTS as a boundary of different segments, to create
+# We use LTS as a boundary of different segments, to create
 # a reasonable number of segments with reasonable sizes. Plugins
 # tend to pick LTS baseline as the required version, so this works well.
 #
-# Looking at statistics like http://stats.jenkins-ci.org/jenkins-stats/svg/201409-jenkins.svg,
-# I think three or four should be sufficient
-#
-# make sure the latest baseline version here is available as LTS and in the Maven index of the repo,
-# otherwise it'll offer the weekly as update to a running LTS version
+# We generate tiered update sites for the five most recent LTS baselines, which
+# means admins get compatible updates offered on releases up to about one year old.
+for ltsv in "${RELEASES[@]}" ; do
+  v="${ltsv/%.1/}"
+  # For mainline up to $v, advertising the latest core
+  generate --limit-plugin-core-dependency "$v.999" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/$v/latest" --www-dir "$WWW_ROOT_DIR/$v"
 
-
-for ltsv in ${RELEASES[@]}; do
-    v="${ltsv/%.1/}"
-    # for mainline up to $v, which advertises the latest core
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/$v" -cap $v.999 -capCore 2.999
-
-    # for LTS
-    generate -no-experimental -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/stable-$v" -cap $v.999 -capCore 2.999 -stableCore
+  # For LTS, advertising the latest LTS core
+  generate --limit-plugin-core-dependency "$v.999" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/stable-$v/latest" --www-dir "$WWW_ROOT_DIR/stable-$v" --only-stable-core
 done
 
 
-# On generating http://mirrors.jenkins-ci.org/plugins layout
-#     this directory that hosts actual bits need to be generated by combining both experimental content and current content,
-#     with symlinks pointing to the 'latest' current versions. So we generate exprimental first, then overwrite current to produce proper symlinks
+# Experimental update center without version caps, including experimental releases.
+# This is not a part of the version-based redirection rules, admins need to manually configure it.
+# Generate this first, including --downloads-directory, as this includes all releases, experimental and otherwise.
+generate --www-dir "$WWW_ROOT_DIR/experimental" --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/experimental/latest"
 
-# experimental update center. this is not a part of the version-based redirection rules
-generate -javaVersion 8 -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/experimental"
+# Current update site without version caps, excluding experimental releases.
+# This generates -download after the experimental update site above to change the 'latest' symlinks to the latest released version.
+# This also generates --download-links-directory to only visibly show real releases on index.html pages.
+generate --generate-release-history --generate-plugin-versions --generate-plugin-documentation-urls \
+    --write-latest-core --write-plugin-count \
+    --www-dir "$WWW_ROOT_DIR/current" --download-links-directory "$WWW_ROOT_DIR/download" --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/current/latest"
 
-# As this includes more releases than the Java 8 experimental update site, generate complete -download and -download-fallback here.
-generate -javaVersion 11 -skip-release-history -skip-plugin-versions -www "$WWW_ROOT_DIR/temporary-experimental-java11" -download "$DOWNLOAD_ROOT_DIR" -download-fallback "$FALLBACK_DIR"
+# Actually run the update center build.
+# The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
+java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar --resources-dir "$MAIN_DIR"/resources --arguments-file "$MAIN_DIR"/tmp/args.lst
 
-# for the latest without any cap
-# also use this to generae https://updates.jenkins-ci.org/download layout, since this generator run
-# will capture every plugin and every core
-generate -no-experimental -www "$WWW_ROOT_DIR/current" -www-download "$WWW_ROOT_DIR/download" -download "$DOWNLOAD_ROOT_DIR" -pluginCount.txt "$WWW_ROOT_DIR/pluginCount.txt"
+# Generate symlinks to global /updates directory (created by crawler)
+for ltsv in "${RELEASES[@]}" ; do
+  v="${ltsv/%.1/}"
 
-# actually run the update center build
-java -jar target/update-center2-*-bin*/update-center2-*.jar -id default -arguments-file args.lst
+  sanity-check "$WWW_ROOT_DIR/$v"
+  sanity-check "$WWW_ROOT_DIR/stable-$v"
+  ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
+  ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
 
-# generate symlinks to global /updates directory (created by crawler)
-for ltsv in ${RELEASES[@]}; do
-    v="${ltsv/%.1/}"
-
-    sanity-check "$WWW_ROOT_DIR/$v"
-    sanity-check "$WWW_ROOT_DIR/stable-$v"
-    ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
-    ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
-
-    # needed for the stable/ directory (below)
-    lastLTS=$v
+  # needed for the stable/ directory (below)
+  lastLTS=$v
 done
 
 sanity-check "$WWW_ROOT_DIR/experimental"
-sanity-check "$WWW_ROOT_DIR/temporary-experimental-java11"
 sanity-check "$WWW_ROOT_DIR/current"
 ln -sf ../updates "$WWW_ROOT_DIR/experimental/updates"
-ln -sf ../updates "$WWW_ROOT_DIR/temporary-experimental-java11/updates"
-ln -sf ../updates $WWW_ROOT_DIR/current/updates
-
+ln -sf ../updates "$WWW_ROOT_DIR/current/updates"
 
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd "$WWW_ROOT_DIR"
-    ln -s stable-$lastLTS stable
-    for f in latest latestCore.txt plugin-documentation-urls.json release-history.json plugin-versions.json update-center.*; do
-        ln -s current/$f .
-    done
+  ln -s "stable-$lastLTS" stable
+  for f in latest latestCore.txt plugin-documentation-urls.json release-history.json plugin-versions.json update-center.json update-center.actual.json update-center.json.html ; do
+    ln -s "current/$f" .
+  done
 popd
 
 # copy other static resource files

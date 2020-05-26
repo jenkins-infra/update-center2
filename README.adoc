@@ -1,0 +1,228 @@
+= Jenkins Update Center Generator
+
+This project is primarily used to generate the jenkins.io update center layout.
+
+With a few modifications it could easily be used to generate your corporate update center as well.
+
+[IMPORTANT]
+This tool is optimized for use by the Jenkins project in Jenkins project infrastructure.
+Expect incompatible changes, like options not used by the Jenkins project being dropped.
+Additionally, this documentation is focused on how the tool is used by the Jenkins project, rather than the customizations necessary to create private update sites.
+
+== Output
+
+See link:site/LAYOUT.md[site layout] for more detailed documentation on site structure.
+
+
+== Information Sources
+
+The generator pulls information from:
+
+* Artifactory artifact repository (see `ArtifactoryRepositoryImpl.java`)
+  - Artifactory API for listing artifacts
+  - downloading artifact files
+  - downloading individual files in archives such as `MANIFEST.MF`
+* GitHub (see `GitHubSource.java`)
+  - determine source code repository that actually exists (sometimes metadata is wrong)
+  - plugin labels from repositories topics
+* Jenkins usage statistics (see `Popularities.java`)
+  - latest plugin installation numbers for `popularity` entries in update center JSON
+* link:resources/[Local resource files in this repository]
+  - GitHub topic whitelist (`resources/allowed-github-topics.properties`)
+  - Artifact ignore list (`resources/artifact-ignores.properties`)
+  - Deprecations (`resources/deprecations.properties`)
+  - Label assignments (`resources/label-definitions.properties`)
+  - Security warnings (`resources/warnings.json`)
+  - Plugin URL overrides (`resources/wiki-overrides.properties`)
+
+
+== Features Controlled Through Resource Files
+
+=== Categorizing plugins
+
+Plugin labels are shown to users:
+
+* as categories in Jenkins before 2.224 and on the link:https://plugins.jenkins.io/[plugins site]
+* as tags in Jenkins from 2.224 and also on the plugins site.
+
+See https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/hudson/model/Messages.properties[this Jenkins resource file] (look for `UpdateCenter.PluginCategory`) for the localization overrides applied to labels by Jenkins.
+Other labels are categorized into general _Misc (custom-label-here)_ categories (Jenkins before 2.224) or displayed as is.
+
+Two ways can be used to define these labels:
+
+==== GitHub
+
+Add https://help.github.com/en/github/administering-a-repository/classifying-your-repository-with-topics[topics] to your GitHub repository.
+For a list of supported topics, see the link:src/main/resources/allowed-github-topics.properties[whitelist file] that contains all topics that can be set on GitHub repositories that will be reflected in update sites.
+Topics can be set with or without the prefix `jenkins-`. If a topics has that prefix, it is removed first:
+To add the label `matrix` for your plugin, you would add either `matrix` or `jenkins-matrix` on your repository. 
+
+==== Resource File
+
+As an alternative to the above, plugin labels can be defined in the file https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/label-definitions.properties[`resources/label-definitions.properties`] in this repository.
+
+This is the preferable approach when a plugin isn't in the `jenkinsci` GitHub organization, or a GitHub repository contains multiple plugins whose labels should be different.
+
+=== Plugin URL Override
+
+Plugins are generally expected to provide a `<url>` to their documentation in their POM.
+Historically, these URLs have been pages on the Jenkins wiki, but can point anywhere.
+
+This requirement no longer exists, but it may still be useful to define a documentation URL for plugins that do not specify the correct URL.
+//Due to update center tiers that can result in older releases of a plugin being distributed, it might not be enough to have a URL in the latest release.
+// TODO This is probably obsolete since we always look at the latest release now?
+
+The file `resources/wiki-overrides.properties` defines these wiki page overrides.
+
+
+=== Deprecations
+
+// TODO Once https://github.com/jenkinsci/jenkins/pull/4073 is merged, specify which version is the first one.
+Plugins are considered _deprecated_ by Jenkins when either the update site metadata does one or both of the following:
+
+* Uses the label `deprecated` for the plugin.
+  This can be done via GitHub repository topics, or the `resources/label-definitions.properties` described above.
+  Jenkins will use the plugin URL as the reference URL for the deprecation notice.
+* Lists an entry with the plugin ID as key in the top-level `deprecations` map in `update-center.json`.
+  This can be done through entries in the https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/deprecations.properties[`resources/deprecations.properties`] file.
+  The value from the properties file will be used as the URL for the deprecation notice in Jenkins.
+  This entry and URL take precedence over a `deprecated` label, i.e. when both are set, the URL from the top-level element shall be used.
+
+These two different approaches to plugin deprecation accomplish complementary goals:
+
+* The label approach is very simple and can easily be done by plugin maintainers themselves via GitHub labels.
+  It is also backward compatible with any earlier version of Jenkins -- it will just show the deprecation as a regular label.
+  Additionally, it doesn't bloat the JSON file size at all, since no special URL is needed.
+* The top-level `deprecations` element allows specifying a URL different from the plugin documentation URL as well as deprecating plugins no longer being distributed.
+  Especially the latter is a common requirement when plugins integrate with services that no longer exist:
+  It makes no sense to continue distributing them, but everyone having them already installed should be informed about it.
+
+
+=== Removing plugins from distribution
+
+The update center generator allows to specify that certain plugins, or plugin releases, should not be included in the output.
+
+There are various reasons to need to do this, such as:
+
+* A plugin release causes major regressions and a fix is not immediately available.
+* A plugin integrates with a service that has been shut down.
+
+Both use cases (entire plugins, or specific versions) are controlled via the file `resources/artifact-ignores.properties`.
+See that file for usage examples.
+
+Such plugins typically should get a corresponding deprecation entry in `resources/deprecations.properties`.
+
+
+=== Security warnings
+
+Since Jenkins 2.32.2 and 2.40, Jenkins can display security warnings about core and plugins.
+These warnings are part of the update center metadata downloaded by Jenkins.
+These warnings are defined in the file `resources/warnings.json`.
+
+
+== Usage
+
+=== Invocation
+
+Build (`mvn clean verify`) the generator and then invoke it as follows:
+
+    java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --id default ...
+
+The tool also supports batch mode execution, generating multiple update sites with a single invocation:
+
+    java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --arguments-file <filename.txt>
+
+`filename.txt` is a text file with a list of arguments on each line.
+Lines that start with `#` are comments and ignored.
+Example:
+
+[source]
+----
+# one update site per line
+
+# Minimal update sites for Jenkins <= 2.204 and 2.204.x LTS
+--www-dir ./www2/2.204 --limit-plugin-core-dependency 2.204.999 --write-latest-core
+--www-dir ./www2/stable-2.204 --limit-plugin-core-dependency 2.204.999 --write-latest-core --only-stable-core
+
+# Minimal update sites for Jenkins <= 2.222 and 2.222.x LTS
+--www-dir ./www2/2.222 --limit-plugin-core-dependency 2.222.999 --write-latest-core
+--www-dir ./www2/stable-2.222 --limit-plugin-core-dependency 2.222.999 --write-latest-core --only-stable-core
+
+# Experimental (alpha/beta) update site, no version caps, collect files for download (including experimental files)
+--www-dir ./www2/experimental --with-experimental --downloads-directory ./download
+
+# Latest update site for Jenkins > 2.222, with release-history.json, plugin-versions.json, plugin-documentation-urls.json, collect files for download, and generate plugin count
+--generate-release-history --generate-plugin-versions --generate-plugin-documentation-urls --write-latest-core --write-plugin-count --www-dir ./www2/current --download-links-directory ./www2/download --downloads-directory ./download --latest-links-directory ./www2/current/latest
+----
+
+For a full list of arguments, invoke the tool as follows:
+
+    java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --help
+
+NOTE: `--help` isn't a real argument, but usage instructions are printed when an invalid argument is provided.
+
+
+=== Preparing local execution
+
+Running `./site/generate.sh` will first create the batch mode control file `./tmp/args.lst`, before actually starting the tool.
+The following steps are therefore useful when trying to generate output corresponding to the real update sites during development:
+
+1. Implement changes in `src/main/`.
+2. Run `./site/generate.sh` until the Java tool is actually launched, then abort. This requires some environment variables to be defined.
+3. Edit `tmp/args.lst`, changing or removing the `--key`, `--certificate`, and `--root-certificate` arguments as necessary.
+4. Run `+java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --arguments-file tmp/args.lst+`
+
+
+=== Running within an IDE
+
+The project various artifacts to be used on a site hosting a jenkins update center
+The project produces a jar and a zip file containing all the required dependencies to run the generator.
+
+If you want to run the generator from within your development environment,
+you can try to use the appassembler plugin as described below.
+The exec:java plugin won't work.
+
+    mvn package appassembler:assemble
+    sh target/appassembler/bin/app --id default ...
+
+
+=== Deploying changes
+
+`./site/generate.sh` downloads and executes a specified version of `update-center2`.
+This is different from earlier iterations of this tool that always rebuilt from source.
+The current iteration requires a (possible snapshot deployment) first, that is then referenced in `./site.generate.sh`.
+
+Consequently, merging larger-scale changes to both the tool itself and the wrapper script need to be mindful of this dependency:
+A new release (or at minimum a snapshot deployment) is needed, which is then referenced in `./site/generate.sh`.
+
+NOTE: As of May 2020, everyone can deploy snapshots to Artifactory, so permissions issues shouldn't hinder development.
+
+
+=== Working with certificates
+
+To sign JSON output files, create a development certificate:
+
+----
+openssl genrsa -out resources/certificates/demo.key 4096
+openssl req -new -x509 -days 180 -key resources/certificates/demo.key -out resources/certificates/demo.crt -subj "/C=/ST=/L=/O=local-development/OU=local-development/CN=local-development/emailAddress=example@example.invalid"
+----
+
+Then add these arguments to your tool invocation (or arguments file):
+
+----
+--key resources/certificates/demo.key --certificate resources/certificates/demo.crt --root-certificate resources/certificates/demo.crt
+----
+
+To have your Jenkins instance accept update site JSON signed with this certificate, create a directory `update-center-rootCAs/` in the Jenkins home directory, and copy the `demo.crt` file in there.
+Once update site JSON files are generated, configure Jenkins to download them in _Manage Jenkins » Manage Plugin » Advanced_:
+Either set up a local HTTP server so the URL would be something like `+http://localhost:8000/update-center.json+`, or specify a `file://` URL like `+file:///Users/yourname/git/update-center2/www2/update-center.json+`
+
+NOTE: For historical reason, the configured URL points to `update-center.json`, but the file actually downloaded by Jenkins (at least up to 2.235 as of this writing) is `update-center.json.html`.
+
+=== Filtering Java versions
+
+The `--java-version <version>` CLI argument can be used to filter plugins based on their minimum Java version requirement.
+By default such filtering happens based on the `Minimum-Java-Version` manifest entry provided in Plugin HPIs starting from https://github.com/jenkinsci/maven-hpi-plugin#30-2018-12-05[Maven HPI Plugin 3.0] and https://github.com/jenkinsci/plugin-pom/blob/master/CHANGELOG.md#329[Plugin POM 3.29].
+
+Plugin HPIs without `Minimum-Java-Version` will be accepted by default.
+If you want to create an update center for old Java, use the `--limit-plugin-core-dependency` option to set the filter for core dependencies in plugins.

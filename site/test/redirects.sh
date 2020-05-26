@@ -46,15 +46,16 @@ test_redirect "https://updates.jenkins.io/update-center.actual.json?version=$NEW
 test_redirect "https://updates.jenkins.io/plugin-documentation-urls.json?version=$NEWEST_LTS_BASELINE.1" "https://updates.jenkins.io/stable-$NEWEST_LTS_BASELINE/plugin-documentation-urls.json"
 test_redirect "https://updates.jenkins.io/latestCore.txt?version=$NEWEST_LTS_BASELINE.1" "https://updates.jenkins.io/stable-$NEWEST_LTS_BASELINE/latestCore.txt"
 
+# Jenkins 1.x gets the newest update sites, we don't care enough to have a more appropriate redirect for them
 #test_redirect "https://updates.jenkins.io/update-center.json?version=1.650" "https://updates.jenkins.io/$OLDEST_SUPPORTED_LTS_BASELINE/update-center.json"
 #test_redirect "https://updates.jenkins.io/update-center.json?version=1.580" "https://updates.jenkins.io/$OLDEST_SUPPORTED_LTS_BASELINE/update-center.json"
+
 test_redirect "https://updates.jenkins.io/update-center.json?version=1.580.1" "https://updates.jenkins.io/stable-$OLDEST_SUPPORTED_LTS_BASELINE/update-center.json"
 test_redirect "https://updates.jenkins.io/update-center.json?version=2.46.1" "https://updates.jenkins.io/stable-$OLDEST_SUPPORTED_LTS_BASELINE/update-center.json"
 
-
-# This is probably better -- drop down if older than newest LTS baseline, this isn't getting updates weekly
+# Where to redirect a slightly older non-baseline weekly release:
+# This would probably be ideal: Drop down if older than newest LTS baseline, this instance isn't getting updates weekly
 #test_redirect "https://updates.jenkins.io/update-center.json?version=2.120" "https://updates.jenkins.io/2.107/update-center.json"
-# This is the current result
-# This test is obviously time dependent, and only useful as long as 2.121 is NEWER THAN the oldest supported baseline.
+# The following describes the current behavior. Second argument is a recent LTS baseline (neither oldest nor newest supported); first argument is a weekly release a bit earlier than that.
 # While still true when it's the oldest, then this is the expected result.
-test_redirect "https://updates.jenkins.io/update-center.json?version=2.115" "https://updates.jenkins.io/2.121/update-center.json"
+test_redirect "https://updates.jenkins.io/update-center.json?version=2.200" "https://updates.jenkins.io/2.204/update-center.json"
