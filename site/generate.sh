@@ -50,7 +50,7 @@ MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$
 echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
-readarray -t RELEASES < <( curl 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
+readarray -t RELEASES < <( curl --silent --fail 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
 
 # prepare the www workspace for execution
 rm -rf "$WWW_ROOT_DIR"
@@ -61,7 +61,7 @@ mkdir -p "$WWW_ROOT_DIR"
 
 rm -rf "$MAIN_DIR"/tmp/generator/
 rm -rf "$MAIN_DIR"/tmp/generator.zip
-wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.1/update-center2-3.1-bin.zip"
+wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.2/update-center2-3.2-bin.zip"
 unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 
 
