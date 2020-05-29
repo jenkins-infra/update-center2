@@ -111,6 +111,9 @@ public class Main {
     @Option(name = "--skip-update-center", usage = "Skip generation of update center files (mostly useful during development)")
     public boolean skipUpdateCenter;
 
+    @Option(name = "--skip-latest-plugin-release", usage = "Do not include information about the latest existing plugin release (if an older release is being offered)")
+    public boolean skipLatestPluginRelease;
+
     @Option(name = "--generate-release-history", usage = "Generate release history")
     public boolean generateReleaseHistory;
 
@@ -223,6 +226,7 @@ public class Main {
         }
 
         MavenRepository repo = createRepository();
+        initializeLatestPluginVersions(skipLatestPluginRelease);
 
         metadataWriter.writeMetadataFiles(repo, www);
 
@@ -267,12 +271,39 @@ public class Main {
         rhpw.close();
     }
 
+    private void initializeLatestPluginVersions(boolean skip) throws IOException {
+        if (skip) {
+            LatestPluginVersions.initializeEmpty();
+            return;
+        }
+        MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
+        if (whitelistFile != null) {
+            final Properties properties = new Properties();
+            try (FileInputStream fis = new FileInputStream(whitelistFile)) {
+                properties.load(fis);
+            }
+            repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
+        }
+        if (maxPlugins != null) {
+            repo = new TruncatedMavenRepository(maxPlugins).withBaseRepository(repo);
+        }
+        if (onlyExperimental) {
+            repo = new AlphaBetaOnlyRepository(false).withBaseRepository(repo);
+        }
+        if (!includeExperimental) {
+            repo = new AlphaBetaOnlyRepository(true).withBaseRepository(repo);
+        }
+        LatestPluginVersions.initialize(repo);
+    }
+
     private MavenRepository createRepository() throws Exception {
 
         MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
         if (whitelistFile != null) {
             final Properties properties = new Properties();
-            properties.load(new FileInputStream(whitelistFile));
+            try (FileInputStream fis = new FileInputStream(whitelistFile)) {
+                properties.load(fis);
+            }
             repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
         }
         if (maxPlugins != null) {
