@@ -25,7 +25,6 @@ package io.jenkins.update_center;
 
 import hudson.util.VersionNumber;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collections;
@@ -62,7 +61,7 @@ public class LatestPluginVersions {
         instance = new LatestPluginVersions(Collections.emptyMap());
     }
 
-    @CheckForNull
+    @Nonnull
     public static LatestPluginVersions getInstance() {
         Objects.requireNonNull(instance, "instance");
         return instance;
