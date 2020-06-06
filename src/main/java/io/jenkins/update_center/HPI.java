@@ -40,6 +40,7 @@ import org.owasp.html.HtmlSanitizer;
 import org.owasp.html.HtmlStreamRenderer;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
+import org.xml.sax.SAXException;
 
 import javax.annotation.CheckForNull;
 import java.io.File;
@@ -347,7 +348,15 @@ public class HPI extends MavenArtifact {
         DocumentFactory factory = new DocumentFactory();
         factory.setXPathNamespaceURIs(
                 Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
-        return new SAXReader(factory);
+        final SAXReader reader = new SAXReader(factory);
+        try {
+            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        } catch (SAXException ex) {
+            LOGGER.log(Level.WARNING, "Failed to set safety features on SAXReader", ex);
+        }
+        return reader;
     }
 
     private Document readPOM() throws IOException {
