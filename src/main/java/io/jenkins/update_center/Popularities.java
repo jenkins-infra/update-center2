@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
  * <p>
  * This implementation just returns the number of installations at the moment, but that may change at any time.
  * <p>
- * The first iteration of this class returns decimal (float/double) values, but those caused problems for signature validation in Jenkins.
+ * The first iteration of this class returns decimal (float/double) values, but those caused problems for signature
+ * validation in Jenkins due to the JSON normalization involved.
  */
 public class Popularities {
 
