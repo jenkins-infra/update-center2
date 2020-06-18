@@ -46,16 +46,16 @@ for (( i = n-1 ; i >= 0 ; i-- )) ; do
 # If major > ${major} or major = ${major} and minor >= ${minor} or major = ${major} and minor = ${minor} and patch >= ${patch}, use this LTS update site
 RewriteCond %{QUERY_STRING} ^.*version=(\d)\.(\d+)\.(\d+)$ [NC]
 RewriteCond %1 >${major}
-RewriteRule ^(update\-center.*\.(json|html)+) /stable-${major}\.${minor}\.${patch}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-stable-${major}\.${minor}\.${patch}%{REQUEST_URI}? [NC,L,R=301]
 RewriteCond %{QUERY_STRING} ^.*version=(\d)\.(\d+)\.(\d+)$ [NC]
 RewriteCond %1 =${major}
 RewriteCond %2 >=${minor}
-RewriteRule ^(update\-center.*\.(json|html)+) /stable-${major}\.${minor}\.${patch}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-stable-${major}\.${minor}\.${patch}%{REQUEST_URI}? [NC,L,R=301]
 RewriteCond %{QUERY_STRING} ^.*version=(\d)\.(\d+)\.(\d+)$ [NC]
 RewriteCond %1 =${major}
 RewriteCond %2 =${minor}
 RewriteCond %3 >=${minor}
-RewriteRule ^(update\-center.*\.(json|html)+) /stable-${major}\.${minor}\.${patch}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-stable-${major}\.${minor}\.${patch}%{REQUEST_URI}? [NC,L,R=301]
 EOF
     oldestStable="$version"
   else
@@ -68,11 +68,11 @@ EOF
 # If major > ${major} or major = ${major} and minor >= ${minor}, use this weekly update site
 RewriteCond %{QUERY_STRING} ^.*version=(\d)\.(\d+)$ [NC]
 RewriteCond %1 >${major}
-RewriteRule ^(update\-center.*\.(json|html)+) /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 RewriteCond %{QUERY_STRING} ^.*version=(\d)\.(\d+)$ [NC]
 RewriteCond %1 =${major}
 RewriteCond %2 >${minor}
-RewriteRule ^(update\-center.*\.(json|html)+) /${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 EOF
 
   fi
@@ -84,17 +84,17 @@ cat <<EOF
 # First LTS update site (stable-$oldestStable) gets all older LTS releases
 
 RewriteCond %{QUERY_STRING} ^.*version=\d\.(\d+)\.\d+$ [NC]
-RewriteRule ^(update\-center.*\.(json|html)+) /stable-${oldestStable}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-stable-${oldestStable}%{REQUEST_URI}? [NC,L,R=301]
 
 RewriteCond %{QUERY_STRING} ^.*version=\d\.(\d+)+$ [NC]
-RewriteRule ^(update\-center.*\.(json|html)+) /${oldestWeekly}%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-${oldestWeekly}%{REQUEST_URI}? [NC,L,R=301]
 
 EOF
 
 
 echo "# Add a RewriteRule for /stable which will always rewrite to the last LTS site we have"
 cat <<EOF
-RewriteRule ^stable/(.+) "/stable-${newestStable}/\$1" [NC,L,R=301]
+RewriteRule ^stable/(.+) "/dynamic-stable-${newestStable}/\$1" [NC,L,R=301]
 
 EOF
 
