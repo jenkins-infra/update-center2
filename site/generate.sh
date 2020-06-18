@@ -52,7 +52,7 @@ mkdir -p "$MAIN_DIR"/tmp/
 
 rm -rf "$MAIN_DIR"/tmp/generator/
 rm -rf "$MAIN_DIR"/tmp/generator.zip
-wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.1-SNAPSHOT/update-center2-3.1-20200516.213950-1-bin.zip"
+wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.2.2-SNAPSHOT/update-center2-3.2.2-20200618.114038-2-bin.zip"
 unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 
 java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar --dynamic-tier-list-file tmp/tiers.json
