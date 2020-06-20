@@ -218,9 +218,9 @@ This list is current as of June 2020, but may not be complete.
 
 ### jenkinsci/plugin-installation-manager-tool
 
-* `https://updates.jenkins.io/update-center.actual.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L13)
-* `https://updates.jenkins.io/experimental/update-center.actual.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L15)
-* `https://updates.jenkins.io/current/plugin-versions.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L18)
+* `/update-center.actual.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L13)
+* `/experimental/update-center.actual.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L15)
+* `/current/plugin-versions.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L18)
 
 ### jenkinsci/docker
 
