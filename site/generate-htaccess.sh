@@ -12,7 +12,7 @@ set -o nounset
 cat <<EOF
 # THIS FILE IS GENERATED
 #
-# See: <https://github.com/jenkinsci/backend-update-center2/blob/master/site/generate-htaccess.sh>
+# See: <https://github.com/jenkins-infra/update-center2/blob/master/site/generate-htaccess.sh>
 RewriteEngine on
 
 EOF
