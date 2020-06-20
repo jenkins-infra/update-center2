@@ -209,7 +209,7 @@ NOTE: As of May 2020, everyone can deploy snapshots to Artifactory, so permissio
 
 The wrapper script `site/generate.sh` calls the script `site/generate-htaccess.sh` with chosen arguments.
 The latter script will generate the `.htaccess` file mostly containing mod_rewrite rules to redirect requests to appropriate tiered update sites.
-To learn more about tiers, see [LAYOUT.md](site/LAYOUT.md).
+To learn more about tiers, see link:site/LAYOUT.md[LAYOUT.md].
 
 To test changes to `site/generate-htaccess.sh`, run `site/test/test.sh`.
 It executes `site/generate-htaccess.sh` and places it inside an Apache HTTPD Docker container and tests whether redirect rules are correctly applied.
