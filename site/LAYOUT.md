@@ -196,3 +196,33 @@ The top-level `.htaccess` file is created by `generate-htaccess.sh` and implemen
 * Redirects from top-level release history and plugin versions JSON files to the real files in `current`
 * Redirects for any other `.json` / `.json.html` files (i.e. tool downloader metadata in `updates/`) to the mirrors network. <!-- does this even work / matter? -->
 * Redirects for `.war` and `.hpi` files in the `download/` directory tree to the mirrors network.
+
+
+## Known consumers
+
+The following is a list of known references to specific files or directories in the Jenkins project.
+It is intended to ensure that Jenkins to update-center2 will not break other parts of project infrastructure.
+
+This list is current as of June 2020, but may not be complete.
+
+### jenkins-infra/jenkins.io
+
+* `/latestCore.txt` in [fetch-external-resources](https://github.com/jenkins-infra/jenkins.io/blob/6eddbd1e2891a39a88f04387d2aea9f23bb2bdf1/scripts/fetch-external-resources#L18)
+* `/stable/latestCore.txt` in [fetch-external-resources](https://github.com/jenkins-infra/jenkins.io/blob/6eddbd1e2891a39a88f04387d2aea9f23bb2bdf1/scripts/fetch-external-resources#L24)
+* `/update-center.actual.json` in [fetch-external-resources](https://github.com/jenkins-infra/jenkins.io/blob/6eddbd1e2891a39a88f04387d2aea9f23bb2bdf1/scripts/fetch-external-resources#L48)
+* `/release-history.json` in [Makefile](https://github.com/jenkins-infra/jenkins.io/blob/6eddbd1e2891a39a88f04387d2aea9f23bb2bdf1/Makefile#L46)
+
+### jenkins-infra/plugin-site-api
+
+* `/current/plugin-documentation-urls.json` in [WikiPluginDataParser.java](https://github.com/jenkins-infra/plugin-site-api/blob/290e6117eec06a70e2652e6270f26c3ab6e7058e/src/main/java/io/jenkins/plugins/generate/parsers/WikiPluginDataParser.java#L30)
+
+### jenkinsci/plugin-installation-manager-tool
+
+* `/update-center.actual.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L13)
+* `/experimental/update-center.actual.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L15)
+* `/current/plugin-versions.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L18)
+
+### jenkinsci/docker
+
+* LTS tiered update sites per https://github.com/jenkinsci/docker/issues/954
+* Tiered `latest/` directories per https://github.com/jenkinsci/docker/issues/953

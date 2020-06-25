@@ -126,11 +126,11 @@ These warnings are defined in the file `resources/warnings.json`.
 
 Build (`mvn clean verify`) the generator and then invoke it as follows:
 
-    java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --id default ...
+    java -Dfile.encoding=UTF-8 -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --id default ...
 
 The tool also supports batch mode execution, generating multiple update sites with a single invocation:
 
-    java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --arguments-file <filename.txt>
+    java -Dfile.encoding=UTF-8 -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --arguments-file <filename.txt>
 
 `filename.txt` is a text file with a list of arguments on each line.
 Lines that start with `#` are comments and ignored.
@@ -157,7 +157,7 @@ Example:
 
 For a full list of arguments, invoke the tool as follows:
 
-    java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --help
+    java -Dfile.encoding=UTF-8 -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --help
 
 NOTE: `--help` isn't a real argument, but usage instructions are printed when an invalid argument is provided.
 
@@ -170,8 +170,15 @@ The following steps are therefore useful when trying to generate output correspo
 1. Implement changes in `src/main/`.
 2. Run `./site/generate.sh` until the Java tool is actually launched, then abort. This requires some environment variables to be defined.
 3. Edit `tmp/args.lst`, changing or removing the `--key`, `--certificate`, and `--root-certificate` arguments as necessary.
-4. Run `+java -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --arguments-file tmp/args.lst+`
+4. Run `+java -Dfile.encoding=UTF-8 -jar target/update-center2-*-SNAPSHOT-bin/update-center2-*-SNAPSHOT.jar --arguments-file tmp/args.lst+`
 
+Alternatively, the closest you can get to real executions in local development:
+
+1. Implement changes in `src/main/`.
+2. Deploy a snapshot using `mvn deploy`. Requires an account in the Jenkins project, see _Deploying changes_ below.
+3. Edit `site/generate.sh` to reference the specific snapshot you deployed (including timestamp) where it is downloaded using `wget`, see previous build output.
+4. Optionally, to speed things up, edit `site/generate.sh` and remove the arguments `--downloads-directory "$DOWNLOAD_ROOT_DIR"` from some of the invocations.
+5. Run `./site/generate.sh <www-dir> <downloads-dir>`. The first argument is the output directory for metadata, the second argument is the output directory for downloads and unused unless the previous step 4 was skipped.
 
 === Running within an IDE
 
@@ -196,6 +203,16 @@ Consequently, merging larger-scale changes to both the tool itself and the wrapp
 A new release (or at minimum a snapshot deployment) is needed, which is then referenced in `./site/generate.sh`.
 
 NOTE: As of May 2020, everyone can deploy snapshots to Artifactory, so permissions issues shouldn't hinder development.
+
+
+=== Working with htaccess/mod_rewrite rules
+
+The wrapper script `site/generate.sh` calls the script `site/generate-htaccess.sh` with chosen arguments.
+The latter script will generate the `.htaccess` file mostly containing mod_rewrite rules to redirect requests to appropriate tiered update sites.
+To learn more about tiers, see link:site/LAYOUT.md[LAYOUT.md].
+
+To test changes to `site/generate-htaccess.sh`, run `site/test/test.sh`.
+It executes `site/generate-htaccess.sh` and places it inside an Apache HTTPD Docker container and tests whether redirect rules are correctly applied.
 
 
 === Working with certificates

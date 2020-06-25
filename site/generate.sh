@@ -50,20 +50,24 @@ MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$
 echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
-readarray -t RELEASES < <( curl --silent --fail 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of releases" >&2 ; exit 1 ; }
+rm -rf "$MAIN_DIR"/tmp/generator/
+rm -rf "$MAIN_DIR"/tmp/generator.zip
+wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/snapshots/org/jenkins-ci/update-center2/3.2.2-SNAPSHOT/update-center2-3.2.2-20200618.114038-2-bin.zip"
+unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
+
+java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar --dynamic-tier-list-file tmp/tiers.json
+readarray -t WEEKLY_RELEASES < <( jq --raw-output '.weeklyCores[]' tmp/tiers.json ) || { echo "Failed to determine weekly tier list" >&2 ; exit 1 ; }
+readarray -t STABLE_RELEASES < <( jq --raw-output '.stableCores[]' tmp/tiers.json ) || { echo "Failed to determine stable tier list" >&2 ; exit 1 ; }
+
+# Workaround for https://github.com/jenkinsci/docker/issues/954 -- still generate fixed tier update sites
+readarray -t RELEASES < <( curl --silent --fail 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of recent LTS releases" >&2 ; exit 1 ; }
 
 # prepare the www workspace for execution
 rm -rf "$WWW_ROOT_DIR"
 mkdir -p "$WWW_ROOT_DIR"
 
 # Generate htaccess file
-"$( dirname "$0" )"/generate-htaccess.sh "${RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
-
-rm -rf "$MAIN_DIR"/tmp/generator/
-rm -rf "$MAIN_DIR"/tmp/generator.zip
-wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.2.1/update-center2-3.2.1-bin.zip"
-unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
-
+"$( dirname "$0" )"/generate-htaccess.sh "${WEEKLY_RELEASES[@]}" "${STABLE_RELEASES[@]}" > "$WWW_ROOT_DIR/.htaccess"
 
 # Reset arguments file
 echo "# one update site per line" > "$MAIN_DIR"/tmp/args.lst
@@ -81,15 +85,23 @@ function sanity-check {
   fi
 }
 
-# Generate several update sites for different segments so that plugins can
+# Generate tiered update sites for different segments so that plugins can
 # aggressively update baseline requirements without stranding earlier users.
 #
-# We use LTS as a boundary of different segments, to create
-# a reasonable number of segments with reasonable sizes. Plugins
-# tend to pick LTS baseline as the required version, so this works well.
-#
-# We generate tiered update sites for the five most recent LTS baselines, which
-# means admins get compatible updates offered on releases up to about one year old.
+# We generate tiered update sites for all core releases newer than
+# about 13 months that are actually used as plugin dependencies.
+# This supports updating Jenkins (core) once a year while getting offered compatible plugin updates.
+for version in "${WEEKLY_RELEASES[@]}" ; do
+  # For mainline, advertising the latest core
+  generate --limit-plugin-core-dependency "$version" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/dynamic-$version/latest" --www-dir "$WWW_ROOT_DIR/dynamic-$version"
+done
+
+for version in "${STABLE_RELEASES[@]}" ; do
+  # For LTS, advertising the latest LTS core
+  generate --limit-plugin-core-dependency "$version" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/dynamic-stable-$version/latest" --www-dir "$WWW_ROOT_DIR/dynamic-stable-$version" --only-stable-core
+done
+
+# Workaround for https://github.com/jenkinsci/docker/issues/954 -- still generate fixed tier update sites
 for ltsv in "${RELEASES[@]}" ; do
   v="${ltsv/%.1/}"
   # For mainline up to $v, advertising the latest core
@@ -98,7 +110,6 @@ for ltsv in "${RELEASES[@]}" ; do
   # For LTS, advertising the latest LTS core
   generate --limit-plugin-core-dependency "$v.999" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/stable-$v/latest" --www-dir "$WWW_ROOT_DIR/stable-$v" --only-stable-core
 done
-
 
 # Experimental update center without version caps, including experimental releases.
 # This is not a part of the version-based redirection rules, admins need to manually configure it.
@@ -127,6 +138,16 @@ for ltsv in "${RELEASES[@]}" ; do
 
   # needed for the stable/ directory (below)
   lastLTS=$v
+done
+
+for version in "${WEEKLY_RELEASES[@]}" ; do
+  sanity-check "$WWW_ROOT_DIR/dynamic-$version"
+  ln -sf ../updates "$WWW_ROOT_DIR/dynamic-$version/updates"
+done
+
+for version in "${STABLE_RELEASES[@]}" ; do
+  sanity-check "$WWW_ROOT_DIR/dynamic-stable-$version"
+  ln -sf ../updates "$WWW_ROOT_DIR/dynamic-stable-$version/updates"
 done
 
 sanity-check "$WWW_ROOT_DIR/experimental"
