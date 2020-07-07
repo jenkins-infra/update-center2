@@ -8165,8 +8165,8 @@
     "url": "https://jenkins.io/security/advisory/2020-07-02/#SECURITY-1686",
     "versions": [
       {
-        "lastVersion": "2.4.1",
-        "pattern": ".*"
+        "lastVersion": "2.5",
+        "pattern": "(1|2[.][0-4])(|[.-].+)|(2[.]5)"
       }
     ]
   },
