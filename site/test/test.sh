@@ -8,7 +8,7 @@ SIMPLE_SCRIPT_DIR="$( dirname "$0" )"
 SCRIPT_DIR="$( readlink -f "${SIMPLE_SCRIPT_DIR}" 2>/dev/null || greadlink -f "${SIMPLE_SCRIPT_DIR}" )" || { echo "Failed to determine script directory using (g)readlink -f" >&2 ; exit 1 ; }
 
 "${SCRIPT_DIR}"/../generate-htaccess.sh \
-    2.172 2.173 2.176 2.177 2.181 2.184 2.185 2.191 2.195 2.199 2.204 2.205 2.212 2.217 2.222 2.223 \
+    2.172 2.173 2.176 2.177 2.181 2.184 2.185 2.191 2.195 2.199 2.204 2.205 2.212 2.217 2.222 2.223 2.240 \
     2.164.2 2.164.3 2.176.1 2.176.2 2.176.3 2.176.4 2.190.1 2.190.3 2.204.1 2.204.2 2.204.4 2.204.6 2.222.1 \
     > "${SCRIPT_DIR}/htaccess.tmp"
 
@@ -55,14 +55,16 @@ test_redirect "$TEST_BASE_URL/stable/update-center.json" "$TEST_BASE_URL/dynamic
 # Accessed by https://github.com/jenkins-infra/jenkins.io/blob/3892ea2ad4b4a67e1f8aebbfab261ae88628c176/scripts/fetch-external-resources#L24
 test_redirect "$TEST_BASE_URL/stable/latestCore.txt" "$TEST_BASE_URL/dynamic-stable-2.222.1/latestCore.txt"
 
-test_redirect "$TEST_BASE_URL/update-center.json?version=2.236" "$TEST_BASE_URL/dynamic-2.223/update-center.json"
-test_redirect "$TEST_BASE_URL/update-center.json?version=2.230" "$TEST_BASE_URL/dynamic-2.223/update-center.json"
-test_redirect "$TEST_BASE_URL/update-center.json?version=2.222" "$TEST_BASE_URL/dynamic-2.217/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.246" "$TEST_BASE_URL/dynamic-2.240/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.240" "$TEST_BASE_URL/dynamic-2.240/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.225" "$TEST_BASE_URL/dynamic-2.223/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.223" "$TEST_BASE_URL/dynamic-2.223/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.222" "$TEST_BASE_URL/dynamic-2.222/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.222.1" "$TEST_BASE_URL/dynamic-stable-2.222.1/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.55" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.6" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
 
-test_redirect "$TEST_BASE_URL/update-center.actual.json?version=2.222" "$TEST_BASE_URL/dynamic-2.217/update-center.actual.json"
+test_redirect "$TEST_BASE_URL/update-center.actual.json?version=2.222" "$TEST_BASE_URL/dynamic-2.222/update-center.actual.json"
 test_redirect "$TEST_BASE_URL/update-center.actual.json?version=2.222.1" "$TEST_BASE_URL/dynamic-stable-2.222.1/update-center.actual.json"
 
 # No more redirects to tiers
@@ -79,5 +81,5 @@ test_redirect "$TEST_BASE_URL/update-center.json?version=2.46.1" "$TEST_BASE_URL
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.200" "$TEST_BASE_URL/dynamic-2.199/update-center.json"
 
 # Future major releases go to the most recent update sites:
-test_redirect "$TEST_BASE_URL/update-center.json?version=3.0" "$TEST_BASE_URL/dynamic-2.223/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=3.0" "$TEST_BASE_URL/dynamic-2.240/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=3.0.1" "$TEST_BASE_URL/dynamic-stable-2.222.1/update-center.json"
