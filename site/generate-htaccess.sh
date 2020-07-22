@@ -71,7 +71,7 @@ RewriteCond %1 >${major}
 RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 RewriteCond %{QUERY_STRING} ^.*version=(\d)\.(\d+)$ [NC]
 RewriteCond %1 =${major}
-RewriteCond %2 >${minor}
+RewriteCond %2 >=${minor}
 RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-${major}\.${minor}%{REQUEST_URI}? [NC,L,R=301]
 EOF
 
