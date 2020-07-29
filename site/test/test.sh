@@ -64,6 +64,15 @@ test_redirect "$TEST_BASE_URL/update-center.json?version=2.222.1" "$TEST_BASE_UR
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.55" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.6" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
 
+
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.204.1" "$TEST_BASE_URL/dynamic-stable-2.204.1/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.204.2" "$TEST_BASE_URL/dynamic-stable-2.204.2/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.204.3" "$TEST_BASE_URL/dynamic-stable-2.204.2/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.204.4" "$TEST_BASE_URL/dynamic-stable-2.204.4/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.204.5" "$TEST_BASE_URL/dynamic-stable-2.204.4/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.204.6" "$TEST_BASE_URL/dynamic-stable-2.204.6/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.204.7" "$TEST_BASE_URL/dynamic-stable-2.204.6/update-center.json"
+
 test_redirect "$TEST_BASE_URL/update-center.actual.json?version=2.222" "$TEST_BASE_URL/dynamic-2.222/update-center.actual.json"
 test_redirect "$TEST_BASE_URL/update-center.actual.json?version=2.222.1" "$TEST_BASE_URL/dynamic-stable-2.222.1/update-center.actual.json"
 

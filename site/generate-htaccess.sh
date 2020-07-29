@@ -43,18 +43,18 @@ for (( i = n-1 ; i >= 0 ; i-- )) ; do
 
     cat <<EOF
 
-# If major > ${major} or major = ${major} and minor >= ${minor} or major = ${major} and minor = ${minor} and patch >= ${patch}, use this LTS update site
+# If major > ${major} or major = ${major} and minor > ${minor} or major = ${major} and minor = ${minor} and patch >= ${patch}, use this LTS update site
 RewriteCond %{QUERY_STRING} ^.*version=(\d)\.(\d+)\.(\d+)$ [NC]
 RewriteCond %1 >${major}
 RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-stable-${major}\.${minor}\.${patch}%{REQUEST_URI}? [NC,L,R]
 RewriteCond %{QUERY_STRING} ^.*version=(\d)\.(\d+)\.(\d+)$ [NC]
 RewriteCond %1 =${major}
-RewriteCond %2 >=${minor}
+RewriteCond %2 >${minor}
 RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-stable-${major}\.${minor}\.${patch}%{REQUEST_URI}? [NC,L,R]
 RewriteCond %{QUERY_STRING} ^.*version=(\d)\.(\d+)\.(\d+)$ [NC]
 RewriteCond %1 =${major}
 RewriteCond %2 =${minor}
-RewriteCond %3 >=${minor}
+RewriteCond %3 >=${patch}
 RewriteRule ^(update\-center.*\.(json|html)+) /dynamic-stable-${major}\.${minor}\.${patch}%{REQUEST_URI}? [NC,L,R]
 EOF
     oldestStable="$version"
