@@ -1,6 +1,6 @@
 package io.jenkins.update_center;
 
-import com.google.gson.Gson;
+import com.alibaba.fastjson.JSON;
 import io.jenkins.update_center.util.Environment;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
@@ -24,9 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
@@ -59,7 +57,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
     private boolean initialized = false;
 
-    private Map<String, GsonFile> files = new HashMap<>();
+    private Map<String, JsonFile> files = new HashMap<>();
     private Set<ArtifactCoordinates> plugins;
     private Set<ArtifactCoordinates> wars;
 
@@ -78,7 +76,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         return !test.chars().allMatch(c -> c >= 0x2B && c < 0x7B);
     }
 
-    private static ArtifactCoordinates toGav(GsonFile f) {
+    private static ArtifactCoordinates toGav(JsonFile f) {
         String fileName = f.name;
         String path = f.path;
 
@@ -127,17 +125,17 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         return plugins;
     }
 
-    private static class GsonFile {
-        String path; // example: org/acme/whatever/1.0
-        String name; // example: whatever-1.0.jar
-        String actual_sha1; // base64
-        String sha256; // base64
-        Date modified;
+    private static class JsonFile {
+        public String path; // example: org/acme/whatever/1.0
+        public String name; // example: whatever-1.0.jar
+        public String actual_sha1; // base64
+        public String sha256; // base64
+        public Date modified;
         // TODO record 'created' date and warn about large discrepancies
     }
 
-    private static class GsonResponse {
-        public List<GsonFile> results;
+    private static class JsonResponse {
+        public List<JsonFile> results;
     }
 
     private Map<String, String> cache = new HashMap<>();
@@ -152,9 +150,9 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(ARTIFACTORY_AQL_URL).addHeader("Authorization", Credentials.basic(username, password)).post(RequestBody.create(AQL_QUERY, MediaType.parse("text/plain; charset=utf-8"))).build();
-        Gson gson = new Gson();
         try (final ResponseBody body = client.newCall(request).execute().body()) {
-            GsonResponse json = gson.fromJson(Objects.requireNonNull(body).charStream(), GsonResponse.class);
+            final MediaType mediaType = Objects.requireNonNull(body).contentType();
+            JsonResponse json = JSON.parseObject(body.byteStream(), mediaType == null ? StandardCharsets.UTF_8 : mediaType.charset(), JsonResponse.class);
             json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
         }
         this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::toGav).filter(Objects::nonNull).collect(Collectors.toSet());
