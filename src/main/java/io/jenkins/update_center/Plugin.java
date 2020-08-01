@@ -54,10 +54,11 @@ public final class Plugin {
     }
 
     /**
-     * Adding a plugin carefully.
+     * Adding a plugin release carefully.
      *
      * <p>
-     * If a plugin is renamed to jenkins-ci.org, we want to stop picking up newer changes elsewhere.
+     *     If another release exists with an equivalent version number (1.0 vs. 1.0.0), remove both from distribution due to nondeterminism.
+     * </p>
      */
     public void addArtifact(HPI hpi) {
         VersionNumber v;
@@ -72,7 +73,8 @@ public final class Plugin {
         if (existing == null) {
             artifacts.put(v, hpi);
         } else {
-            LOGGER.log(Level.INFO, "Found a duplicate artifact " + hpi.artifact.getGav() + " but will continue to use existing " + existing.artifact.getGav());
+            LOGGER.log(Level.INFO, "Found a duplicate artifact " + hpi.artifact.getGav() + ", so will also suspend distribution of " + existing.artifact.getGav() + " due to non-determinism");
+            artifacts.remove(v);
         }
     }
 
