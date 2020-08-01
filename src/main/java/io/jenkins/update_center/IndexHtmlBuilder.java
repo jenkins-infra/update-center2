@@ -108,7 +108,7 @@ public class IndexHtmlBuilder implements Closeable {
             releaseDateString = " title='Released " + SimpleDateFormat.getDateInstance().format(releaseDate) + "' ";
         }
 
-        out.println("<tr><td><img src='http://jenkins-ci.org/images/jar.png' /></td><td><a href='" + url + "'" + releaseDateString + "'>"
+        out.println("<tr><td><img src='https://www.jenkins.io/images/jar.png' /></td><td><a href='" + url + "'" + releaseDateString + "'>"
                 + caption + "</a></td>" + metadataString + "</tr>");
     }
 
