@@ -58,6 +58,8 @@ public class Signer {
 
     /**
      * Checks if the signer is properly configured to generate a signature
+     *
+     * @return {@code true} if and only if all required parameters for signing are set
      */
     public boolean isConfigured() {
         if(privateKey != null && certificates != null && !certificates.isEmpty()) {

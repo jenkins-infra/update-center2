@@ -90,6 +90,9 @@ public class HPI extends MavenArtifact {
 
     /**
      * Who built this release?
+     *
+     * @return a string describing who built the release
+     * @throws IOException when a problem occurs obtaining the information from metadata
      */
     public String getBuiltBy() throws IOException {
         return getManifestAttributes().getValue("Built-By");
@@ -282,7 +285,10 @@ public class HPI extends MavenArtifact {
 
     private String name;
 
-    /** @return The plugin name defined in the POM &lt;name&gt; modified by simplification rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
+    /**
+     * @return The plugin name defined in the POM &lt;name&gt; modified by simplification rules (no 'Jenkins', no 'Plugin'); then artifact ID.
+     * @throws IOException if an exception occurs while accessing metadata
+     */
     public String getName() throws IOException {
         if (name == null) {
             String title = readSingleValueFromXmlFile(resolvePOM(), "/project/name");
@@ -370,7 +376,10 @@ public class HPI extends MavenArtifact {
 
     private String pluginUrl;
 
-    /** @return The URL as specified in the POM, or the overrides file. */
+    /**
+     * @return The URL as specified in the POM, or the overrides file.
+     * @throws IOException if an error occurs while accessing plugin metadata
+     */
     public String getPluginUrl() throws IOException {
         if (pluginUrl == null) {
             // Check whether the plugin documentation URL should be overridden
@@ -561,8 +570,11 @@ public class HPI extends MavenArtifact {
     private boolean scmUrlCached; // separate status variable because 'null' has the 'undefined' meaning
 
     /**
-     * Get hostname of SCM specified in POM of latest release, or null.
-     * Used to determine if source lives in github or svn.
+     * Get the SCM URL of this component.
+     * This tries to determine the URL from the POM and from GitHub (based on repo naming convention).
+     *
+     * @return a string representing a user-accessible SCM URL, like https://github.com/org/repo, or {code null} if the repo wasn't found or is considered invalid.
+     * @throws IOException if an error occurs while accessing plugin metadata or GitHub
      */
     public String getScmUrl() throws IOException {
         if (!scmUrlCached) {
