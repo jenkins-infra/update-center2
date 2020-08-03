@@ -50,16 +50,16 @@ MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$
 echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
+rm -rf "$MAIN_DIR"/tmp/generator/
+rm -rf "$MAIN_DIR"/tmp/generator.zip
+wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.3.1/update-center2-3.3.1-bin.zip"
+unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
+
 function execute {
   # To use a locally built snapshot, use the following line instead:
   # java -Dfile.encoding=UTF-8 -jar target/update-center2-*-bin/update-center2-*.jar "$@"
   java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
 }
-
-rm -rf "$MAIN_DIR"/tmp/generator/
-rm -rf "$MAIN_DIR"/tmp/generator.zip
-wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.3.1/update-center2-3.3.1-bin.zip"
-unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 
 execute --dynamic-tier-list-file tmp/tiers.json
 readarray -t WEEKLY_RELEASES < <( jq --raw-output '.weeklyCores[]' tmp/tiers.json ) || { echo "Failed to determine weekly tier list" >&2 ; exit 1 ; }
