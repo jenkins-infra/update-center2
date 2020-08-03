@@ -50,12 +50,18 @@ MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$
 echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
+function execute {
+  # To use a locally built snapshot, use the following line instead:
+  # java -Dfile.encoding=UTF-8 -jar target/update-center2-*-bin/update-center2-*.jar "$@"
+  java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
+}
+
 rm -rf "$MAIN_DIR"/tmp/generator/
 rm -rf "$MAIN_DIR"/tmp/generator.zip
 wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.3.1/update-center2-3.3.1-bin.zip"
 unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 
-java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar --dynamic-tier-list-file tmp/tiers.json
+execute --dynamic-tier-list-file tmp/tiers.json
 readarray -t WEEKLY_RELEASES < <( jq --raw-output '.weeklyCores[]' tmp/tiers.json ) || { echo "Failed to determine weekly tier list" >&2 ; exit 1 ; }
 readarray -t STABLE_RELEASES < <( jq --raw-output '.stableCores[]' tmp/tiers.json ) || { echo "Failed to determine stable tier list" >&2 ; exit 1 ; }
 
@@ -125,7 +131,7 @@ generate --generate-release-history --generate-plugin-versions --generate-plugin
 
 # Actually run the update center build.
 # The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
-java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar --resources-dir "$MAIN_DIR"/resources --arguments-file "$MAIN_DIR"/tmp/args.lst
+execute --resources-dir "$MAIN_DIR"/resources --arguments-file "$MAIN_DIR"/tmp/args.lst
 
 # Generate symlinks to global /updates directory (created by crawler)
 for ltsv in "${RELEASES[@]}" ; do
