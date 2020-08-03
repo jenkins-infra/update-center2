@@ -80,7 +80,10 @@ public class Signer {
         List<X509Certificate> certs = getCertificateChain();
         X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
 
-        PrivateKey key = ((KeyPair) new PEMReader(Files.newBufferedReader(privateKey.toPath(), StandardCharsets.UTF_8)).readObject()).getPrivate();
+        PrivateKey key;
+        try (PEMReader pem = new PEMReader(Files.newBufferedReader(privateKey.toPath(), StandardCharsets.UTF_8))) {
+             key = ((KeyPair) pem.readObject()).getPrivate();
+        }
 
         // the correct signature (since Jenkins 1.433); no longer generate wrong signatures for older releases.
         SignatureGenerator sg = new SignatureGenerator(signer, key);
