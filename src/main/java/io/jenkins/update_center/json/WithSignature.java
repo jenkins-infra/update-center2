@@ -39,7 +39,10 @@ public abstract class WithSignature {
      * generation should employ some sort of caching to prevent expensive computations from being invoked twice.
      *
      * @param writer the writer to write to
+     * @param signer the signer
+     * @param pretty whether to pretty-print format the JSON output
      * @throws IOException when any IO error occurs
+     * @throws GeneralSecurityException when an issue during signing occurs
      */
     private void writeWithSignature(Writer writer, Signer signer, boolean pretty) throws IOException, GeneralSecurityException {
         signature = null;
@@ -58,6 +61,11 @@ public abstract class WithSignature {
     /**
      * Convenience wrapper for {@link #writeWithSignature(Writer, Signer, boolean)} writing to a file.
      *
+     * @param outputFile the file to write to
+     * @param signer the signer
+     * @param pretty whether to pretty-print format the JSON output
+     * @throws IOException when any IO error occurs
+     * @throws GeneralSecurityException when an issue during signing occurs
      */
     public void writeWithSignature(File outputFile, Signer signer, boolean pretty) throws IOException, GeneralSecurityException {
         try (OutputStream os = Files.newOutputStream(outputFile.toPath()); OutputStreamWriter writer = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
@@ -68,7 +76,10 @@ public abstract class WithSignature {
     /**
      * Like {@link #writeWithSignature(File, Signer, boolean)} but the output is returned as a String.
      * @param signer the signer
+     * @param pretty whether to pretty-print format the JSON output
      * @return the JSON output
+     * @throws IOException when any IO error occurs
+     * @throws GeneralSecurityException when an issue during signing occurs
      */
     public String encodeWithSignature(Signer signer, boolean pretty)  throws IOException, GeneralSecurityException {
         StringWriter writer = new StringWriter();

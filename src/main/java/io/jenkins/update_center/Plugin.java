@@ -58,6 +58,8 @@ public final class Plugin {
      *
      * <p>
      * If a plugin is renamed to jenkins-ci.org, we want to stop picking up newer changes elsewhere.
+     *
+     * @param hpi the plugin HPI
      */
     public void addArtifact(HPI hpi) {
         VersionNumber v;
@@ -78,6 +80,8 @@ public final class Plugin {
 
     /**
      * ArtifactID equals short name.
+     *
+     * @return the artifact ID (short name)
      */
     public String getArtifactId() {
         return artifactId;
@@ -85,6 +89,8 @@ public final class Plugin {
 
     /**
      * All discovered versions, by the version numbers, newer versions first.
+     *
+     * @return a map from version number to HPI
      */
     public TreeMap<VersionNumber, HPI> getArtifacts() {
         return artifacts;

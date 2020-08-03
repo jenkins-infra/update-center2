@@ -99,6 +99,8 @@ public class DirectoryTreeBuilder {
 
     /**
      * Generates symlink to the latest version.
+     *
+     * @param hpi The plugin to create a latest symlink for
      */
     private void createLatestSymlink(Plugin hpi) throws IOException {
         File dir = new File(download, "plugins/" + hpi.getArtifactId());
@@ -122,6 +124,10 @@ public class DirectoryTreeBuilder {
 
     /**
      * Stages an artifact into the specified location.
+     *
+     * @param a the artifact to stage
+     * @param dst the staging location
+     * @throws IOException when a problem occurs during file operations
      */
     protected void stage(MavenArtifact a, File dst) throws IOException {
         File src = a.resolve();
