@@ -99,7 +99,14 @@ public class TieredUpdateSitesGenerator extends WithoutSignature {
         for (VersionNumber dependencyVersion : coreDependencyVersions) {
             final JenkinsWar war = allJenkinsWarsByVersionNumber.get(dependencyVersion);
             if (war == null) {
-                LOGGER.log(Level.INFO, "Did not find declared core dependency version among all core releases: " + dependencyVersion.toString());
+                LOGGER.log(Level.INFO, "Did not find declared core dependency version among all core releases: " + dependencyVersion.toString() + ". It is used by " + allPluginReleases.stream().filter( p -> {
+                    try {
+                        return p.getRequiredJenkinsVersion().equals(dependencyVersion.toString());
+                    } catch (IOException e) {
+                        // ignore
+                        return false;
+                    }
+                }).map(HPI::getGavId).collect(Collectors.joining(", ")));
                 continue;
             }
             final boolean releaseRecentEnough = isReleaseRecentEnough(war);
