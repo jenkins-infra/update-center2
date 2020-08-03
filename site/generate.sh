@@ -93,12 +93,12 @@ function sanity-check {
 # This supports updating Jenkins (core) once a year while getting offered compatible plugin updates.
 for version in "${WEEKLY_RELEASES[@]}" ; do
   # For mainline, advertising the latest core
-  generate --limit-plugin-core-dependency "$version" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/dynamic-$version/latest" --www-dir "$WWW_ROOT_DIR/dynamic-$version"
+  generate --limit-plugin-core-dependency "$version" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/dynamic/$version/latest" --www-dir "$WWW_ROOT_DIR/dynamic/$version"
 done
 
 for version in "${STABLE_RELEASES[@]}" ; do
   # For LTS, advertising the latest LTS core
-  generate --limit-plugin-core-dependency "$version" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/dynamic-stable-$version/latest" --www-dir "$WWW_ROOT_DIR/dynamic-stable-$version" --only-stable-core
+  generate --limit-plugin-core-dependency "$version" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/dynamic/stable-$version/latest" --www-dir "$WWW_ROOT_DIR/dynamic/stable-$version" --only-stable-core
 done
 
 # Workaround for https://github.com/jenkinsci/docker/issues/954 -- still generate fixed tier update sites
@@ -141,13 +141,13 @@ for ltsv in "${RELEASES[@]}" ; do
 done
 
 for version in "${WEEKLY_RELEASES[@]}" ; do
-  sanity-check "$WWW_ROOT_DIR/dynamic-$version"
-  ln -sf ../updates "$WWW_ROOT_DIR/dynamic-$version/updates"
+  sanity-check "$WWW_ROOT_DIR/dynamic/$version"
+  ln -sf ../updates "$WWW_ROOT_DIR/dynamic/$version/updates"
 done
 
 for version in "${STABLE_RELEASES[@]}" ; do
-  sanity-check "$WWW_ROOT_DIR/dynamic-stable-$version"
-  ln -sf ../updates "$WWW_ROOT_DIR/dynamic-stable-$version/updates"
+  sanity-check "$WWW_ROOT_DIR/dynamic/stable-$version"
+  ln -sf ../updates "$WWW_ROOT_DIR/dynamic/stable-$version/updates"
 done
 
 sanity-check "$WWW_ROOT_DIR/experimental"
@@ -165,4 +165,5 @@ pushd "$WWW_ROOT_DIR"
 popd
 
 # copy other static resource files
-cp -av "$( dirname "$0" )/static/readme.html" "$WWW_ROOT_DIR"
+cp -av "$( dirname "$0" )/static/readme.html" "$WWW_ROOT_DIR/readme.html"
+cp -av "$( dirname "$0" )/static/dynamic.html" "$WWW_ROOT_DIR/dynamic/readme.html"
