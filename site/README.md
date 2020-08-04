@@ -24,7 +24,7 @@ So we generate several update centers targeted for different version ranges.
 
 To accommodate all recent Jenkins releases, we first inspect all plugin releases for their Jenkins core dependencies.
 We then generate tiered update sites for all releases identified this way that are more recent than a cutoff (~3 months).
-Directories containing these tiered update sites are nested inside the `dynamic/` folder.
+Directories containing these tiered update sites have the prefix `dynamic-`.
 
 mod_rewrite rules in an `.htaccess` file are then used to redirect requests from Jenkins versions to the next lower update site.
 It will serve the newest release of each plugin that is compatible with the specified Jenkins version.
