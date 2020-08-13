@@ -119,8 +119,7 @@ RewriteRule ^plugin\-documentation\-urls\.json+ /current%{REQUEST_URI}? [NC,L,R=
 RewriteRule ^plugin\-versions\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
 
 
-ReadmeName readme.html
-IndexIgnore readme.html
+DirectoryIndex index.html
 
 # TODO: properly handle HTTPS in redirector
 
