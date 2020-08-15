@@ -20,13 +20,16 @@ function cleanup {
 }
 docker run --rm -dit --name update-center2-test -p 8080:80 update-center2-test || { echo "Failed to start Docker container" >&2 ; exit 1 ; }
 
+echo "Waiting for the container to be ready..."
+sleep 3
+
 TEST_BASE_URL="http://localhost:8080"
 
 function test_redirect () {
   local REQUEST_URL="$1"
   local DESTINATION="$2"
   echo "Requesting $REQUEST_URL (-> $DESTINATION)"
-  REDIRECT=$( curl -Ii "$REQUEST_URL" 2>/dev/null | fgrep 'Location:' | cut -d' ' -f2 | tr -d '[:space:]' ) || { echo "Failed to curl $REQUEST_URL" >&2 ; }
+  REDIRECT=$( curl -I "$REQUEST_URL" 2>/dev/null | fgrep 'Location:' | cut -d' ' -f2 | tr -d '[:space:]' ) || { echo "Failed to curl $REQUEST_URL" >&2 ; }
   if [ "$REDIRECT" != "$DESTINATION" ] ; then
     echo "Expected $DESTINATION but got $REDIRECT for $REQUEST_URL"
   fi
@@ -45,6 +48,9 @@ test_redirect "$TEST_BASE_URL/release-history.json" "$TEST_BASE_URL/current/rele
 # Target accessed by https://github.com/jenkinsci/plugin-installation-manager-tool/blob/fbdbd6b8e8e291db28fadc4ad4b5ec9795bd3c37/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L16
 test_redirect "$TEST_BASE_URL/plugin-versions.json" "$TEST_BASE_URL/current/plugin-versions.json"
 test_redirect "$TEST_BASE_URL/plugin-documentation-urls.json" "$TEST_BASE_URL/current/plugin-documentation-urls.json"
+
+# Expect no redirect at all -- this depends on HTTP, so ignore
+#test_redirect "$TEST_BASE_URL/tiers.json" ""
 
 # Accessed by https://github.com/jenkins-infra/jenkins.io/blob/3892ea2ad4b4a67e1f8aebbfab261ae88628c176/scripts/fetch-external-resources#L18
 test_redirect "$TEST_BASE_URL/latestCore.txt" "$TEST_BASE_URL/current/latestCore.txt"

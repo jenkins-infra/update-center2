@@ -107,16 +107,18 @@ cat <<EOF
 # These are static rules
 
 # If that all failed, but we have an update center, let's go to current
-RewriteRule ^(update\-center.*\.(json|html)+|latestCore\.txt) /current%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^update\-center.*\.(json|html)+ /current%{REQUEST_URI}? [NC,L,R=301]
+
+RewriteRule ^latestCore\.txt /current%{REQUEST_URI}? [NC,L,R=301]
 
 # Ensure /release-history.json goes to the right place
-RewriteRule ^release\-history\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^release\-history\.json$ /current%{REQUEST_URI}? [NC,L,R=301]
 
 # Ensure /plugin-documentation-urls.json goes to the right place
-RewriteRule ^plugin\-documentation\-urls\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^plugin\-documentation\-urls\.json$ /current%{REQUEST_URI}? [NC,L,R=301]
 
 # Ensure /plugin-versions.json goes to the right place
-RewriteRule ^plugin\-versions\.json+ /current%{REQUEST_URI}? [NC,L,R=301]
+RewriteRule ^plugin\-versions\.json$ /current%{REQUEST_URI}? [NC,L,R=301]
 
 
 DirectoryIndex index.html
