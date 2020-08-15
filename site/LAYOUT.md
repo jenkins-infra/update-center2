@@ -71,9 +71,15 @@ The top level directory provides that file and several others.
 
 The top level update site will forward requests to the best matching _tiered_ update site, or the `current` update site based on the `version` query parameter sent by Jenkins.
 
-The files in this directory are copies of/symlinks to `current` to create clickable links.
+The files in this directory are usually copies of/symlinks to `current` to create clickable links.
 Actual requests are redirected to tiered sites, or the `current` site (with no query parameters).
 This way, at least the file properties shown in the directory listing match the eventually served file after clicking the link.
+
+### Tier List
+
+The file `tiers.json` is generated as part of update-center2 execution and published in the root directory.
+
+It allows programmatically determining which versions of Jenkins get served which update site.
 
 
 ## Regular tiered update sites (LTS and weekly)
