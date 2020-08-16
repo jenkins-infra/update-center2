@@ -26,7 +26,8 @@ public class DirectoryTreeBuilder {
     /**
      * Write a directory tree to the specified directory tree that contains all core (war) and plugin (hpi) releases.
      *
-     * TODO: it also currently produces war/ directory that we aren't actually using. Maybe remove?
+     * While we're not really using the war/ directory for download links, it is a good way for users to obtain SHA checksums for arbitrary releases.
+     * war and plugin index pages are referenced on https://www.jenkins.io/download/verify/
      */
     @Option(name = "--downloads-directory", usage = "Build mirrors.jenkins-ci.org layout (containing .war and .hpi files)")
     public File download = null;

@@ -206,7 +206,7 @@ The top-level `.htaccess` file is created by `generate-htaccess.sh` and implemen
 
 ## Known consumers
 
-The following is a list of known references to specific files or directories in the Jenkins project.
+The following is a list of known references to specific files or directories in the Jenkins project (besides Jenkins itself).
 It is intended to ensure that Jenkins to update-center2 will not break other parts of project infrastructure.
 
 This list is current as of June 2020, but may not be complete.
@@ -217,10 +217,12 @@ This list is current as of June 2020, but may not be complete.
 * `/stable/latestCore.txt` in [fetch-external-resources](https://github.com/jenkins-infra/jenkins.io/blob/6eddbd1e2891a39a88f04387d2aea9f23bb2bdf1/scripts/fetch-external-resources#L24)
 * `/update-center.actual.json` in [fetch-external-resources](https://github.com/jenkins-infra/jenkins.io/blob/6eddbd1e2891a39a88f04387d2aea9f23bb2bdf1/scripts/fetch-external-resources#L48)
 * `/release-history.json` in [Makefile](https://github.com/jenkins-infra/jenkins.io/blob/6eddbd1e2891a39a88f04387d2aea9f23bb2bdf1/Makefile#L46)
+* `https://updates.jenkins.io/download/war/` is referenced on `https://www.jenkins.io/download/verify/`
 
 ### jenkins-infra/plugin-site-api
 
 * `/current/plugin-documentation-urls.json` in [WikiPluginDataParser.java](https://github.com/jenkins-infra/plugin-site-api/blob/290e6117eec06a70e2652e6270f26c3ab6e7058e/src/main/java/io/jenkins/plugins/generate/parsers/WikiPluginDataParser.java#L30)
+* `https://updates.jenkins.io/download/plugin/<ID>/` is linked to from every individual plugin's page ("Archives") and mentioned on `https://www.jenkins.io/download/verify/`
 
 ### jenkinsci/plugin-installation-manager-tool
 
