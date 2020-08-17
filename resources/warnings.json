@@ -8477,5 +8477,22 @@
         "pattern": "(2[.]7[23])(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "core-2_235_5",
+    "type": "core",
+    "name": "core",
+    "message": "Buffer corruption in bundled Jetty",
+    "url": "https://jenkins.io/security/advisory/2020-08-17/",
+    "versions": [
+      {
+        "lastVersion": "LTS 2.235.4",
+        "pattern": "(2[.]222[.][1-4]|2[.]235[.][1-4])(|[.-].+)"
+      },
+      {
+        "lastVersion": "2.242",
+        "pattern": "(2[.]22[4-9]|2[.]23[012346789]|2[.]24[012])(|[.-].+)|(2[.]235)"
+      }
+    ]
   }
 ]
