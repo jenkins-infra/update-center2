@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.support_log_formatter.SupportLogFormatter;
 import io.jenkins.update_center.args4j.LevelOptionHandler;
+import io.jenkins.update_center.json.RecentReleasesRoot;
 import io.jenkins.update_center.json.TieredUpdateSitesGenerator;
 import io.jenkins.update_center.json.PluginDocumentationUrlsRoot;
 import io.jenkins.update_center.wrappers.AlphaBetaOnlyRepository;
@@ -126,6 +127,9 @@ public class Main {
 
     @Option(name = "--generate-plugin-documentation-urls", usage = "Generate plugin documentation URL mapping (for plugins.jenkins.io)")
     public boolean generatePluginDocumentationUrls;
+
+    @Option(name = "--generate-recent-releases", usage = "Generate recent releases file (as input to targeted rsync etc.)")
+    public boolean generateRecentReleases;
 
 
     /* Configure options modifying output */
@@ -257,8 +261,12 @@ public class Main {
         if (generateReleaseHistory) {
             new ReleaseHistoryRoot(repo).write(new File(www, RELEASE_HISTORY_JSON_FILENAME), prettyPrint);
         }
-        directoryTreeBuilder.build(repo);
 
+        if (generateRecentReleases) {
+            new RecentReleasesRoot(repo).write(new File(www, RECENT_RELEASES_JSON_FILENAME), prettyPrint);
+        }
+
+        directoryTreeBuilder.build(repo);
     }
 
     private String updateCenterPostCallJson(String updateCenterJson) {
@@ -345,6 +353,7 @@ public class Main {
     private static final String PLUGIN_DOCUMENTATION_URLS_JSON_FILENAME = "plugin-documentation-urls.json";
     private static final String PLUGIN_VERSIONS_JSON_FILENAME = "plugin-versions.json";
     private static final String RELEASE_HISTORY_JSON_FILENAME = "release-history.json";
+    private static final String RECENT_RELEASES_JSON_FILENAME = "recent-releases.json";
     private static final String EOL = System.getProperty("line.separator");
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
