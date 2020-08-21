@@ -125,31 +125,10 @@ DirectoryIndex index.html
 
 # For other tool installations under updates/
 RewriteCond %{HTTPS} off
-RewriteRule (.*\.json(\.html)?)$ http://mirrors.jenkins-ci.org/updates/\$1
+RewriteRule (.*\.json(\.html)?)$ http://mirrors.jenkins-ci.org/updates/\$1 [NC,L,R]
 
-RewriteCond %{HTTPS} on
-RewriteRule (.*\.json(\.html)?)$ https://get.jenkins.io/updates/\$1
-
-
-# TODO this might be unnecessary?
 # download/* directories contain virtual URL spaces for redirecting download traffic to mirrors.
-RewriteCond %{HTTPS} on
-RewriteRule /download/war/([0-9]*\.[0-9]*\.[0-9]*/jenkins)\.war$ https://get.jenkins.io/war-stable/\$1.war [NC,L,R]
-
-RewriteCond %{HTTPS} on
-RewriteRule /download/war/(.*)\.war$ https://get.jenkins.io/war/\$1.war [NC,L,R]
-
-RewriteCond %{HTTPS} on
-RewriteRule /download/plugins/(.*)\.hpi$ https://get.jenkins.io/plugins/\$1.hpi [NC,L,R]
-
-RewriteCond %{HTTPS} off
-RewriteRule /download/war/([0-9]*\.[0-9]*\.[0-9]*/jenkins)\.war$ http://mirrors.jenkins-ci.org/war-stable/\$1.war [NC,L,R]
-
-RewriteCond %{HTTPS} off
-RewriteRule /download/war/(.*)\.war$ http://mirrors.jenkins-ci.org/war/\$1.war [NC,L,R]
-
-RewriteCond %{HTTPS} off
-RewriteRule /download/plugins/(.*)\.hpi$ http://mirrors.jenkins-ci.org/plugins/\$1.hpi [NC,L,R]
-
-
+RedirectMatch 302 /download/war/([0-9]*\.[0-9]*\.[0-9]*/jenkins)\.war$ https://get.jenkins.io/war-stable/\$1.war
+RedirectMatch 302 /download/war/(.*)\.war$ https://get.jenkins.io/war/\$1.war
+RedirectMatch 302 /download/plugins/(.*)\.hpi$ https://get.jenkins.io/plugins/\$1.hpi
 EOF
