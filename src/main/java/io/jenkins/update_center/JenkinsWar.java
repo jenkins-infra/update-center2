@@ -24,6 +24,8 @@
 package io.jenkins.update_center;
 
 import hudson.util.VersionNumber;
+import io.jenkins.update_center.util.Environment;
+import org.apache.commons.lang.StringUtils;
 
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -38,7 +40,7 @@ public class JenkinsWar extends MavenArtifact {
 
     @Override
     public URL getDownloadUrl() throws MalformedURLException {
-        return new URL("http://updates.jenkins-ci.org/download/war/"+version+"/"+ getFileName());
+        return new URL(StringUtils.removeEnd(DOWNLOADS_ROOT_URL, "/") + "/war/" + version + "/" +  getFileName());
     }
 
     public String getFileName() {

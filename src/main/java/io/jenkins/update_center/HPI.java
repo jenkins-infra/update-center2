@@ -67,7 +67,6 @@ import java.net.MalformedURLException;
  * For version independent metadata, see {@link Plugin}.
  */
 public class HPI extends MavenArtifact {
-    private static final String DOWNLOADS_ROOT_URL = Environment.getString("DOWNLOADS_ROOT_URL", "http://updates.jenkins-ci.org/download");
     private static final Pattern DEVELOPERS_PATTERN = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
     private final Plugin plugin;

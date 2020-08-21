@@ -52,13 +52,13 @@ mkdir -p "$MAIN_DIR"/tmp/
 
 rm -rf "$MAIN_DIR"/tmp/generator/
 rm -rf "$MAIN_DIR"/tmp/generator.zip
-wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.3.1/update-center2-3.3.1-bin.zip"
+wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.4.1/update-center2-3.4.1-bin.zip"
 unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 
 function execute {
   # To use a locally built snapshot, use the following line instead:
   # java -Dfile.encoding=UTF-8 -jar target/update-center2-*-bin/update-center2-*.jar "$@"
-  java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
+  java -Dfile.encoding=UTF-8 -DDOWNLOADS_ROOT_URL=http://updates.jenkins-ci.org/download -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
 }
 
 execute --dynamic-tier-list-file tmp/tiers.json
@@ -120,12 +120,12 @@ done
 # Experimental update center without version caps, including experimental releases.
 # This is not a part of the version-based redirection rules, admins need to manually configure it.
 # Generate this first, including --downloads-directory, as this includes all releases, experimental and otherwise.
-generate --www-dir "$WWW_ROOT_DIR/experimental" --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/experimental/latest"
+generate --www-dir "$WWW_ROOT_DIR/experimental" --generate-recent-releases --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/experimental/latest"
 
 # Current update site without version caps, excluding experimental releases.
 # This generates -download after the experimental update site above to change the 'latest' symlinks to the latest released version.
 # This also generates --download-links-directory to only visibly show real releases on index.html pages.
-generate --generate-release-history --generate-plugin-versions --generate-plugin-documentation-urls \
+generate --generate-release-history --generate-recent-releases --generate-plugin-versions --generate-plugin-documentation-urls \
     --write-latest-core --write-plugin-count \
     --www-dir "$WWW_ROOT_DIR/current" --download-links-directory "$WWW_ROOT_DIR/download" --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/current/latest"
 
