@@ -127,9 +127,6 @@ DirectoryIndex index.html
 RewriteCond %{HTTPS} off
 RewriteRule (.*\.json(\.html)?)$ http://mirrors.jenkins-ci.org/updates/\$1
 
-RewriteCond %{HTTPS} on
-RewriteRule (.*\.json(\.html)?)$ https://get.jenkins.io/updates/\$1
-
 
 # TODO this might be unnecessary?
 # download/* directories contain virtual URL spaces for redirecting download traffic to mirrors.
