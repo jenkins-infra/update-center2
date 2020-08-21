@@ -58,7 +58,7 @@ unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 function execute {
   # To use a locally built snapshot, use the following line instead:
   # java -Dfile.encoding=UTF-8 -jar target/update-center2-*-bin/update-center2-*.jar "$@"
-  java -Dfile.encoding=UTF-8 -DDOWNLOADS_ROOT_URL=http://updates.jenkins-ci.org/download -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
+  java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
 }
 
 execute --dynamic-tier-list-file tmp/tiers.json
