@@ -123,10 +123,6 @@ RewriteRule ^plugin\-versions\.json$ /current%{REQUEST_URI}? [NC,L,R=301]
 
 DirectoryIndex index.html
 
-# For other tool installations under updates/
-RewriteCond %{HTTPS} off
-RewriteRule (.*\.json(\.html)?)$ http://mirrors.jenkins-ci.org/updates/\$1 [NC,L,R]
-
 # download/* directories contain virtual URL spaces for redirecting download traffic to mirrors.
 RedirectMatch 302 /download/war/([0-9]*\.[0-9]*\.[0-9]*/jenkins)\.war$ https://get.jenkins.io/war-stable/\$1.war
 RedirectMatch 302 /download/war/(.*)\.war$ https://get.jenkins.io/war/\$1.war
