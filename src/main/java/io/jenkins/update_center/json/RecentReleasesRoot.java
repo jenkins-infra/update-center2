@@ -27,5 +27,5 @@ public class RecentReleasesRoot extends WithoutSignature {
         }
     }
 
-    private static final Duration MAX_AGE = Duration.ofHours(24);
+    private static final Duration MAX_AGE = Duration.ofHours(3);
 }
