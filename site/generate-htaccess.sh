@@ -126,5 +126,6 @@ DirectoryIndex index.html
 # download/* directories contain virtual URL spaces for redirecting download traffic to mirrors.
 RedirectMatch 302 /download/war/([0-9]*\.[0-9]*\.[0-9]*/jenkins)\.war$ https://get.jenkins.io/war-stable/\$1.war
 RedirectMatch 302 /download/war/(.*)\.war$ https://get.jenkins.io/war/\$1.war
+RedirectMatch 302 /download/plugins/(.*)/latest/(.*)\.hpi$ https://updates.jenkins.io/latest/\$2.hpi
 RedirectMatch 302 /download/plugins/(.*)\.hpi$ https://get.jenkins.io/plugins/\$1.hpi
 EOF
