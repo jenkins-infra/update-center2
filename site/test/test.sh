@@ -67,8 +67,8 @@ test_redirect "$TEST_BASE_URL/update-center.json?version=2.225" "$TEST_BASE_URL/
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.223" "$TEST_BASE_URL/dynamic-2.223/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.222" "$TEST_BASE_URL/dynamic-2.222/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.222.1" "$TEST_BASE_URL/dynamic-stable-2.222.1/update-center.json"
-test_redirect "$TEST_BASE_URL/update-center.json?version=2.55" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
-test_redirect "$TEST_BASE_URL/update-center.json?version=2.6" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.55" "$TEST_BASE_URL/dynamic-2.172/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.6" "$TEST_BASE_URL/dynamic-2.172/update-center.json"
 
 
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.204.1" "$TEST_BASE_URL/dynamic-stable-2.204.1/update-center.json"
@@ -87,8 +87,8 @@ test_redirect "$TEST_BASE_URL/plugin-documentation-urls.json?version=2.222.1" "$
 test_redirect "$TEST_BASE_URL/latestCore.txt?version=2.222.1" "$TEST_BASE_URL/current/latestCore.txt"
 
 # Jenkins 1.x gets the oldest update sites
-test_redirect "$TEST_BASE_URL/update-center.json?version=1.650" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
-test_redirect "$TEST_BASE_URL/update-center.json?version=1.580" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
+test_redirect "$TEST_BASE_URL/update-center.json?version=1.650" "$TEST_BASE_URL/dynamic-2.172/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=1.580" "$TEST_BASE_URL/dynamic-2.172/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=1.580.1" "$TEST_BASE_URL/dynamic-stable-2.164.2/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.46.1" "$TEST_BASE_URL/dynamic-stable-2.164.2/update-center.json"
 
@@ -98,3 +98,8 @@ test_redirect "$TEST_BASE_URL/update-center.json?version=2.200" "$TEST_BASE_URL/
 # Future major releases go to the most recent update sites:
 test_redirect "$TEST_BASE_URL/update-center.json?version=3.0" "$TEST_BASE_URL/dynamic-2.240/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=3.0.1" "$TEST_BASE_URL/dynamic-stable-2.222.1/update-center.json"
+
+# Workaround, see generate-htaccess.sh
+test_redirect "$TEST_BASE_URL/download/war/latest/jenkins.war" "https://updates.jenkins.io/latest/jenkins.war"
+test_redirect "$TEST_BASE_URL/download/plugins/git/latest/git.hpi" "https://updates.jenkins.io/latest/git.hpi"
+test_redirect "$TEST_BASE_URL/download/plugins/lolwut/latest/git.hpi" "https://updates.jenkins.io/latest/git.hpi" # Fun side effect of the redirect rule
