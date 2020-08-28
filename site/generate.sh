@@ -110,6 +110,12 @@ done
 # Workaround for https://github.com/jenkinsci/docker/issues/954 -- still generate fixed tier update sites
 for ltsv in "${RELEASES[@]}" ; do
   v="${ltsv/%.1/}"
+
+  if [[ ${v/./} -gt 2240 ]] ; then # TODO Make 3.x safe
+    echo "INFRA-2615: Skipping generation of $v / stable-$v"
+    continue
+  fi
+
   # For mainline up to $v, advertising the latest core
   generate --limit-plugin-core-dependency "$v.999" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/$v/latest" --www-dir "$WWW_ROOT_DIR/$v"
 
