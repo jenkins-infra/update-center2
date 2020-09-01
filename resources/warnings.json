@@ -8494,5 +8494,174 @@
         "pattern": "(2[.]22[4-9]|2[.]23[012346789]|2[.]24[012])(|[.-].+)|(2[.]235)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-1023",
+    "type": "plugin",
+    "name": "database",
+    "message": "CSRF vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1023",
+    "versions": [
+      {
+        "lastVersion": "1.6",
+        "pattern": "(1[.][013456])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1024",
+    "type": "plugin",
+    "name": "database",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1024",
+    "versions": [
+      {
+        "lastVersion": "1.6",
+        "pattern": "(1[.][013456])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1506",
+    "type": "plugin",
+    "name": "tfs",
+    "message": "Credentials stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1506",
+    "versions": [
+      {
+        "lastVersion": "5.157.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1625",
+    "type": "plugin",
+    "name": "Parameterized-Remote-Trigger",
+    "message": "Secret stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1625",
+    "versions": [
+      {
+        "lastVersion": "3.1.3",
+        "pattern": "([12]|3[.]0|3[.]1[.][0-3])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1631-1",
+    "type": "plugin",
+    "name": "soapui-pro-functional-testing",
+    "message": "Passwords stored in plain text",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1631%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": "(1[.][0-3])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1631-2",
+    "type": "plugin",
+    "name": "soapui-pro-functional-testing",
+    "message": "Passwords transmitted in plain text",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1631%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1.5",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1770",
+    "type": "plugin",
+    "name": "build-failure-analyzer",
+    "message": "XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1770",
+    "versions": [
+      {
+        "lastVersion": "1.27.0",
+        "pattern": "(1[.]1[0-9]|1[.][2-9]|1[.]2[0-6]|1[.]27[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1829",
+    "type": "plugin",
+    "name": "valgrind",
+    "message": "XXE vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1829",
+    "versions": [
+      {
+        "lastVersion": "0.28",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1830",
+    "type": "plugin",
+    "name": "valgrind",
+    "message": "Stored XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1830",
+    "versions": [
+      {
+        "lastVersion": "0.28",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1831",
+    "type": "plugin",
+    "name": "klocwork",
+    "message": "XXE vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1831",
+    "versions": [
+      {
+        "lastVersion": "2020.2.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1884",
+    "type": "plugin",
+    "name": "git-parameter",
+    "message": "Stored XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1884",
+    "versions": [
+      {
+        "lastVersion": "0.9.12",
+        "pattern": "(0[.][1-8]|0[.]9[.][0-9]|0[.]9[.]1[0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1905",
+    "type": "plugin",
+    "name": "jsgames",
+    "message": "Reflected XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1905",
+    "versions": [
+      {
+        "lastVersion": "0.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1936",
+    "type": "plugin",
+    "name": "vmanager-plugin",
+    "message": "Stored XSS vulnerability",
+    "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1936",
+    "versions": [
+      {
+        "lastVersion": "3.0.4",
+        "pattern": "([12]|3[.]0[.][0-4])(|[.-].+)"
+      }
+    ]
   }
 ]
