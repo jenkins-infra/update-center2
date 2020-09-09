@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -68,6 +69,10 @@ public class TieredUpdateSitesGenerator extends WithoutSignature {
             throw new IllegalArgumentException("Unexpected LTS version: " + version.toString());
         }
         return new VersionNumber(version.getDigitAt(0) + "." + (version.getDigitAt(1) + 1));
+    }
+
+    private VersionNumber nextLtsReleaseAfterWeekly(VersionNumber dependencyVersion, Set<VersionNumber> keySet) {
+        return keySet.stream().filter(TieredUpdateSitesGenerator::isStableVersion).sorted().filter(v -> v.isNewerThan(dependencyVersion)).findFirst().orElse(null);
     }
 
     private static boolean isReleaseRecentEnough(JenkinsWar war) {
@@ -126,6 +131,13 @@ public class TieredUpdateSitesGenerator extends WithoutSignature {
                         weeklyDone = true;
                     }
                     weeklyCores.add(dependencyVersion);
+                }
+                // Plugin depends on a weekly version, make sure the next higher LTS release is also included
+                if (!stableDone) {
+                    final VersionNumber v = nextLtsReleaseAfterWeekly(dependencyVersion, allJenkinsWarsByVersionNumber.keySet());
+                    if (v != null) {
+                        stableCores.add(v);
+                    }
                 }
             }
             if (stableDone && weeklyDone) {
