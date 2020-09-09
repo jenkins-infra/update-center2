@@ -143,6 +143,10 @@ execute --resources-dir "$MAIN_DIR"/resources --arguments-file "$MAIN_DIR"/tmp/a
 for ltsv in "${RELEASES[@]}" ; do
   v="${ltsv/%.1/}"
 
+  if [[ ${v/./} -gt 2240 ]] ; then # TODO Make 3.x safe
+    continue
+  fi
+
   sanity-check "$WWW_ROOT_DIR/$v"
   sanity-check "$WWW_ROOT_DIR/stable-$v"
   ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
