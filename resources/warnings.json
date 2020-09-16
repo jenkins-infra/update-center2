@@ -8863,7 +8863,7 @@
     "id": "SECURITY-1961",
     "type": "plugin",
     "name": "blueocean",
-    "message": "SSRF vulnerability",
+    "message": "Missing permission check",
     "url": "https://www.jenkins.io/security/advisory/2020-09-16/#SECURITY-1961",
     "versions": [
       {
