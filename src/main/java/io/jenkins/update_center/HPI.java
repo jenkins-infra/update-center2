@@ -40,6 +40,7 @@ import org.owasp.html.HtmlSanitizer;
 import org.owasp.html.HtmlStreamRenderer;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
+import org.xml.sax.SAXException;
 
 import javax.annotation.CheckForNull;
 import java.io.File;
@@ -66,9 +67,8 @@ import java.net.MalformedURLException;
  * For version independent metadata, see {@link Plugin}.
  */
 public class HPI extends MavenArtifact {
-    private static final String DOWNLOADS_ROOT_URL = Environment.getString("DOWNLOADS_ROOT_URL", "http://updates.jenkins-ci.org/download");
+    private static final Pattern DEVELOPERS_PATTERN = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
-    private final Pattern developersPattern = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
     private final Plugin plugin;
 
     public HPI(BaseMavenRepository repository, ArtifactCoordinates artifact, Plugin plugin) {
@@ -89,6 +89,9 @@ public class HPI extends MavenArtifact {
 
     /**
      * Who built this release?
+     *
+     * @return a string describing who built the release
+     * @throws IOException when a problem occurs obtaining the information from metadata
      */
     public String getBuiltBy() throws IOException {
         return getManifestAttributes().getValue("Built-By");
@@ -195,7 +198,7 @@ public class HPI extends MavenArtifact {
             } else {
 
                 List<Developer> r = new ArrayList<>();
-                Matcher m = developersPattern.matcher(devs);
+                Matcher m = DEVELOPERS_PATTERN.matcher(devs);
                 int totalMatched = 0;
                 while (m.find()) {
                     final String name = fixEmptyAndTrim(m.group(1));
@@ -281,7 +284,10 @@ public class HPI extends MavenArtifact {
 
     private String name;
 
-    /** @return The plugin name defined in the POM &lt;name&gt; modified by simplification rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
+    /**
+     * @return The plugin name defined in the POM &lt;name&gt; modified by simplification rules (no 'Jenkins', no 'Plugin'); then artifact ID.
+     * @throws IOException if an exception occurs while accessing metadata
+     */
     public String getName() throws IOException {
         if (name == null) {
             String title = readSingleValueFromXmlFile(resolvePOM(), "/project/name");
@@ -347,7 +353,15 @@ public class HPI extends MavenArtifact {
         DocumentFactory factory = new DocumentFactory();
         factory.setXPathNamespaceURIs(
                 Collections.singletonMap("m", "http://maven.apache.org/POM/4.0.0"));
-        return new SAXReader(factory);
+        final SAXReader reader = new SAXReader(factory);
+        try {
+            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        } catch (SAXException ex) {
+            LOGGER.log(Level.WARNING, "Failed to set safety features on SAXReader", ex);
+        }
+        return reader;
     }
 
     private Document readPOM() throws IOException {
@@ -361,7 +375,10 @@ public class HPI extends MavenArtifact {
 
     private String pluginUrl;
 
-    /** @return The URL as specified in the POM, or the overrides file. */
+    /**
+     * @return The URL as specified in the POM, or the overrides file.
+     * @throws IOException if an error occurs while accessing plugin metadata
+     */
     public String getPluginUrl() throws IOException {
         if (pluginUrl == null) {
             // Check whether the plugin documentation URL should be overridden
@@ -552,8 +569,11 @@ public class HPI extends MavenArtifact {
     private boolean scmUrlCached; // separate status variable because 'null' has the 'undefined' meaning
 
     /**
-     * Get hostname of SCM specified in POM of latest release, or null.
-     * Used to determine if source lives in github or svn.
+     * Get the SCM URL of this component.
+     * This tries to determine the URL from the POM and from GitHub (based on repo naming convention).
+     *
+     * @return a string representing a user-accessible SCM URL, like https://github.com/org/repo, or {code null} if the repo wasn't found or is considered invalid.
+     * @throws IOException if an error occurs while accessing plugin metadata or GitHub
      */
     public String getScmUrl() throws IOException {
         if (!scmUrlCached) {

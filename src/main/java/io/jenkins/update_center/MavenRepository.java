@@ -20,6 +20,9 @@ public interface MavenRepository {
 
     /**
      * Discover all jenkins.war / hudson.war versions. Map must be sorted by version number, descending.
+     *
+     * @return a map from version number to war
+     * @throws IOException when an exception contacting the artifacts repository occurs
      */
     TreeMap<VersionNumber, JenkinsWar> getJenkinsWarsByVersionNumber() throws IOException;
 
@@ -41,6 +44,11 @@ public interface MavenRepository {
 
     /**
      * Discover all plugins from this Maven repository in order released, not using PluginHistory.
+     * Only the latest release for a given release on a given day will be included.
+     *
+     * @return Nested maps, mapping release date (day only, at midnight), then plugin ID to plugin release.
+     *
+     * @throws IOException when an exception contacting the artifacts repository occurs
      */
     default Map<Date,Map<String,HPI>> listPluginsByReleaseDate() throws IOException {
         Collection<Plugin> all = listJenkinsPlugins();
