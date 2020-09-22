@@ -2,6 +2,7 @@ package io.jenkins.update_center;
 
 import io.jenkins.update_center.json.JsonSignature;
 
+import io.jenkins.update_center.util.Environment;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -55,6 +56,8 @@ public class Signer {
 
     @Option(name="--root-certificate",usage="Additional root certificates for use in validation. These certificates will not be part of update site metadata.")
     public List<File> rootCA;
+
+    private static final int MINIMUM_VALIDITY_DURATION = Environment.getInteger("CERTIFICATE_MINIMUM_VALID_DAYS", 30);
 
     /**
      * Checks if the signer is properly configured to generate a signature
@@ -177,7 +180,7 @@ public class Signer {
         if (certificates != null) {
             for (File f : certificates) {
                 X509Certificate c = loadCertificate(cf, f);
-                c.checkValidity(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30)));
+                c.checkValidity(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(MINIMUM_VALIDITY_DURATION)));
                 if (certs.isEmpty()) {
                     // This is the first cert we add to the list, i.e. it's the one most likely to expire soonest
                     LOGGER.log(Level.INFO, () -> "Update site certificate: Subject: " + c.getSubjectDN() + " Issuer: " + c.getIssuerDN() + " NotBefore: " + c.getNotBefore() + " NotAfter: " + c.getNotAfter());

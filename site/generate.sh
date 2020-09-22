@@ -58,7 +58,8 @@ unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 function execute {
   # To use a locally built snapshot, use the following line instead:
   # java -Dfile.encoding=UTF-8 -jar target/update-center2-*-bin/update-center2-*.jar "$@"
-  java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
+  java -DCERTIFICATE_MINIMUM_VALID_DAYS=14 -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
+  # TODO once we have a new cert, no longer override the duration
 }
 
 execute --dynamic-tier-list-file tmp/tiers.json
