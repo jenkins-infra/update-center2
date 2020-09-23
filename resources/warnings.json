@@ -6377,8 +6377,8 @@
     "url": "https://jenkins.io/security/advisory/2019-10-23/#SECURITY-1014%20(1)",
     "versions": [
       {
-        "lastVersion": "1.8.5",
-        "pattern": ".*"
+        "lastVersion": "1.8.6",
+        "pattern": "(1[.]7|1[.]8[.][13456])(|[.-].+)|(1[.]8)"
       }
     ]
   },
@@ -6391,7 +6391,7 @@
     "versions": [
       {
         "lastVersion": "1.8.5",
-        "pattern": ".*"
+        "pattern": "(1[.]7|1[.]8[.][1345])(|[.-].+)|(1[.]8)"
       }
     ]
   },
