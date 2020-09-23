@@ -8989,5 +8989,96 @@
         "pattern": ".*"
       }
     ]
+  },
+  {
+    "id": "SECURITY-1885",
+    "type": "plugin",
+    "name": "liquibase-runner",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-09-23/#SECURITY-1885",
+    "versions": [
+      {
+        "lastVersion": "1.4.5",
+        "pattern": "(1[.][0-3]|1[.]4[.][2-5])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1887",
+    "type": "plugin",
+    "name": "liquibase-runner",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-09-23/#SECURITY-1887",
+    "versions": [
+      {
+        "lastVersion": "1.4.5",
+        "pattern": "(1[.][0-3]|1[.]4[.][2-5])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1958",
+    "type": "plugin",
+    "name": "lockable-resources",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-09-23/#SECURITY-1958",
+    "versions": [
+      {
+        "lastVersion": "2.8",
+        "pattern": "(1|2[.][0-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2004",
+    "type": "plugin",
+    "name": "implied-labels",
+    "message": "Missing permission check allows reconfiguring the plugin",
+    "url": "https://www.jenkins.io/security/advisory/2020-09-23/#SECURITY-2004",
+    "versions": [
+      {
+        "lastVersion": "0.6",
+        "pattern": "(0[.][1-6])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2020",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-09-23/#SECURITY-2020",
+    "versions": [
+      {
+        "lastVersion": "1.74",
+        "pattern": "(1[.][0-9]|1[.]1[0-9]|1[.]2[0-9]|1[.]3[0-9]|1[.]4[0-9]|1[.]5[0-9]|1[.]6[0-9]|1[.]66[.][1-4]|1[.]7[0-4])(|[.-].+)|(1[.]66)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2030",
+    "type": "plugin",
+    "name": "liquibase-runner",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2020-09-23/#SECURITY-2030",
+    "versions": [
+      {
+        "lastVersion": "1.4.7",
+        "pattern": "(1[.][0-3]|1[.]4[.][2-7])(|[-.].*)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2042",
+    "type": "plugin",
+    "name": "warnings",
+    "message": "CSRF vulnerability allows remote code execution",
+    "url": "https://www.jenkins.io/security/advisory/2020-09-23/#SECURITY-2042",
+    "versions": [
+      {
+        "lastVersion": "5.0.1",
+        "pattern": "([34]|5[.]0[.][01])(|[.-].+)"
+      }
+    ]
   }
 ]
