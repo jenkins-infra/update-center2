@@ -2,6 +2,7 @@ package io.jenkins.update_center;
 
 import io.jenkins.update_center.json.JsonSignature;
 
+import io.jenkins.update_center.util.Environment;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -56,8 +57,12 @@ public class Signer {
     @Option(name="--root-certificate",usage="Additional root certificates for use in validation. These certificates will not be part of update site metadata.")
     public List<File> rootCA;
 
+    private static final int MINIMUM_VALIDITY_DURATION = Environment.getInteger("CERTIFICATE_MINIMUM_VALID_DAYS", 30);
+
     /**
      * Checks if the signer is properly configured to generate a signature
+     *
+     * @return {@code true} if and only if all required parameters for signing are set
      */
     public boolean isConfigured() {
         if(privateKey != null && certificates != null && !certificates.isEmpty()) {
@@ -80,7 +85,10 @@ public class Signer {
         List<X509Certificate> certs = getCertificateChain();
         X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
 
-        PrivateKey key = ((KeyPair) new PEMReader(Files.newBufferedReader(privateKey.toPath(), StandardCharsets.UTF_8)).readObject()).getPrivate();
+        PrivateKey key;
+        try (PEMReader pem = new PEMReader(Files.newBufferedReader(privateKey.toPath(), StandardCharsets.UTF_8))) {
+             key = ((KeyPair) pem.readObject()).getPrivate();
+        }
 
         // the correct signature (since Jenkins 1.433); no longer generate wrong signatures for older releases.
         SignatureGenerator sg = new SignatureGenerator(signer, key);
@@ -172,7 +180,7 @@ public class Signer {
         if (certificates != null) {
             for (File f : certificates) {
                 X509Certificate c = loadCertificate(cf, f);
-                c.checkValidity(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30)));
+                c.checkValidity(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(MINIMUM_VALIDITY_DURATION)));
                 if (certs.isEmpty()) {
                     // This is the first cert we add to the list, i.e. it's the one most likely to expire soonest
                     LOGGER.log(Level.INFO, () -> "Update site certificate: Subject: " + c.getSubjectDN() + " Issuer: " + c.getIssuerDN() + " NotBefore: " + c.getNotBefore() + " NotAfter: " + c.getNotAfter());

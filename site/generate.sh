@@ -52,10 +52,17 @@ mkdir -p "$MAIN_DIR"/tmp/
 
 rm -rf "$MAIN_DIR"/tmp/generator/
 rm -rf "$MAIN_DIR"/tmp/generator.zip
-wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.3/update-center2-3.3-bin.zip"
+wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.4.5/update-center2-3.4.5-bin.zip"
 unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
 
-java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar --dynamic-tier-list-file tmp/tiers.json
+function execute {
+  # To use a locally built snapshot, use the following line instead:
+  # java -Dfile.encoding=UTF-8 -jar target/update-center2-*-bin/update-center2-*.jar "$@"
+  java -DCERTIFICATE_MINIMUM_VALID_DAYS=14 -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
+  # TODO once we have a new cert, no longer override the duration
+}
+
+execute --dynamic-tier-list-file tmp/tiers.json
 readarray -t WEEKLY_RELEASES < <( jq --raw-output '.weeklyCores[]' tmp/tiers.json ) || { echo "Failed to determine weekly tier list" >&2 ; exit 1 ; }
 readarray -t STABLE_RELEASES < <( jq --raw-output '.stableCores[]' tmp/tiers.json ) || { echo "Failed to determine stable tier list" >&2 ; exit 1 ; }
 
@@ -104,6 +111,12 @@ done
 # Workaround for https://github.com/jenkinsci/docker/issues/954 -- still generate fixed tier update sites
 for ltsv in "${RELEASES[@]}" ; do
   v="${ltsv/%.1/}"
+
+  if [[ ${v/./} -gt 2240 ]] ; then # TODO Make 3.x safe
+    echo "INFRA-2615: Skipping generation of $v / stable-$v"
+    continue
+  fi
+
   # For mainline up to $v, advertising the latest core
   generate --limit-plugin-core-dependency "$v.999" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/$v/latest" --www-dir "$WWW_ROOT_DIR/$v"
 
@@ -114,22 +127,26 @@ done
 # Experimental update center without version caps, including experimental releases.
 # This is not a part of the version-based redirection rules, admins need to manually configure it.
 # Generate this first, including --downloads-directory, as this includes all releases, experimental and otherwise.
-generate --www-dir "$WWW_ROOT_DIR/experimental" --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/experimental/latest"
+generate --www-dir "$WWW_ROOT_DIR/experimental" --generate-recent-releases --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/experimental/latest"
 
 # Current update site without version caps, excluding experimental releases.
 # This generates -download after the experimental update site above to change the 'latest' symlinks to the latest released version.
 # This also generates --download-links-directory to only visibly show real releases on index.html pages.
-generate --generate-release-history --generate-plugin-versions --generate-plugin-documentation-urls \
+generate --generate-release-history --generate-recent-releases --generate-plugin-versions --generate-plugin-documentation-urls \
     --write-latest-core --write-plugin-count \
     --www-dir "$WWW_ROOT_DIR/current" --download-links-directory "$WWW_ROOT_DIR/download" --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/current/latest"
 
 # Actually run the update center build.
 # The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
-java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar --resources-dir "$MAIN_DIR"/resources --arguments-file "$MAIN_DIR"/tmp/args.lst
+execute --resources-dir "$MAIN_DIR"/resources --arguments-file "$MAIN_DIR"/tmp/args.lst
 
 # Generate symlinks to global /updates directory (created by crawler)
 for ltsv in "${RELEASES[@]}" ; do
   v="${ltsv/%.1/}"
+
+  if [[ ${v/./} -gt 2240 ]] ; then # TODO Make 3.x safe
+    continue
+  fi
 
   sanity-check "$WWW_ROOT_DIR/$v"
   sanity-check "$WWW_ROOT_DIR/stable-$v"
@@ -165,4 +182,5 @@ pushd "$WWW_ROOT_DIR"
 popd
 
 # copy other static resource files
-cp -av "$( dirname "$0" )/static/readme.html" "$WWW_ROOT_DIR"
+curl --location --fail https://www.jenkins.io/templates/updates/index.html > "$WWW_ROOT_DIR/index.html"
+cp -av "tmp/tiers.json" "$WWW_ROOT_DIR/tiers.json"

@@ -59,6 +59,8 @@ public final class Plugin {
      * <p>
      *     If another release exists with an equivalent version number (1.0 vs. 1.0.0), remove both from distribution due to nondeterminism.
      * </p>
+     *
+     * @param hpi the plugin HPI
      */
     public void addArtifact(HPI hpi) {
         VersionNumber v;
@@ -80,6 +82,8 @@ public final class Plugin {
 
     /**
      * ArtifactID equals short name.
+     *
+     * @return the artifact ID (short name)
      */
     public String getArtifactId() {
         return artifactId;
@@ -87,6 +91,8 @@ public final class Plugin {
 
     /**
      * All discovered versions, by the version numbers, newer versions first.
+     *
+     * @return a map from version number to HPI
      */
     public TreeMap<VersionNumber, HPI> getArtifacts() {
         return artifacts;

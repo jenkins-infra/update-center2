@@ -29,5 +29,18 @@ public final class Environment {
         return getString(key, null);
     }
 
+    public static int getInteger(@Nonnull String key) {
+        return getInteger(key, 0);
+    }
+
+    public static int getInteger(@Nonnull String key, int defaultValue) {
+        try {
+            return Integer.parseInt(getString(key, Integer.toString(defaultValue)));
+        } catch (NumberFormatException nfe) {
+            LOGGER.log(Level.WARNING, nfe.getMessage(), nfe);
+            return defaultValue;
+        }
+    }
+
     private static final Logger LOGGER = Logger.getLogger(Environment.class.getName());
 }

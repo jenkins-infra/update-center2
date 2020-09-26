@@ -24,6 +24,7 @@
 package io.jenkins.update_center;
 
 import hudson.util.VersionNumber;
+import io.jenkins.update_center.util.Environment;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -44,6 +45,7 @@ import java.util.jar.Manifest;
  * @author Kohsuke Kawaguchi
  */
 public class MavenArtifact {
+    protected static final String DOWNLOADS_ROOT_URL = Environment.getString("DOWNLOADS_ROOT_URL", "https://updates.jenkins.io/download");
     /**
      * Where did this plugin come from?
      */
@@ -130,6 +132,9 @@ public class MavenArtifact {
 
     /**
      * Where to download from?
+     *
+     * @return the URL that users whould be able to download from
+     * @throws MalformedURLException if the resulting URL is invalid
      */
     public URL getDownloadUrl() throws MalformedURLException {
         return new URL("repo.jenkins-ci.org/public/"+artifact.groupId.replace('.','/')+"/"+artifact.artifactId+"/"+artifact.version+"/"+artifact.artifactId+"-"+artifact.version+"."+artifact.packaging);

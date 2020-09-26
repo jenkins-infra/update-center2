@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -70,6 +71,10 @@ public class TieredUpdateSitesGenerator extends WithoutSignature {
         return new VersionNumber(version.getDigitAt(0) + "." + (version.getDigitAt(1) + 1));
     }
 
+    private VersionNumber nextLtsReleaseAfterWeekly(VersionNumber dependencyVersion, Set<VersionNumber> keySet) {
+        return keySet.stream().filter(TieredUpdateSitesGenerator::isStableVersion).sorted().filter(v -> v.isNewerThan(dependencyVersion)).findFirst().orElse(null);
+    }
+
     private static boolean isReleaseRecentEnough(JenkinsWar war) {
         Objects.requireNonNull(war, "war");
         return war.getTimestampAsDate().toInstant().isAfter(Instant.now().minus(CORE_AGE_DAYS, ChronoUnit.DAYS));
@@ -99,7 +104,14 @@ public class TieredUpdateSitesGenerator extends WithoutSignature {
         for (VersionNumber dependencyVersion : coreDependencyVersions) {
             final JenkinsWar war = allJenkinsWarsByVersionNumber.get(dependencyVersion);
             if (war == null) {
-                LOGGER.log(Level.INFO, "Did not find declared core dependency version among all core releases: " + dependencyVersion.toString());
+                LOGGER.log(Level.INFO, "Did not find declared core dependency version among all core releases: " + dependencyVersion.toString() + ". It is used by " + allPluginReleases.stream().filter( p -> {
+                    try {
+                        return p.getRequiredJenkinsVersion().equals(dependencyVersion.toString());
+                    } catch (IOException e) {
+                        // ignore
+                        return false;
+                    }
+                }).map(HPI::getGavId).collect(Collectors.joining(", ")));
                 continue;
             }
             final boolean releaseRecentEnough = isReleaseRecentEnough(war);
@@ -119,6 +131,13 @@ public class TieredUpdateSitesGenerator extends WithoutSignature {
                         weeklyDone = true;
                     }
                     weeklyCores.add(dependencyVersion);
+                }
+                // Plugin depends on a weekly version, make sure the next higher LTS release is also included
+                if (!stableDone) {
+                    final VersionNumber v = nextLtsReleaseAfterWeekly(dependencyVersion, allJenkinsWarsByVersionNumber.keySet());
+                    if (v != null) {
+                        stableCores.add(v);
+                    }
                 }
             }
             if (stableDone && weeklyDone) {

@@ -26,7 +26,6 @@ package io.jenkins.update_center;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.annotations.VisibleForTesting;
 import hudson.util.VersionNumber;
-import io.jenkins.update_center.util.Environment;
 import io.jenkins.update_center.util.JavaSpecificationVersion;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,7 +35,10 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
+import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.HtmlSanitizer;
+import org.owasp.html.HtmlStreamEventProcessor;
+import org.owasp.html.HtmlStreamEventReceiverWrapper;
 import org.owasp.html.HtmlStreamRenderer;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
@@ -67,7 +69,6 @@ import java.net.MalformedURLException;
  * For version independent metadata, see {@link Plugin}.
  */
 public class HPI extends MavenArtifact {
-    private static final String DOWNLOADS_ROOT_URL = Environment.getString("DOWNLOADS_ROOT_URL", "http://updates.jenkins-ci.org/download");
     private static final Pattern DEVELOPERS_PATTERN = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
     private final Plugin plugin;
@@ -90,6 +91,9 @@ public class HPI extends MavenArtifact {
 
     /**
      * Who built this release?
+     *
+     * @return a string describing who built the release
+     * @throws IOException when a problem occurs obtaining the information from metadata
      */
     public String getBuiltBy() throws IOException {
         return getManifestAttributes().getValue("Built-By");
@@ -227,7 +231,7 @@ public class HPI extends MavenArtifact {
             try (InputStream is = repository.getZipFileEntry(new MavenArtifact(repository, coordinates), "index.jelly")) {
                 StringBuilder b = new StringBuilder();
                 HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> LOGGER.log(Level.INFO, "Bad HTML: '" + html + "' in " + artifact.getGav()));
-                HtmlSanitizer.sanitize(IOUtils.toString(is, StandardCharsets.UTF_8), HTML_POLICY.apply(renderer));
+                HtmlSanitizer.sanitize(IOUtils.toString(is, StandardCharsets.UTF_8), HTML_POLICY.apply(renderer), PRE_PROCESSOR);
                 description = b.toString().trim().replaceAll("\\s+", " ");
             } catch (IOException e) {
                 LOGGER.log(Level.FINE, () -> "Failed to read description from index.jelly: " + e.getMessage());
@@ -282,7 +286,10 @@ public class HPI extends MavenArtifact {
 
     private String name;
 
-    /** @return The plugin name defined in the POM &lt;name&gt; modified by simplification rules (no 'Jenkins', no 'Plugin'); then artifact ID. */
+    /**
+     * @return The plugin name defined in the POM &lt;name&gt; modified by simplification rules (no 'Jenkins', no 'Plugin'); then artifact ID.
+     * @throws IOException if an exception occurs while accessing metadata
+     */
     public String getName() throws IOException {
         if (name == null) {
             String title = readSingleValueFromXmlFile(resolvePOM(), "/project/name");
@@ -370,7 +377,10 @@ public class HPI extends MavenArtifact {
 
     private String pluginUrl;
 
-    /** @return The URL as specified in the POM, or the overrides file. */
+    /**
+     * @return The URL as specified in the POM, or the overrides file.
+     * @throws IOException if an error occurs while accessing plugin metadata
+     */
     public String getPluginUrl() throws IOException {
         if (pluginUrl == null) {
             // Check whether the plugin documentation URL should be overridden
@@ -561,8 +571,11 @@ public class HPI extends MavenArtifact {
     private boolean scmUrlCached; // separate status variable because 'null' has the 'undefined' meaning
 
     /**
-     * Get hostname of SCM specified in POM of latest release, or null.
-     * Used to determine if source lives in github or svn.
+     * Get the SCM URL of this component.
+     * This tries to determine the URL from the POM and from GitHub (based on repo naming convention).
+     *
+     * @return a string representing a user-accessible SCM URL, like https://github.com/org/repo, or {code null} if the repo wasn't found or is considered invalid.
+     * @throws IOException if an error occurs while accessing plugin metadata or GitHub
      */
     public String getScmUrl() throws IOException {
         if (!scmUrlCached) {
@@ -642,7 +655,20 @@ public class HPI extends MavenArtifact {
         return this.labels;
     }
 
-    private static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
+    @VisibleForTesting
+    public static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS).and(new HtmlPolicyBuilder().allowElements("a").requireRelsOnLinks("noopener", "noreferrer").allowAttributes("target").matching(false, "_blank").onElements("a").toFactory());
+
+    @VisibleForTesting
+    public static final HtmlStreamEventProcessor PRE_PROCESSOR = receiver -> new HtmlStreamEventReceiverWrapper(receiver) {
+        @Override
+        public void openTag(String elementName, List<String> attrs) {
+            if ("a".equals(elementName)) {
+                attrs.add("target");
+                attrs.add("_blank");
+            }
+            super.openTag(elementName, attrs);
+        }
+    };
 
     private String[] getLabelsFromFile() {
         Object ret = LABEL_DEFINITIONS.get(artifact.artifactId);

@@ -26,7 +26,8 @@ public class DirectoryTreeBuilder {
     /**
      * Write a directory tree to the specified directory tree that contains all core (war) and plugin (hpi) releases.
      *
-     * TODO: it also currently produces war/ directory that we aren't actually using. Maybe remove?
+     * While we're not really using the war/ directory for download links, it is a good way for users to obtain SHA checksums for arbitrary releases.
+     * war and plugin index pages are referenced on https://www.jenkins.io/download/verify/
      */
     @Option(name = "--downloads-directory", usage = "Build mirrors.jenkins-ci.org layout (containing .war and .hpi files)")
     public File download = null;
@@ -99,6 +100,8 @@ public class DirectoryTreeBuilder {
 
     /**
      * Generates symlink to the latest version.
+     *
+     * @param hpi The plugin to create a latest symlink for
      */
     private void createLatestSymlink(Plugin hpi) throws IOException {
         File dir = new File(download, "plugins/" + hpi.getArtifactId());
@@ -122,6 +125,10 @@ public class DirectoryTreeBuilder {
 
     /**
      * Stages an artifact into the specified location.
+     *
+     * @param a the artifact to stage
+     * @param dst the staging location
+     * @throws IOException when a problem occurs during file operations
      */
     protected void stage(MavenArtifact a, File dst) throws IOException {
         File src = a.resolve();

@@ -20,13 +20,16 @@ function cleanup {
 }
 docker run --rm -dit --name update-center2-test -p 8080:80 update-center2-test || { echo "Failed to start Docker container" >&2 ; exit 1 ; }
 
+echo "Waiting for the container to be ready..."
+sleep 3
+
 TEST_BASE_URL="http://localhost:8080"
 
 function test_redirect () {
   local REQUEST_URL="$1"
   local DESTINATION="$2"
   echo "Requesting $REQUEST_URL (-> $DESTINATION)"
-  REDIRECT=$( curl -Ii "$REQUEST_URL" 2>/dev/null | fgrep 'Location:' | cut -d' ' -f2 | tr -d '[:space:]' ) || { echo "Failed to curl $REQUEST_URL" >&2 ; }
+  REDIRECT=$( curl -I "$REQUEST_URL" 2>/dev/null | fgrep 'Location:' | cut -d' ' -f2 | tr -d '[:space:]' ) || { echo "Failed to curl $REQUEST_URL" >&2 ; }
   if [ "$REDIRECT" != "$DESTINATION" ] ; then
     echo "Expected $DESTINATION but got $REDIRECT for $REQUEST_URL"
   fi
@@ -46,6 +49,9 @@ test_redirect "$TEST_BASE_URL/release-history.json" "$TEST_BASE_URL/current/rele
 test_redirect "$TEST_BASE_URL/plugin-versions.json" "$TEST_BASE_URL/current/plugin-versions.json"
 test_redirect "$TEST_BASE_URL/plugin-documentation-urls.json" "$TEST_BASE_URL/current/plugin-documentation-urls.json"
 
+# Expect no redirect at all -- this depends on HTTP, so ignore
+#test_redirect "$TEST_BASE_URL/tiers.json" ""
+
 # Accessed by https://github.com/jenkins-infra/jenkins.io/blob/3892ea2ad4b4a67e1f8aebbfab261ae88628c176/scripts/fetch-external-resources#L18
 test_redirect "$TEST_BASE_URL/latestCore.txt" "$TEST_BASE_URL/current/latestCore.txt"
 
@@ -61,8 +67,8 @@ test_redirect "$TEST_BASE_URL/update-center.json?version=2.225" "$TEST_BASE_URL/
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.223" "$TEST_BASE_URL/dynamic-2.223/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.222" "$TEST_BASE_URL/dynamic-2.222/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.222.1" "$TEST_BASE_URL/dynamic-stable-2.222.1/update-center.json"
-test_redirect "$TEST_BASE_URL/update-center.json?version=2.55" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
-test_redirect "$TEST_BASE_URL/update-center.json?version=2.6" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.55" "$TEST_BASE_URL/dynamic-2.172/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=2.6" "$TEST_BASE_URL/dynamic-2.172/update-center.json"
 
 
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.204.1" "$TEST_BASE_URL/dynamic-stable-2.204.1/update-center.json"
@@ -81,8 +87,8 @@ test_redirect "$TEST_BASE_URL/plugin-documentation-urls.json?version=2.222.1" "$
 test_redirect "$TEST_BASE_URL/latestCore.txt?version=2.222.1" "$TEST_BASE_URL/current/latestCore.txt"
 
 # Jenkins 1.x gets the oldest update sites
-test_redirect "$TEST_BASE_URL/update-center.json?version=1.650" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
-test_redirect "$TEST_BASE_URL/update-center.json?version=1.580" "$TEST_BASE_URL/dynamic-2.172/update-center.json" # TODO Fix
+test_redirect "$TEST_BASE_URL/update-center.json?version=1.650" "$TEST_BASE_URL/dynamic-2.172/update-center.json"
+test_redirect "$TEST_BASE_URL/update-center.json?version=1.580" "$TEST_BASE_URL/dynamic-2.172/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=1.580.1" "$TEST_BASE_URL/dynamic-stable-2.164.2/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=2.46.1" "$TEST_BASE_URL/dynamic-stable-2.164.2/update-center.json"
 
@@ -92,3 +98,8 @@ test_redirect "$TEST_BASE_URL/update-center.json?version=2.200" "$TEST_BASE_URL/
 # Future major releases go to the most recent update sites:
 test_redirect "$TEST_BASE_URL/update-center.json?version=3.0" "$TEST_BASE_URL/dynamic-2.240/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json?version=3.0.1" "$TEST_BASE_URL/dynamic-stable-2.222.1/update-center.json"
+
+# Workaround, see generate-htaccess.sh
+test_redirect "$TEST_BASE_URL/download/war/latest/jenkins.war" "https://updates.jenkins.io/latest/jenkins.war"
+test_redirect "$TEST_BASE_URL/download/plugins/git/latest/git.hpi" "https://updates.jenkins.io/latest/git.hpi"
+test_redirect "$TEST_BASE_URL/download/plugins/lolwut/latest/git.hpi" "https://updates.jenkins.io/latest/git.hpi" # Fun side effect of the redirect rule
