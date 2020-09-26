@@ -25,7 +25,9 @@ package io.jenkins.update_center;
 
 import hudson.util.VersionNumber;
 
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +42,8 @@ public final class Plugin {
     private final String artifactId;
 
     private final TreeMap<VersionNumber,HPI> artifacts = new TreeMap<>(VersionNumber.DESCENDING);
+
+    private final Set<VersionNumber> duplicateVersions = new TreeSet<>();
 
     public Plugin(String shortName) {
         this.artifactId = shortName;
@@ -72,11 +76,19 @@ public final class Plugin {
         }
 
         HPI existing = artifacts.get(v);
+
+        if (duplicateVersions.contains(v)) {
+            LOGGER.log(Level.INFO, "Found another duplicate artifact " + hpi.artifact.getGav() + " considered identical due to non-determinism. Neither will be published.");
+            // This is the third or more ambiguous version for this
+            return;
+        }
+
         if (existing == null) {
             artifacts.put(v, hpi);
         } else {
-            LOGGER.log(Level.INFO, "Found a duplicate artifact " + hpi.artifact.getGav() + ", so will also suspend distribution of " + existing.artifact.getGav() + " due to non-determinism");
+            LOGGER.log(Level.INFO, "Found a duplicate artifact " + hpi.artifact.getGav() + " considered identical to " + existing.artifact.getGav() + " due to non-determinism. Neither will be published.");
             artifacts.remove(v);
+            duplicateVersions.add(v);
         }
     }
 

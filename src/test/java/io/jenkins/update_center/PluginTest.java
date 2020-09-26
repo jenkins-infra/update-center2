@@ -1,6 +1,13 @@
 package io.jenkins.update_center;
 
 import junit.framework.TestCase;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 public class PluginTest extends TestCase {
 
@@ -49,4 +56,42 @@ public class PluginTest extends TestCase {
         assertNull(HPI.requireTopLevelUrl("https://github.com/jenkinsci/repo/subfolder"));
     }
 
+    @Test
+    public void testDuplicateDetection() throws Exception {
+        Plugin plugin = new Plugin("foo");
+        final RecordingHandler handler = new RecordingHandler();
+        Logger.getLogger(Plugin.class.getName()).addHandler(handler);
+        plugin.addArtifact(new HPI(null , new ArtifactCoordinates("the-group", "foo", "1.0", "hpi", ""), plugin));
+        plugin.addArtifact(new HPI(null , new ArtifactCoordinates("the-group", "foo", "1.0.0", "hpi", ""), plugin));
+        plugin.addArtifact(new HPI(null , new ArtifactCoordinates("the-group", "foo", "1.0.0.0", "hpi", ""), plugin));
+        plugin.addArtifact(new HPI(null , new ArtifactCoordinates("the-other-group", "foo", "1.0", "hpi", ""), plugin));
+        assertMessageSubstringLogged(handler, "Found a duplicate artifact the-group:foo:1.0.0 considered identical to the-group:foo:1.0 due to non-determinism. Neither will be published.");
+        assertMessageSubstringLogged(handler, "Found another duplicate artifact the-group:foo:1.0.0.0 considered identical due to non-determinism. Neither will be published.");
+        assertMessageSubstringLogged(handler, "Found another duplicate artifact the-other-group:foo:1.0 considered identical due to non-determinism. Neither will be published.");
+        assertTrue("No versions", plugin.getArtifacts().isEmpty());
+    }
+
+    private static void assertMessageSubstringLogged(RecordingHandler handler, String message) {
+        assertTrue("Message logged: " + message, handler.records.stream().anyMatch(it -> it.getMessage().contains(message)));
+    }
+
+    private static class RecordingHandler extends Handler {
+
+        private List<LogRecord> records = new ArrayList<>();
+
+        @Override
+        public void publish(LogRecord record) {
+            records.add(record);
+        }
+
+        @Override
+        public void flush() {
+
+        }
+
+        @Override
+        public void close() throws SecurityException {
+
+        }
+    }
 }
