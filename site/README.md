@@ -10,6 +10,13 @@ The service this website provides is as follows:
  1. We use the version number to redirect the traffic to the right update site,
     among all the ones that we generate.
 
+### What happens when 'Update Now' is pressed?
+
+![Update Now](static/images/jenkins-infra___update.png)
+
+### What happens when a plugin is updated?
+
+![Plugin Update](static/images/jenkins-infra___plugin_update.png)
 
 ## Multiple update sites for different version ranges
 
