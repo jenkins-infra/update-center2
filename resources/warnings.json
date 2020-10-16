@@ -7147,8 +7147,8 @@
     "url": "https://jenkins.io/security/advisory/2020-02-12/#SECURITY-1562",
     "versions": [
       {
-        "lastVersion": "2.14",
-        "pattern": "(2[.]1[0-4]|2[.][0-9])(|[.-].+)"
+        "lastVersion": "2.17",
+        "pattern": "(2[.]1[0-7]|2[.][0-9])(|[.-].+)"
       }
     ]
   },
