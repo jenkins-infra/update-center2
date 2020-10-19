@@ -9080,5 +9080,161 @@
         "pattern": "([34]|5[.]0[.][01])(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-1767",
+    "type": "plugin",
+    "name": "role-strategy",
+    "message": "Improper authorization due to caching",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1767",
+    "versions": [
+      {
+        "lastVersion": "3.0",
+        "pattern": "([12]|3[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1815",
+    "type": "plugin",
+    "name": "audit-trail",
+    "message": "Request logging could be bypassed",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1815",
+    "versions": [
+      {
+        "lastVersion": "3.6",
+        "pattern": "([12]|3[.][0-6])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1846",
+    "type": "plugin",
+    "name": "audit-trail",
+    "message": "Incorrect default pattern",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1846",
+    "versions": [
+      {
+        "lastVersion": "3.6",
+        "pattern": "([12]|3[.][0-6])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1928",
+    "type": "plugin",
+    "name": "release",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1928",
+    "versions": [
+      {
+        "lastVersion": "2.10.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1954",
+    "type": "plugin",
+    "name": "uno-choice",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1954",
+    "versions": [
+      {
+        "lastVersion": "2.4",
+        "pattern": "(2[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2008",
+    "type": "plugin",
+    "name": "uno-choice",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2008",
+    "versions": [
+      {
+        "lastVersion": "2.4",
+        "pattern": "(2[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2046",
+    "type": "plugin",
+    "name": "persona",
+    "message": "Arbitrary file read vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2046",
+    "versions": [
+      {
+        "lastVersion": "2.4",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2049",
+    "type": "plugin",
+    "name": "maven-release-cascade",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2049",
+    "versions": [
+      {
+        "lastVersion": "1.3.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2052",
+    "type": "plugin",
+    "name": "shared-objects",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2052",
+    "versions": [
+      {
+        "lastVersion": "0.44",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2054",
+    "type": "plugin",
+    "name": "sms",
+    "message": "Access token stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2054",
+    "versions": [
+      {
+        "lastVersion": "1.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2065",
+    "type": "plugin",
+    "name": "couchdb-statistics",
+    "message": "Password stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2065",
+    "versions": [
+      {
+        "lastVersion": "0.3",
+        "pattern": "(0[.][23])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2097",
+    "type": "plugin",
+    "name": "nerrvana-plugin",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2097",
+    "versions": [
+      {
+        "lastVersion": "1.02.06",
+        "pattern": ".*"
+      }
+    ]
   }
 ]
