@@ -30,9 +30,24 @@ public class GitHubSource {
     private static String GITHUB_API_PASSWORD = Environment.getString("GITHUB_PASSWORD");
     private static File GITHUB_API_CACHE = new File(Environment.getString("GITHUB_CACHEDIR", "caches/github"));
 
-    private Set<String> repoNames;
-    private Map<String, List<String>> topicNames;
+    public static class RepoInformation {
+        public boolean hasGithubIssuesEnabled;
+        public String defaultBranch;
+        public List<String> topicNames;
+    }
 
+    public static class ParsedScmUrl {
+        public final String organization;
+        public final String repoName;
+
+        public ParsedScmUrl(String organization, String repoName) {
+            this.organization = organization;
+            this.repoName = repoName;
+        }
+    }
+
+    private Set<String> repoNames;
+    private Map<String, RepoInformation> repoInformationMap;
 
     private void init() {
         try {
@@ -51,11 +66,11 @@ public class GitHubSource {
         return "https://api.github.com/graphql";
     }
 
-    protected Map<String, List<String>> initializeOrganizationData(String organization) throws IOException {
-        if (this.topicNames != null) {
-            return this.topicNames;
+    protected void initializeOrganizationData(String organization) throws IOException {
+        if (this.repoInformationMap != null) {
+            return;
         }
-        this.topicNames = new HashMap<>();
+        this.repoInformationMap = new HashMap<>();
         this.repoNames = new TreeSet<>(String::compareToIgnoreCase);
 
         LOGGER.log(Level.INFO, "Retrieving GitHub repo data...");
@@ -76,6 +91,7 @@ public class GitHubSource {
         while (hasNextPage) {
             // TODO remove use of json-lib
             JSONObject jsonObject = new JSONObject();
+
             jsonObject.put("query", String.format("{\n" +
                             "  organization(login: %s) {\n" +
                             "    repositories(first: 100, after: %s) {\n" +
@@ -87,6 +103,10 @@ public class GitHubSource {
                             "      edges {\n" +
                             "        node {\n" +
                             "          name\n" +
+                            "          defaultBranchRef {\n" +
+                            "            name\n" +
+                            "          }\n" +
+                            "          hasIssuesEnabled\n" +
                             "          repositoryTopics(first:100) {\n" +
                             "            edges {\n" +
                             "              node {\n" +
@@ -137,12 +157,19 @@ public class GitHubSource {
                 JSONObject node = ((JSONObject) repository).getJSONObject("node");
                 String name = node.getString("name");
                 this.repoNames.add("https://github.com/" + organization + "/" + name);
+
+                RepoInformation repoInformation = new RepoInformation();
+                repoInformation.defaultBranch = node.getJSONObject("defaultBranchRef").getString("name");
+                repoInformation.hasGithubIssuesEnabled = node.getBoolean("hasIssuesEnabled");
+
+                repoInformationMap.put(organization + "/" + name, repoInformation);
+
                 if (node.getJSONObject("repositoryTopics").getJSONArray("edges").size() == 0) {
                     continue;
                 }
-                this.topicNames.put(organization + "/" + name, new ArrayList<>());
+                repoInformation.topicNames = new ArrayList<>();
                 for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
-                    this.topicNames.get(organization + "/" + name).add(
+                    repoInformation.topicNames.add(
                             ((JSONObject) repositoryTopic)
                                     .getJSONObject("node")
                                     .getJSONObject("topic")
@@ -152,11 +179,39 @@ public class GitHubSource {
             }
         }
         LOGGER.log(Level.INFO, "Retrieved GitHub repo data");
-        return this.topicNames;
     }
 
-    public List<String> getRepositoryTopics(String org, String repo) throws IOException { // TODO get rid of throws
-        return this.topicNames == null ? Collections.emptyList() : this.topicNames.getOrDefault(org + "/" + repo, Collections.emptyList());
+    public List<String> getRepositoryTopics(String org, String repo) {
+        if (this.repoInformationMap == null) {
+            return Collections.emptyList();
+        }
+        RepoInformation repoInformation = this.repoInformationMap.get(org + "/" + repo);
+        if (repoInformation == null) {
+            return Collections.emptyList();
+        }
+        return repoInformation.topicNames;
+    }
+
+    public Boolean hasGithubIssuesEnabled(String org, String repo) {
+        if (this.repoInformationMap == null) {
+            return false;
+        }
+        RepoInformation repoInformation = this.repoInformationMap.get(org + "/" + repo);
+        if (repoInformation == null) {
+            return false;
+        }
+        return repoInformation.hasGithubIssuesEnabled;
+    }
+
+    public String getDefaultBranch(String org, String repo) {
+        if (this.repoInformationMap == null) {
+            return "master";
+        }
+        RepoInformation repoInformation = this.repoInformationMap.get(org + "/" + repo);
+        if (repoInformation == null) {
+            return "master";
+        }
+        return repoInformation.defaultBranch;
     }
 
     private static GitHubSource instance;
@@ -173,4 +228,17 @@ public class GitHubSource {
     public boolean isRepoExisting(String url) {
         return repoNames.contains(url);
     }
+
+    public ParsedScmUrl parseScmUrl(String scm) {
+        if (!scm.contains("https://github.com/")) {
+            return null;
+        }
+
+        String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
+        if (parts.length < 2) {
+            return null;
+        }
+        return new ParsedScmUrl(parts[0], parts[1]);
+    }
+
 }

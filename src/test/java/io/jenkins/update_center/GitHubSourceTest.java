@@ -40,13 +40,20 @@ public class GitHubSourceTest {
             }
 
             @Override
-            public List<String> getRepositoryTopics(String org, String repo) throws IOException {
-                return initializeOrganizationData(org).getOrDefault(org + "/" + repo, Collections.emptyList());
+            public List<String> getRepositoryTopics(String org, String repo) {
+                try {
+                    initializeOrganizationData(org);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // shouldn't happen in test
+                    return Collections.emptyList();
+                }
+                return super.getRepositoryTopics(org, repo);
             }
         };
         assertEquals(
-                Arrays.asList("pipeline"),
-                gh.getRepositoryTopics("jenkinsci", "workflow-cps-plugin")
+                Arrays.asList("cmake","jenkins-plugin", "jenkins-builder", "pipeline"),
+                gh.getRepositoryTopics("jenkinsci", "cmakebuilder-plugin")
         );
         // Shut down the server. Instances cannot be reused.
         server.shutdown();

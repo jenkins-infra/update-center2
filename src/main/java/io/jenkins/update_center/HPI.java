@@ -244,6 +244,39 @@ public class HPI extends MavenArtifact {
         return description;
     }
 
+    public String getDefaultBranch() throws IOException {
+        String scm = getScmUrl();
+        if (scm == null) {
+            return "master";
+        }
+
+        GitHubSource gh = GitHubSource.getInstance();
+        GitHubSource.ParsedScmUrl parsedScmUrl = gh.parseScmUrl(scm);
+        if (parsedScmUrl == null) {
+            return "master";
+        }
+        return gh.getDefaultBranch(parsedScmUrl.organization, parsedScmUrl.repoName);
+    }
+
+    public String getIssuesUrl() throws IOException {
+        String jiraIssueUrl = "https://issues.jenkins-ci.org/issues/?jql=project%20%3D%20JENKINS%20AND%20component%20%3D%20" + getName().replaceAll("-plugin$", "") + "-plugin";;
+
+        String scm = getScmUrl();
+        if (scm == null) {
+            return jiraIssueUrl;
+        }
+
+        GitHubSource gh = GitHubSource.getInstance();
+        GitHubSource.ParsedScmUrl parsedScmUrl = gh.parseScmUrl(scm);
+        if (parsedScmUrl == null) {
+            return jiraIssueUrl;
+        }
+        if (gh.hasGithubIssuesEnabled(parsedScmUrl.organization, parsedScmUrl.repoName)) {
+            return "https://github.com/" + parsedScmUrl.organization + "/" + parsedScmUrl.repoName + "/issues";
+        }
+        return jiraIssueUrl;
+    }
+
     public static class Dependency {
         @JSONField
         public final String name;
