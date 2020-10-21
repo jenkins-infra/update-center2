@@ -155,6 +155,11 @@ public class GitHubSource {
 
             for (Object repository : repositories.getJSONArray("edges")) {
                 JSONObject node = ((JSONObject) repository).getJSONObject("node");
+                if ( node.optJSONObject("defaultBranchRef") == null ) {
+                    // empty repo, so ignore everything else
+                    continue;
+                }
+
                 String name = node.getString("name");
                 this.repoNames.add("https://github.com/" + organization + "/" + name);
 
@@ -187,6 +192,9 @@ public class GitHubSource {
         }
         RepoInformation repoInformation = this.repoInformationMap.get(org + "/" + repo);
         if (repoInformation == null) {
+            return Collections.emptyList();
+        }
+        if (repoInformation.topicNames == null) {
             return Collections.emptyList();
         }
         return repoInformation.topicNames;

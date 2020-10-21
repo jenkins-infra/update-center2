@@ -48,6 +48,7 @@ import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -259,7 +260,8 @@ public class HPI extends MavenArtifact {
     }
 
     public String getIssuesUrl() throws IOException {
-        String jiraIssueUrl = "https://issues.jenkins-ci.org/issues/?jql=project%20%3D%20JENKINS%20AND%20component%20%3D%20" + getName().replaceAll("-plugin$", "") + "-plugin";;
+        String jiraIssueUrl = "https://issues.jenkins-ci.org/issues/?jql=project%20%3D%20JENKINS%20AND%20component%20%3D%20" +
+                URLEncoder.encode(getPlugin().getArtifactId().replaceAll("-plugin$", "") + "-plugin", StandardCharsets.UTF_8.toString());
 
         String scm = getScmUrl();
         if (scm == null) {
@@ -656,11 +658,11 @@ public class HPI extends MavenArtifact {
             if (scm != null && scm.contains("https://github.com/")) {
 
                 List<String> unsanitizedLabels = new ArrayList<>();
-                String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
-                if (parts.length >= 2) {
+                GitHubSource.ParsedScmUrl parsedScmUrl = GitHubSource.getInstance().parseScmUrl(scm);
+                if (parsedScmUrl != null) {
                     unsanitizedLabels.addAll(
                             Arrays.asList(
-                                    GitHubSource.getInstance().getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
+                                    GitHubSource.getInstance().getRepositoryTopics(parsedScmUrl.organization, parsedScmUrl.repoName).toArray(new String[0])
                             )
                     );
                 }
