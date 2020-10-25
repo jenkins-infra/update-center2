@@ -7395,8 +7395,8 @@
     "url": "https://jenkins.io/security/advisory/2020-03-09/#SECURITY-1520",
     "versions": [
       {
-        "lastVersion": "1.2.6",
-        "pattern": ".*"
+        "lastVersion": "1.3.1",
+        "pattern": "([01])(|[.-].+)"
       }
     ]
   },
