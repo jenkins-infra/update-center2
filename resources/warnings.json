@@ -6377,8 +6377,8 @@
     "url": "https://jenkins.io/security/advisory/2019-10-23/#SECURITY-1014%20(1)",
     "versions": [
       {
-        "lastVersion": "1.8.5",
-        "pattern": ".*"
+        "lastVersion": "1.8.6",
+        "pattern": "(1[.]7|1[.]8[.][13456])(|[.-].+)|(1[.]8)"
       }
     ]
   },
@@ -6391,7 +6391,7 @@
     "versions": [
       {
         "lastVersion": "1.8.5",
-        "pattern": ".*"
+        "pattern": "(1[.]7|1[.]8[.][1345])(|[.-].+)|(1[.]8)"
       }
     ]
   },
@@ -7148,8 +7148,8 @@
     "url": "https://jenkins.io/security/advisory/2020-02-12/#SECURITY-1562",
     "versions": [
       {
-        "lastVersion": "2.14",
-        "pattern": ".*"
+        "lastVersion": "2.17",
+        "pattern": "(2[.]1[0-7]|2[.][0-9])(|[.-].+)"
       }
     ]
   },
@@ -7395,8 +7395,8 @@
     "url": "https://jenkins.io/security/advisory/2020-03-09/#SECURITY-1520",
     "versions": [
       {
-        "lastVersion": "1.2.6",
-        "pattern": ".*"
+        "lastVersion": "1.3.1",
+        "pattern": "([01])(|[.-].+)"
       }
     ]
   },
@@ -8570,7 +8570,7 @@
     "versions": [
       {
         "lastVersion": "1.5",
-        "pattern": ".*"
+        "pattern": "(1[.][0-5])(|[.-].+)"
       }
     ]
   },
@@ -8621,8 +8621,8 @@
     "url": "https://jenkins.io/security/advisory/2020-09-01/#SECURITY-1831",
     "versions": [
       {
-        "lastVersion": "2020.2.1",
-        "pattern": ".*"
+        "lastVersion": "2020.3",
+        "pattern": "([12]|2020[.]2)(|[.-].+)|(2020[.]3)"
       }
     ]
   },
@@ -9078,6 +9078,435 @@
       {
         "lastVersion": "5.0.1",
         "pattern": "([34]|5[.]0[.][01])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1767",
+    "type": "plugin",
+    "name": "role-strategy",
+    "message": "Improper authorization due to caching",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1767",
+    "versions": [
+      {
+        "lastVersion": "3.0",
+        "pattern": "([12]|3[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1815",
+    "type": "plugin",
+    "name": "audit-trail",
+    "message": "Request logging could be bypassed",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1815",
+    "versions": [
+      {
+        "lastVersion": "3.6",
+        "pattern": "([12]|3[.][0-6])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1846",
+    "type": "plugin",
+    "name": "audit-trail",
+    "message": "Incorrect default pattern",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1846",
+    "versions": [
+      {
+        "lastVersion": "3.6",
+        "pattern": "([12]|3[.][0-6])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1928",
+    "type": "plugin",
+    "name": "release",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1928",
+    "versions": [
+      {
+        "lastVersion": "2.10.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1954",
+    "type": "plugin",
+    "name": "uno-choice",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-1954",
+    "versions": [
+      {
+        "lastVersion": "2.4",
+        "pattern": "(2[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2008",
+    "type": "plugin",
+    "name": "uno-choice",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2008",
+    "versions": [
+      {
+        "lastVersion": "2.4",
+        "pattern": "(2[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2046",
+    "type": "plugin",
+    "name": "persona",
+    "message": "Arbitrary file read vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2046",
+    "versions": [
+      {
+        "lastVersion": "2.4",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2049",
+    "type": "plugin",
+    "name": "maven-release-cascade",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2049",
+    "versions": [
+      {
+        "lastVersion": "1.3.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2052",
+    "type": "plugin",
+    "name": "shared-objects",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2052",
+    "versions": [
+      {
+        "lastVersion": "0.44",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2054",
+    "type": "plugin",
+    "name": "sms",
+    "message": "Access token stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2054",
+    "versions": [
+      {
+        "lastVersion": "1.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2065",
+    "type": "plugin",
+    "name": "couchdb-statistics",
+    "message": "Password stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2065",
+    "versions": [
+      {
+        "lastVersion": "0.3",
+        "pattern": "(0[.][23])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2097",
+    "type": "plugin",
+    "name": "nerrvana-plugin",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-10-08/#SECURITY-2097",
+    "versions": [
+      {
+        "lastVersion": "1.02.06",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1646",
+    "type": "plugin",
+    "name": "kubernetes",
+    "message": "Jenkins controller environment variables accessible",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-1646",
+    "versions": [
+      {
+        "lastVersion": "1.27.3",
+        "pattern": "(0|1[.][0-9]|1[.]1[0-9]|1[.]2[0234]|1[.]21[.][0-5]|1[.]25[.][0123567]|1[.]26[.][0-4]|1[.]27[.][0-3])(|[.-].+)|(1[.]25[.]4)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1900",
+    "type": "plugin",
+    "name": "visualworks-store",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-1900",
+    "versions": [
+      {
+        "lastVersion": "1.1.3",
+        "pattern": "(1[.]0|1[.]1[.][13])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1907",
+    "type": "plugin",
+    "name": "analysis-core",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-1907",
+    "versions": [
+      {
+        "lastVersion": "1.96",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1918",
+    "type": "plugin",
+    "name": "findbugs",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-1918",
+    "versions": [
+      {
+        "lastVersion": "5.0.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1943",
+    "type": "plugin",
+    "name": "ansible",
+    "message": "Missing permission checks allow enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-1943",
+    "versions": [
+      {
+        "lastVersion": "1.0",
+        "pattern": "(0|1[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1999",
+    "type": "plugin",
+    "name": "active-directory",
+    "message": "Missing permission check allows accessing domain health check page",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-1999",
+    "versions": [
+      {
+        "lastVersion": "2.19",
+        "pattern": "(1|2[.][023456789]|2[.]1[012345789])(|[.-].+)|(2[.]16)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2058",
+    "type": "plugin",
+    "name": "jenkinsci-appspider-plugin",
+    "message": "Password stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2058",
+    "versions": [
+      {
+        "lastVersion": "1.0.12",
+        "pattern": "(1[.]0[.]1[0-2]|1[.]0[.][2-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2084",
+    "type": "plugin",
+    "name": "labmanager",
+    "message": "Password stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2084",
+    "versions": [
+      {
+        "lastVersion": "0.2.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2085",
+    "type": "plugin",
+    "name": "mailcommander",
+    "message": "Passwords stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2085",
+    "versions": [
+      {
+        "lastVersion": "1.0.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2099",
+    "type": "plugin",
+    "name": "active-directory",
+    "message": "Login allowed with empty password",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2099",
+    "versions": [
+      {
+        "lastVersion": "2.19",
+        "pattern": "(1|2[.][023456789]|2[.]1[012345789])(|[.-].+)|(2[.]16)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2101",
+    "type": "plugin",
+    "name": "aws-global-configuration",
+    "message": "Missing permission check allows replacing plugin configuration",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2101",
+    "versions": [
+      {
+        "lastVersion": "1.5",
+        "pattern": "(1[.][01245])(|[.-].+)|(1[.]3)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2102",
+    "type": "plugin",
+    "name": "kubernetes",
+    "message": "Missing permission check allows listing pod templates",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2102",
+    "versions": [
+      {
+        "lastVersion": "1.27.3",
+        "pattern": "(0|1[.][0-9]|1[.]1[0-9]|1[.]2[0234]|1[.]21[.][0-5]|1[.]25[.][0123567]|1[.]26[.][0-4]|1[.]27[.][0-3])(|[.-].+)|(1[.]25[.]4)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2103",
+    "type": "plugin",
+    "name": "kubernetes",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2103",
+    "versions": [
+      {
+        "lastVersion": "1.27.3",
+        "pattern": "(0|1[.][0-9]|1[.]1[0-9]|1[.]2[0234]|1[.]21[.][0-5]|1[.]25[.][0123567]|1[.]26[.][0-4]|1[.]27[.][0-3])(|[.-].+)|(1[.]25[.]4)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2104",
+    "type": "plugin",
+    "name": "mercurial",
+    "message": "Missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2104",
+    "versions": [
+      {
+        "lastVersion": "2.11",
+        "pattern": "(1|2[.][0-7]|2[.]11)(|[.-].+)|(2[.]10|2[.][89])"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2110",
+    "type": "plugin",
+    "name": "azure-keyvault",
+    "message": "Missing permission checks allow enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2110",
+    "versions": [
+      {
+        "lastVersion": "2.0",
+        "pattern": "([01]|2[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2115",
+    "type": "plugin",
+    "name": "mercurial",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2115",
+    "versions": [
+      {
+        "lastVersion": "2.11",
+        "pattern": "(1|2[.][0-7]|2[.]11)(|[.-].+)|(2[.]10|2[.][89])"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2117",
+    "type": "plugin",
+    "name": "active-directory",
+    "message": "Login allowed with hardcoded password",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2117",
+    "versions": [
+      {
+        "lastVersion": "2.19",
+        "pattern": "(1|2[.][023456789]|2[.]1[012345789])(|[.-].+)|(2[.]16)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2123",
+    "type": "plugin",
+    "name": "active-directory",
+    "message": "Authentication cache allows logging in with any password",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2123",
+    "versions": [
+      {
+        "lastVersion": "2.19",
+        "pattern": "(1|2[.][023456789]|2[.]1[012345789])(|[.-].+)|(2[.]16)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2126",
+    "type": "plugin",
+    "name": "active-directory",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2126",
+    "versions": [
+      {
+        "lastVersion": "2.19",
+        "pattern": "(1|2[.][023456789]|2[.]1[012345789])(|[.-].+)|(2[.]16)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2129",
+    "type": "plugin",
+    "name": "sqlplus-script-runner",
+    "message": "Password written to the build log",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2129",
+    "versions": [
+      {
+        "lastVersion": "2.0.12",
+        "pattern": "(1|2[.]0[.][0-9]|2[.]0[.]12)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2145",
+    "type": "plugin",
+    "name": "subversion",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2020-11-04/#SECURITY-2145",
+    "versions": [
+      {
+        "lastVersion": "2.13.1",
+        "pattern": "(1|2[.][0-9]|2[.]1[0-2]|2[.]13[.][01])(|[.-].+)"
       }
     ]
   }
