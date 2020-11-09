@@ -106,12 +106,12 @@ public class PluginUpdateCenterEntry {
         return latestOffered.getName();
     }
 
-    @JSONField(name = "defaultBranch")
-    public String defaultBranchl() throws IOException {
+    @JSONField
+    public String getDefaultBranch() throws IOException {
         return latestOffered.getDefaultBranch();
     }
 
-    @JSONField(name = "issuesUrl")
+    @JSONField
     public String getIssuesUrl() throws IOException {
         return latestOffered.getIssuesUrl();
     }
