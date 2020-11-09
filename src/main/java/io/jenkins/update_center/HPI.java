@@ -167,12 +167,14 @@ public class HPI extends MavenArtifact {
     }
 
     private static final Properties URL_OVERRIDES = new Properties();
+    private static final Properties ISSUE_TRACKER_OVERRIDES = new Properties();
     private static final Properties LABEL_DEFINITIONS = new Properties();
     private static final Properties ALLOWED_GITHUB_LABELS = new Properties();
 
     static {
         try {
             URL_OVERRIDES.load(Files.newInputStream(new File(Main.resourcesDir, "wiki-overrides.properties").toPath()));
+            ISSUE_TRACKER_OVERRIDES.load(Files.newInputStream(new File(Main.resourcesDir, "issue-tracker-overrides.properties").toPath()));
             LABEL_DEFINITIONS.load(Files.newInputStream(new File(Main.resourcesDir, "label-definitions.properties").toPath()));
             ALLOWED_GITHUB_LABELS.load(Files.newInputStream(new File(Main.resourcesDir, "allowed-github-topics.properties").toPath()));
         } catch (IOException e) {
@@ -259,8 +261,26 @@ public class HPI extends MavenArtifact {
         return gh.getDefaultBranch(gitHubRepo);
     }
 
+    private String issuesUrl;
+
     public String getIssuesUrl() throws IOException {
-        String jiraIssueUrl = "https://issues.jenkins-ci.org/issues/?jql=project%20%3D%20JENKINS%20AND%20component%20%3D%20" +
+        if (issuesUrl == null) {
+            if (ISSUE_TRACKER_OVERRIDES.containsKey(artifact.artifactId)) {
+                final String override = ISSUE_TRACKER_OVERRIDES.get(artifact.artifactId).toString();
+                if (override.startsWith("jira:")) {
+                    issuesUrl = "https://issues.jenkins.io/issues/?jql=project%3DJENKINS%20AND%20component%3D" + URLEncoder.encode(override.substring(5), StandardCharsets.UTF_8.toString());
+                } else {
+                    issuesUrl = override;
+                }
+            } else {
+                issuesUrl = _getIssuesUrl();
+            }
+        }
+        return issuesUrl;
+    }
+
+    private String _getIssuesUrl() throws IOException {
+        String jiraIssueUrl = "https://issues.jenkins.io/issues/?jql=project%3DJENKINS%20AND%20component%3D" +
                 URLEncoder.encode(getPlugin().getArtifactId().replaceAll("-plugin$", "") + "-plugin", StandardCharsets.UTF_8.toString());
 
         String scm = getScmUrl();

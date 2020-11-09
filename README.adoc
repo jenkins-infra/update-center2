@@ -34,6 +34,7 @@ The generator pulls information from:
   - Label assignments (`resources/label-definitions.properties`)
   - Security warnings (`resources/warnings.json`)
   - Plugin URL overrides (`resources/wiki-overrides.properties`)
+  - Plugin issue tracker overrides (`resources/issue-tracker-overrides.properties`)
 
 
 == Features Controlled Through Resource Files
@@ -73,6 +74,16 @@ This requirement no longer exists, but it may still be useful to define a docume
 // TODO This is probably obsolete since we always look at the latest release now?
 
 The file `resources/wiki-overrides.properties` defines these wiki page overrides.
+
+
+=== Plugin Issue Tracker Override
+
+Plugins are expected to track issues on GitHub or in the Jenkins Jira. The URL to the issue tracker is part of the update center metadata.
+
+By default, if the GitHub repo has issue tracking enabled, that URL is used, otherwise a link to the Jenkins Jira that includes the Jira component for the plugin is provided.
+There may be reasons that the wrong issue tracker is linked, or that the component name derived from the plugin ID is wrong.
+
+The file `resources/issue-tracker-overrides.properties` can be used to override the default issue tracker URL.
 
 
 === Deprecations
