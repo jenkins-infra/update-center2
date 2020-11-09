@@ -1,5 +1,6 @@
 package io.jenkins.update_center;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jenkins.update_center.util.Environment;
 import net.sf.json.JSONObject;
 import okhttp3.Cache;
@@ -36,18 +37,32 @@ public class GitHubSource {
         public List<String> topicNames;
     }
 
-    public static class ParsedScmUrl {
+    public static class GitHubRepo {
         public final String organization;
         public final String repoName;
 
-        public ParsedScmUrl(String organization, String repoName) {
+        public GitHubRepo(@NonNull String organization, @NonNull String repoName) {
             this.organization = organization;
             this.repoName = repoName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            GitHubRepo that = (GitHubRepo) o;
+            return organization.equals(that.organization) &&
+                    repoName.equals(that.repoName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(organization, repoName);
         }
     }
 
     private Set<String> repoNames;
-    private Map<String, RepoInformation> repoInformationMap;
+    private Map<GitHubRepo, RepoInformation> repoMetadata;
 
     private void init() {
         try {
@@ -67,10 +82,10 @@ public class GitHubSource {
     }
 
     protected void initializeOrganizationData(String organization) throws IOException {
-        if (this.repoInformationMap != null) {
+        if (this.repoMetadata != null) {
             return;
         }
-        this.repoInformationMap = new HashMap<>();
+        this.repoMetadata = new HashMap<>();
         this.repoNames = new TreeSet<>(String::compareToIgnoreCase);
 
         LOGGER.log(Level.INFO, "Retrieving GitHub repo data...");
@@ -167,7 +182,7 @@ public class GitHubSource {
                 repoInformation.defaultBranch = node.getJSONObject("defaultBranchRef").getString("name");
                 repoInformation.hasGithubIssuesEnabled = node.getBoolean("hasIssuesEnabled");
 
-                repoInformationMap.put(organization + "/" + name, repoInformation);
+                repoMetadata.put(new GitHubRepo(organization, name), repoInformation);
 
                 if (node.getJSONObject("repositoryTopics").getJSONArray("edges").size() == 0) {
                     continue;
@@ -186,11 +201,11 @@ public class GitHubSource {
         LOGGER.log(Level.INFO, "Retrieved GitHub repo data");
     }
 
-    public List<String> getRepositoryTopics(String org, String repo) {
-        if (this.repoInformationMap == null) {
+    public List<String> getRepositoryTopics(GitHubRepo repo) {
+        if (this.repoMetadata == null) {
             return Collections.emptyList();
         }
-        RepoInformation repoInformation = this.repoInformationMap.get(org + "/" + repo);
+        RepoInformation repoInformation = this.repoMetadata.get(repo);
         if (repoInformation == null) {
             return Collections.emptyList();
         }
@@ -200,23 +215,25 @@ public class GitHubSource {
         return repoInformation.topicNames;
     }
 
-    public Boolean hasGithubIssuesEnabled(String org, String repo) {
-        if (this.repoInformationMap == null) {
+    public Boolean hasGithubIssuesEnabled(GitHubRepo repo) {
+        if (this.repoMetadata == null) {
             return false;
         }
-        RepoInformation repoInformation = this.repoInformationMap.get(org + "/" + repo);
+        RepoInformation repoInformation = this.repoMetadata.get(repo);
         if (repoInformation == null) {
+            // TODO log warning
             return false;
         }
         return repoInformation.hasGithubIssuesEnabled;
     }
 
-    public String getDefaultBranch(String org, String repo) {
-        if (this.repoInformationMap == null) {
+    public String getDefaultBranch(GitHubRepo repo) {
+        if (this.repoMetadata == null) {
             return "master";
         }
-        RepoInformation repoInformation = this.repoInformationMap.get(org + "/" + repo);
+        RepoInformation repoInformation = this.repoMetadata.get(repo);
         if (repoInformation == null) {
+            // TODO log warning
             return "master";
         }
         return repoInformation.defaultBranch;
@@ -237,7 +254,7 @@ public class GitHubSource {
         return repoNames.contains(url);
     }
 
-    public ParsedScmUrl parseScmUrl(String scm) {
+    public GitHubRepo getGitHubRepoFromURL(String scm) {
         if (!scm.contains("https://github.com/")) {
             return null;
         }
@@ -246,7 +263,7 @@ public class GitHubSource {
         if (parts.length < 2) {
             return null;
         }
-        return new ParsedScmUrl(parts[0], parts[1]);
+        return new GitHubRepo(parts[0], parts[1]);
     }
 
 }

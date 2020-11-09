@@ -252,11 +252,11 @@ public class HPI extends MavenArtifact {
         }
 
         GitHubSource gh = GitHubSource.getInstance();
-        GitHubSource.ParsedScmUrl parsedScmUrl = gh.parseScmUrl(scm);
-        if (parsedScmUrl == null) {
+        GitHubSource.GitHubRepo gitHubRepo = gh.getGitHubRepoFromURL(scm);
+        if (gitHubRepo == null) {
             return "master";
         }
-        return gh.getDefaultBranch(parsedScmUrl.organization, parsedScmUrl.repoName);
+        return gh.getDefaultBranch(gitHubRepo);
     }
 
     public String getIssuesUrl() throws IOException {
@@ -269,12 +269,12 @@ public class HPI extends MavenArtifact {
         }
 
         GitHubSource gh = GitHubSource.getInstance();
-        GitHubSource.ParsedScmUrl parsedScmUrl = gh.parseScmUrl(scm);
-        if (parsedScmUrl == null) {
+        GitHubSource.GitHubRepo gitHubRepo = gh.getGitHubRepoFromURL(scm);
+        if (gitHubRepo == null) {
             return jiraIssueUrl;
         }
-        if (gh.hasGithubIssuesEnabled(parsedScmUrl.organization, parsedScmUrl.repoName)) {
-            return "https://github.com/" + parsedScmUrl.organization + "/" + parsedScmUrl.repoName + "/issues";
+        if (gh.hasGithubIssuesEnabled(gitHubRepo)) {
+            return "https://github.com/" + gitHubRepo.organization + "/" + gitHubRepo.repoName + "/issues";
         }
         return jiraIssueUrl;
     }
@@ -658,11 +658,11 @@ public class HPI extends MavenArtifact {
             if (scm != null && scm.contains("https://github.com/")) {
 
                 List<String> unsanitizedLabels = new ArrayList<>();
-                GitHubSource.ParsedScmUrl parsedScmUrl = GitHubSource.getInstance().parseScmUrl(scm);
-                if (parsedScmUrl != null) {
+                GitHubSource.GitHubRepo gitHubRepo = GitHubSource.getInstance().getGitHubRepoFromURL(scm);
+                if (gitHubRepo != null) {
                     unsanitizedLabels.addAll(
                             Arrays.asList(
-                                    GitHubSource.getInstance().getRepositoryTopics(parsedScmUrl.organization, parsedScmUrl.repoName).toArray(new String[0])
+                                    GitHubSource.getInstance().getRepositoryTopics(gitHubRepo).toArray(new String[0])
                             )
                     );
                 }
