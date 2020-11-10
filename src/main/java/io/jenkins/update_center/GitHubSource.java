@@ -1,5 +1,6 @@
 package io.jenkins.update_center;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jenkins.update_center.util.Environment;
 import net.sf.json.JSONObject;
@@ -62,7 +63,7 @@ public class GitHubSource {
     }
 
     private Set<String> repoNames;
-    private Map<GitHubRepo, RepoInformation> repoMetadata;
+    private @CheckForNull Map<GitHubRepo, RepoInformation> repoMetadata;
 
     private void init() {
         try {
@@ -181,13 +182,13 @@ public class GitHubSource {
                 RepoInformation repoInformation = new RepoInformation();
                 repoInformation.defaultBranch = node.getJSONObject("defaultBranchRef").getString("name");
                 repoInformation.hasGithubIssuesEnabled = node.getBoolean("hasIssuesEnabled");
+                repoInformation.topicNames = new ArrayList<>();
 
                 repoMetadata.put(new GitHubRepo(organization, name), repoInformation);
 
                 if (node.getJSONObject("repositoryTopics").getJSONArray("edges").size() == 0) {
                     continue;
                 }
-                repoInformation.topicNames = new ArrayList<>();
                 for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
                     repoInformation.topicNames.add(
                             ((JSONObject) repositoryTopic)
@@ -201,39 +202,37 @@ public class GitHubSource {
         LOGGER.log(Level.INFO, "Retrieved GitHub repo data");
     }
 
-    public List<String> getRepositoryTopics(GitHubRepo repo) {
+    @NonNull public List<String> getRepositoryTopics(@NonNull GitHubRepo repo) {
         if (this.repoMetadata == null) {
             return Collections.emptyList();
         }
         RepoInformation repoInformation = this.repoMetadata.get(repo);
         if (repoInformation == null) {
-            return Collections.emptyList();
-        }
-        if (repoInformation.topicNames == null) {
+            // Typically when a plugin is hosted outside the jenkinsci GitHub org
             return Collections.emptyList();
         }
         return repoInformation.topicNames;
     }
 
-    public Boolean hasGithubIssuesEnabled(GitHubRepo repo) {
+    public boolean hasGithubIssuesEnabled(@NonNull GitHubRepo repo) {
         if (this.repoMetadata == null) {
             return false;
         }
         RepoInformation repoInformation = this.repoMetadata.get(repo);
         if (repoInformation == null) {
-            // TODO log warning
+            // Typically when a plugin is hosted outside the jenkinsci GitHub org
             return false;
         }
         return repoInformation.hasGithubIssuesEnabled;
     }
 
-    public String getDefaultBranch(GitHubRepo repo) {
+    @CheckForNull public String getDefaultBranch(@NonNull GitHubRepo repo) {
         if (this.repoMetadata == null) {
             return null;
         }
         RepoInformation repoInformation = this.repoMetadata.get(repo);
         if (repoInformation == null) {
-            // TODO log warning
+            // Typically when a plugin is hosted outside the jenkinsci GitHub org
             return null;
         }
         return repoInformation.defaultBranch;
