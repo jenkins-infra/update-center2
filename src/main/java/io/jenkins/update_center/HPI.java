@@ -250,13 +250,13 @@ public class HPI extends MavenArtifact {
     public String getDefaultBranch() throws IOException {
         String scm = getScmUrl();
         if (scm == null) {
-            return "master";
+            return null;
         }
 
         GitHubSource gh = GitHubSource.getInstance();
         GitHubSource.GitHubRepo gitHubRepo = gh.getGitHubRepoFromURL(scm);
         if (gitHubRepo == null) {
-            return "master";
+            return null;
         }
         return gh.getDefaultBranch(gitHubRepo);
     }

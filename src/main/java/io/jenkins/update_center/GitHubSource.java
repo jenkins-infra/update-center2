@@ -229,12 +229,12 @@ public class GitHubSource {
 
     public String getDefaultBranch(GitHubRepo repo) {
         if (this.repoMetadata == null) {
-            return "master";
+            return null;
         }
         RepoInformation repoInformation = this.repoMetadata.get(repo);
         if (repoInformation == null) {
             // TODO log warning
-            return "master";
+            return null;
         }
         return repoInformation.defaultBranch;
     }
