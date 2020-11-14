@@ -23,6 +23,9 @@
  */
 package io.jenkins.update_center;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.ResponseBody;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.output.NullWriter;
 import org.bouncycastle.util.encoders.Base64;
@@ -34,8 +37,14 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Generates index.html that has a list of files.
@@ -44,36 +53,56 @@ import java.util.Date;
  */
 public class IndexHtmlBuilder implements Closeable {
     private final PrintWriter out;
+    private final String template;
+    private StringBuilder content;
+    private static String globalTemplate = null;
 
     public IndexHtmlBuilder(File dir, String title) throws IOException {
-        this(openIndexHtml(dir),title);
+        this(openIndexHtml(dir), title);
     }
 
     private static PrintWriter openIndexHtml(File dir) throws IOException {
         if (dir == null) {
             return new PrintWriter(new NullWriter()); // ignore output
         }
-        
+
         if (!dir.mkdirs() && !dir.isDirectory()) {
             throw new IllegalStateException("Failed to create " + dir);
         }
-        return new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,"index.html")), StandardCharsets.UTF_8));
+        return new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir, "index.html")), StandardCharsets.UTF_8));
     }
 
-    public IndexHtmlBuilder(PrintWriter out, String title) {
+    private IndexHtmlBuilder(PrintWriter out, String title) {
         this.out = out;
+        if (globalTemplate == null) {
+            initTemplate();
+        }
+        template = globalTemplate.replace("{{ title }}", title)
+                .replace("{{ description }}", "Download previous versions of " + title);
+        content = new StringBuilder("<div id='grid-box'><div class=\"container\"><h1 class=\"mt-3\">")
+                .append(title).append("</h1><ul class=\"artifact-list\">\n");
+    }
 
-        out.println(
-                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">\n" +
-                "<html>\n" +
-                " <head>\n" +
-                "  <title>"+title+"</title>\n" +
-                " </head>\n" +
-                " <body>\n" +
-                "<h1>"+title+"</h1>\n" +
-                "<hr>\n" +
-                "<table>"
-        );
+    private void initTemplate() {
+        Request request = new Request.Builder()
+                .url("https://www.jenkins.io/template/").get().build();
+
+        try {
+            try (final ResponseBody body = new OkHttpClient().newCall(request).execute().body()) {
+                Objects.requireNonNull(body); // guaranteed to be non-null by Javadoc
+                globalTemplate = body.string();
+            }
+        } catch (IOException ioe) {
+            LOGGER.log(Level.SEVERE, "Problem loading template", ioe);
+        }
+        Path style = Paths.get(Main.resourcesDir.getAbsolutePath(), "style.css");
+        try {
+            String styleContent = new String(Files.readAllBytes(style), StandardCharsets.UTF_8);
+            globalTemplate = globalTemplate.replaceAll("</head>",
+                    "<style>" + styleContent + "</style></head>");
+        } catch (IOException ioe) {
+            LOGGER.log(Level.SEVERE, "Problem loading template", ioe);
+        }
     }
 
     private String base64ToHex(String base64) {
@@ -86,9 +115,9 @@ public class IndexHtmlBuilder implements Closeable {
         if (digests == null) {
             return;
         }
-        String checksums = "SHA-1: " + base64ToHex(digests.sha1);
+        String checksums = "SHA-1: <code>" + base64ToHex(digests.sha1) + "</code>";
         if (digests.sha256 != null) {
-            checksums += ", SHA-256: " + base64ToHex(digests.sha256);
+            checksums += ", SHA-256: <code>" + base64ToHex(digests.sha256) + "</code>";
         }
         add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, checksums);
     }
@@ -105,17 +134,21 @@ public class IndexHtmlBuilder implements Closeable {
 
         String releaseDateString = "";
         if (releaseDate != null) {
-            releaseDateString = " title='Released " + SimpleDateFormat.getDateInstance().format(releaseDate) + "' ";
+            releaseDateString = " Released: " + SimpleDateFormat.getDateInstance().format(releaseDate);
         }
 
-        out.println("<tr><td><img src='https://www.jenkins.io/images/jar.png' /></td><td><a href='" + url + "'" + releaseDateString + "'>"
-                + caption + "</a></td>" + metadataString + "</tr>");
+        content.append("<li><a href='").append(url)
+                .append("'>").append(caption).append(releaseDateString)
+                .append("</a><div class=\"checksums\">").append(metadataString)
+                .append("</div>").append("</li>\n");
     }
 
     public void close() {
-        out.println("</table>\n" +
-                "<hr>\n" +
-                "</body></html>");
+        content.append("</ul></div></div>\n");
+        out.println(template
+                .replace("<div id='grid-box'></div>", content.toString()));
         out.close();
     }
+
+    private static final Logger LOGGER = Logger.getLogger(IndexHtmlBuilder.class.getName());
 }

@@ -1,0 +1,14 @@
+.artifact-list {
+  padding: 0;
+}
+.artifact-list li {
+  background-image: url(https://www.jenkins.io/images/jar.png);
+  background-position: left center;
+  background-repeat: no-repeat;
+  list-style: none;
+  padding-left: 2rem;
+  margin-bottom: .5rem;
+}
+.artifact-list .checksums {
+  font-size: .7rem;
+}
