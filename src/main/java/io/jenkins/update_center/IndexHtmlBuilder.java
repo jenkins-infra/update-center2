@@ -41,7 +41,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,11 +57,27 @@ import java.util.logging.Logger;
 public class IndexHtmlBuilder implements Closeable {
     private final PrintWriter out;
     private final String template;
+    private final String title;
+    private String subtitle;
+    private String description;
     private StringBuilder content;
-    private static String globalTemplate = null;
+    private String opengraphImage;
 
-    public IndexHtmlBuilder(File dir, String title) throws IOException {
-        this(openIndexHtml(dir), title);
+    public IndexHtmlBuilder(File dir, String title, String globalTemplate) throws IOException {
+        this.out = openIndexHtml(dir);
+        this.template = globalTemplate;
+        this.title = title;
+        this.content = new StringBuilder();
+        this.subtitle = "";
+        this.description = "Download previous versions of " + title;
+        this.opengraphImage = "https://www.jenkins.io/images/logo-title-opengraph.png";
+    }
+
+    public IndexHtmlBuilder withSubtitle(String subtitle) {
+        if (subtitle != null) {
+            this.subtitle = subtitle;
+        }
+        return this;
     }
 
     private static PrintWriter openIndexHtml(File dir) throws IOException {
@@ -72,39 +91,6 @@ public class IndexHtmlBuilder implements Closeable {
         return new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir, "index.html")), StandardCharsets.UTF_8));
     }
 
-    private IndexHtmlBuilder(PrintWriter out, String title) {
-        this.out = out;
-        if (globalTemplate == null) {
-            initTemplate();
-        }
-        template = globalTemplate.replace("{{ title }}", title)
-                .replace("{{ description }}", "Download previous versions of " + title);
-        content = new StringBuilder("<div id='grid-box'><div class=\"container\"><h1 class=\"mt-3\">")
-                .append(title).append("</h1><ul class=\"artifact-list\">\n");
-    }
-
-    private void initTemplate() {
-        Request request = new Request.Builder()
-                .url("https://www.jenkins.io/template/").get().build();
-
-        try {
-            try (final ResponseBody body = new OkHttpClient().newCall(request).execute().body()) {
-                Objects.requireNonNull(body); // guaranteed to be non-null by Javadoc
-                globalTemplate = body.string();
-            }
-        } catch (IOException ioe) {
-            LOGGER.log(Level.SEVERE, "Problem loading template", ioe);
-        }
-        Path style = Paths.get(Main.resourcesDir.getAbsolutePath(), "style.css");
-        try {
-            String styleContent = new String(Files.readAllBytes(style), StandardCharsets.UTF_8);
-            globalTemplate = globalTemplate.replaceAll("</head>",
-                    "<style>" + styleContent + "</style></head>");
-        } catch (IOException ioe) {
-            LOGGER.log(Level.SEVERE, "Problem loading template", ioe);
-        }
-    }
-
     private String base64ToHex(String base64) {
         byte[] decodedBase64 = Base64.decode(base64.getBytes(StandardCharsets.US_ASCII));
         return Hex.encodeHexString(decodedBase64);
@@ -115,40 +101,42 @@ public class IndexHtmlBuilder implements Closeable {
         if (digests == null) {
             return;
         }
-        String checksums = "SHA-1: <code>" + base64ToHex(digests.sha1) + "</code>";
-        if (digests.sha256 != null) {
-            checksums += ", SHA-256: <code>" + base64ToHex(digests.sha256) + "</code>";
-        }
-        add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, checksums);
+        add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, digests);
     }
 
     public void add(String url, String caption) {
         add(url, null, caption, null);
     }
 
-    public void add(String url, Date releaseDate, String caption, String metadata) {
-        String metadataString = "";
-        if (metadata != null) {
-            metadataString = "<td>" + metadata + "</td>";
-        }
-
+    public void add(String url, Date releaseDate, String caption, MavenRepository.Digests digests) {
         String releaseDateString = "";
         if (releaseDate != null) {
             releaseDateString = " Released: " + SimpleDateFormat.getDateInstance().format(releaseDate);
         }
 
-        content.append("<li><a href='").append(url)
-                .append("'>").append(caption).append(releaseDateString)
-                .append("</a><div class=\"checksums\">").append(metadataString)
-                .append("</div>").append("</li>\n");
+        content.append("<li><a class=\"version\" href='").append(url)
+                .append("'>").append(caption).append("</a><div class=\"metadata\">\n<div class=\"released\">")
+                .append(releaseDateString)
+                .append("</div>");
+        if (digests != null) {
+            content.append("\n<div class=\"checksums\">SHA-1: <code>")
+                    .append(base64ToHex(digests.sha1)).append("</code></div>");
+            if (digests.sha256 != null) {
+                content.append("\n<div class=\"checksums\">SHA-256: <code>")
+                        .append(base64ToHex(digests.sha256)).append("</code></div>");
+            }
+        }
+        content.append("</div></li>\n");
     }
 
+    @Override
     public void close() {
-        content.append("</ul></div></div>\n");
         out.println(template
-                .replace("<div id='grid-box'></div>", content.toString()));
+                .replace("{{ title }}", title)
+                .replace("{{ subtitle }}", subtitle)
+                .replace("{{ description }}", description)
+                .replace("{{ opengraphImage }}", opengraphImage)
+                .replace("{{ content }}", content.toString()));
         out.close();
     }
-
-    private static final Logger LOGGER = Logger.getLogger(IndexHtmlBuilder.class.getName());
 }
