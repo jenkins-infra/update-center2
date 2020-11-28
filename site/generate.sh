@@ -50,10 +50,19 @@ MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$
 echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
+version=3.4.5
+coordinates=org/jenkins-ci/update-center2/$version/update-center2-$version-bin.zip
+
+if [[ -f "$MAIN_DIR"/tmp/generator-$version.zip ]] ; then
+  echo "tmp/generator-$version.zip already exists, skipping download"
+else
+  echo "tmp/generator-$version.zip does not exist, downloading ..."
+  rm -rf "$MAIN_DIR"/tmp/generator*.zip
+  wget --no-verbose -O "$MAIN_DIR"/tmp/generator-$version.zip "https://repo.jenkins-ci.org/releases/$coordinates"
+fi
+
 rm -rf "$MAIN_DIR"/tmp/generator/
-rm -rf "$MAIN_DIR"/tmp/generator.zip
-wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.4.5/update-center2-3.4.5-bin.zip"
-unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
+unzip -q "$MAIN_DIR"/tmp/generator-$version.zip -d "$MAIN_DIR"/tmp/generator/
 
 function execute {
   # To use a locally built snapshot, use the following line instead:
