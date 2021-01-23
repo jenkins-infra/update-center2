@@ -157,7 +157,7 @@ stable/
 This is a copy of/symlink to the LTS update site for the most recent LTS baseline.
 The top-level `.htaccess` file forwards requests to the latest `stable-x.xxx` update site.
 
-It exists for compatibility with older LTS masters that explicitly configure this URL as their update center and is also used by the jenkins-infra/jenkins.io build to determine the current LTS release (`latestCore.txt`).
+It exists for compatibility with older LTS controllers that explicitly configure this URL as their update center and is also used by the jenkins-infra/jenkins.io build to determine the current LTS release (`latestCore.txt`).
 
 
 ## Experimental update site

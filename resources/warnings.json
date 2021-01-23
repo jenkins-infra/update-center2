@@ -121,7 +121,7 @@
     "id": "SECURITY-441",
     "type": "plugin",
     "name": "pipeline-maven",
-    "message": "Arbitrary files from Jenkins master available in Pipeline by using the withMaven step",
+    "message": "Arbitrary files from Jenkins controller available in Pipeline by using the withMaven step",
     "url": "https://jenkins.io/security/advisory/2017-03-09/",
     "versions": [
       {
@@ -434,7 +434,7 @@
     "id": "SECURITY-348",
     "type": "plugin",
     "name": "envinject",
-    "message": "Low privilege users are able to read parts of some files on master",
+    "message": "Low privilege users are able to read parts of some files on Jenkins controller",
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
@@ -1035,7 +1035,7 @@
     "id": "SECURITY-538",
     "type": "plugin",
     "name": "script-security",
-    "message": "Unsafe entries in default whitelist",
+    "message": "Unsafe methods in the default list of approved signatures",
     "url": "https://jenkins.io/security/advisory/2017-07-10/",
     "versions": [
       {
@@ -1875,7 +1875,7 @@
     "id": "SECURITY-519",
     "type": "plugin",
     "name": "liquibase-runner",
-    "message": "Plugin allows users to load arbitrary Java code into master JVM",
+    "message": "Plugin allows users to load arbitrary Java code into Jenkins controller JVM",
     "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-519",
     "versions": [
       {
@@ -1900,7 +1900,7 @@
     "id": "SECURITY-545",
     "type": "plugin",
     "name": "copy-to-slave",
-    "message": "Plugin allows access to arbitrary files on the Jenkins master file system",
+    "message": "Plugin allows access to arbitrary files on the Jenkins controller file system",
     "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-545",
     "versions": [
       {
@@ -4941,7 +4941,7 @@
     "id": "SECURITY-921",
     "type": "plugin",
     "name": "workflow-remote-loader",
-    "message": "Unsafe Script Security whitelist entry",
+    "message": "Unsafe entry in Script Security list of approved signatures",
     "url": "https://jenkins.io/security/advisory/2019-05-31/#SECURITY-921",
     "versions": [
       {
