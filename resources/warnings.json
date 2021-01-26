@@ -9618,5 +9618,22 @@
         "pattern": "(3|4[.]0|4[.]1[.][0-5])(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "core-2_276",
+    "type": "core",
+    "name": "core",
+    "message": "Arbitrary file read vulnerability in workspace browsers",
+    "url": "https://www.jenkins.io/security/advisory/2021-01-26/",
+    "versions": [
+      {
+        "lastVersion": "2.275",
+        "pattern": "(2[.]275)(|[.-].+)"
+      },
+      {
+        "lastVersion": "LTS 2.263.2",
+        "pattern": "(2[.]263[.]2)(|[.-].+)"
+      }
+    ]
   }
 ]
