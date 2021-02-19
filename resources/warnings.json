@@ -9635,5 +9635,18 @@
         "pattern": "(2[.]263[.]2)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "core-2_280",
+    "type": "core",
+    "name": "core",
+    "message": "Privilege escalation vulnerability in bundled Spring Security library",
+    "url": "https://www.jenkins.io/security/advisory/2021-02-19/",
+    "versions": [
+      {
+        "lastVersion": "2.279",
+        "pattern": "(2[.]26[6-9]|2[.]27[0-9])"
+      }
+    ]
   }
 ]
