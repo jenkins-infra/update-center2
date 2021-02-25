@@ -1812,12 +1812,12 @@
     "id": "SECURITY-261",
     "type": "plugin",
     "name": "ghprb",
-    "message": "GitHub access tokens stored in in build.xml",
+    "message": "GitHub access tokens stored in build.xml",
     "url": "https://jenkins.io/security/advisory/2018-03-26/#SECURITY-261",
     "versions": [
       {
         "lastVersion": "1.40.0",
-        "pattern": "(Affected even if up to date|.*)"
+        "pattern": "(1[.]([0-9]|[1-3][0-9]|40))(|[-.].*)"
       }
     ]
   },
