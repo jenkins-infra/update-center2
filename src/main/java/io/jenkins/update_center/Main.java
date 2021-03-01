@@ -41,7 +41,7 @@ import io.jenkins.update_center.json.UpdateCenterRoot;
 import io.jenkins.update_center.util.JavaSpecificationVersion;
 import io.jenkins.update_center.wrappers.FilteringRepository;
 import io.jenkins.update_center.wrappers.TruncatedMavenRepository;
-import io.jenkins.update_center.wrappers.WhitelistMavenRepository;
+import io.jenkins.update_center.wrappers.AllowedArtifactsListMavenRepository;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -102,8 +102,8 @@ public class Main {
     @Option(name = "--max-plugins", usage = "For testing purposes: Limit the number of plugins included to the specified number.")
     @CheckForNull public Integer maxPlugins;
 
-    @Option(name = "--whitelist-file", usage = "For testing purposes: A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
-    @CheckForNull public File whitelistFile;
+    @Option(name = "--allowed-artifacts-file", usage = "For testing purposes: A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
+    @CheckForNull public File allowedArtifactsListFile;
 
 
     /* Configure what kinds of output to generate */
@@ -294,12 +294,12 @@ public class Main {
             return;
         }
         MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
-        if (whitelistFile != null) {
+        if (allowedArtifactsListFile != null) {
             final Properties properties = new Properties();
-            try (FileInputStream fis = new FileInputStream(whitelistFile)) {
+            try (FileInputStream fis = new FileInputStream(allowedArtifactsListFile)) {
                 properties.load(fis);
             }
-            repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
+            repo = new AllowedArtifactsListMavenRepository(properties).withBaseRepository(repo);
         }
         if (maxPlugins != null) {
             repo = new TruncatedMavenRepository(maxPlugins).withBaseRepository(repo);
@@ -316,12 +316,12 @@ public class Main {
     private MavenRepository createRepository() throws Exception {
 
         MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
-        if (whitelistFile != null) {
+        if (allowedArtifactsListFile != null) {
             final Properties properties = new Properties();
-            try (FileInputStream fis = new FileInputStream(whitelistFile)) {
+            try (FileInputStream fis = new FileInputStream(allowedArtifactsListFile)) {
                 properties.load(fis);
             }
-            repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
+            repo = new AllowedArtifactsListMavenRepository(properties).withBaseRepository(repo);
         }
         if (maxPlugins != null) {
             repo = new TruncatedMavenRepository(maxPlugins).withBaseRepository(repo);
