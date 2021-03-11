@@ -8423,7 +8423,7 @@
     "versions": [
       {
         "lastVersion": "1.0.4",
-        "pattern": ".*"
+        "pattern": "1[.]0[.].+"
       }
     ]
   },
