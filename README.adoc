@@ -53,7 +53,7 @@ Two ways can be used to define these labels:
 ==== GitHub
 
 Add https://help.github.com/en/github/administering-a-repository/classifying-your-repository-with-topics[topics] to your GitHub repository.
-For a list of supported topics, see the link:src/main/resources/allowed-github-topics.properties[resource file] that contains all topics that can be set on GitHub repositories that will be reflected in update sites.
+For a list of supported topics, see the link:resources/allowed-github-topics.properties[resource file] that contains all topics that can be set on GitHub repositories that will be reflected in update sites.
 Topics can be set with or without the prefix `jenkins-`. If a topics has that prefix, it is removed first:
 To add the label `matrix` for your plugin, you would add either `matrix` or `jenkins-matrix` on your repository. 
 
