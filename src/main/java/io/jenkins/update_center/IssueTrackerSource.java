@@ -7,7 +7,6 @@ import org.apache.commons.io.IOUtils;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -16,8 +15,7 @@ import java.util.logging.Logger;
 public class IssueTrackerSource {
     private static final Logger LOGGER = Logger.getLogger(IssueTrackerSource.class.getName());
 
-    // TODO FIXME cannot have a dependency from update-center2 to ci.jenkins.io due to security publication process, and this also would lose metadata while ci.jenkins.io is down.
-    private static final String DATA_URL = Environment.getString("ISSUE_TRACKER_JSON_URL", "https://ci.jenkins.io/job/Infra/job/repository-permissions-updater/job/master/lastSuccessfulBuild/artifact/json/issues.index.json");
+    private static final String DATA_URL = Environment.getString("ISSUE_TRACKER_JSON_URL", "https://reports.jenkins.io/issues.index.json");
 
     private HashMap<String, List<IssueTracker>> pluginToIssueTrackers;
 

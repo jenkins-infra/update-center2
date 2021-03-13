@@ -27,6 +27,7 @@ The generator pulls information from:
   - plugin labels from repositories topics
 * Jenkins usage statistics (see `Popularities.java`)
   - latest plugin installation numbers for `popularity` entries in update center JSON
+* Plugin issue tracker metadata JSON file on `reports.jenkins.io` (see `IssueTrackerSource.java`)
 * link:resources/[Local resource files in this repository]
   - GitHub topic allowlist (`resources/allowed-github-topics.properties`)
   - Artifact ignore list (`resources/artifact-ignores.properties`)
