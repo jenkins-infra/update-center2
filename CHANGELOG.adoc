@@ -47,7 +47,7 @@ NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), n
 
 == 3.2.1 (2020-06-06)
 
-* Fix XXE vulnerability when processing `pom.xml` files. (f207cfb0025017c9a525c57cdadb8416ee2d27c3)
+* Fix XXE vulnerability when processing `pom.xml` files. (https://github.com/jenkins-infra/update-center2/commit/f207cfb0025017c9a525c57cdadb8416ee2d27c3[f207cfb0])
 
 == 3.2 (2020-05-29)
 
@@ -61,7 +61,7 @@ NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), n
 
 == 3.0.1 (2020-05-23)
 
-* Javadoc fixes. (fe8b8e09c20cddf578377cb0e9873e5604bd7a8d)
+* Javadoc fixes. (https://github.com/jenkins-infra/update-center2/commit/fe8b8e09c20cddf578377cb0e9873e5604bd7a8d[fe8b8e09])
 
 == 3.0 (2020-05-23)
 
