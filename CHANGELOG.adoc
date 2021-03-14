@@ -2,6 +2,10 @@
 
 NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
 
+== 3.5 (2021-03-14)
+
+* Add issue tracker metadata to plugin entries in `update-center.json`. (https://github.com/jenkins-infra/update-center2/pull/492[#492])
+
 == 3.4.6 (2021-03-01)
 
 * In case of ambiguous releases (different groups, equivalent but different versions), consistently keep the older one. (https://github.com/jenkins-infra/update-center2/pull/468[#468])
