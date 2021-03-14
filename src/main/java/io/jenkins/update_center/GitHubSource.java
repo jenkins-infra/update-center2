@@ -53,9 +53,9 @@ public class GitHubSource {
         return "https://api.github.com/graphql";
     }
 
-    protected Map<String, List<String>> initializeOrganizationData(String organization) throws IOException {
+    protected void initializeOrganizationData(String organization) throws IOException {
         if (this.topicNames != null) {
-            return this.topicNames;
+            return; // Already initialized
         }
         this.topicNames = new HashMap<>();
         this.defaultBranches = new HashMap<>();
@@ -169,7 +169,6 @@ public class GitHubSource {
             }
         }
         LOGGER.log(Level.INFO, "Retrieved GitHub repo data");
-        return this.topicNames;
     }
 
     public List<String> getRepositoryTopics(String org, String repo) throws IOException { // TODO get rid of throws
