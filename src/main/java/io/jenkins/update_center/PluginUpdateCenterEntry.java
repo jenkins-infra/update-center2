@@ -118,6 +118,10 @@ public class PluginUpdateCenterEntry {
         return latestOffered.getScmUrl();
     }
 
+    public List<IssueTrackerSource.IssueTracker> getIssueTrackers() {
+        return IssueTrackerSource.getInstance().getIssueTrackers(artifactId);
+    }
+
     public String getRequiredCore() throws IOException {
         return latestOffered.getRequiredJenkinsVersion();
     }
