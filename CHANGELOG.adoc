@@ -1,0 +1,76 @@
+= Changelog
+
+NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
+
+== 3.4.6 (2021-03-01)
+
+* In case of ambiguous releases (different groups, equivalent but different versions), consistently keep the older one. (https://github.com/jenkins-infra/update-center2/pull/468[#468])
+* Rename `--whitelist-file` to `--allowed-artifacts-file` as part of terminology cleanup. (https://github.com/jenkins-infra/update-center2/pull/482[#482])
+
+== 3.4.5 (2020-09-24)
+
+* Add `target="_blank"` for all links in plugin descriptions. (https://github.com/jenkins-infra/update-center2/pull/446[#446])
+
+== 3.4.4 (2020-09-22)
+
+* Allow overriding the minimum validity duration using the Java system property `CERTIFICATE_MINIMUM_VALID_DAYS`.
+  (https://github.com/jenkins-infra/update-center2/pull/448[#448], https://issues.jenkins.io/browse/INFRA-2732[INFRA-2732])
+
+== 3.4.3 (2020-09-10)
+
+* When determining tiers, create a tier for the next weekly after an LTS baseline when there are tiers for that LTS line's releases. (https://github.com/jenkins-infra/update-center2/pull/443[#443])
+
+== 3.4.2 (2020-08-22)
+
+* Reduce the duration for which releases are considered _recent_ for `recent-releases.json` from 24 to 3 hours. (https://github.com/jenkins-infra/update-center2/pull/433[#433])
+
+== 3.4.1 (2020-08-21)
+
+* Also consider the Java system property `DOWNLOADS_ROOT_URL` for war download URLs, not just plugins. (https://github.com/jenkins-infra/update-center2/pull/430[#430])
+
+== 3.4 (2020-08-21)
+
+* Provide `recent-releases.json` to selectively sync new files to mirrors. (https://github.com/jenkins-infra/update-center2/pull/428[#428])
+* Identify which plugins have invalid (non-existing) core dependencies. (https://github.com/jenkins-infra/update-center2/pull/417[#417])
+* Close a `Reader`. (https://github.com/jenkins-infra/update-center2/pull/413[#413])
+* Javadoc fixes. (https://github.com/jenkins-infra/update-center2/pull/414[#414])
+
+== 3.3.1 (2020-08-01)
+
+* Fix the URL we obtain the jar icon in generated directory listings from. (https://github.com/jenkins-infra/update-center2/pull/409[#409])
+* Further standardize on `fastjson`, remove `gson`. (https://github.com/jenkins-infra/update-center2/pull/394[#394])
+
+== 3.3 (2020-06-25)
+
+* Dynamically determine update site tiers based on plugin dependencies.
+  (https://github.com/jenkins-infra/update-center2/pull/376[#376], https://issues.jenkins.io/browse/INFRA-2615[INFRA-2615], https://issues.jenkins.io/browse/INFRA-1021[INFRA-1021])
+
+== 3.2.1 (2020-06-06)
+
+* Fix XXE vulnerability when processing `pom.xml` files. (https://github.com/jenkins-infra/update-center2/commit/f207cfb0025017c9a525c57cdadb8416ee2d27c3[f207cfb0])
+
+== 3.2 (2020-05-29)
+
+* Add information about what the latest version of a plugin is, even if not offered for installation.
+  (https://github.com/jenkins-infra/update-center2/pull/382[#382], https://issues.jenkins.io/browse/JENKINS-62332[JENKINS-62332])
+
+== 3.1 (2020-05-26)
+
+* Add separate, configurable `deprecations` metadata section to `update-center.json`.
+  (https://github.com/jenkins-infra/update-center2/pull/344[#344], https://issues.jenkins.io/browse/JENKINS-59136[JENKINS-59136])
+
+== 3.0.1 (2020-05-23)
+
+* Javadoc fixes. (https://github.com/jenkins-infra/update-center2/commit/fe8b8e09c20cddf578377cb0e9873e5604bd7a8d[fe8b8e09])
+
+== 3.0 (2020-05-23)
+
+* **Major Overhaul** (https://github.com/jenkins-infra/update-center2/pull/365[#365])
+* Add mode that uses Artifactory API instead of Nexus Maven indexes (https://github.com/jenkins-infra/update-center2/pull/364[#364])
+* Add plugin popularity metadata. (https://github.com/jenkins-infra/update-center2/pull/356[#356], #369)
+* Use GitHub repository URL for plugins that do not specify a URL, or have an obviously wrong one. (https://github.com/jenkins-infra/update-center2/pull/335[#335])
+* Prefer URL in plugin manifest to `url` in `pom.xml`. (https://github.com/jenkins-infra/update-center2/pull/303[#303], https://issues.jenkins.io/browse/INFRA-2292[INFRA-2292])
+
+Version 3.0 is the first version that was not just recompiled by the wrapper script on every execution.
+Before this release, this tool was essentially unversioned.
+The changes listed above include all substantial changes to the tool since 2018.
