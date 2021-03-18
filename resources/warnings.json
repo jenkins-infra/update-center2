@@ -9739,5 +9739,70 @@
         "pattern": "(2[.][0-4]|2[.]5[.][12])(|[.-].+)|(2[.]5)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-1764",
+    "type": "plugin",
+    "name": "libvirt-slave",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-03-18/#SECURITY-1764",
+    "versions": [
+      {
+        "lastVersion": "1.9.0",
+        "pattern": "(1[.][78]|1[.]9[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2032",
+    "type": "plugin",
+    "name": "aws-credentials",
+    "message": "Missing permission checks allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2021-03-18/#SECURITY-2032",
+    "versions": [
+      {
+        "lastVersion": "1.28",
+        "pattern": "(1[.]1[0-9]|1[.]2[0-7]|1[.][89])(|[.-].+)|(1[.]28)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2041",
+    "type": "plugin",
+    "name": "warnings-ng",
+    "message": "Missing permission checks allow listing workspace contents",
+    "url": "https://www.jenkins.io/security/advisory/2021-03-18/#SECURITY-2041",
+    "versions": [
+      {
+        "lastVersion": "8.4.4",
+        "pattern": "([1-7]|8[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2180",
+    "type": "plugin",
+    "name": "matrix-auth",
+    "message": "Incorrect permission checks may allow accessing some items",
+    "url": "https://www.jenkins.io/security/advisory/2021-03-18/#SECURITY-2180",
+    "versions": [
+      {
+        "lastVersion": "2.6.5",
+        "pattern": "(1|2[.][0-4]|2[.]5[.]1|2[.]6[.][1245])(|[.-].+)|(2[.][56]|2[.]6[.]3)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2182",
+    "type": "plugin",
+    "name": "role-strategy",
+    "message": "Incorrect permission checks may allow accessing some items",
+    "url": "https://www.jenkins.io/security/advisory/2021-03-18/#SECURITY-2182",
+    "versions": [
+      {
+        "lastVersion": "3.1",
+        "pattern": "([12]|3[.]0)(|[.-].+)|(3[.]1)"
+      }
+    ]
   }
 ]
