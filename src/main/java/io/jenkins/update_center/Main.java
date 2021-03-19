@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.support_log_formatter.SupportLogFormatter;
 import io.jenkins.update_center.args4j.LevelOptionHandler;
+import io.jenkins.update_center.json.PlatformPluginsRoot;
 import io.jenkins.update_center.json.RecentReleasesRoot;
 import io.jenkins.update_center.json.TieredUpdateSitesGenerator;
 import io.jenkins.update_center.json.PluginDocumentationUrlsRoot;
@@ -130,6 +131,9 @@ public class Main {
 
     @Option(name = "--generate-recent-releases", usage = "Generate recent releases file (as input to targeted rsync etc.)")
     public boolean generateRecentReleases;
+
+    @Option(name = "--generate-platform-plugins", usage = "Generate platform-plugins.json (to override wizard suggestions)")
+    public boolean generatePlatformPlugins;
 
 
     /* Configure options modifying output */
@@ -266,6 +270,10 @@ public class Main {
             new RecentReleasesRoot(repo).write(new File(www, RECENT_RELEASES_JSON_FILENAME), prettyPrint);
         }
 
+        if (generatePlatformPlugins) {
+            new PlatformPluginsRoot(new File(Main.resourcesDir, PLATFORM_PLUGINS_RESOURCE_FILENAME)).writeWithSignature(new File(www, PLATFORM_PLUGINS_JSON_FILENAME), signer, prettyPrint);
+        }
+
         directoryTreeBuilder.build(repo);
     }
 
@@ -354,6 +362,8 @@ public class Main {
     private static final String PLUGIN_VERSIONS_JSON_FILENAME = "plugin-versions.json";
     private static final String RELEASE_HISTORY_JSON_FILENAME = "release-history.json";
     private static final String RECENT_RELEASES_JSON_FILENAME = "recent-releases.json";
+    private static final String PLATFORM_PLUGINS_JSON_FILENAME = "platform-plugins.json";
+    private static final String PLATFORM_PLUGINS_RESOURCE_FILENAME = "platform-plugins.json";
     private static final String EOL = System.getProperty("line.separator");
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
