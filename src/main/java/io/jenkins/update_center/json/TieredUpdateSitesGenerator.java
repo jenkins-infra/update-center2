@@ -75,7 +75,7 @@ public class TieredUpdateSitesGenerator extends WithoutSignature {
         return keySet.stream().filter(TieredUpdateSitesGenerator::isStableVersion).sorted().filter(v -> v.isNewerThan(dependencyVersion)).findFirst().orElse(null);
     }
 
-    private static boolean isReleaseRecentEnough(JenkinsWar war) {
+    private static boolean isReleaseRecentEnough(JenkinsWar war) throws IOException {
         Objects.requireNonNull(war, "war");
         return war.getTimestampAsDate().toInstant().isAfter(Instant.now().minus(CORE_AGE_DAYS, ChronoUnit.DAYS));
     }

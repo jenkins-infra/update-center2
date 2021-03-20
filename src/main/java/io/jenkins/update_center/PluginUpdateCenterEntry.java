@@ -135,7 +135,7 @@ public class PluginUpdateCenterEntry {
         return minimumJavaVersion == null ? null : minimumJavaVersion.toString();
     }
 
-    public String getBuildDate() {
+    public String getBuildDate() throws IOException {
         return latestOffered.getTimestampAsString();
     }
 
@@ -187,11 +187,11 @@ public class PluginUpdateCenterEntry {
         return latestOffered.getDescription();
     }
 
-    public String getReleaseTimestamp() {
+    public String getReleaseTimestamp() throws IOException {
         return TIMESTAMP_FORMATTER.format(latestOffered.getTimestamp());
     }
 
-    public String getPreviousTimestamp() {
+    public String getPreviousTimestamp() throws IOException {
         return previousOffered == null ? null : TIMESTAMP_FORMATTER.format(previousOffered.getTimestamp());
     }
 

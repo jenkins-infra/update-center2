@@ -30,7 +30,7 @@ public interface MavenRepository {
 
     Collection<ArtifactCoordinates> listAllPlugins() throws IOException;
 
-    Digests getDigests(MavenArtifact artifact) throws IOException;
+    ArtifactMetadata getMetadata(MavenArtifact artifact) throws IOException;
 
     Manifest getManifest(MavenArtifact artifact) throws IOException;
 
@@ -68,8 +68,14 @@ public interface MavenRepository {
         return plugins;
     }
 
-    class Digests {
+    class ArtifactMetadata {
         public String sha1;
         public String sha256;
+
+        /**
+         * Epoch seconds (Unix timestamp)
+         *
+         */
+        public long timestamp;
     }
 }

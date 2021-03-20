@@ -116,7 +116,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             LOGGER.log(Level.INFO, "Unexpectedly have classifier for path: " + path + " name: " + fileName);
             return null;
         }
-        return new ArtifactCoordinates(groupId, artifactId, version, extension, null, f.modified.getTime());
+        return new ArtifactCoordinates(groupId, artifactId, version, extension, null);
     }
 
     @Override
@@ -170,22 +170,24 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     @Override
-    public Digests getDigests(MavenArtifact artifact) throws IOException {
+    public ArtifactMetadata getMetadata(MavenArtifact artifact) throws IOException {
         ensureInitialized();
-        Digests ret = new Digests();
+        ArtifactMetadata ret = new ArtifactMetadata();
+        final JsonFile jsonFile = files.get("/" + getUri(artifact.artifact));
         try {
-            ret.sha1 = hexToBase64(files.get("/" + getUri(artifact.artifact)).actual_sha1);
+            ret.sha1 = hexToBase64(jsonFile.actual_sha1);
         } catch (NullPointerException e) {
             LOGGER.log(Level.WARNING, "No artifact: " + artifact.toString());
             return null;
         }
-        String hexSha256 = files.get("/" + getUri(artifact.artifact)).sha256;
+        String hexSha256 = jsonFile.sha256;
         if (hexSha256 != null) {
             ret.sha256 = hexToBase64(hexSha256);
         } else {
             LOGGER.log(Level.WARNING, "No SHA-256: " + artifact.toString());
             return null;
         }
+        ret.timestamp = jsonFile.modified.getTime();
         return ret;
     }
 

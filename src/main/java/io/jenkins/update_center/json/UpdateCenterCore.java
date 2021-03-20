@@ -37,9 +37,9 @@ public class UpdateCenterCore {
 
         version = war.version;
         url = war.getDownloadUrl().toString();
-        final MavenRepository.Digests digests = war.getDigests();
-        sha1 = digests.sha1;
-        sha256 = digests.sha256;
+        final MavenRepository.ArtifactMetadata artifactMetadata = war.getDigests();
+        sha1 = artifactMetadata.sha1;
+        sha256 = artifactMetadata.sha256;
         buildDate = war.getTimestampAsString();
     }
 }
