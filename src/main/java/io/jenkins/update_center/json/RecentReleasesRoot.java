@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import io.jenkins.update_center.HPI;
 import io.jenkins.update_center.MavenRepository;
 import io.jenkins.update_center.Plugin;
+import io.jenkins.update_center.util.Environment;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -27,5 +28,5 @@ public class RecentReleasesRoot extends WithoutSignature {
         }
     }
 
-    private static final Duration MAX_AGE = Duration.ofHours(3);
+    private static final Duration MAX_AGE = Duration.ofHours(Environment.getInteger("RECENT_RELEASES_MAX_AGE_HOURS", 3));
 }
