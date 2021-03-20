@@ -194,5 +194,6 @@ pushd "$WWW_ROOT_DIR"
 popd
 
 # copy other static resource files
+echo '{}' > "$WWW_ROOT_DIR/uctest.json"
 curl --location --fail https://www.jenkins.io/templates/updates/index.html > "$WWW_ROOT_DIR/index.html"
 cp -av "tmp/tiers.json" "$WWW_ROOT_DIR/tiers.json"
