@@ -8,14 +8,12 @@ public class ArtifactCoordinates {
     public final String artifactId;
     public final String version;
     public final String packaging;
-    public final String classifier;
 
-    public ArtifactCoordinates(String groupId, String artifactId, String version, String packaging, String classifier) {
+    public ArtifactCoordinates(String groupId, String artifactId, String version, String packaging) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
         this.packaging = packaging;
-        this.classifier = classifier;
     }
 
     public String getGav() {
@@ -23,10 +21,7 @@ public class ArtifactCoordinates {
     }
 
     public String toString() {
-        if (classifier == null) {
-            return groupId + ":" + artifactId + ":" + version + ":" + packaging;
-        }
-        return groupId + ":" + artifactId + ":" + version + ":" + classifier + ":" + packaging;
+        return groupId + ":" + artifactId + ":" + version + ":" + packaging;
     }
 
     @Override
@@ -37,12 +32,11 @@ public class ArtifactCoordinates {
         return Objects.equals(groupId, that.groupId) &&
                 Objects.equals(artifactId, that.artifactId) &&
                 Objects.equals(version, that.version) &&
-                Objects.equals(packaging, that.packaging) &&
-                Objects.equals(classifier, that.classifier);
+                Objects.equals(packaging, that.packaging);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(groupId, artifactId, version, packaging, classifier);
+        return Objects.hash(groupId, artifactId, version, packaging);
     }
 }

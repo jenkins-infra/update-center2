@@ -69,34 +69,34 @@ public class PluginTest extends TestCase {
         private Map<ArtifactCoordinates, Long> metadata = new HashMap<>();
 
         @Override
-        protected Set<ArtifactCoordinates> listAllJenkinsWars(String groupId) throws IOException {
+        protected Set<ArtifactCoordinates> listAllJenkinsWars(String groupId) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Collection<ArtifactCoordinates> listAllPlugins() throws IOException {
+        public Collection<ArtifactCoordinates> listAllPlugins() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public ArtifactMetadata getMetadata(MavenArtifact artifact) throws IOException {
+        public ArtifactMetadata getMetadata(MavenArtifact artifact) {
             ArtifactMetadata metadata = new ArtifactMetadata();
             metadata.timestamp = this.metadata.get(artifact.artifact);
             return metadata;
         }
 
         @Override
-        public Manifest getManifest(MavenArtifact artifact) throws IOException {
+        public Manifest getManifest(MavenArtifact artifact) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException {
+        public InputStream getZipFileEntry(MavenArtifact artifact, String path) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public File resolve(ArtifactCoordinates artifact) throws IOException {
+        public File resolve(ArtifactCoordinates artifact) {
             throw new UnsupportedOperationException();
         }
     }
@@ -114,10 +114,10 @@ public class PluginTest extends TestCase {
         final RecordingHandler handler = new RecordingHandler();
         Logger.getLogger(Plugin.class.getName()).addHandler(handler);
         TestRepository repository = new TestRepository();
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0", "hpi", ""), plugin, 0);
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0", "hpi", ""), plugin, 0);
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0.0", "hpi", ""), plugin, 0);
-        registerAndAdd(repository, new ArtifactCoordinates("the-other-group", "foo", "1.0", "hpi", ""), plugin, 0);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0", "hpi"), plugin, 0);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0", "hpi"), plugin, 0);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0.0", "hpi"), plugin, 0);
+        registerAndAdd(repository, new ArtifactCoordinates("the-other-group", "foo", "1.0", "hpi"), plugin, 0);
         assertMessageSubstringLogged(handler, "Found a duplicate artifact the-group:foo:1.0.0 (proposed) considered identical to the-group:foo:1.0 (existing) due to non-determinism. Neither has a timestamp. Neither will be published.");
         assertMessageSubstringLogged(handler, "Found another duplicate artifact the-group:foo:1.0.0.0 considered identical due to non-determinism. Neither has a timestamp. Neither will be published.");
         assertMessageSubstringLogged(handler, "Found another duplicate artifact the-other-group:foo:1.0 considered identical due to non-determinism. Neither has a timestamp. Neither will be published.");
@@ -129,11 +129,11 @@ public class PluginTest extends TestCase {
         final RecordingHandler handler = new RecordingHandler();
         Logger.getLogger(Plugin.class.getName()).addHandler(handler);
         TestRepository repository = new TestRepository();
-        final HPI first = registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0", "hpi", ""), plugin, 1);
+        final HPI first = registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0", "hpi"), plugin, 1);
         plugin.addArtifact(first);
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0", "hpi", ""), plugin, 2);
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0.0", "hpi", ""), plugin, 1);
-        registerAndAdd(repository, new ArtifactCoordinates("the-other-group", "foo", "1.0", "hpi", ""), plugin, 4);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0", "hpi"), plugin, 2);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0.0", "hpi"), plugin, 1);
+        registerAndAdd(repository, new ArtifactCoordinates("the-other-group", "foo", "1.0", "hpi"), plugin, 4);
         assertMessageSubstringLogged(handler, "The proposed artifact: the-group:foo:1.0.0 is not older than the existing artifact the-group:foo:1.0, so ignore it.");
         assertMessageSubstringLogged(handler, "The proposed artifact: the-group:foo:1.0.0.0 is not older than the existing artifact the-group:foo:1.0, so ignore it.");
         assertMessageSubstringLogged(handler, "The proposed artifact: the-other-group:foo:1.0 is not older than the existing artifact the-group:foo:1.0, so ignore it.");
@@ -146,10 +146,10 @@ public class PluginTest extends TestCase {
         final RecordingHandler handler = new RecordingHandler();
         Logger.getLogger(Plugin.class.getName()).addHandler(handler);
         TestRepository repository = new TestRepository();
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0", "hpi", ""), plugin, 4);
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0", "hpi", ""), plugin, 3);
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0.0", "hpi", ""), plugin, 2);
-        final HPI oldest = registerAndAdd(repository, new ArtifactCoordinates("the-other-group", "foo", "1.0", "hpi", ""), plugin, 1);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0", "hpi"), plugin, 4);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0", "hpi"), plugin, 3);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0.0", "hpi"), plugin, 2);
+        final HPI oldest = registerAndAdd(repository, new ArtifactCoordinates("the-other-group", "foo", "1.0", "hpi"), plugin, 1);
         assertMessageSubstringLogged(handler, "The proposed artifact: the-group:foo:1.0.0 is older than the existing artifact the-group:foo:1.0, so replace it.");
         assertMessageSubstringLogged(handler, "The proposed artifact: the-group:foo:1.0.0.0 is older than the existing artifact the-group:foo:1.0.0, so replace it.");
         assertMessageSubstringLogged(handler, "The proposed artifact: the-other-group:foo:1.0 is older than the existing artifact the-group:foo:1.0.0.0, so replace it.");
@@ -162,10 +162,10 @@ public class PluginTest extends TestCase {
         final RecordingHandler handler = new RecordingHandler();
         Logger.getLogger(Plugin.class.getName()).addHandler(handler);
         TestRepository repository = new TestRepository();
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0", "hpi", ""), plugin, 0);
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0", "hpi", ""), plugin, 42);
-        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0.0", "hpi", ""), plugin, 42);
-        registerAndAdd(repository, new ArtifactCoordinates("the-other-group", "foo", "1.0", "hpi", ""), plugin, 0);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0", "hpi"), plugin, 0);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0", "hpi"), plugin, 42);
+        registerAndAdd(repository, new ArtifactCoordinates("the-group", "foo", "1.0.0.0", "hpi"), plugin, 42);
+        registerAndAdd(repository, new ArtifactCoordinates("the-other-group", "foo", "1.0", "hpi"), plugin, 0);
         assertMessageSubstringLogged(handler, "The proposed artifact: the-group:foo:1.0.0 has a timestamp and the existing artifact the-group:foo:1.0 does not, so replace it.");
         assertMessageSubstringLogged(handler, "The proposed artifact: the-group:foo:1.0.0.0 is not older than the existing artifact the-group:foo:1.0.0, so ignore it.");
         assertMessageSubstringLogged(handler, "The proposed artifact: the-other-group:foo:1.0 has no timestamp (but the existing artifact the-other-group:foo:1.0 does), so ignore it.");

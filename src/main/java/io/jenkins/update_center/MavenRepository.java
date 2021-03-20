@@ -39,7 +39,7 @@ public interface MavenRepository {
     File resolve(ArtifactCoordinates artifact) throws IOException;
 
     default File resolve(ArtifactCoordinates a, String packaging, String classifier) throws IOException {
-        return resolve(new ArtifactCoordinates(a.groupId, a.artifactId, a.version, packaging, classifier));
+        return resolve(new ArtifactCoordinates(a.groupId, a.artifactId, a.version, packaging));
     }
 
     /**

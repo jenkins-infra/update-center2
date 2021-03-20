@@ -116,7 +116,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             LOGGER.log(Level.INFO, "Unexpectedly have classifier for path: " + path + " name: " + fileName);
             return null;
         }
-        return new ArtifactCoordinates(groupId, artifactId, version, extension, null);
+        return new ArtifactCoordinates(groupId, artifactId, version, extension);
     }
 
     @Override
@@ -200,12 +200,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
     private String getUri(ArtifactCoordinates a) {
         String basename = a.artifactId + "-" + a.version;
-        String filename;
-        if (a.classifier != null) {
-            filename = basename + "-" + a.classifier + "." + a.packaging;
-        } else {
-            filename = basename + "." + a.packaging;
-        }
+        String filename = filename = basename + "." + a.packaging;
         return a.groupId.replace(".", "/") + "/" + a.artifactId + "/" + a.version + "/" + filename;
     }
 
