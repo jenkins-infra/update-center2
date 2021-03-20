@@ -2,6 +2,11 @@
 
 NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
 
+== 3.6 (2021-03-20)
+
+* Expose default branch on GitHub in `update-center.json`. (https://github.com/jenkins-infra/update-center2/pull/495[#495], https://issues.jenkins.io/browse/INFRA-2929[INFRA-2929])
+* Allow overriding the max age for `recent-releases.json`. (https://github.com/jenkins-infra/update-center2/pull/497[#497])
+
 == 3.5 (2021-03-14)
 
 * Add issue tracker metadata to plugin entries in `update-center.json`. (https://github.com/jenkins-infra/update-center2/pull/492[#492])
