@@ -143,6 +143,10 @@ public class PluginUpdateCenterEntry {
         return latestOffered.getLabels();
     }
 
+    public String getDefaultBranch() throws IOException {
+        return latestOffered.getDefaultBranch();
+    }
+
     public List<HPI.Dependency> getDependencies() throws IOException {
         return latestOffered.getDependencies();
     }

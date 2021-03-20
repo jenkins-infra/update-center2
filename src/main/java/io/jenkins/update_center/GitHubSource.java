@@ -10,6 +10,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class GitHubSource {
 
     private Set<String> repoNames;
     private Map<String, List<String>> topicNames;
+    private Map<String, String> defaultBranches;
 
 
     private void init() {
@@ -51,11 +53,12 @@ public class GitHubSource {
         return "https://api.github.com/graphql";
     }
 
-    protected Map<String, List<String>> initializeOrganizationData(String organization) throws IOException {
+    protected void initializeOrganizationData(String organization) throws IOException {
         if (this.topicNames != null) {
-            return this.topicNames;
+            return; // Already initialized
         }
         this.topicNames = new HashMap<>();
+        this.defaultBranches = new HashMap<>();
         this.repoNames = new TreeSet<>(String::compareToIgnoreCase);
 
         LOGGER.log(Level.INFO, "Retrieving GitHub repo data...");
@@ -87,6 +90,9 @@ public class GitHubSource {
                             "      edges {\n" +
                             "        node {\n" +
                             "          name\n" +
+                            "          defaultBranchRef {\n" +
+                            "            name\n" +
+                            "          }\n" +
                             "          repositoryTopics(first:100) {\n" +
                             "            edges {\n" +
                             "              node {\n" +
@@ -137,6 +143,17 @@ public class GitHubSource {
                 JSONObject node = ((JSONObject) repository).getJSONObject("node");
                 String name = node.getString("name");
                 this.repoNames.add("https://github.com/" + organization + "/" + name);
+
+                if (node.optJSONObject("defaultBranchRef") == null) {
+                    // empty repo, so ignore everything else
+                    LOGGER.log(Level.WARNING, "Unexpected empty GitHub repository: " + name);
+                    continue;
+                }
+                final String defaultBranchName = node.getJSONObject("defaultBranchRef").getString("name");
+                if (defaultBranchName != null) {
+                    this.defaultBranches.put(organization + "/" + name, defaultBranchName);
+                }
+
                 if (node.getJSONObject("repositoryTopics").getJSONArray("edges").size() == 0) {
                     continue;
                 }
@@ -152,11 +169,15 @@ public class GitHubSource {
             }
         }
         LOGGER.log(Level.INFO, "Retrieved GitHub repo data");
-        return this.topicNames;
     }
 
     public List<String> getRepositoryTopics(String org, String repo) throws IOException { // TODO get rid of throws
         return this.topicNames == null ? Collections.emptyList() : this.topicNames.getOrDefault(org + "/" + repo, Collections.emptyList());
+    }
+
+    @CheckForNull
+    public String getDefaultBranch(String org, String repo) {
+        return this.defaultBranches.get(org + "/" + repo);
     }
 
     private static GitHubSource instance;

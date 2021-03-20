@@ -25,6 +25,7 @@ The generator pulls information from:
 * GitHub (see `GitHubSource.java`)
   - determine source code repository that actually exists (sometimes metadata is wrong)
   - plugin labels from repositories topics
+  - default branch name
 * Jenkins usage statistics (see `Popularities.java`)
   - latest plugin installation numbers for `popularity` entries in update center JSON
 * Plugin issue tracker metadata JSON file on `reports.jenkins.io` (see `IssueTrackerSource.java`)

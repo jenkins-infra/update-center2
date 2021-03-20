@@ -613,6 +613,27 @@ public class HPI extends MavenArtifact {
         return scmUrl;
     }
 
+    private static class OrgAndRepo {
+        private final String org;
+        private final String repo;
+
+        private OrgAndRepo(String org, String repo) {
+            this.org = org;
+            this.repo = repo;
+        }
+    }
+
+    private OrgAndRepo getOrgAndRepo(String scmUrl) {
+        if (scmUrl == null || !scmUrl.startsWith("https://github.com/")) {
+            return null;
+        }
+        String[] parts = scmUrl.replaceFirst("https://github.com/", "").split("[/]");
+        if (parts.length >= 2) {
+            return new OrgAndRepo(parts[0], parts[1]);
+        }
+        return null;
+    }
+
     private List<String> labels;
 
     public List<String> getLabels() throws IOException { // TODO this would be better in a different class, doesn't fit HPI type
@@ -620,17 +641,11 @@ public class HPI extends MavenArtifact {
             String scm = getScmUrl();
 
             List<String> gitHubLabels = new ArrayList<>();
-            if (scm != null && scm.contains("https://github.com/")) {
+            OrgAndRepo orgAndRepo = getOrgAndRepo(scm);
+            if (orgAndRepo != null) {
 
-                List<String> unsanitizedLabels = new ArrayList<>();
-                String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
-                if (parts.length >= 2) {
-                    unsanitizedLabels.addAll(
-                            Arrays.asList(
-                                    GitHubSource.getInstance().getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
-                            )
-                    );
-                }
+                List<String> unsanitizedLabels = new ArrayList<>(Arrays.asList(
+                        GitHubSource.getInstance().getRepositoryTopics(orgAndRepo.org, orgAndRepo.repo).toArray(new String[0])));
 
                 for (String label : unsanitizedLabels) {
                     if (label.startsWith("jenkins-")) {
@@ -653,6 +668,20 @@ public class HPI extends MavenArtifact {
             this.labels = new ArrayList<>(labels);
         }
         return this.labels;
+    }
+
+    private String defaultBranch;
+
+    public String getDefaultBranch() throws IOException { // TODO this would be better in a different class, doesn't fit HPI type
+        if (defaultBranch == null) {
+            String scm = getScmUrl();
+
+            OrgAndRepo orgAndRepo = getOrgAndRepo(scm);
+            if (orgAndRepo != null) {
+                defaultBranch = GitHubSource.getInstance().getDefaultBranch(orgAndRepo.org, orgAndRepo.repo);
+            }
+        }
+        return defaultBranch;
     }
 
     @VisibleForTesting
