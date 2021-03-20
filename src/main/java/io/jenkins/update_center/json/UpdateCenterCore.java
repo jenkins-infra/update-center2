@@ -28,6 +28,9 @@ public class UpdateCenterCore {
     @JSONField
     public String version;
 
+    @JSONField
+    public long size;
+
     UpdateCenterCore(TreeMap<VersionNumber, JenkinsWar> jenkinsWarsByVersionNumber) throws IOException {
         if (jenkinsWarsByVersionNumber.isEmpty()) {
             return;
@@ -37,9 +40,10 @@ public class UpdateCenterCore {
 
         version = war.version;
         url = war.getDownloadUrl().toString();
-        final MavenRepository.ArtifactMetadata artifactMetadata = war.getDigests();
+        final MavenRepository.ArtifactMetadata artifactMetadata = war.getMetadata();
         sha1 = artifactMetadata.sha1;
         sha256 = artifactMetadata.sha256;
         buildDate = war.getTimestampAsString();
+        size = artifactMetadata.size;
     }
 }

@@ -77,7 +77,7 @@ public class MavenArtifact {
         return repository.resolve(artifact,"pom", null);
     }
 
-    public MavenRepository.ArtifactMetadata getDigests() throws IOException {
+    public MavenRepository.ArtifactMetadata getMetadata() throws IOException {
         return repository.getMetadata(this);
     }
 

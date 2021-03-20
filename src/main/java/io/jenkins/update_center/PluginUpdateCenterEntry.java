@@ -152,11 +152,15 @@ public class PluginUpdateCenterEntry {
     }
 
     public String getSha1() throws IOException {
-        return latestOffered.getDigests().sha1;
+        return latestOffered.getMetadata().sha1;
     }
 
     public String getSha256() throws IOException {
-        return latestOffered.getDigests().sha256;
+        return latestOffered.getMetadata().sha256;
+    }
+
+    public long getSize() throws IOException {
+        return latestOffered.getMetadata().size;
     }
 
     public String getGav() {

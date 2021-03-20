@@ -77,5 +77,10 @@ public interface MavenRepository {
          *
          */
         public long timestamp;
+        /**
+         * File size in bytes
+         *
+         */
+        public long size;
     }
 }

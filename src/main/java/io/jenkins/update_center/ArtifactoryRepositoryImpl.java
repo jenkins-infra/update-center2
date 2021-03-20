@@ -48,7 +48,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private static final String ARTIFACTORY_ZIP_ENTRY_URL = ARTIFACTORY_URL + "%s/%s!%s";
     private static final String ARTIFACTORY_FILE_URL = ARTIFACTORY_URL + "%s/%s";
 
-    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\")";
+    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\", \"size\")";
 
     private final String username;
     private final String password;
@@ -132,6 +132,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         public String sha256; // base64
         public Date modified;
         // TODO record 'created' date and warn about large discrepancies
+        public long size; // bytes
     }
 
     private static class JsonResponse {
@@ -188,6 +189,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             return null;
         }
         ret.timestamp = jsonFile.modified.getTime();
+        ret.size = jsonFile.size;
         return ret;
     }
 
