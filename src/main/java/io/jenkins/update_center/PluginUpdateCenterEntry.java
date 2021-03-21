@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -174,13 +173,8 @@ public class PluginUpdateCenterEntry {
         return trim;
     }
 
-    public List<HPI.Developer> getDevelopers() throws IOException {
-        final List<HPI.Developer> developers = latestOffered.getDevelopers();
-        final String builtBy = fixEmptyAndTrim(latestOffered.getBuiltBy());
-        if (developers.isEmpty() && builtBy != null) {
-            return Collections.singletonList(new HPI.Developer(null, builtBy, null));
-        }
-        return developers;
+    public List<MaintainersSource.Maintainer> getDevelopers() {
+        return MaintainersSource.getInstance().getMaintainers(this.latestOffered.artifact);
     }
 
     public String getExcerpt() throws IOException {
