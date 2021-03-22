@@ -2,7 +2,6 @@ package io.jenkins.update_center;
 
 import io.jenkins.update_center.util.Environment;
 import net.sf.json.JSONObject;
-import okhttp3.Cache;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -11,7 +10,6 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
 import javax.annotation.CheckForNull;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +27,6 @@ public class GitHubSource {
 
     private static String GITHUB_API_USERNAME = Environment.getString("GITHUB_USERNAME");
     private static String GITHUB_API_PASSWORD = Environment.getString("GITHUB_PASSWORD");
-    private static File GITHUB_API_CACHE = new File(Environment.getString("GITHUB_CACHEDIR", "caches/github"));
 
     private Set<String> repoNames;
     private Map<String, List<String>> topicNames;
@@ -62,9 +59,7 @@ public class GitHubSource {
         this.repoNames = new TreeSet<>(String::compareToIgnoreCase);
 
         LOGGER.log(Level.INFO, "Retrieving GitHub repo data...");
-        Cache cache = new Cache(GITHUB_API_CACHE, 20L * 1024 * 1024); // 20 MB cache
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.cache(cache);
         if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null) {
             builder.authenticator((route, response) -> {
                 String credential = Credentials.basic(GITHUB_API_USERNAME, GITHUB_API_PASSWORD);
