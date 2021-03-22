@@ -28,7 +28,10 @@ The generator pulls information from:
   - default branch name
 * Jenkins usage statistics (see `Popularities.java`)
   - latest plugin installation numbers for `popularity` entries in update center JSON
-* Plugin issue tracker metadata JSON file on `reports.jenkins.io` (see `IssueTrackerSource.java`)
+* Various metadata JSON files on `reports.jenkins.io`
+  - Plugin issue tracker metadata JSON file, see `IssueTrackerSource.java`
+  - Plugin maintainer mapping JSON file, see `MaintainersSource.java`
+  - Maintainer info JSON file, see `MaintainersSource.java`
 * link:resources/[Local resource files in this repository]
   - GitHub topic allowlist (`resources/allowed-github-topics.properties`)
   - Artifact ignore list (`resources/artifact-ignores.properties`)
