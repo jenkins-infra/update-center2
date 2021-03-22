@@ -35,6 +35,14 @@ function test_redirect () {
   fi
 }
 
+function assert {
+  local expected="$1"
+  local actual="$2"
+  if [[ "$expected" != "$actual" ]] ; then
+    echo "Expected '$1' but got '$2'"
+  fi
+}
+
 test_redirect "$TEST_BASE_URL/update-center.json" "$TEST_BASE_URL/current/update-center.json"
 test_redirect "$TEST_BASE_URL/update-center.json.html" "$TEST_BASE_URL/current/update-center.json.html"
 
@@ -120,3 +128,13 @@ test_redirect "$TEST_BASE_URL/update-center.json?version=3.0.1" "$TEST_BASE_URL/
 test_redirect "$TEST_BASE_URL/download/war/latest/jenkins.war" "https://updates.jenkins.io/latest/jenkins.war"
 test_redirect "$TEST_BASE_URL/download/plugins/git/latest/git.hpi" "https://updates.jenkins.io/latest/git.hpi"
 test_redirect "$TEST_BASE_URL/download/plugins/lolwut/latest/git.hpi" "https://updates.jenkins.io/latest/git.hpi" # Fun side effect of the redirect rule
+
+# Ensure that ?uctest gets a tiny OK response
+OUTPUT="$( curl -I "$TEST_BASE_URL/update-center.json?uctest" 2>/dev/null )"
+assert 'HTTP/1.1 200 OK'   "$( echo "$OUTPUT" | dos2unix | grep -F 'HTTP/1.1' )"
+assert 'Content-Length: 3' "$( echo "$OUTPUT" | dos2unix | grep -F 'Content-Length: ' )"
+
+# Also applies to any subdirectories
+OUTPUT="$( curl -I "$TEST_BASE_URL/foo/update-center.json?uctest" 2>/dev/null )"
+assert 'HTTP/1.1 200 OK'   "$( echo "$OUTPUT" | dos2unix | grep -F 'HTTP/1.1' )"
+assert 'Content-Length: 3' "$( echo "$OUTPUT" | dos2unix | grep -F 'Content-Length: ' )"
