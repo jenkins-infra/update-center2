@@ -7124,7 +7124,7 @@
     "versions": [
       {
         "lastVersion": "1.1",
-        "pattern": ".*"
+        "pattern": "(0|1[.][01])(|[.-].+)"
       }
     ]
   },
