@@ -9921,5 +9921,74 @@
         "pattern": ".*"
       }
     ]
+  },
+  {
+    "id": "core-2_287",
+    "type": "core",
+    "name": "core",
+    "message": "Multiple security vulnerabilities in Jenkins 2.286 and earlier, LTS 2.277.1 and earlier",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-07/",
+    "versions": [
+      {
+        "lastVersion": "2.286",
+        "pattern": "(1|2[.][0-9]|2[.]1[0-9]|2[.]10[0-9]|2[.]11[0-9]|2[.]12[0-9]|2[.]13[0-8]|2[.]14[0-9]|2[.]15[0-9]|2[.]16[0-9]|2[.]17[0-9]|2[.]18[012345679]|2[.]19[0-9]|2[.]2[0-9]|2[.]20[0-9]|2[.]21[012345789]|2[.]22[0-9]|2[.]23[0-9]|2[.]24[0-9]|2[.]25[0-9]|2[.]26[0-9]|2[.]27[012345689]|2[.]28[0-6]|2[.]3[0-9]|2[.]4[0-9]|2[.]5[0-9]|2[.]6[0-9]|2[.]7[0-9]|2[.]8[0-9]|2[.]9[0-9])(|[.-].+)|(2[.]277)"
+      },
+      {
+        "lastVersion": "LTS 2.277.1",
+        "pattern": "(1|2[.]107|2[.]121|2[.]138|2[.]150|2[.]164|2[.]176|2[.]19|2[.]190|2[.]204|2[.]222|2[.]235|2[.]249|2[.]263|2[.]277[.]1|2[.]32|2[.]46|2[.]60|2[.]7|2[.]73|2[.]89)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2132",
+    "type": "plugin",
+    "name": "hp-application-automation-tools-plugin",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-07/#SECURITY-2132",
+    "versions": [
+      {
+        "lastVersion": "6.7",
+        "pattern": "([1-5]|6[.][0-7])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2175",
+    "type": "plugin",
+    "name": "hp-application-automation-tools-plugin",
+    "message": "Reflected XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-07/#SECURITY-2175",
+    "versions": [
+      {
+        "lastVersion": "6.7",
+        "pattern": "([1-5]|6[.][0-7])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2176",
+    "type": "plugin",
+    "name": "hp-application-automation-tools-plugin",
+    "message": "SSL/TLS certificate validation unconditionally disabled",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-07/#SECURITY-2176",
+    "versions": [
+      {
+        "lastVersion": "6.7",
+        "pattern": "([1-5]|6[.][0-7])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2293",
+    "type": "plugin",
+    "name": "promoted-builds",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-07/#SECURITY-2293",
+    "versions": [
+      {
+        "lastVersion": "3.9",
+        "pattern": "([12]|3[.][0123467])(|[.-].+)|(3[.][59])"
+      }
+    ]
   }
 ]
