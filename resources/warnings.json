@@ -10007,5 +10007,83 @@
         "pattern": "(1|2[.]107|2[.]121|2[.]138|2[.]150|2[.]164|2[.]176|2[.]19|2[.]190|2[.]204|2[.]222|2[.]235|2[.]249|2[.]263|2[.]277[.][12]|2[.]32|2[.]46|2[.]60|2[.]7|2[.]73|2[.]89)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-2202",
+    "type": "plugin",
+    "name": "config-file-provider",
+    "message": "CSRF vulnerability allows deleting configuration files",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-21/#SECURITY-2202",
+    "versions": [
+      {
+        "lastVersion": "3.7.0",
+        "pattern": "([12]|3[.][1-6]|3[.]7[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2203",
+    "type": "plugin",
+    "name": "config-file-provider",
+    "message": "Missing permission checks allow enumerating configuration file IDs",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-21/#SECURITY-2203",
+    "versions": [
+      {
+        "lastVersion": "3.7.0",
+        "pattern": "([12]|3[.][1-6]|3[.]7[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2204",
+    "type": "plugin",
+    "name": "config-file-provider",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-21/#SECURITY-2204",
+    "versions": [
+      {
+        "lastVersion": "3.7.0",
+        "pattern": "([12]|3[.][1-6]|3[.]7[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2254",
+    "type": "plugin",
+    "name": "config-file-provider",
+    "message": "Incorrect permission checks allow enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-21/#SECURITY-2254",
+    "versions": [
+      {
+        "lastVersion": "3.7.0",
+        "pattern": "([12]|3[.][1-6]|3[.]7[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2309",
+    "type": "plugin",
+    "name": "electricflow",
+    "message": "Missing permission check allows scheduling builds",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-21/#SECURITY-2309",
+    "versions": [
+      {
+        "lastVersion": "1.1.21",
+        "pattern": "(1[.]0|1[.]1[.][1-9]|1[.]1[.]1[012345679]|1[.]1[.]2[01])(|[.-].+)|(1[.]1[.]18)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2311",
+    "type": "plugin",
+    "name": "templating-engine",
+    "message": "Remote code execution vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-04-21/#SECURITY-2311",
+    "versions": [
+      {
+        "lastVersion": "2.1",
+        "pattern": "(1|2[.][01])(|[.-].+)"
+      }
+    ]
   }
 ]
