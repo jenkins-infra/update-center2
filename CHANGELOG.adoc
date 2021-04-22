@@ -2,6 +2,10 @@
 
 NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
 
+== 3.7 (2021-03-22)
+
+* Use uploader permissions and Jira display name reports as the data sources for maintainer metadata instead of `pom.xml`. (https://github.com/jenkins-infra/update-center2/pull/502[#502])
+
 == 3.6 (2021-03-20)
 
 * Expose default branch on GitHub in `update-center.json`. (https://github.com/jenkins-infra/update-center2/pull/495[#495], https://issues.jenkins.io/browse/INFRA-2929[INFRA-2929])

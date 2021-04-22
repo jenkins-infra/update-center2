@@ -89,16 +89,6 @@ public class HPI extends MavenArtifact {
         return new URL(StringUtils.removeEnd(DOWNLOADS_ROOT_URL, "/") + "/plugins/" + artifact.artifactId + "/" + version + "/" + artifact.artifactId + ".hpi");
     }
 
-    /**
-     * Who built this release?
-     *
-     * @return a string describing who built the release
-     * @throws IOException when a problem occurs obtaining the information from metadata
-     */
-    public String getBuiltBy() throws IOException {
-        return getManifestAttributes().getValue("Built-By");
-    }
-
     public String getRequiredJenkinsVersion() throws IOException {
         String v = getManifestAttributes().getValue("Jenkins-Version");
         if (v!=null)        return v;
@@ -188,37 +178,6 @@ public class HPI extends MavenArtifact {
             return null;
         }
         return trim;
-    }
-
-    private List<Developer> developers;
-
-    public List<Developer> getDevelopers() throws IOException {
-        if (developers == null) {
-            String devs = getManifestAttributes().getValue("Plugin-Developers");
-            if (devs == null || devs.trim().length() == 0) {
-                developers = Collections.emptyList();
-            } else {
-
-                List<Developer> r = new ArrayList<>();
-                Matcher m = DEVELOPERS_PATTERN.matcher(devs);
-                int totalMatched = 0;
-                while (m.find()) {
-                    final String name = fixEmptyAndTrim(m.group(1));
-                    final String id = fixEmptyAndTrim(m.group(2));
-                    final String email = fixEmptyAndTrim(m.group(3));
-                    if (name != null || id != null || email != null) {
-                        r.add(new Developer(name, id, email));
-                    }
-                    totalMatched += m.end() - m.start();
-                }
-                if (totalMatched < devs.length()) {
-                    // ignore and move on
-                    LOGGER.log(Level.INFO, "Unparsable developer info: '" + devs.substring(totalMatched) + "' for" + artifact.getGav());
-                }
-                developers = r;
-            }
-        }
-        return developers;
     }
 
     private String description;

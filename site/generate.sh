@@ -50,7 +50,7 @@ MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$
 echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
-version=3.6
+version=3.7
 coordinates=org/jenkins-ci/update-center2/$version/update-center2-$version-bin.zip
 
 if [[ -f "$MAIN_DIR"/tmp/generator-$version.zip ]] ; then
@@ -92,7 +92,7 @@ mkdir -p "$WWW_ROOT_DIR"
 echo "# one update site per line" > "$MAIN_DIR"/tmp/args.lst
 
 function generate {
-  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate $( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca.crt $EXTRA_ARGS $*" >> "$MAIN_DIR"/tmp/args.lst
+  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate $( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca-2.crt $EXTRA_ARGS $*" >> "$MAIN_DIR"/tmp/args.lst
 }
 
 function sanity-check {
@@ -194,5 +194,6 @@ pushd "$WWW_ROOT_DIR"
 popd
 
 # copy other static resource files
-curl --location --fail https://www.jenkins.io/templates/updates/index.html > "$WWW_ROOT_DIR/index.html"
+echo '{}' > "$WWW_ROOT_DIR/uctest.json"
+wget -q --convert-links -O "$WWW_ROOT_DIR/index.html" --convert-links https://www.jenkins.io/templates/updates/index.html
 cp -av "tmp/tiers.json" "$WWW_ROOT_DIR/tiers.json"
