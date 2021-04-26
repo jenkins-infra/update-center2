@@ -14,6 +14,9 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Support generation of JSON output with included checksum + signatures block for the same JSON output.
@@ -24,6 +27,10 @@ public abstract class WithSignature {
     @JSONField
     public JsonSignature getSignature() {
         return signature;
+    }
+
+    public String getDate() {
+        return DateTimeFormatter.ISO_DATE_TIME.format(Instant.now().atOffset(ZoneOffset.UTC));
     }
 
     /**
