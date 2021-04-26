@@ -23,31 +23,19 @@
  */
 package io.jenkins.update_center;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.output.NullWriter;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Generates index.html that has a list of files.
