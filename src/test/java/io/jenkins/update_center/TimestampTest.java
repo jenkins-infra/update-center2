@@ -21,5 +21,9 @@ public class TimestampTest {
 
         Assert.assertTrue("before now", parsed.isBefore(Instant.now()));
         Assert.assertTrue("very recent", parsed.isAfter(Instant.now().minus(1, ChronoUnit.SECONDS)));
+
+        String timestamp2 = w.getGenerationTimestamp();
+        Assert.assertEquals("Doesn't change over time", timestamp, timestamp2);
+
     }
 }
