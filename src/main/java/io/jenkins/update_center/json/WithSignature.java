@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
  */
 public abstract class WithSignature {
     private JsonSignature signature;
+    private final String generationTimestamp = DateTimeFormatter.ISO_DATE_TIME.format(Instant.now().atOffset(ZoneOffset.UTC).withNano(0));
 
     @JSONField
     public JsonSignature getSignature() {
@@ -36,11 +37,7 @@ public abstract class WithSignature {
      * @return a string with the current date and time in the format YYYY-MM-DD'T'HH:mm:ss'Z'
      */
     public String getGenerationTimestamp() {
-        /*
-         * This just gets called once during serialization.
-         * We don't have to worry about this returning the same value every time.
-         */
-        return DateTimeFormatter.ISO_DATE_TIME.format(Instant.now().atOffset(ZoneOffset.UTC).withNano(0));
+        return generationTimestamp;
     }
 
     /**
