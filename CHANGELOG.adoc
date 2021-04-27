@@ -2,6 +2,13 @@
 
 NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
 
+== 3.8 (2021-04-27)
+
+* Add support for generating `platform-plugins.json` (https://github.com/jenkins-infra/update-center2/pull/498[#498])
+* Add download file size to `update-center.json` (https://github.com/jenkins-infra/update-center2/pull/500[#500])
+* Add generation timestamp to metadata (https://github.com/jenkins-infra/update-center2/pull/516[#516])
+* Internal cleanup: Remove unused GitHub cache (https://github.com/jenkins-infra/update-center2/pull/504[#504])
+
 == 3.7 (2021-03-22)
 
 * Use uploader permissions and Jira display name reports as the data sources for maintainer metadata instead of `pom.xml`. (https://github.com/jenkins-infra/update-center2/pull/502[#502])
