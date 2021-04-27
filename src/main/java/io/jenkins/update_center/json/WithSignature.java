@@ -14,16 +14,30 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Support generation of JSON output with included checksum + signatures block for the same JSON output.
  */
 public abstract class WithSignature {
     private JsonSignature signature;
+    private final String generationTimestamp = DateTimeFormatter.ISO_DATE_TIME.format(Instant.now().atOffset(ZoneOffset.UTC).withNano(0));
 
     @JSONField
     public JsonSignature getSignature() {
         return signature;
+    }
+
+    /**
+     * Returns a string with the current date and time in ISO-8601 format.
+     * It doesn't have fractional seconds and the timezone is always UTC ('Z').
+     *
+     * @return a string with the current date and time in the format YYYY-MM-DD'T'HH:mm:ss'Z'
+     */
+    public String getGenerationTimestamp() {
+        return generationTimestamp;
     }
 
     /**
