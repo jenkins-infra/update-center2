@@ -27,7 +27,7 @@ public class JavaVersionPluginFilterTest {
 
     @Test
     public void testFilter() throws Exception {
-        ArtifactCoordinates info = new ArtifactCoordinates(null, "test-plugin", "1.0", null, null);
+        ArtifactCoordinates info = new ArtifactCoordinates(null, "test-plugin", "1.0", null);
         JavaSpecificationVersion version11 = new JavaSpecificationVersion("11");
         JavaSpecificationVersion version8 = new JavaSpecificationVersion("1.8");
         JavaSpecificationVersion version7 = new JavaSpecificationVersion("1.7");

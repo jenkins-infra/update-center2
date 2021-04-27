@@ -40,8 +40,8 @@ public class MavenRepositoryWrapper implements MavenRepository {
     }
 
     @Override
-    public Digests getDigests(MavenArtifact artifact) throws IOException {
-        return base.getDigests(artifact);
+    public ArtifactMetadata getMetadata(MavenArtifact artifact) throws IOException {
+        return base.getMetadata(artifact);
     }
 
     @Override

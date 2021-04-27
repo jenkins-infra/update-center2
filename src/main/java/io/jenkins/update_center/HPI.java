@@ -186,7 +186,7 @@ public class HPI extends MavenArtifact {
         if (description == null) {
             String description = plainText2html(readSingleValueFromXmlFile(resolvePOM(), "/project/description"));
 
-            ArtifactCoordinates coordinates = new ArtifactCoordinates(artifact.groupId, artifact.artifactId, artifact.version, "jar", null);
+            ArtifactCoordinates coordinates = new ArtifactCoordinates(artifact.groupId, artifact.artifactId, artifact.version, "jar");
             try (InputStream is = repository.getZipFileEntry(new MavenArtifact(repository, coordinates), "index.jelly")) {
                 StringBuilder b = new StringBuilder();
                 HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> LOGGER.log(Level.INFO, "Bad HTML: '" + html + "' in " + artifact.getGav()));
@@ -429,7 +429,7 @@ public class HPI extends MavenArtifact {
                         File parentPomFile = repository.resolve(
                                 new ArtifactCoordinates(parent.element("groupId").getTextTrim(),
                                         parent.element("artifactId").getTextTrim(),
-                                        parent.element("version").getTextTrim(), "pom", null));
+                                        parent.element("version").getTextTrim(), "pom"));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/url");
                         if (scm == null) {
                             LOGGER.log(Level.FINER, "No SCM URL found in parent POM for " + this.artifact.getGav());
@@ -466,7 +466,7 @@ public class HPI extends MavenArtifact {
                         File parentPomFile = repository.resolve(
                                 new ArtifactCoordinates(parent.element("groupId").getTextTrim(),
                                         parent.element("artifactId").getTextTrim(),
-                                        parent.element("version").getTextTrim(), "pom", null));
+                                        parent.element("version").getTextTrim(), "pom"));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/developerConnection");
                         if (scm == null) {
                             LOGGER.log(Level.FINE, "No SCM developerConnection found in parent POM for " + this.artifact.getGav());

@@ -83,7 +83,6 @@ public abstract class BaseMavenRepository implements MavenRepository {
             if (artifactCoordinates.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
             if (!artifactCoordinates.artifactId.equals("jenkins-war")
                     && !artifactCoordinates.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
-            if (artifactCoordinates.classifier!=null)  continue;          // just pick up the main war
             if (IGNORE.containsKey(artifactCoordinates.artifactId + "-" + artifactCoordinates.version)) {
                 LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is blacklisted");
                 continue;

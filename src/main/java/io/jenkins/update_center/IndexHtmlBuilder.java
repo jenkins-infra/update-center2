@@ -82,13 +82,13 @@ public class IndexHtmlBuilder implements Closeable {
     }
 
     public void add(MavenArtifact a) throws IOException {
-        MavenRepository.Digests digests = a.getDigests();
-        if (digests == null) {
+        MavenRepository.ArtifactMetadata artifactMetadata = a.getMetadata();
+        if (artifactMetadata == null) {
             return;
         }
-        String checksums = "SHA-1: " + base64ToHex(digests.sha1);
-        if (digests.sha256 != null) {
-            checksums += ", SHA-256: " + base64ToHex(digests.sha256);
+        String checksums = "SHA-1: " + base64ToHex(artifactMetadata.sha1);
+        if (artifactMetadata.sha256 != null) {
+            checksums += ", SHA-256: " + base64ToHex(artifactMetadata.sha256);
         }
         add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, checksums);
     }

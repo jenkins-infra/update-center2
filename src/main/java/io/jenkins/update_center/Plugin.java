@@ -25,6 +25,7 @@ package io.jenkins.update_center;
 
 import hudson.util.VersionNumber;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -66,7 +67,7 @@ public final class Plugin {
      *
      * @param hpi the plugin HPI
      */
-    public void addArtifact(HPI hpi) {
+    public void addArtifact(HPI hpi) throws IOException {
         VersionNumber v;
         try {
             v = new VersionNumber(hpi.version);
