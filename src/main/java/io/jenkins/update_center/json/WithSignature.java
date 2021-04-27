@@ -29,12 +29,18 @@ public abstract class WithSignature {
         return signature;
     }
 
+    /**
+     * Returns a string with the current date and time in ISO-8601 format.
+     * It doesn't have fractional seconds and the timezone is always UTC ('Z').
+     *
+     * @return a string with the current date and time in the format YYYY-MM-DD'T'HH:mm:ss'Z'
+     */
     public String getGenerationTimestamp() {
         /*
          * This just gets called once during serialization.
          * We don't have to worry about this returning the same value every time.
          */
-        return DateTimeFormatter.ISO_DATE_TIME.format(Instant.now().atOffset(ZoneOffset.UTC));
+        return DateTimeFormatter.ISO_DATE_TIME.format(Instant.now().atOffset(ZoneOffset.UTC).withNano(0));
     }
 
     /**

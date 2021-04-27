@@ -15,7 +15,7 @@ public class TimestampTest {
 
         String timestamp = w.getGenerationTimestamp();
 
-        Assert.assertTrue("format as expected", timestamp.matches("^202[0-9][-][0-9]{2}[-][0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z$"));
+        Assert.assertTrue("format as expected", timestamp.matches("^202[0-9][-][0-9]{2}[-][0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"));
 
         Instant parsed = Instant.parse(timestamp);
 
