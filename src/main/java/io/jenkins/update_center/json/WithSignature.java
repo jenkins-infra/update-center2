@@ -29,7 +29,11 @@ public abstract class WithSignature {
         return signature;
     }
 
-    public String getDate() {
+    public String getGenerationTimestamp() {
+        /*
+         * This just gets called once during serialization.
+         * We don't have to worry about this returning the same value every time.
+         */
         return DateTimeFormatter.ISO_DATE_TIME.format(Instant.now().atOffset(ZoneOffset.UTC));
     }
 
