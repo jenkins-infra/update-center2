@@ -367,32 +367,6 @@
     ]
   },
   {
-    "id": "SECURITY-296",
-    "type": "plugin",
-    "name": "claim",
-    "message": "Arbitrary code execution vulnerability in rare circumstances",
-    "url": "https://jenkins.io/security/advisory/2017-04-10/",
-    "versions": [
-      {
-        "lastVersion": "2.9",
-        "pattern": "1[.].*(|[.-].*)|2[.][0-9](|[.-].*)"
-      }
-    ]
-  },
-  {
-    "id": "SECURITY-297",
-    "type": "plugin",
-    "name": "warnings",
-    "message": "Arbitrary code execution vulnerability in rare circumstances",
-    "url": "https://jenkins.io/security/advisory/2017-04-10/",
-    "versions": [
-      {
-        "lastVersion": "4.60",
-        "pattern": "[123][.].*|4[.]([0-9]|[12345][0-9]|60)(|[.-].*)"
-      }
-    ]
-  },
-  {
     "id": "SECURITY-298",
     "type": "plugin",
     "name": "svn-tag",
@@ -474,19 +448,6 @@
     "type": "plugin",
     "name": "scriptler",
     "message": "Any Scriptler script can be executed as part of builds",
-    "url": "https://jenkins.io/security/advisory/2017-04-10/",
-    "versions": [
-      {
-        "lastVersion": "2.9",
-        "pattern": "[12](|[.-].*)"
-      }
-    ]
-  },
-  {
-    "id": "SECURITY-367",
-    "type": "plugin",
-    "name": "scriptler",
-    "message": "Arbitrary code execution vulnerability in rare circumstances",
     "url": "https://jenkins.io/security/advisory/2017-04-10/",
     "versions": [
       {
@@ -670,19 +631,6 @@
     ]
   },
   {
-    "id": "SECURITY-479",
-    "type": "plugin",
-    "name": "splunk-devops",
-    "message": "Arbitrary code execution vulnerability in rare circumstances",
-    "url": "https://jenkins.io/security/advisory/2017-04-10/",
-    "versions": [
-      {
-        "lastVersion": "1.5.2",
-        "pattern": "1[.]([01234]|5[.][012])(|[.-].*)"
-      }
-    ]
-  },
-  {
     "id": "SECURITY-487",
     "type": "plugin",
     "name": "reactor-plugin",
@@ -733,30 +681,6 @@
     ]
   },
   {
-    "id": "SECURITY-492",
-    "type": "plugin",
-    "name": "extreme-notification",
-    "message": "Arbitrary code execution vulnerability in rare circumstances",
-    "url": "https://jenkins.io/security/advisory/2017-04-10/",
-    "versions": [
-      {
-        "pattern": ".*"
-      }
-    ]
-  },
-  {
-    "id": "SECURITY-493",
-    "type": "plugin",
-    "name": "shared-objects",
-    "message": "Arbitrary code execution vulnerability in rare circumstances",
-    "url": "https://jenkins.io/security/advisory/2017-04-10/",
-    "versions": [
-      {
-        "pattern": ".*"
-      }
-    ]
-  },
-  {
     "id": "SECURITY-494",
     "type": "plugin",
     "name": "app-detector",
@@ -766,18 +690,6 @@
       {
         "lastVersion": "1.0.1",
         "pattern": "1[.]0[.][01](|[-].*)"
-      }
-    ]
-  },
-  {
-    "id": "SECURITY-494-v2",
-    "type": "plugin",
-    "name": "app-detector",
-    "message": "Arbitrary code execution vulnerability in rare circumstances",
-    "url": "https://jenkins.io/security/advisory/2017-04-10/",
-    "versions": [
-      {
-        "pattern": ".*"
       }
     ]
   },
