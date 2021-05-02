@@ -102,7 +102,8 @@ public class IndexHtmlBuilder implements Closeable {
             releaseDateString = " Released: " + SimpleDateFormat.getDateInstance().format(releaseDate);
         }
 
-        content.append("<li><a class=\"version\" href='").append(url)
+        content.append("<li").append(releaseDate == null ? "" : " id=\"" + caption + "\"")
+                .append("><a class=\"version\" href='").append(url)
                 .append("'>").append(caption).append("</a><div class=\"metadata\">\n<div class=\"released\">")
                 .append(releaseDateString)
                 .append("</div>");
