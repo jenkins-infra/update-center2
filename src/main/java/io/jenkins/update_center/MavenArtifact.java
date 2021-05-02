@@ -77,8 +77,8 @@ public class MavenArtifact {
         return repository.resolve(artifact,"pom", null);
     }
 
-    public MavenRepository.Digests getDigests() throws IOException {
-        return repository.getDigests(this);
+    public MavenRepository.ArtifactMetadata getMetadata() throws IOException {
+        return repository.getMetadata(this);
     }
 
     public VersionNumber getVersion() {
@@ -90,14 +90,14 @@ public class MavenArtifact {
         return s.contains("alpha") || s.contains("beta");
     }
 
-    public String getTimestampAsString() {
+    public String getTimestampAsString() throws IOException {
         long lastModified = getTimestamp();
         SimpleDateFormat bdf = getDateFormat();
 
         return bdf.format(lastModified);
     }
 
-    public Date getTimestampAsDate() {
+    public Date getTimestampAsDate() throws IOException {
         long lastModified = getTimestamp();
         
 
@@ -115,8 +115,8 @@ public class MavenArtifact {
         return new SimpleDateFormat("MMM dd, yyyy", Locale.US);
     }
 
-    public long getTimestamp() {
-        return this.artifact.timestamp;
+    public long getTimestamp() throws IOException {
+        return repository.getMetadata(this).timestamp;
     }
 
     public Manifest getManifest() throws IOException {
@@ -148,4 +148,6 @@ public class MavenArtifact {
     public String getGavId() {
         return artifact.groupId+':'+artifact.artifactId+':'+artifact.version;
     }
+
+
 }

@@ -50,14 +50,26 @@ MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$
 echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
+version=3.8
+coordinates=org/jenkins-ci/update-center2/$version/update-center2-$version-bin.zip
+
+if [[ -f "$MAIN_DIR"/tmp/generator-$version.zip ]] ; then
+  echo "tmp/generator-$version.zip already exists, skipping download"
+else
+  echo "tmp/generator-$version.zip does not exist, downloading ..."
+  rm -rf "$MAIN_DIR"/tmp/generator*.zip
+  wget --no-verbose -O "$MAIN_DIR"/tmp/generator-$version.zip "https://repo.jenkins-ci.org/releases/$coordinates"
+fi
+
 rm -rf "$MAIN_DIR"/tmp/generator/
-rm -rf "$MAIN_DIR"/tmp/generator.zip
-wget --no-verbose -O "$MAIN_DIR"/tmp/generator.zip "https://repo.jenkins-ci.org/releases/org/jenkins-ci/update-center2/3.4.5/update-center2-3.4.5-bin.zip"
-unzip -q "$MAIN_DIR"/tmp/generator.zip -d "$MAIN_DIR"/tmp/generator/
+unzip -q "$MAIN_DIR"/tmp/generator-$version.zip -d "$MAIN_DIR"/tmp/generator/
 
 function execute {
   # To use a locally built snapshot, use the following line instead:
   # java -Dfile.encoding=UTF-8 -jar target/update-center2-*-bin/update-center2-*.jar "$@"
+  # Commonly provided system properties:
+  # -DRECENT_RELEASES_MAX_AGE_HOURS=30 in case the build failed for a while
+  # -DCERTIFICATE_MINIMUM_VALID_DAYS=14 in case the cert is about to expire
   java -DCERTIFICATE_MINIMUM_VALID_DAYS=14 -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
   # TODO once we have a new cert, no longer override the duration
 }
@@ -80,7 +92,7 @@ mkdir -p "$WWW_ROOT_DIR"
 echo "# one update site per line" > "$MAIN_DIR"/tmp/args.lst
 
 function generate {
-  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate $( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca.crt --index-template-url https://www.jenkins.io/templates/downloads/ $EXTRA_ARGS $*" >> "$MAIN_DIR"/tmp/args.lst
+  echo "--key $SECRET/update-center.key --certificate $SECRET/update-center.cert --root-certificate $( dirname "$0" )/../resources/certificates/jenkins-update-center-root-ca-2.crt --index-template-url https://www.jenkins.io/templates/downloads/ $EXTRA_ARGS $*" >> "$MAIN_DIR"/tmp/args.lst
 }
 
 function sanity-check {
@@ -182,5 +194,6 @@ pushd "$WWW_ROOT_DIR"
 popd
 
 # copy other static resource files
-curl --location --fail https://www.jenkins.io/templates/updates/index.html > "$WWW_ROOT_DIR/index.html"
+echo '{}' > "$WWW_ROOT_DIR/uctest.json"
+wget -q --convert-links -O "$WWW_ROOT_DIR/index.html" --convert-links https://www.jenkins.io/templates/updates/index.html
 cp -av "tmp/tiers.json" "$WWW_ROOT_DIR/tiers.json"

@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.support_log_formatter.SupportLogFormatter;
 import io.jenkins.update_center.args4j.LevelOptionHandler;
+import io.jenkins.update_center.json.PlatformPluginsRoot;
 import io.jenkins.update_center.json.RecentReleasesRoot;
 import io.jenkins.update_center.json.TieredUpdateSitesGenerator;
 import io.jenkins.update_center.json.PluginDocumentationUrlsRoot;
@@ -41,7 +42,7 @@ import io.jenkins.update_center.json.UpdateCenterRoot;
 import io.jenkins.update_center.util.JavaSpecificationVersion;
 import io.jenkins.update_center.wrappers.FilteringRepository;
 import io.jenkins.update_center.wrappers.TruncatedMavenRepository;
-import io.jenkins.update_center.wrappers.WhitelistMavenRepository;
+import io.jenkins.update_center.wrappers.AllowedArtifactsListMavenRepository;
 import org.kohsuke.args4j.ClassParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -102,8 +103,8 @@ public class Main {
     @Option(name = "--max-plugins", usage = "For testing purposes: Limit the number of plugins included to the specified number.")
     @CheckForNull public Integer maxPlugins;
 
-    @Option(name = "--whitelist-file", usage = "For testing purposes: A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
-    @CheckForNull public File whitelistFile;
+    @Option(name = "--allowed-artifacts-file", usage = "For testing purposes: A Java properties file whose keys are artifactIds and values are space separated lists of versions to allow, or '*' to allow all")
+    @CheckForNull public File allowedArtifactsListFile;
 
 
     /* Configure what kinds of output to generate */
@@ -130,6 +131,9 @@ public class Main {
 
     @Option(name = "--generate-recent-releases", usage = "Generate recent releases file (as input to targeted rsync etc.)")
     public boolean generateRecentReleases;
+
+    @Option(name = "--generate-platform-plugins", usage = "Generate platform-plugins.json (to override wizard suggestions)")
+    public boolean generatePlatformPlugins;
 
 
     /* Configure options modifying output */
@@ -266,6 +270,10 @@ public class Main {
             new RecentReleasesRoot(repo).write(new File(www, RECENT_RELEASES_JSON_FILENAME), prettyPrint);
         }
 
+        if (generatePlatformPlugins) {
+            new PlatformPluginsRoot(new File(Main.resourcesDir, PLATFORM_PLUGINS_RESOURCE_FILENAME)).writeWithSignature(new File(www, PLATFORM_PLUGINS_JSON_FILENAME), signer, prettyPrint);
+        }
+
         directoryTreeBuilder.build(repo);
     }
 
@@ -294,12 +302,12 @@ public class Main {
             return;
         }
         MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
-        if (whitelistFile != null) {
+        if (allowedArtifactsListFile != null) {
             final Properties properties = new Properties();
-            try (FileInputStream fis = new FileInputStream(whitelistFile)) {
+            try (FileInputStream fis = new FileInputStream(allowedArtifactsListFile)) {
                 properties.load(fis);
             }
-            repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
+            repo = new AllowedArtifactsListMavenRepository(properties).withBaseRepository(repo);
         }
         if (maxPlugins != null) {
             repo = new TruncatedMavenRepository(maxPlugins).withBaseRepository(repo);
@@ -316,12 +324,12 @@ public class Main {
     private MavenRepository createRepository() throws Exception {
 
         MavenRepository repo = DefaultMavenRepositoryBuilder.getInstance();
-        if (whitelistFile != null) {
+        if (allowedArtifactsListFile != null) {
             final Properties properties = new Properties();
-            try (FileInputStream fis = new FileInputStream(whitelistFile)) {
+            try (FileInputStream fis = new FileInputStream(allowedArtifactsListFile)) {
                 properties.load(fis);
             }
-            repo = new WhitelistMavenRepository(properties).withBaseRepository(repo);
+            repo = new AllowedArtifactsListMavenRepository(properties).withBaseRepository(repo);
         }
         if (maxPlugins != null) {
             repo = new TruncatedMavenRepository(maxPlugins).withBaseRepository(repo);
@@ -354,6 +362,8 @@ public class Main {
     private static final String PLUGIN_VERSIONS_JSON_FILENAME = "plugin-versions.json";
     private static final String RELEASE_HISTORY_JSON_FILENAME = "release-history.json";
     private static final String RECENT_RELEASES_JSON_FILENAME = "recent-releases.json";
+    private static final String PLATFORM_PLUGINS_JSON_FILENAME = "platform-plugins.json";
+    private static final String PLATFORM_PLUGINS_RESOURCE_FILENAME = "platform-plugins.json";
     private static final String EOL = System.getProperty("line.separator");
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());

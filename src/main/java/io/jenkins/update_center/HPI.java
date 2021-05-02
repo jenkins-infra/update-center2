@@ -89,16 +89,6 @@ public class HPI extends MavenArtifact {
         return new URL(StringUtils.removeEnd(DOWNLOADS_ROOT_URL, "/") + "/plugins/" + artifact.artifactId + "/" + version + "/" + artifact.artifactId + ".hpi");
     }
 
-    /**
-     * Who built this release?
-     *
-     * @return a string describing who built the release
-     * @throws IOException when a problem occurs obtaining the information from metadata
-     */
-    public String getBuiltBy() throws IOException {
-        return getManifestAttributes().getValue("Built-By");
-    }
-
     public String getRequiredJenkinsVersion() throws IOException {
         String v = getManifestAttributes().getValue("Jenkins-Version");
         if (v!=null)        return v;
@@ -190,44 +180,13 @@ public class HPI extends MavenArtifact {
         return trim;
     }
 
-    private List<Developer> developers;
-
-    public List<Developer> getDevelopers() throws IOException {
-        if (developers == null) {
-            String devs = getManifestAttributes().getValue("Plugin-Developers");
-            if (devs == null || devs.trim().length() == 0) {
-                developers = Collections.emptyList();
-            } else {
-
-                List<Developer> r = new ArrayList<>();
-                Matcher m = DEVELOPERS_PATTERN.matcher(devs);
-                int totalMatched = 0;
-                while (m.find()) {
-                    final String name = fixEmptyAndTrim(m.group(1));
-                    final String id = fixEmptyAndTrim(m.group(2));
-                    final String email = fixEmptyAndTrim(m.group(3));
-                    if (name != null || id != null || email != null) {
-                        r.add(new Developer(name, id, email));
-                    }
-                    totalMatched += m.end() - m.start();
-                }
-                if (totalMatched < devs.length()) {
-                    // ignore and move on
-                    LOGGER.log(Level.INFO, "Unparsable developer info: '" + devs.substring(totalMatched) + "' for" + artifact.getGav());
-                }
-                developers = r;
-            }
-        }
-        return developers;
-    }
-
     private String description;
 
     public String getDescription() throws IOException {
         if (description == null) {
             String description = plainText2html(readSingleValueFromXmlFile(resolvePOM(), "/project/description"));
 
-            ArtifactCoordinates coordinates = new ArtifactCoordinates(artifact.groupId, artifact.artifactId, artifact.version, "jar", null);
+            ArtifactCoordinates coordinates = new ArtifactCoordinates(artifact.groupId, artifact.artifactId, artifact.version, "jar");
             try (InputStream is = repository.getZipFileEntry(new MavenArtifact(repository, coordinates), "index.jelly")) {
                 StringBuilder b = new StringBuilder();
                 HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> LOGGER.log(Level.INFO, "Bad HTML: '" + html + "' in " + artifact.getGav()));
@@ -470,7 +429,7 @@ public class HPI extends MavenArtifact {
                         File parentPomFile = repository.resolve(
                                 new ArtifactCoordinates(parent.element("groupId").getTextTrim(),
                                         parent.element("artifactId").getTextTrim(),
-                                        parent.element("version").getTextTrim(), "pom", null));
+                                        parent.element("version").getTextTrim(), "pom"));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/url");
                         if (scm == null) {
                             LOGGER.log(Level.FINER, "No SCM URL found in parent POM for " + this.artifact.getGav());
@@ -507,7 +466,7 @@ public class HPI extends MavenArtifact {
                         File parentPomFile = repository.resolve(
                                 new ArtifactCoordinates(parent.element("groupId").getTextTrim(),
                                         parent.element("artifactId").getTextTrim(),
-                                        parent.element("version").getTextTrim(), "pom", null));
+                                        parent.element("version").getTextTrim(), "pom"));
                         scm = readSingleValueFromXmlFile(parentPomFile, "/project/scm/developerConnection");
                         if (scm == null) {
                             LOGGER.log(Level.FINE, "No SCM developerConnection found in parent POM for " + this.artifact.getGav());
@@ -613,6 +572,27 @@ public class HPI extends MavenArtifact {
         return scmUrl;
     }
 
+    private static class OrgAndRepo {
+        private final String org;
+        private final String repo;
+
+        private OrgAndRepo(String org, String repo) {
+            this.org = org;
+            this.repo = repo;
+        }
+    }
+
+    private OrgAndRepo getOrgAndRepo(String scmUrl) {
+        if (scmUrl == null || !scmUrl.startsWith("https://github.com/")) {
+            return null;
+        }
+        String[] parts = scmUrl.replaceFirst("https://github.com/", "").split("[/]");
+        if (parts.length >= 2) {
+            return new OrgAndRepo(parts[0], parts[1]);
+        }
+        return null;
+    }
+
     private List<String> labels;
 
     public List<String> getLabels() throws IOException { // TODO this would be better in a different class, doesn't fit HPI type
@@ -620,17 +600,11 @@ public class HPI extends MavenArtifact {
             String scm = getScmUrl();
 
             List<String> gitHubLabels = new ArrayList<>();
-            if (scm != null && scm.contains("https://github.com/")) {
+            OrgAndRepo orgAndRepo = getOrgAndRepo(scm);
+            if (orgAndRepo != null) {
 
-                List<String> unsanitizedLabels = new ArrayList<>();
-                String[] parts = scm.replaceFirst("https://github.com/", "").split("/");
-                if (parts.length >= 2) {
-                    unsanitizedLabels.addAll(
-                            Arrays.asList(
-                                    GitHubSource.getInstance().getRepositoryTopics(parts[0], parts[1]).toArray(new String[0])
-                            )
-                    );
-                }
+                List<String> unsanitizedLabels = new ArrayList<>(Arrays.asList(
+                        GitHubSource.getInstance().getRepositoryTopics(orgAndRepo.org, orgAndRepo.repo).toArray(new String[0])));
 
                 for (String label : unsanitizedLabels) {
                     if (label.startsWith("jenkins-")) {
@@ -653,6 +627,20 @@ public class HPI extends MavenArtifact {
             this.labels = new ArrayList<>(labels);
         }
         return this.labels;
+    }
+
+    private String defaultBranch;
+
+    public String getDefaultBranch() throws IOException { // TODO this would be better in a different class, doesn't fit HPI type
+        if (defaultBranch == null) {
+            String scm = getScmUrl();
+
+            OrgAndRepo orgAndRepo = getOrgAndRepo(scm);
+            if (orgAndRepo != null) {
+                defaultBranch = GitHubSource.getInstance().getDefaultBranch(orgAndRepo.org, orgAndRepo.repo);
+            }
+        }
+        return defaultBranch;
     }
 
     @VisibleForTesting

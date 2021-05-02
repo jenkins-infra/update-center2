@@ -17,13 +17,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class WhitelistMavenRepository extends MavenRepositoryWrapper {
-    private static final Logger LOGGER = Logger.getLogger(WhitelistMavenRepository.class.getName());
+public class AllowedArtifactsListMavenRepository extends MavenRepositoryWrapper {
+    private static final Logger LOGGER = Logger.getLogger(AllowedArtifactsListMavenRepository.class.getName());
 
-    private final Properties whitelist;
+    private final Properties allowedArtifactsList;
 
-    public WhitelistMavenRepository(Properties whitelist) {
-        this.whitelist = whitelist;
+    public AllowedArtifactsListMavenRepository(Properties allowedArtifactsList) {
+        this.allowedArtifactsList = allowedArtifactsList;
     }
 
     @Override
@@ -31,18 +31,18 @@ public class WhitelistMavenRepository extends MavenRepositoryWrapper {
         final Collection<Plugin> plugins = base.listJenkinsPlugins();
         for (Iterator<Plugin> pluginIterator = plugins.iterator(); pluginIterator.hasNext(); ) {
             Plugin plugin = pluginIterator.next();
-            final String whitelistEntry = whitelist.getProperty(plugin.getArtifactId());
+            final String listEntry = allowedArtifactsList.getProperty(plugin.getArtifactId());
 
-            if (whitelistEntry == null) {
+            if (listEntry == null) {
                 pluginIterator.remove();
                 continue;
             }
 
-            if (whitelistEntry.equals("*")) {
+            if (listEntry.equals("*")) {
                 continue; // entire artifactId allowed
             }
 
-            final List<String> allowedVersions = Arrays.stream(whitelistEntry.split("\\s+")).map(String::trim).collect(Collectors.toList());
+            final List<String> allowedVersions = Arrays.stream(listEntry.split("\\s+")).map(String::trim).collect(Collectors.toList());
 
             for (Iterator<Map.Entry<VersionNumber, HPI>> versionIterator = plugin.getArtifacts().entrySet().iterator(); versionIterator.hasNext(); ) {
                 Map.Entry<VersionNumber, HPI> entry = versionIterator.next();
@@ -52,7 +52,7 @@ public class WhitelistMavenRepository extends MavenRepositoryWrapper {
                 }
             }
             if (plugin.getArtifacts().isEmpty()) {
-                LOGGER.log(Level.WARNING, "Individual versions of a plugin are whitelisted but none of them matched: " + plugin.getArtifactId() + " versions: " + whitelistEntry);
+                LOGGER.log(Level.WARNING, "Individual versions of a plugin are allowed, but none of them matched: " + plugin.getArtifactId() + " versions: " + listEntry);
                 pluginIterator.remove();
             }
         }
@@ -61,19 +61,19 @@ public class WhitelistMavenRepository extends MavenRepositoryWrapper {
 
     @Override
     public TreeMap<VersionNumber, JenkinsWar> getJenkinsWarsByVersionNumber() throws IOException {
-        final String whitelistEntry = whitelist.getProperty("jenkins-core");
+        final String listEntry = allowedArtifactsList.getProperty("jenkins-core");
 
-        if (whitelistEntry == null) {
+        if (listEntry == null) {
             return new TreeMap<>(); // TODO fix return type so it's only a Map
         }
 
         TreeMap<VersionNumber, JenkinsWar> releases = base.getJenkinsWarsByVersionNumber();
 
-        if (whitelistEntry.equals("*")) {
+        if (listEntry.equals("*")) {
             return releases;
         }
 
-        final List<String> allowedVersions = Arrays.stream(whitelistEntry.split("\\s+")).map(String::trim).collect(Collectors.toList());
+        final List<String> allowedVersions = Arrays.stream(listEntry.split("\\s+")).map(String::trim).collect(Collectors.toList());
 
         releases.keySet().retainAll(releases.keySet().stream().filter(it -> allowedVersions.contains(it.toString())).collect(Collectors.toSet()));
 

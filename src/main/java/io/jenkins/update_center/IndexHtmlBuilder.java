@@ -85,18 +85,18 @@ public class IndexHtmlBuilder implements Closeable {
     }
 
     public void add(MavenArtifact a) throws IOException {
-        MavenRepository.Digests digests = a.getDigests();
-        if (digests == null) {
+        MavenRepository.ArtifactMetadata artifactMetadata = a.getMetadata();
+        if (artifactMetadata == null) {
             return;
         }
-        add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, digests);
+        add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata);
     }
 
     public void add(String url, String caption) {
         add(url, null, caption, null);
     }
 
-    public void add(String url, Date releaseDate, String caption, MavenRepository.Digests digests) {
+    public void add(String url, Date releaseDate, String caption, MavenRepository.ArtifactMetadata metadata) {
         String releaseDateString = "";
         if (releaseDate != null) {
             releaseDateString = " Released: " + SimpleDateFormat.getDateInstance().format(releaseDate);
@@ -106,12 +106,12 @@ public class IndexHtmlBuilder implements Closeable {
                 .append("'>").append(caption).append("</a><div class=\"metadata\">\n<div class=\"released\">")
                 .append(releaseDateString)
                 .append("</div>");
-        if (digests != null) {
+        if (metadata != null) {
             content.append("\n<div class=\"checksums\">SHA-1: <code>")
-                    .append(base64ToHex(digests.sha1)).append("</code></div>");
-            if (digests.sha256 != null) {
+                    .append(base64ToHex(metadata.sha1)).append("</code></div>");
+            if (metadata.sha256 != null) {
                 content.append("\n<div class=\"checksums\">SHA-256: <code>")
-                        .append(base64ToHex(digests.sha256)).append("</code></div>");
+                        .append(base64ToHex(metadata.sha256)).append("</code></div>");
             }
         }
         content.append("</div></li>\n");

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -118,6 +117,10 @@ public class PluginUpdateCenterEntry {
         return latestOffered.getScmUrl();
     }
 
+    public List<IssueTrackerSource.IssueTracker> getIssueTrackers() {
+        return IssueTrackerSource.getInstance().getIssueTrackers(artifactId);
+    }
+
     public String getRequiredCore() throws IOException {
         return latestOffered.getRequiredJenkinsVersion();
     }
@@ -131,7 +134,7 @@ public class PluginUpdateCenterEntry {
         return minimumJavaVersion == null ? null : minimumJavaVersion.toString();
     }
 
-    public String getBuildDate() {
+    public String getBuildDate() throws IOException {
         return latestOffered.getTimestampAsString();
     }
 
@@ -139,16 +142,24 @@ public class PluginUpdateCenterEntry {
         return latestOffered.getLabels();
     }
 
+    public String getDefaultBranch() throws IOException {
+        return latestOffered.getDefaultBranch();
+    }
+
     public List<HPI.Dependency> getDependencies() throws IOException {
         return latestOffered.getDependencies();
     }
 
     public String getSha1() throws IOException {
-        return latestOffered.getDigests().sha1;
+        return latestOffered.getMetadata().sha1;
     }
 
     public String getSha256() throws IOException {
-        return latestOffered.getDigests().sha256;
+        return latestOffered.getMetadata().sha256;
+    }
+
+    public long getSize() throws IOException {
+        return latestOffered.getMetadata().size;
     }
 
     public String getGav() {
@@ -166,24 +177,19 @@ public class PluginUpdateCenterEntry {
         return trim;
     }
 
-    public List<HPI.Developer> getDevelopers() throws IOException {
-        final List<HPI.Developer> developers = latestOffered.getDevelopers();
-        final String builtBy = fixEmptyAndTrim(latestOffered.getBuiltBy());
-        if (developers.isEmpty() && builtBy != null) {
-            return Collections.singletonList(new HPI.Developer(null, builtBy, null));
-        }
-        return developers;
+    public List<MaintainersSource.Maintainer> getDevelopers() {
+        return MaintainersSource.getInstance().getMaintainers(this.latestOffered.artifact);
     }
 
     public String getExcerpt() throws IOException {
         return latestOffered.getDescription();
     }
 
-    public String getReleaseTimestamp() {
+    public String getReleaseTimestamp() throws IOException {
         return TIMESTAMP_FORMATTER.format(latestOffered.getTimestamp());
     }
 
-    public String getPreviousTimestamp() {
+    public String getPreviousTimestamp() throws IOException {
         return previousOffered == null ? null : TIMESTAMP_FORMATTER.format(previousOffered.getTimestamp());
     }
 

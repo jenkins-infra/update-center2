@@ -7,15 +7,13 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class GitHubSourceTest {
 
     @Test
-    public void getTopics() throws Exception {
+    public void testCodeQL() throws Exception {
         MockWebServer server = new MockWebServer();
 
         server.enqueue(new MockResponse().setBody(
@@ -33,22 +31,24 @@ public class GitHubSourceTest {
         // Start the server.
         server.start();
 
-        GitHubSource gh = new GitHubSource() {
-            @Override
-            protected String getGraphqlUrl() {
-                return server.url("/graphql").toString();
-            }
-
-            @Override
-            public List<String> getRepositoryTopics(String org, String repo) throws IOException {
-                return initializeOrganizationData(org).getOrDefault(org + "/" + repo, Collections.emptyList());
-            }
-        };
-        assertEquals(
-                Arrays.asList("pipeline"),
-                gh.getRepositoryTopics("jenkinsci", "workflow-cps-plugin")
-        );
+        GitHubSource gh = new MockWebServerGitHubSource(server);
+        assertEquals(Arrays.asList("cmake","jenkins-plugin", "jenkins-builder", "pipeline"), gh.getRepositoryTopics("jenkinsci", "cmakebuilder-plugin"));
+        assertEquals("incoming", gh.getDefaultBranch("jenkinsci", "jmdns"));
         // Shut down the server. Instances cannot be reused.
         server.shutdown();
+    }
+
+    private static class MockWebServerGitHubSource extends GitHubSource {
+        private final MockWebServer server;
+
+        private MockWebServerGitHubSource(MockWebServer server) throws IOException {
+            this.server = server;
+            initializeOrganizationData("jenkinsci");
+        }
+
+        @Override
+        protected String getGraphqlUrl() {
+            return server.url("/graphql").toString();
+        }
     }
 }
