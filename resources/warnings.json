@@ -10153,5 +10153,57 @@
         "pattern": "(0[.][1-9]|0[.]1[013456789]|0[.]2[0-9]|0[.]3[0-9]|0[.]4[01345678])(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-1981",
+    "type": "plugin",
+    "name": "deployit-plugin",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2021-06-10/#SECURITY-1981",
+    "versions": [
+      {
+        "lastVersion": "10.0.1",
+        "pattern": "(10[.]0[.][01]|[3-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1982",
+    "type": "plugin",
+    "name": "deployit-plugin",
+    "message": "CSRF vulnerability and missing permission check allows capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2021-06-10/#SECURITY-1982",
+    "versions": [
+      {
+        "lastVersion": "10.0.1",
+        "pattern": "(10[.]0[.][01]|[3-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2367",
+    "type": "plugin",
+    "name": "kiuwanJenkinsPlugin",
+    "message": "Reflected XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-06-10/#SECURITY-2367",
+    "versions": [
+      {
+        "lastVersion": "1.6.0",
+        "pattern": "(1[.][0-5]|1[.]6[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2370",
+    "type": "plugin",
+    "name": "kubernetes-cli",
+    "message": "Missing permission checks allow enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2021-06-10/#SECURITY-2370",
+    "versions": [
+      {
+        "lastVersion": "1.10.0",
+        "pattern": "(0|1[.][0-9]|1[.]10[.]0)(|[.-].+)"
+      }
+    ]
   }
 ]
