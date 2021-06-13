@@ -13,9 +13,7 @@
   list-style: none;
   padding-left: 2rem;
   margin-bottom: .5rem;
-  display: flex;
   align-items: center;
-  flex-wrap: wrap;
 }
 .artifact-list .version {
   margin-right: 2rem;
@@ -26,6 +24,21 @@
 .subtitle {
   color: #999;
 }
+
+@media (min-width: 600px) {
+  .artifact-list {
+    display: table;
+  }
+  .artifact-list li {
+    display: table-row;
+  }
+  .version {
+    display: table-cell;
+    padding-left: 2rem;
+    vertical-align: middle;
+  }
+}
+
     </style>
 </head>
 <body>
