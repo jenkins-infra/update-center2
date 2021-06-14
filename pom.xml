@@ -207,6 +207,12 @@
       <version>4.1.1</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.13.1</version>
+    </dependency>
+
 
     <!-- for requireUpperBoundDeps -->
     <dependency>

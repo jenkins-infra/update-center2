@@ -28,11 +28,11 @@ import org.apache.commons.io.output.NullWriter;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,36 +44,39 @@ import java.util.Date;
  */
 public class IndexHtmlBuilder implements Closeable {
     private final PrintWriter out;
+    private final String template;
+    private final String title;
+    private String subtitle;
+    private String description;
+    private StringBuilder content;
+    private String opengraphImage;
 
-    public IndexHtmlBuilder(File dir, String title) throws IOException {
-        this(openIndexHtml(dir),title);
+    public IndexHtmlBuilder(File dir, String title, String globalTemplate) throws IOException {
+        this.out = openIndexHtml(dir);
+        this.template = globalTemplate;
+        this.title = title;
+        this.content = new StringBuilder();
+        this.subtitle = "";
+        this.description = "Download previous versions of " + title;
+        this.opengraphImage = "https://www.jenkins.io/images/logo-title-opengraph.png";
+    }
+
+    public IndexHtmlBuilder withSubtitle(String subtitle) {
+        if (subtitle != null) {
+            this.subtitle = subtitle;
+        }
+        return this;
     }
 
     private static PrintWriter openIndexHtml(File dir) throws IOException {
         if (dir == null) {
             return new PrintWriter(new NullWriter()); // ignore output
         }
-        
+
         if (!dir.mkdirs() && !dir.isDirectory()) {
             throw new IllegalStateException("Failed to create " + dir);
         }
-        return new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,"index.html")), StandardCharsets.UTF_8));
-    }
-
-    public IndexHtmlBuilder(PrintWriter out, String title) {
-        this.out = out;
-
-        out.println(
-                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">\n" +
-                "<html>\n" +
-                " <head>\n" +
-                "  <title>"+title+"</title>\n" +
-                " </head>\n" +
-                " <body>\n" +
-                "<h1>"+title+"</h1>\n" +
-                "<hr>\n" +
-                "<table>"
-        );
+        return new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir, "index.html")), StandardCharsets.UTF_8));
     }
 
     private String base64ToHex(String base64) {
@@ -86,36 +89,43 @@ public class IndexHtmlBuilder implements Closeable {
         if (artifactMetadata == null) {
             return;
         }
-        String checksums = "SHA-1: " + base64ToHex(artifactMetadata.sha1);
-        if (artifactMetadata.sha256 != null) {
-            checksums += ", SHA-256: " + base64ToHex(artifactMetadata.sha256);
-        }
-        add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, checksums);
+        add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata);
     }
 
     public void add(String url, String caption) {
         add(url, null, caption, null);
     }
 
-    public void add(String url, Date releaseDate, String caption, String metadata) {
-        String metadataString = "";
-        if (metadata != null) {
-            metadataString = "<td>" + metadata + "</td>";
-        }
-
+    public void add(String url, Date releaseDate, String caption, MavenRepository.ArtifactMetadata metadata) {
         String releaseDateString = "";
         if (releaseDate != null) {
-            releaseDateString = " title='Released " + SimpleDateFormat.getDateInstance().format(releaseDate) + "' ";
+            releaseDateString = " Released: " + SimpleDateFormat.getDateInstance().format(releaseDate);
         }
 
-        out.println("<tr><td><img src='https://www.jenkins.io/images/jar.png' /></td><td><a href='" + url + "'" + releaseDateString + "'>"
-                + caption + "</a></td>" + metadataString + "</tr>");
+        content.append("<li").append(releaseDate == null ? "" : " id=\"" + caption + "\"")
+                .append("><a class=\"version\" href='").append(url)
+                .append("'>").append(caption).append("</a><div class=\"metadata\">\n<div class=\"released\">")
+                .append(releaseDateString)
+                .append("</div>");
+        if (metadata != null) {
+            content.append("\n<div class=\"checksums\">SHA-1: <code>")
+                    .append(base64ToHex(metadata.sha1)).append("</code></div>");
+            if (metadata.sha256 != null) {
+                content.append("\n<div class=\"checksums\">SHA-256: <code>")
+                        .append(base64ToHex(metadata.sha256)).append("</code></div>");
+            }
+        }
+        content.append("</div></li>\n");
     }
 
+    @Override
     public void close() {
-        out.println("</table>\n" +
-                "<hr>\n" +
-                "</body></html>");
+        out.println(template
+                .replace("{{ title }}", title)
+                .replace("{{ subtitle }}", subtitle)
+                .replace("{{ description }}", description)
+                .replace("{{ opengraphImage }}", opengraphImage)
+                .replace("{{ content }}", content.toString()));
         out.close();
     }
 }

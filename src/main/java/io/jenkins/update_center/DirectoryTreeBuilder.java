@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,10 +39,16 @@ public class DirectoryTreeBuilder {
     @Option(name = "--download-links-directory", usage = "Build downloads web index files")
     public File wwwDownload = null;
 
+    /**
+     * Template for the index.html files in https://updates.jenkins.io/download/ .
+     */
+    @Option(name = "--index-template-url", usage = "Url of a template for index files")
+    public String indexTemplate = null;
+
 
     public void build(MavenRepository repo) throws IOException {
-
-        try (LatestLinkBuilder latestLinks = prepareLatestLinkBuilder()) {
+        IndexTemplateProvider indexTemplateProvider = indexTemplate == null ? new IndexTemplateProvider() : new JenkinsIndexTemplateProvider(indexTemplate);
+        try (LatestLinkBuilder latestLinks = prepareLatestLinkBuilder(indexTemplateProvider)) {
 
             /* Process plugins */
             for (Plugin plugin : repo.listJenkinsPlugins()) {
@@ -62,7 +69,9 @@ public class DirectoryTreeBuilder {
 
                 if (wwwDownload != null) {
                     String permalink = String.format("/latest/%s.hpi", plugin.getArtifactId());
-                    buildIndex(new File(wwwDownload, "plugins/" + plugin.getArtifactId()), plugin.getArtifactId(), artifacts.values(), permalink);
+                    buildIndex(new File(wwwDownload, "plugins/" + plugin.getArtifactId()),
+                            plugin.getLatest().getName(), plugin.getArtifactId(),
+                            artifacts.values(), permalink, indexTemplateProvider);
                 }
             }
 
@@ -81,21 +90,22 @@ public class DirectoryTreeBuilder {
                 }
 
                 if (wwwDownload != null) {
-                    buildIndex(new File(wwwDownload, "war/"), "jenkins.war", jenkinsWars.values(), "/latest/jenkins.war");
+                    buildIndex(new File(wwwDownload, "war/"), "jenkins.war", null,
+                            jenkinsWars.values(), "/latest/jenkins.war", indexTemplateProvider);
                 }
             }
         }
     }
 
     @CheckForNull
-    private LatestLinkBuilder prepareLatestLinkBuilder() throws IOException {
+    private LatestLinkBuilder prepareLatestLinkBuilder(IndexTemplateProvider service) throws IOException {
         if (latest == null) {
             return null;
         }
         if (!latest.mkdirs() && !latest.isDirectory()) {
             throw new IOException("Failed to created 'latest' directory at " + latest);
         }
-        return new LatestLinkBuilder(latest);
+        return new LatestLinkBuilder(latest, service);
     }
 
     /**
@@ -111,6 +121,9 @@ public class DirectoryTreeBuilder {
         }
 
         ProcessBuilder pb = new ProcessBuilder();
+        if (System.getProperty("os.name").toLowerCase(Locale.US).contains("windows")) {
+            return;
+        }
         pb.command("ln", "-s", hpi.getLatest().version, "latest");
         pb.directory(dir);
         try {
@@ -144,6 +157,9 @@ public class DirectoryTreeBuilder {
         }
 
         ProcessBuilder pb = new ProcessBuilder();
+        if (System.getProperty("os.name").toLowerCase(Locale.US).contains("windows")) {
+            return;
+        }
         pb.command("ln", "-f", src.getAbsolutePath(), dst.getAbsolutePath());
         Process p = pb.start();
         try {
@@ -159,11 +175,13 @@ public class DirectoryTreeBuilder {
 
     }
 
-    private void buildIndex(File dir, String title, Collection<? extends MavenArtifact> versions, String permalink) throws IOException {
+    private void buildIndex(File dir, String title, String subtitle,
+                            Collection<? extends MavenArtifact> versions, String permalink,
+                            IndexTemplateProvider service) throws IOException {
         List<MavenArtifact> list = new ArrayList<>(versions);
         list.sort((o1, o2) -> -o1.getVersion().compareTo(o2.getVersion()));
 
-        try (IndexHtmlBuilder index = new IndexHtmlBuilder(dir, title)) {
+        try (IndexHtmlBuilder index = service.newIndexHtmlBuilder(dir, title).withSubtitle(subtitle)) {
             index.add(permalink, "permalink to the latest");
             for (MavenArtifact a : list) {
                 index.add(a);

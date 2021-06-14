@@ -1,0 +1,53 @@
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+.artifact-list {
+   padding: 0;
+}
+.artifact-list li {
+  background-image: url(https://www.jenkins.io/images/jar.png);
+  background-position: left center;
+  background-repeat: no-repeat;
+  list-style: none;
+  padding-left: 2rem;
+  margin-bottom: .5rem;
+  align-items: center;
+}
+.artifact-list .version {
+  margin-right: 2rem;
+}
+.artifact-list .checksums {
+  font-size: .7rem;
+}
+.subtitle {
+  color: #999;
+}
+
+@media (min-width: 600px) {
+  .artifact-list {
+    display: table;
+  }
+  .artifact-list li {
+    display: table-row;
+  }
+  .version {
+    display: table-cell;
+    padding-left: 2rem;
+    vertical-align: middle;
+  }
+}
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-3">{{ title }}</h1>
+    <div class="subtitle mb-2">{{ subtitle }}</div>
+    <ul class="artifact-list">
+{{ content }}
+    </ul>
+</div>
+</body>
+</html>

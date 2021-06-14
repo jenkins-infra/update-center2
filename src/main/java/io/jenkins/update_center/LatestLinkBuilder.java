@@ -21,10 +21,10 @@ public class LatestLinkBuilder implements AutoCloseable {
     private final IndexHtmlBuilder index;
     private final PrintWriter htaccess;
 
-    public LatestLinkBuilder(File dir) throws IOException {
+    public LatestLinkBuilder(File dir, IndexTemplateProvider service) throws IOException {
         LOGGER.log(Level.FINE, String.format("Writing plugin symlinks and redirects to dir: %s", dir));
 
-        index = new IndexHtmlBuilder(dir,"Permalinks to latest files");
+        index = service.newIndexHtmlBuilder(dir,"Permalinks to latest files");
         htaccess = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(dir,".htaccess"), true), StandardCharsets.UTF_8));
 
         htaccess.println("# GENERATED. DO NOT MODIFY.");
