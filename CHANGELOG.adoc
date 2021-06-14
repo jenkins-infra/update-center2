@@ -2,6 +2,10 @@
 
 NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
 
+== 3.9 (2021-06-14)
+
+* Use template for download pages (https://github.com/jenkins-infra/update-center2/pull/469[#469])
+
 == 3.8 (2021-04-27)
 
 * Add support for generating `platform-plugins.json` (https://github.com/jenkins-infra/update-center2/pull/498[#498])
