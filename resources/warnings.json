@@ -10205,5 +10205,31 @@
         "pattern": "(0|1[.][0-9]|1[.]10[.]0)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-2224",
+    "type": "plugin",
+    "name": "scriptler",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-06-16/#SECURITY-2224",
+    "versions": [
+      {
+        "lastVersion": "3.2",
+        "pattern": "([12]|3[.][12])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2390",
+    "type": "plugin",
+    "name": "scriptler",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-06-16/#SECURITY-2390",
+    "versions": [
+      {
+        "lastVersion": "3.1",
+        "pattern": "([12]|3[.]1)(|[.-].+)"
+      }
+    ]
   }
 ]
