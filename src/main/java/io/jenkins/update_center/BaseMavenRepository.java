@@ -4,6 +4,7 @@ import hudson.util.VersionNumber;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,8 +22,9 @@ public abstract class BaseMavenRepository implements MavenRepository {
     private static final Properties IGNORE = new Properties();
 
     static {
-        try {
-            IGNORE.load(Files.newInputStream(new File(Main.resourcesDir, "artifact-ignores.properties").toPath()));
+        try (InputStream stream = Files.newInputStream(new File(Main.resourcesDir,
+                "artifact-ignores.properties").toPath())) {
+            IGNORE.load(stream);
         } catch (IOException e) {
             throw new Error(e);
         }

@@ -1,5 +1,6 @@
 package io.jenkins.update_center;
 
+import io.jenkins.update_center.util.HttpHelper;
 import junit.framework.Assert;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -119,7 +120,7 @@ public class WarningsTest {
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url("https://updates.jenkins.io/release-history.json").get().build();
 
-        String releaseHistoryText = client.newCall(request).execute().body().string();
+        String releaseHistoryText = HttpHelper.getResponseBody(client, request);
         JSONObject json = JSONObject.fromObject(releaseHistoryText);
 
         JSONArray dates = json.getJSONArray("releaseHistory");

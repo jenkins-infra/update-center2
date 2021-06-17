@@ -1,13 +1,13 @@
 package io.jenkins.update_center;
 
 import io.jenkins.update_center.util.Environment;
+import io.jenkins.update_center.util.HttpHelper;
 import net.sf.json.JSONObject;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 
 import javax.annotation.CheckForNull;
 import java.io.IOException;
@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -74,34 +73,34 @@ public class GitHubSource {
         while (hasNextPage) {
             // TODO remove use of json-lib
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("query", String.format("{\n" +
-                            "  organization(login: %s) {\n" +
-                            "    repositories(first: 100, after: %s) {\n" +
-                            "      pageInfo {\n" +
-                            "        startCursor\n" +
-                            "        hasNextPage\n" +
-                            "        endCursor\n" +
-                            "      }\n" +
-                            "      edges {\n" +
-                            "        node {\n" +
-                            "          name\n" +
-                            "          defaultBranchRef {\n" +
-                            "            name\n" +
-                            "          }\n" +
-                            "          repositoryTopics(first:100) {\n" +
-                            "            edges {\n" +
-                            "              node {\n" +
-                            "                topic {\n" +
-                            "                  name\n" +
-                            "                }\n" +
-                            "              }\n" +
-                            "            }\n" +
-                            "          }\n" +
-                            "        }\n" +
-                            "      }\n" +
-                            "    }\n" +
-                            "  }\n" +
-                            "}\n",
+            jsonObject.put("query", String.format("{%n" +
+                            "  organization(login: %s) {%n" +
+                            "    repositories(first: 100, after: %s) {%n" +
+                            "      pageInfo {%n" +
+                            "        startCursor%n" +
+                            "        hasNextPage%n" +
+                            "        endCursor%n" +
+                            "      }%n" +
+                            "      edges {%n" +
+                            "        node {%n" +
+                            "          name%n" +
+                            "          defaultBranchRef {%n" +
+                            "            name%n" +
+                            "          }%n" +
+                            "          repositoryTopics(first:100) {%n" +
+                            "            edges {%n" +
+                            "              node {%n" +
+                            "                topic {%n" +
+                            "                  name%n" +
+                            "                }%n" +
+                            "              }%n" +
+                            "            }%n" +
+                            "          }%n" +
+                            "        }%n" +
+                            "      }%n" +
+                            "    }%n" +
+                            "  }%n" +
+                            "}%n",
                     "\"" + organization.replace("\"", "\\\"") + "\"",
                     endCursor == null ? "null" : "\"" + endCursor.replace("\"", "\\\"") + "\""
             ));
@@ -112,11 +111,7 @@ public class GitHubSource {
                     .post(RequestBody.create(jsonObject.toString(), MediaType.parse("application/json; charset=utf-8")))
                     .build();
 
-            String bodyString;
-            try (final ResponseBody body = client.newCall(request).execute().body()) {
-                Objects.requireNonNull(body); // guaranteed to be non-null by Javadoc
-                bodyString = body.string();
-            }
+            String bodyString = HttpHelper.getResponseBody(client, request);
 
             JSONObject jsonResponse = JSONObject.fromObject(bodyString);
             if (jsonResponse.has("errors")) {
@@ -179,8 +174,9 @@ public class GitHubSource {
 
     public static GitHubSource getInstance() {
         if (instance == null) {
-            instance = new GitHubSource();
-            instance.init();
+            GitHubSource gh = new GitHubSource();
+            gh.init();
+            instance = gh;
         }
         return instance;
     }

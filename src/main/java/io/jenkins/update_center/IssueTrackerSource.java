@@ -2,6 +2,7 @@ package io.jenkins.update_center;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.annotation.JSONField;
 import io.jenkins.update_center.util.Environment;
 import org.apache.commons.io.IOUtils;
 
@@ -20,8 +21,11 @@ public class IssueTrackerSource {
     private HashMap<String, List<IssueTracker>> pluginToIssueTrackers;
 
     public static class IssueTracker {
+        @JSONField
         public String type;
+        @JSONField
         public String viewUrl;
+        @JSONField
         public String reportUrl;
     }
 
@@ -29,8 +33,9 @@ public class IssueTrackerSource {
 
     public static IssueTrackerSource getInstance() {
         if (instance == null) {
-            instance = new IssueTrackerSource();
-            instance.init();
+            IssueTrackerSource its = new IssueTrackerSource();
+            its.init();
+            instance = its;
         }
         return instance;
     }

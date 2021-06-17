@@ -16,8 +16,7 @@
     <java.level>8</java.level>
     <main.class>io.jenkins.update_center.Main</main.class>
     <spotbugs.failOnError>false</spotbugs.failOnError>
-    <spotbugs.threshold>High</spotbugs.threshold>
-    <!-- TODO reduce threshold and resolve further issues -->
+    <spotbugs.threshold>Medium</spotbugs.threshold>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -121,6 +120,12 @@
         <configuration>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>4.2.0</version>
+        <configuration><excludeFilterFile>${project.basedir}/spotbugs.xml</excludeFilterFile></configuration>
       </plugin>
     </plugins>
   </build>

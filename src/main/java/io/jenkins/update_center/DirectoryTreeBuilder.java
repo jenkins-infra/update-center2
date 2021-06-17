@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeMap;
@@ -179,7 +180,7 @@ public class DirectoryTreeBuilder {
                             Collection<? extends MavenArtifact> versions, String permalink,
                             IndexTemplateProvider service) throws IOException {
         List<MavenArtifact> list = new ArrayList<>(versions);
-        list.sort((o1, o2) -> -o1.getVersion().compareTo(o2.getVersion()));
+        list.sort(Comparator.comparing(MavenArtifact::getVersion).reversed());
 
         try (IndexHtmlBuilder index = service.newIndexHtmlBuilder(dir, title).withSubtitle(subtitle)) {
             index.add(permalink, "permalink to the latest");

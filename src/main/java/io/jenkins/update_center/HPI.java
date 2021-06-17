@@ -25,6 +25,7 @@ package io.jenkins.update_center;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.annotations.VisibleForTesting;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.VersionNumber;
 import io.jenkins.update_center.util.JavaSpecificationVersion;
 import org.apache.commons.io.IOUtils;
@@ -160,10 +161,14 @@ public class HPI extends MavenArtifact {
     private static final Properties ALLOWED_GITHUB_LABELS = new Properties();
 
     static {
-        try {
-            URL_OVERRIDES.load(Files.newInputStream(new File(Main.resourcesDir, "wiki-overrides.properties").toPath()));
-            LABEL_DEFINITIONS.load(Files.newInputStream(new File(Main.resourcesDir, "label-definitions.properties").toPath()));
-            ALLOWED_GITHUB_LABELS.load(Files.newInputStream(new File(Main.resourcesDir, "allowed-github-topics.properties").toPath()));
+        try (
+            InputStream overridesStream = Files.newInputStream(new File(Main.resourcesDir, "wiki-overrides.properties").toPath());
+            InputStream labelStream = Files.newInputStream(new File(Main.resourcesDir, "label-definitions.properties").toPath());
+            InputStream allowedTopicsStream = Files.newInputStream(new File(Main.resourcesDir, "allowed-github-topics.properties").toPath())) {
+            URL_OVERRIDES.load(overridesStream);
+            LABEL_DEFINITIONS.load(labelStream);
+            ALLOWED_GITHUB_LABELS.load(allowedTopicsStream);
+
         } catch (IOException e) {
             throw new Error(e);
         }
@@ -189,8 +194,8 @@ public class HPI extends MavenArtifact {
             ArtifactCoordinates coordinates = new ArtifactCoordinates(artifact.groupId, artifact.artifactId, artifact.version, "jar");
             try (InputStream is = repository.getZipFileEntry(new MavenArtifact(repository, coordinates), "index.jelly")) {
                 StringBuilder b = new StringBuilder();
-                HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> LOGGER.log(Level.INFO, "Bad HTML: '" + html + "' in " + artifact.getGav()));
-                HtmlSanitizer.sanitize(IOUtils.toString(is, StandardCharsets.UTF_8), HTML_POLICY.apply(renderer), PRE_PROCESSOR);
+                @NonNull HtmlStreamRenderer renderer = HtmlStreamRenderer.create(b, Throwable::printStackTrace, html -> LOGGER.log(Level.INFO, "Bad HTML: '" + html + "' in " + artifact.getGav()));
+                HtmlSanitizer.sanitize(IOUtils.toString(is, StandardCharsets.UTF_8), getPolicy(renderer), PRE_PROCESSOR);
                 description = b.toString().trim().replaceAll("\\s+", " ");
             } catch (IOException e) {
                 LOGGER.log(Level.FINE, () -> "Failed to read description from index.jelly: " + e.getMessage());
@@ -201,6 +206,10 @@ public class HPI extends MavenArtifact {
             this.description = description;
         }
         return description;
+    }
+
+    private HtmlSanitizer.Policy getPolicy(HtmlStreamRenderer renderer) {
+        return HTML_POLICY.apply(renderer);
     }
 
     public static class Dependency {
@@ -644,7 +653,7 @@ public class HPI extends MavenArtifact {
     }
 
     @VisibleForTesting
-    public static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS).and(new HtmlPolicyBuilder().allowElements("a").requireRelsOnLinks("noopener", "noreferrer").allowAttributes("target").matching(false, "_blank").onElements("a").toFactory());
+    public static final @NonNull PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS).and(new HtmlPolicyBuilder().allowElements("a").requireRelsOnLinks("noopener", "noreferrer").allowAttributes("target").matching(false, "_blank").onElements("a").toFactory());
 
     @VisibleForTesting
     public static final HtmlStreamEventProcessor PRE_PROCESSOR = receiver -> new HtmlStreamEventReceiverWrapper(receiver) {
