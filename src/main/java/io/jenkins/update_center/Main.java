@@ -23,6 +23,7 @@
  */
 package io.jenkins.update_center;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.support_log_formatter.SupportLogFormatter;
@@ -74,7 +75,7 @@ public class Main {
 
     @Option(name = "--resources-dir", usage = "Specify the path to the resources directory containing warnings.json, artifact-ignores.properties, etc. This argument cannot be re-set via arguments-file.")
     @SuppressFBWarnings
-    @CheckForNull public static File resourcesDir = new File("resources"); // Default value for tests -- TODO find a better way to set a value for tests
+    @NonNull public static File resourcesDir = new File("resources"); // Default value for tests -- TODO find a better way to set a value for tests
 
     @Option(name = "--log-level", usage = "A java.util.logging.Level name. Use CONFIG, FINE, FINER, or FINEST to log more output.", handler = LevelOptionHandler.class)
     @SuppressFBWarnings

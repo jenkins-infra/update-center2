@@ -18,7 +18,6 @@ public class IndexTemplateProvider {
     }
 
     protected String initTemplate() {
-        assert Main.resourcesDir != null;
         Path template = Paths.get(Main.resourcesDir.getAbsolutePath(), "index-template.html");
         try {
             return new String(Files.readAllBytes(template), StandardCharsets.UTF_8);
