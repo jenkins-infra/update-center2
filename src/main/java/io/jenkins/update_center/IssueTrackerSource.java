@@ -6,6 +6,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import io.jenkins.update_center.util.Environment;
 import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class IssueTrackerSource {
 
     private static IssueTrackerSource instance;
 
-    public static IssueTrackerSource getInstance() {
+    public static synchronized IssueTrackerSource getInstance() {
         if (instance == null) {
             IssueTrackerSource its = new IssueTrackerSource();
             its.init();
@@ -43,13 +44,16 @@ public class IssueTrackerSource {
     private void init() {
         try {
             final String jsonData = IOUtils.toString(new URL(DATA_URL), StandardCharsets.UTF_8);
-            pluginToIssueTrackers = JSON.parseObject(jsonData, new TypeReference<HashMap<String, List<IssueTracker>>>(){}.getType());
-        } catch (Exception ex) {
+            pluginToIssueTrackers = JSON.parseObject(jsonData, new TypeReferenceForHashMapFromStringToListOfIssueTracker().getType());
+        } catch (RuntimeException | IOException ex) {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }
     }
 
     public List<IssueTracker> getIssueTrackers(String plugin) {
         return pluginToIssueTrackers.computeIfAbsent(plugin, p -> null); // Don't advertise empty lists of issue trackers if there are none.
+    }
+
+    private static class TypeReferenceForHashMapFromStringToListOfIssueTracker extends TypeReference<HashMap<String, List<IssueTracker>>> {
     }
 }
