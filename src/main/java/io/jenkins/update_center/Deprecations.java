@@ -2,6 +2,7 @@ package io.jenkins.update_center;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
@@ -21,8 +22,8 @@ public class Deprecations {
     private static final Properties DEPRECATIONS = new Properties();
 
     static {
-        try {
-            DEPRECATIONS.load(Files.newInputStream(new File(Main.resourcesDir, "deprecations.properties").toPath()));
+        try (InputStream stream = Files.newInputStream(new File(Main.resourcesDir, "deprecations.properties").toPath())){
+            DEPRECATIONS.load(stream);
         } catch (IOException e) {
             throw new Error(e);
         }

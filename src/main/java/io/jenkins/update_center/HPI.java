@@ -38,9 +38,9 @@ import org.dom4j.io.SAXReader;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.HtmlSanitizer;
 import org.owasp.html.HtmlStreamEventProcessor;
+import org.owasp.html.HtmlStreamEventReceiver;
 import org.owasp.html.HtmlStreamEventReceiverWrapper;
 import org.owasp.html.HtmlStreamRenderer;
-import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.xml.sax.SAXException;
 
@@ -57,9 +57,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.*;
 import java.net.URL;
 import java.net.MalformedURLException;
 
@@ -69,7 +69,6 @@ import java.net.MalformedURLException;
  * For version independent metadata, see {@link Plugin}.
  */
 public class HPI extends MavenArtifact {
-    private static final Pattern DEVELOPERS_PATTERN = Pattern.compile("([^:]*):([^:]*):([^,]*),?");
 
     private final Plugin plugin;
 
@@ -160,10 +159,14 @@ public class HPI extends MavenArtifact {
     private static final Properties ALLOWED_GITHUB_LABELS = new Properties();
 
     static {
-        try {
-            URL_OVERRIDES.load(Files.newInputStream(new File(Main.resourcesDir, "wiki-overrides.properties").toPath()));
-            LABEL_DEFINITIONS.load(Files.newInputStream(new File(Main.resourcesDir, "label-definitions.properties").toPath()));
-            ALLOWED_GITHUB_LABELS.load(Files.newInputStream(new File(Main.resourcesDir, "allowed-github-topics.properties").toPath()));
+        try (
+            InputStream overridesStream = Files.newInputStream(new File(Main.resourcesDir, "wiki-overrides.properties").toPath());
+            InputStream labelStream = Files.newInputStream(new File(Main.resourcesDir, "label-definitions.properties").toPath());
+            InputStream allowedTopicsStream = Files.newInputStream(new File(Main.resourcesDir, "allowed-github-topics.properties").toPath())) {
+            URL_OVERRIDES.load(overridesStream);
+            LABEL_DEFINITIONS.load(labelStream);
+            ALLOWED_GITHUB_LABELS.load(allowedTopicsStream);
+
         } catch (IOException e) {
             throw new Error(e);
         }
@@ -643,8 +646,10 @@ public class HPI extends MavenArtifact {
         return defaultBranch;
     }
 
+    // declared type is generic here because return value of com.google.common.base.Function::apply
+    // (and hence PolicyFactory) is considered nullable, triggering SpotBugs warnings
     @VisibleForTesting
-    public static final PolicyFactory HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS).and(new HtmlPolicyBuilder().allowElements("a").requireRelsOnLinks("noopener", "noreferrer").allowAttributes("target").matching(false, "_blank").onElements("a").toFactory());
+    public static final Function<HtmlStreamEventReceiver, HtmlSanitizer.Policy> HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS).and(new HtmlPolicyBuilder().allowElements("a").requireRelsOnLinks("noopener", "noreferrer").allowAttributes("target").matching(false, "_blank").onElements("a").toFactory());
 
     @VisibleForTesting
     public static final HtmlStreamEventProcessor PRE_PROCESSOR = receiver -> new HtmlStreamEventReceiverWrapper(receiver) {

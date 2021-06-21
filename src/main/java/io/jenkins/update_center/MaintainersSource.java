@@ -86,8 +86,9 @@ public class MaintainersSource {
 
     public static MaintainersSource getInstance() {
         if (instance == null) {
-            instance = new MaintainersSource();
-            instance.init();
+            MaintainersSource ms = new MaintainersSource();
+            ms.init();
+            instance = ms;
         }
         return instance;
     }

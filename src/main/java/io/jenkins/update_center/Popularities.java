@@ -1,13 +1,12 @@
 package io.jenkins.update_center;
 
 import com.alibaba.fastjson.JSON;
+import io.jenkins.update_center.util.HttpHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,11 +35,7 @@ public class Popularities {
     private static void initialize() throws IOException {
         Request request = new Request.Builder().url(JSON_URL).get().build();
 
-        String bodyString;
-        try (final ResponseBody body = new OkHttpClient().newCall(request).execute().body()){
-            Objects.requireNonNull(body);
-            bodyString = body.string();
-        }
+        String bodyString = HttpHelper.getResponseBody(new OkHttpClient(), request);
 
         JsonResponse response = JSON.parseObject(bodyString, JsonResponse.class);
         if (response.plugins == null) {

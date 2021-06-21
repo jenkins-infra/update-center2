@@ -1,0 +1,10 @@
+<FindBugsFilter>
+    <Match>
+        <!-- No multithreading: ignore unsafe static calls -->
+        <Bug pattern="STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE" />
+    </Match>
+    <Match>
+        <!-- All @JsonField fields are considered unwritten -->
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
+    </Match>
+</FindBugsFilter>

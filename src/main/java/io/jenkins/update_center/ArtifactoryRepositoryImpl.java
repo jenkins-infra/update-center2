@@ -2,6 +2,7 @@ package io.jenkins.update_center;
 
 import com.alibaba.fastjson.JSON;
 import io.jenkins.update_center.util.Environment;
+import io.jenkins.update_center.util.HttpHelper;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -151,8 +152,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder().url(ARTIFACTORY_AQL_URL).addHeader("Authorization", Credentials.basic(username, password)).post(RequestBody.create(AQL_QUERY, MediaType.parse("text/plain; charset=utf-8"))).build();
-        try (final ResponseBody body = client.newCall(request).execute().body()) {
-            final MediaType mediaType = Objects.requireNonNull(body).contentType();
+        try (final ResponseBody body = HttpHelper.body(client.newCall(request).execute())) {
+            final MediaType mediaType = body.contentType();
             JsonResponse json = JSON.parseObject(body.byteStream(), mediaType == null ? StandardCharsets.UTF_8 : mediaType.charset(), JsonResponse.class);
             json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
         }
@@ -202,7 +203,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
     private String getUri(ArtifactCoordinates a) {
         String basename = a.artifactId + "-" + a.version;
-        String filename = filename = basename + "." + a.packaging;
+        String filename = basename + "." + a.packaging;
         return a.groupId.replace(".", "/") + "/" + a.artifactId + "/" + a.version + "/" + filename;
     }
 
@@ -243,8 +244,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                 Request request = new Request.Builder().url(url).get().build();
                 final Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
-                    try (final ResponseBody body = response.body()) {
-                        Objects.requireNonNull(body); // always non-null according to Javadoc
+                    try (final ResponseBody body = HttpHelper.body(response)) {
                         try (InputStream inputStream = body.byteStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
                             IOUtils.copy(inputStream, tos);
                             if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
