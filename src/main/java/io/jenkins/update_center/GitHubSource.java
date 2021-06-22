@@ -172,7 +172,7 @@ public class GitHubSource {
 
     private static GitHubSource instance;
 
-    public static GitHubSource getInstance() {
+    public static synchronized GitHubSource getInstance() {
         if (instance == null) {
             GitHubSource gh = new GitHubSource();
             gh.init();

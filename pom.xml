@@ -16,7 +16,7 @@
     <java.level>8</java.level>
     <main.class>io.jenkins.update_center.Main</main.class>
     <spotbugs.failOnError>false</spotbugs.failOnError>
-    <spotbugs.threshold>Medium</spotbugs.threshold>
+    <spotbugs.threshold>Low</spotbugs.threshold>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

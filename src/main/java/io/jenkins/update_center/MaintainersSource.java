@@ -29,6 +29,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import io.jenkins.update_center.util.Environment;
 import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
@@ -84,7 +85,7 @@ public class MaintainersSource {
 
     private static MaintainersSource instance;
 
-    public static MaintainersSource getInstance() {
+    public static synchronized MaintainersSource getInstance() {
         if (instance == null) {
             MaintainersSource ms = new MaintainersSource();
             ms.init();
@@ -97,9 +98,9 @@ public class MaintainersSource {
         // Obtain maintainer info
         try {
             final String jsonData = IOUtils.toString(new URL(MAINTAINERS_INFO_URL), StandardCharsets.UTF_8);
-            final List<JsonMaintainer> rawMaintainersInfo = JSON.parseObject(jsonData, new TypeReference<List<JsonMaintainer>>() {}.getType());
+            final List<JsonMaintainer> rawMaintainersInfo = JSON.parseObject(jsonData, new TypeReferenceForListOfJsonMaintainer().getType());
             maintainerInfo = new HashMap<>(rawMaintainersInfo.stream().map(m -> new AbstractMap.SimpleEntry<>(m.name, m.toMaintainer())).collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue)));
-        } catch (Exception ex) {
+        } catch (RuntimeException | IOException ex) {
             LOGGER.log(Level.WARNING, "Failed to process " + MAINTAINERS_INFO_URL, ex);
             maintainerInfo = new HashMap<>();
         }
@@ -107,9 +108,8 @@ public class MaintainersSource {
         // Obtain plugin/maintainers mapping
         try {
             final String jsonData = IOUtils.toString(new URL(PLUGIN_MAINTAINERS_DATA_URL), StandardCharsets.UTF_8);
-            pluginToMaintainers = JSON.parseObject(jsonData, new TypeReference<HashMap<String, List<String>>>() {
-            }.getType());
-        } catch (Exception ex) {
+            pluginToMaintainers = JSON.parseObject(jsonData, new TypeReferenceForHashMapFromStringToListOfString().getType());
+        } catch (RuntimeException | IOException ex) {
             pluginToMaintainers = new HashMap<>();
             LOGGER.log(Level.WARNING, "Failed to process" + PLUGIN_MAINTAINERS_DATA_URL, ex);
         }
@@ -144,5 +144,10 @@ public class MaintainersSource {
      */
     public List<Maintainer> getMaintainers(ArtifactCoordinates plugin) {
         return getMaintainerIDs(plugin).stream().map((String key) -> maintainerInfo.getOrDefault(key, new Maintainer(key, null))).collect(Collectors.toList());
+    }
+
+    private static class TypeReferenceForListOfJsonMaintainer extends TypeReference<List<JsonMaintainer>> {
+    }
+    private static class TypeReferenceForHashMapFromStringToListOfString extends TypeReference<HashMap<String, List<String>>> {
     }
 }

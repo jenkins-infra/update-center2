@@ -166,17 +166,6 @@ public class PluginUpdateCenterEntry {
         return latestOffered.getGavId();
     }
 
-    private static String fixEmptyAndTrim(String value) {
-        if (value == null) {
-            return null;
-        }
-        final String trim = value.trim();
-        if (trim.length() == 0) {
-            return null;
-        }
-        return trim;
-    }
-
     public List<MaintainersSource.Maintainer> getDevelopers() {
         return MaintainersSource.getInstance().getMaintainers(this.latestOffered.artifact);
     }

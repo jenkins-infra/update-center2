@@ -172,17 +172,6 @@ public class HPI extends MavenArtifact {
         }
     }
 
-    private static String fixEmptyAndTrim(String value) {
-        if (value == null) {
-            return null;
-        }
-        final String trim = value.trim();
-        if (trim.length() == 0) {
-            return null;
-        }
-        return trim;
-    }
-
     private String description;
 
     public String getDescription() throws IOException {
