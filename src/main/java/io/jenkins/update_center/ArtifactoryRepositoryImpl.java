@@ -49,7 +49,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private static final String ARTIFACTORY_ZIP_ENTRY_URL = ARTIFACTORY_URL + "%s/%s!%s";
     private static final String ARTIFACTORY_FILE_URL = ARTIFACTORY_URL + "%s/%s";
 
-    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\", \"size\")";
+    private static final String AQL_QUERY = "items.find({\"$or\":[{\"repo\":\"releases\"},{\"repo\":\"camilla\"}],\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\", \"size\")";
 
     private final String username;
     private final String password;
@@ -211,6 +211,12 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     public Manifest getManifest(MavenArtifact artifact) throws IOException {
         try (InputStream is = getFileContent(String.format(ARTIFACTORY_MANIFEST_URL, "releases", getUri(artifact.artifact)))) {
             return new Manifest(is);
+        } catch (IOException ex) {
+            try (InputStream is = getFileContent(String.format(ARTIFACTORY_MANIFEST_URL, "camilla", getUri(artifact.artifact)))) {
+                return new Manifest(is);
+            } catch (IOException unused) {
+                throw ex;
+            }
         }
     }
 
@@ -241,7 +247,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             try {
                 OkHttpClient.Builder builder = new OkHttpClient.Builder();
                 OkHttpClient client = builder.build();
-                Request request = new Request.Builder().url(url).get().build();
+                Request request = new Request.Builder().url(url).get().addHeader("Authorization", Credentials.basic(username, password)).build();
                 final Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
                     try (final ResponseBody body = HttpHelper.body(response)) {
@@ -280,7 +286,15 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
     @Override
     public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException {
-        return getFileContent(String.format(ARTIFACTORY_ZIP_ENTRY_URL, "releases", getUri(artifact.artifact), StringUtils.prependIfMissing(path, "/")));
+        try {
+            return getFileContent(String.format(ARTIFACTORY_ZIP_ENTRY_URL, "releases", getUri(artifact.artifact), StringUtils.prependIfMissing(path, "/")));
+        } catch (IOException ex) {
+            try {
+                return getFileContent(String.format(ARTIFACTORY_ZIP_ENTRY_URL, "camilla", getUri(artifact.artifact), StringUtils.prependIfMissing(path, "/")));
+            } catch (IOException unused) {
+                throw ex;
+            }
+        }
     }
 
     @Override
@@ -291,7 +305,15 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         if (localFile.exists()) {
             return localFile;
         }
-        return getFile(String.format(ARTIFACTORY_FILE_URL, "releases", uri));
+        try {
+            return getFile(String.format(ARTIFACTORY_FILE_URL, "releases", uri));
+        } catch (IOException ex) {
+            try {
+                return getFile(String.format(ARTIFACTORY_FILE_URL, "camilla", uri));
+            } catch (IOException unused) {
+                throw ex;
+            }
+        }
     }
 
     private static final File LOCAL_REPO = new File(new File(System.getProperty("user.home")), ".m2/repository");
