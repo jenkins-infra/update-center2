@@ -101,6 +101,8 @@ function sanity-check {
   if [[ 1500000 -ge $( wc -c < "$file" ) ]] ; then
     echo "Sanity check: $file looks too small" >&2
     exit 1
+  else
+    echo "Sanity check: $file looks OK" >&2
   fi
 }
 
@@ -164,9 +166,6 @@ for ltsv in "${RELEASES[@]}" ; do
   sanity-check "$WWW_ROOT_DIR/stable-$v"
   ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
   ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
-
-  # needed for the stable/ directory (below)
-  lastLTS=$v
 done
 
 for version in "${WEEKLY_RELEASES[@]}" ; do
@@ -177,6 +176,9 @@ done
 for version in "${STABLE_RELEASES[@]}" ; do
   sanity-check "$WWW_ROOT_DIR/dynamic-stable-$version"
   ln -sf ../updates "$WWW_ROOT_DIR/dynamic-stable-$version/updates"
+
+  # needed for the stable/ directory (below)
+  lastLTS=$v
 done
 
 sanity-check "$WWW_ROOT_DIR/experimental"
