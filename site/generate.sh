@@ -178,7 +178,7 @@ for version in "${STABLE_RELEASES[@]}" ; do
   ln -sf ../updates "$WWW_ROOT_DIR/dynamic-stable-$version/updates"
 
   # needed for the stable/ directory (below)
-  lastLTS=$v
+  lastLTS=dynamic-stable-$version
 done
 
 sanity-check "$WWW_ROOT_DIR/experimental"
@@ -189,7 +189,7 @@ ln -sf ../updates "$WWW_ROOT_DIR/current/updates"
 
 # generate symlinks to retain compatibility with past layout and make Apache index useful
 pushd "$WWW_ROOT_DIR"
-  ln -s "stable-$lastLTS" stable
+  ln -s "$lastLTS" stable
   for f in latest latestCore.txt plugin-documentation-urls.json release-history.json plugin-versions.json update-center.json update-center.actual.json update-center.json.html ; do
     ln -s "current/$f" .
   done
