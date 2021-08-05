@@ -113,10 +113,8 @@ There are various reasons to need to do this, such as:
 * A plugin integrates with a service that has been shut down.
 
 Both use cases (entire plugins, or specific versions) are controlled via the file `resources/artifact-ignores.properties`.
+That file may also define URL of a deprecation notice that is shown to users who already installed the plugin.
 See that file for usage examples.
-
-Such plugins typically should get a corresponding deprecation entry in `resources/deprecations.properties`.
-
 
 === Security warnings
 

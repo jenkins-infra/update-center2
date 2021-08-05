@@ -4,9 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Deprecations {
     private Deprecations() {}
@@ -15,8 +14,10 @@ public class Deprecations {
         return DEPRECATIONS.getProperty(pluginName);
     }
 
-    public static List<String> getDeprecatedPlugins() {
-        return DEPRECATIONS.keySet().stream().map(Object::toString).collect(Collectors.toList());
+    public static Stream<String> getDeprecatedPlugins() {
+        return Stream.concat(DEPRECATIONS.keySet().stream(),
+                BaseMavenRepository.getIgnoresWithDeprecationUrl())
+                .map(Object::toString);
     }
 
     private static final Properties DEPRECATIONS = new Properties();
