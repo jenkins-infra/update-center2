@@ -10326,5 +10326,70 @@
         "pattern": "(1)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-2376",
+    "type": "plugin",
+    "name": "code-coverage-api",
+    "message": "RCE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-08-26/#SECURITY-2376",
+    "versions": [
+      {
+        "lastVersion": "1.4.0",
+        "pattern": "(1)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2396",
+    "type": "plugin",
+    "name": "nomad",
+    "message": "Password stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2021-08-26/#SECURITY-2396",
+    "versions": [
+      {
+        "lastVersion": "0.7.4",
+        "pattern": "(0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2469",
+    "type": "plugin",
+    "name": "saml",
+    "message": "CSRF protection for any URL can be bypassed",
+    "url": "https://www.jenkins.io/security/advisory/2021-08-26/#SECURITY-2469",
+    "versions": [
+      {
+        "lastVersion": "2.0.7",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2470",
+    "type": "plugin",
+    "name": "azure-ad",
+    "message": "CSRF protection for any URL can be bypassed",
+    "url": "https://www.jenkins.io/security/advisory/2021-08-26/#SECURITY-2470",
+    "versions": [
+      {
+        "lastVersion": "179.vf6841393099e",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2411",
+    "type": "plugin",
+    "name": "nested-view",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2021-08-31/#SECURITY-2411",
+    "versions": [
+      {
+        "lastVersion": "1.20",
+        "pattern": "(1[.]1[0123479]|1[.]20|1[.][6-9])(|[.-].+)"
+      }
+    ]
   }
 ]
