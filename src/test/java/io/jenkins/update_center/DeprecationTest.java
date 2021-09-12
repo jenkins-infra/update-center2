@@ -23,10 +23,10 @@ public class DeprecationTest {
                 "deprecations.properties").toPath());
         deprecations.load(stream);
         for (String key: deprecations.stringPropertyNames()) {
-            assertFalse(ignore.containsKey(key));
+            assertFalse(key, ignore.containsKey(key));
         }
         for (String key: ignore.stringPropertyNames()) {
-            assertFalse(deprecations.containsKey(key));
+            assertFalse(key, deprecations.containsKey(key));
         }
     }
 }
