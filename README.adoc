@@ -34,8 +34,8 @@ The generator pulls information from:
   - Maintainer info JSON file, see `MaintainersSource.java`
 * link:resources/[Local resource files in this repository]
   - GitHub topic allowlist (`resources/allowed-github-topics.properties`)
-  - Artifact ignore list (`resources/artifact-ignores.properties`)
-  - Deprecations (`resources/deprecations.properties`)
+  - Standalone deprecations (`resources/deprecations.properties`)
+  - Artifact ignore list (with deprecation URLs) (`resources/artifact-ignores.properties`)
   - Label assignments (`resources/label-definitions.properties`)
   - Security warnings (`resources/warnings.json`)
   - Plugin URL overrides (`resources/wiki-overrides.properties`)
@@ -64,7 +64,7 @@ To add the label `matrix` for your plugin, you would add either `matrix` or `jen
 
 ==== Resource File
 
-As an alternative to the above, plugin labels can be defined in the file https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/label-definitions.properties[`resources/label-definitions.properties`] in this repository.
+As an alternative to the above, plugin labels can be defined in the file https://github.com/jenkins-infra/update-center2/blob/master/resources/label-definitions.properties[`resources/label-definitions.properties`] in this repository.
 
 This is the preferable approach when a plugin isn't in the `jenkinsci` GitHub organization, or a GitHub repository contains multiple plugins whose labels should be different.
 
@@ -74,10 +74,10 @@ Plugins are generally expected to provide a `<url>` to their documentation in th
 Historically, these URLs have been pages on the Jenkins wiki, but can point anywhere.
 
 This requirement no longer exists, but it may still be useful to define a documentation URL for plugins that do not specify the correct URL.
-//Due to update center tiers that can result in older releases of a plugin being distributed, it might not be enough to have a URL in the latest release.
-// TODO This is probably obsolete since we always look at the latest release now?
 
 The file `resources/wiki-overrides.properties` defines these wiki page overrides.
+
+Any entries in this file are expected to be temporary, i.e. plugin maintainers are expected to fix their plugin's metadata.
 
 
 === Deprecations
@@ -89,7 +89,11 @@ Plugins are considered _deprecated_ by Jenkins when either the update site metad
   This can be done via GitHub repository topics, or the `resources/label-definitions.properties` described above.
   Jenkins will use the plugin URL as the reference URL for the deprecation notice.
 * Lists an entry with the plugin ID as key in the top-level `deprecations` map in `update-center.json`.
-  This can be done through entries in the https://github.com/jenkins-infra/update-center2/edit/master/src/main/resources/deprecations.properties[`resources/deprecations.properties`] file.
+  This can be done through entries in the
+  https://github.com/jenkins-infra/update-center2/blob/master/resources/deprecations.properties[`resources/deprecations.properties`]
+  file (for plugins that continue being distributed) or in
+  https://github.com/jenkins-infra/update-center2/blob/master/resources/artifact-ignores.properties[`resources/artifact-ignores.properties`]
+  for plugins that are suspended.
   The value from the properties file will be used as the URL for the deprecation notice in Jenkins.
   This entry and URL take precedence over a `deprecated` label, i.e. when both are set, the URL from the top-level element shall be used.
 
