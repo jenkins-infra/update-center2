@@ -355,6 +355,10 @@ public class HPI extends MavenArtifact {
             if (url != null) {
                 url = url.replace("wiki.hudson-ci.org/display/HUDSON/", "wiki.jenkins-ci.org/display/JENKINS/");
                 url = url.replace("http://wiki.jenkins-ci.org", "https://wiki.jenkins.io");
+                url = url.replace("https://wiki.jenkins-ci.org", "https://wiki.jenkins.io");
+                if (url.startsWith("https://wiki.jenkins.io")) {
+                    url = "https://github.com/jenkins-infra/plugins-wiki-docs/blob/master/" + artifact.artifactId + "/README.md";
+                }
             }
 
             if (url != null && !url.equals(originalUrl)) {
