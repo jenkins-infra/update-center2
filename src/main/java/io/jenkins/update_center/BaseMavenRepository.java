@@ -1,6 +1,7 @@
 package io.jenkins.update_center;
 
 import hudson.util.VersionNumber;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 /**
  * A collection of artifacts from which we build index.
@@ -23,12 +25,25 @@ public abstract class BaseMavenRepository implements MavenRepository {
 
     static {
         try (InputStream stream = Files.newInputStream(new File(Main.resourcesDir,
-                "artifact-ignores.properties").toPath())) {
+                        "artifact-ignores.properties").toPath())) {
             IGNORE.load(stream);
         } catch (IOException e) {
             throw new Error(e);
         }
     }
+
+    public static Stream<Object> getIgnoresWithDeprecationUrl() {
+        return IGNORE.keySet().stream().filter(s -> isUrl(IGNORE.getProperty(s.toString())));
+    }
+
+    private static boolean isUrl(String property) {
+        return !StringUtils.isEmpty(property) && !property.trim().startsWith("#");
+    }
+
+    public static String getIgnoreNoticeUrl(String artifactId) {
+        return IGNORE.getProperty(artifactId);
+    }
+
     public Collection<Plugin> listJenkinsPlugins() throws IOException {
 
         Map<String, Plugin> plugins =

@@ -2,6 +2,12 @@
 
 NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
 
+== 3.10 (2021-09-13)
+
+* Remove duplication between deprecations and ignores (https://github.com/jenkins-infra/update-center2/pull/539[#539])
+* Internal: Set SpotBugs threshold to low and address issues (https://github.com/jenkins-infra/update-center2/pull/524[#524], https://github.com/jenkins-infra/update-center2/pull/528[#528])
+* Internal: Update dependencies (https://github.com/jenkins-infra/update-center2/pull/540[#540], https://github.com/jenkins-infra/update-center2/pull/542[#542])
+
 == 3.9 (2021-06-14)
 
 * Use template for download pages (https://github.com/jenkins-infra/update-center2/pull/469[#469])
