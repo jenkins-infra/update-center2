@@ -10443,7 +10443,7 @@
     "id": "SECURITY-2506",
     "type": "plugin",
     "name": "subversion",
-    "message": "Path traversal vulnerability alllows reading arbitrary files",
+    "message": "Path traversal vulnerability allows reading arbitrary files",
     "url": "https://www.jenkins.io/security/advisory/2021-11-04/#SECURITY-2506",
     "versions": [
       {
