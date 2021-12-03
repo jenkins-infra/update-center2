@@ -222,17 +222,24 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             }
             return new StringInputStream(entry);
         }
-        File cacheFile = getFile(url);
+        File cacheFile = getFile(url, false);
         return new FileInputStream(cacheFile);
     }
 
-    private File getFile(final String url) throws IOException {
+    private File getFile(final String url, boolean force) throws IOException {
         String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes(StandardCharsets.UTF_8));
         File cacheFile = new File(cacheDirectory, urlBase64);
 
-        if (!cacheFile.exists()) {
+        if (!cacheFile.exists() || (force && cacheFile.isDirectory())) {
             // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
-            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache)");
+            if (!cacheFile.exists()) {
+                LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache)");
+            } else {
+                LOGGER.log(Level.INFO, "Downloading : " + url + " (cached failure but forced to reattempt)");
+                if (!cacheFile.delete()) {
+                    LOGGER.log(Level.WARNING, "Failed to delete " + cacheFile);
+                }
+            }
 
             final File parentFile = cacheFile.getParentFile();
             if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
@@ -291,7 +298,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         if (localFile.exists()) {
             return localFile;
         }
-        return getFile(String.format(ARTIFACTORY_FILE_URL, "releases", uri));
+        return getFile(String.format(ARTIFACTORY_FILE_URL, "releases", uri), true);
     }
 
     private static final File LOCAL_REPO = new File(new File(System.getProperty("user.home")), ".m2/repository");
