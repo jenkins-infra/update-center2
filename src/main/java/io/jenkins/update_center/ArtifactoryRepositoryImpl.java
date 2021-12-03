@@ -3,6 +3,8 @@ package io.jenkins.update_center;
 import com.alibaba.fastjson.JSON;
 import io.jenkins.update_center.util.Environment;
 import io.jenkins.update_center.util.HttpHelper;
+import java.util.Iterator;
+import java.util.function.Predicate;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -49,7 +51,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private static final String ARTIFACTORY_ZIP_ENTRY_URL = ARTIFACTORY_URL + "%s/%s!%s";
     private static final String ARTIFACTORY_FILE_URL = ARTIFACTORY_URL + "%s/%s";
 
-    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\", \"size\")";
+    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}},{\"name\":{\"$match\":\"*.pom\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\", \"size\")";
 
     private final String username;
     private final String password;
@@ -61,6 +63,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private Map<String, JsonFile> files = new HashMap<>();
     private Set<ArtifactCoordinates> plugins;
     private Set<ArtifactCoordinates> wars;
+    private Set<ArtifactCoordinates> poms;
 
     public ArtifactoryRepositoryImpl(String username, String password) {
         this.username = username;
@@ -157,9 +160,24 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             JsonResponse json = JSON.parseObject(body.byteStream(), mediaType == null ? StandardCharsets.UTF_8 : mediaType.charset(), JsonResponse.class);
             json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
         }
+        this.poms = this.files.values().stream().filter(it -> it.name.endsWith(".pom")).map(ArtifactoryRepositoryImpl::toGav).filter(Objects::nonNull).collect(Collectors.toSet());
         this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::toGav).filter(Objects::nonNull).collect(Collectors.toSet());
+        removeIf(this.plugins, it -> !this.poms.contains(new ArtifactCoordinates(it.groupId, it.artifactId, it.version, "pom")));
         this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::toGav).collect(Collectors.toSet());
+        removeIf(this.wars, it -> !this.poms.contains(new ArtifactCoordinates(it.groupId, it.artifactId, it.version, "pom")));
         LOGGER.log(Level.INFO, "Initialized " + this.getClass().getName());
+    }
+
+    // We cannot use Collection#removeIf because we want to log this
+    private static <E> void removeIf(Collection<E> collection, Predicate<? super E> filter) {
+        final Iterator<E> each = collection.iterator();
+        while (each.hasNext()) {
+            final E current = each.next();
+            if (filter.test(current)) {
+                each.remove();
+                LOGGER.log(Level.INFO, "Removing artifact file without corresponding pom file: " + current);
+            }
+        }
     }
 
     private String hexToBase64(String hex) throws IOException {
