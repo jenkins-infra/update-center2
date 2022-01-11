@@ -36,6 +36,8 @@ import io.jenkins.update_center.wrappers.AlphaBetaOnlyRepository;
 import io.jenkins.update_center.wrappers.StableWarMavenRepository;
 import io.jenkins.update_center.wrappers.VersionCappedMavenRepository;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import io.jenkins.update_center.filters.JavaVersionPluginFilter;
 import io.jenkins.update_center.json.PluginVersionsRoot;
 import io.jenkins.update_center.json.ReleaseHistoryRoot;
@@ -142,10 +144,10 @@ public class Main {
     public boolean prettyPrint;
 
     @Option(name = "--id", usage = "Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
-    @CheckForNull public String id;
+    @CheckForNull public String id = "default";
 
     @Option(name = "--connection-check-url", usage = "Specify an URL of the 'always up' server for performing connection check.")
-    @CheckForNull public String connectionCheckUrl;
+    @CheckForNull public String connectionCheckUrl = "https://www.google.com/";
 
 
     /* These fields are other objects configurable with command-line options */
@@ -249,7 +251,14 @@ public class Main {
         metadataWriter.writeMetadataFiles(repo, www);
 
         if (!skipUpdateCenter) {
-            final String signedUpdateCenterJson = new UpdateCenterRoot(repo, new File(Main.resourcesDir, WARNINGS_JSON_FILENAME)).encodeWithSignature(signer, prettyPrint);
+            UpdateCenterRoot updateCenterRoot = new UpdateCenterRoot(repo, new File(Main.resourcesDir, WARNINGS_JSON_FILENAME));
+            if (!StringUtils.isEmpty(id)) {
+                updateCenterRoot.id = id;
+            }
+            if (!StringUtils.isEmpty(connectionCheckUrl)) {
+                updateCenterRoot.connectionCheckUrl = connectionCheckUrl;
+            }
+            final String signedUpdateCenterJson = updateCenterRoot.encodeWithSignature(signer, prettyPrint);
             writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), new File(www, UPDATE_CENTER_JSON_FILENAME));
             writeToFile(signedUpdateCenterJson, new File(www, UPDATE_CENTER_ACTUAL_JSON_FILENAME));
             writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(www, UPDATE_CENTER_JSON_HTML_FILENAME));
