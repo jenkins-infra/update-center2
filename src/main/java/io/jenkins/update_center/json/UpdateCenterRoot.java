@@ -26,10 +26,10 @@ public class UpdateCenterRoot extends WithSignature {
     public final String updateCenterVersion = "1";
 
     @JSONField
-    public String connectionCheckUrl = "http://www.google.com/"; // TODO pass in command line arg
+    public String connectionCheckUrl;
 
     @JSONField
-    public String id = "default"; // TODO pass in command line arg
+    public String id;
 
     @JSONField
     public UpdateCenterCore core;
