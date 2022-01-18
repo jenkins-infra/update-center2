@@ -6251,8 +6251,8 @@
     "url": "https://jenkins.io/security/advisory/2019-10-23/#SECURITY-1003",
     "versions": [
       {
-        "lastVersion": "2.3",
-        "pattern": ".*"
+        "lastVersion": "2.4.4",
+        "pattern": "(1|2[.][0-3]|2[.]4[.][34])(|[.-].+)"
       }
     ]
   },
