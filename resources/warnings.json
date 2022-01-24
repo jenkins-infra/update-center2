@@ -1561,7 +1561,8 @@
     "url": "https://jenkins.io/security/advisory/2018-02-26/#SECURITY-248",
     "versions": [
       {
-        "pattern": "(Affected even if up to date|.*)"
+        "lastVersion": "1.90",
+        "pattern": "(0|1[.][0-9]|1[.][1-8][0-9]|1[.]90)(|[.-].+)"
       }
     ]
   },
