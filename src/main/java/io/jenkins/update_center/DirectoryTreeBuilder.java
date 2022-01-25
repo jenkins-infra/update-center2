@@ -1,5 +1,6 @@
 package io.jenkins.update_center;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.args4j.Option;
@@ -114,6 +115,8 @@ public class DirectoryTreeBuilder {
      *
      * @param hpi The plugin to create a latest symlink for
      */
+    @SuppressFBWarnings(value="COMMAND_INJECTION",
+                        justification="No signfiicant command injection vulnerability risk in ProcessBuilder calls here")
     private void createLatestSymlink(Plugin hpi) throws IOException {
         File dir = new File(download, "plugins/" + hpi.getArtifactId());
         final File latest = new File(dir, "latest");
@@ -144,6 +147,8 @@ public class DirectoryTreeBuilder {
      * @param dst the staging location
      * @throws IOException when a problem occurs during file operations
      */
+    @SuppressFBWarnings(value="COMMAND_INJECTION",
+                        justification="No signfiicant command injection vulnerability risk in ProcessBuilder calls here")
     protected void stage(MavenArtifact a, File dst) throws IOException {
         File src = a.resolve();
         if (dst.exists() && dst.lastModified() == src.lastModified() && dst.length() == src.length()) {
