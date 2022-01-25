@@ -1,6 +1,7 @@
 package io.jenkins.update_center;
 
 import com.alibaba.fastjson.JSON;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.update_center.util.Environment;
 import io.jenkins.update_center.util.HttpHelper;
 import okhttp3.Credentials;
@@ -172,6 +173,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     @Override
+    @SuppressFBWarnings(value="DCN_NULLPOINTER_EXCEPTION",
+                        justification="Catching NPE is safer than trying to guard all cases")
     public ArtifactMetadata getMetadata(MavenArtifact artifact) throws IOException {
         ensureInitialized();
         ArtifactMetadata ret = new ArtifactMetadata();
