@@ -27,4 +27,8 @@
         <!-- SHA1 digest is required for checksums -->
         <Bug pattern="WEAK_MESSAGE_DIGEST_SHA1" />
     </Match>
+    <Match>
+        <!-- Reading user specified files is part of the role of this utility -->
+        <Bug pattern="PATH_TRAVERSAL_IN" />
+    </Match>
 </FindBugsFilter>
