@@ -90,7 +90,7 @@ This increases the usefulness of the update sites to users of slightly older rel
 
 ---
 **NOTE**:  The update center used to support formats like `2.204/` and `stable-2.204/`.
-This is no longer a case for the recent versions.
+This is no longer the case for recent versions.
 
 ---
 
