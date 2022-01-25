@@ -101,7 +101,7 @@ Directories with names containing Jenkins LTS baselines like `2.319` are version
 
 By default, the update center generates versions only for the first `.1` release of the LTS baseline.
 We expect binary and API compatibility within the LTS baseline,
-so it is extremely unlikety there would be a need for a specific update site for a `.2` release.
+so it is extremely unlikely there would be a need for a specific update site for a `.2` release.
 
 Structure of the update site:
 
