@@ -10699,8 +10699,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-01-12/#SECURITY-2287",
     "versions": [
       {
-        "lastVersion": "1.22",
-        "pattern": ".*"
+        "lastVersion": "1.23",
+        "pattern": "(0|1[.][0-9]|1[.]1[01234789]|1[.]2[0-3])(|[.-].+)"
       }
     ]
   },
@@ -10712,8 +10712,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-01-12/#SECURITY-2290",
     "versions": [
       {
-        "lastVersion": "1.22",
-        "pattern": ".*"
+        "lastVersion": "1.23",
+        "pattern": "(0|1[.][0-9]|1[.]1[01234789]|1[.]2[0-3])(|[.-].+)"
       }
     ]
   },
@@ -10725,8 +10725,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-01-12/#SECURITY-2291",
     "versions": [
       {
-        "lastVersion": "1.22",
-        "pattern": ".*"
+        "lastVersion": "1.23",
+        "pattern": "(0|1[.][0-9]|1[.]1[01234789]|1[.]2[0-3])(|[.-].+)"
       }
     ]
   },
@@ -10738,8 +10738,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-01-12/#SECURITY-2307",
     "versions": [
       {
-        "lastVersion": "1.22",
-        "pattern": ".*"
+        "lastVersion": "1.23",
+        "pattern": "(0|1[.][0-9]|1[.]1[01234789]|1[.]2[0-3])(|[.-].+)"
       }
     ]
   },
