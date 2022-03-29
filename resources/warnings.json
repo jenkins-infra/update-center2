@@ -11500,5 +11500,317 @@
         "pattern": ".*"
       }
     ]
+  },
+  {
+    "id": "SECURITY-1892",
+    "type": "plugin",
+    "name": "ci-with-toad-edge",
+    "message": "XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-1892",
+    "versions": [
+      {
+        "lastVersion": "2.3",
+        "pattern": "(2[.][23])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1896",
+    "type": "plugin",
+    "name": "flaky-test-handler",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-1896",
+    "versions": [
+      {
+        "lastVersion": "1.2.1",
+        "pattern": "(1[.][01]|1[.]2[.][01])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1897",
+    "type": "plugin",
+    "name": "phoenix-autotest",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-1897",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1899",
+    "type": "plugin",
+    "name": "covcomplplot",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-1899",
+    "versions": [
+      {
+        "lastVersion": "1.1.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1932",
+    "type": "plugin",
+    "name": "sitemonitor",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-1932",
+    "versions": [
+      {
+        "lastVersion": "0.6",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2062-1",
+    "type": "plugin",
+    "name": "ownership",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2062%20(1)",
+    "versions": [
+      {
+        "lastVersion": "0.13.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2062-2",
+    "type": "plugin",
+    "name": "ownership",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2062%20(2)",
+    "versions": [
+      {
+        "lastVersion": "0.13.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2079",
+    "type": "plugin",
+    "name": "proxmox",
+    "message": "Password stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2079",
+    "versions": [
+      {
+        "lastVersion": "0.5.0",
+        "pattern": "(0[.][245])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2081",
+    "type": "plugin",
+    "name": "proxmox",
+    "message": "SSL/TLS certificate validation globally disabled",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2081",
+    "versions": [
+      {
+        "lastVersion": "0.6.0",
+        "pattern": "(0[.][2456])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2082",
+    "type": "plugin",
+    "name": "proxmox",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2082",
+    "versions": [
+      {
+        "lastVersion": "0.7.0",
+        "pattern": "(0[.][2456]|0[.]7[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2161",
+    "type": "plugin",
+    "name": "instant-messaging",
+    "message": "Passwords stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2161",
+    "versions": [
+      {
+        "lastVersion": "1.41",
+        "pattern": "(1[.]1[4-9]|1[.]2[012345789]|1[.]3[02345789]|1[.]4[01])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2236",
+    "type": "plugin",
+    "name": "JiraTestResultReporter",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2236",
+    "versions": [
+      {
+        "lastVersion": "165.v817928553942",
+        "pattern": "([12]|16[25])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2241",
+    "type": "plugin",
+    "name": "rocketchatnotifier",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2241",
+    "versions": [
+      {
+        "lastVersion": "1.4.10",
+        "pattern": "(0|1[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2262",
+    "type": "plugin",
+    "name": "selected-tests-executor",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2262",
+    "versions": [
+      {
+        "lastVersion": "1.3.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2285",
+    "type": "plugin",
+    "name": "ownership",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2285",
+    "versions": [
+      {
+        "lastVersion": "0.13.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2338",
+    "type": "plugin",
+    "name": "selected-tests-executor",
+    "message": "Arbitrary file read vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2338",
+    "versions": [
+      {
+        "lastVersion": "1.3.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2633",
+    "type": "plugin",
+    "name": "ci-with-toad-edge",
+    "message": "Arbitrary file read vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2633",
+    "versions": [
+      {
+        "lastVersion": "2.3",
+        "pattern": "(2[.][23])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2635",
+    "type": "plugin",
+    "name": "ci-with-toad-edge",
+    "message": "Missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2635",
+    "versions": [
+      {
+        "lastVersion": "2.3",
+        "pattern": "(2[.][23])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2639",
+    "type": "plugin",
+    "name": "atlassian-bitbucket-server-integration",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2639",
+    "versions": [
+      {
+        "lastVersion": "3.1.0",
+        "pattern": "([12]|3[.][01])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2640",
+    "type": "plugin",
+    "name": "atlassian-bitbucket-server-integration",
+    "message": "Missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2640",
+    "versions": [
+      {
+        "lastVersion": "3.1.0",
+        "pattern": "([12]|3[.][01])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2654",
+    "type": "plugin",
+    "name": "ci-with-toad-edge",
+    "message": "Path traversal vulnerability on Windows",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2654",
+    "versions": [
+      {
+        "lastVersion": "2.3",
+        "pattern": "(2[.][23])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2683",
+    "type": "plugin",
+    "name": "phoenix-autotest",
+    "message": "Path traversal vulnerability allows reading arbitrary files",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2683",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2684",
+    "type": "plugin",
+    "name": "phoenix-autotest",
+    "message": "Arbitrary file read vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2684",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2685",
+    "type": "plugin",
+    "name": "phoenix-autotest",
+    "message": "Missing permission checks allow enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2022-03-29/#SECURITY-2685",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": ".*"
+      }
+    ]
   }
 ]
