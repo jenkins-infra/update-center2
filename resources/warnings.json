@@ -11869,7 +11869,7 @@
     "id": "SECURITY-2617-credentials",
     "type": "plugin",
     "name": "credentials",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11882,7 +11882,7 @@
     "id": "SECURITY-2617-cvs",
     "type": "plugin",
     "name": "cvs",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11895,7 +11895,7 @@
     "id": "SECURITY-2617-extended-choice-parameter",
     "type": "plugin",
     "name": "extended-choice-parameter",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11908,7 +11908,7 @@
     "id": "SECURITY-2617-gerrit-trigger",
     "type": "plugin",
     "name": "gerrit-trigger",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11921,7 +11921,7 @@
     "id": "SECURITY-2617-git-parameter",
     "type": "plugin",
     "name": "git-parameter",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11934,7 +11934,7 @@
     "id": "SECURITY-2617-jira",
     "type": "plugin",
     "name": "jira",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11947,7 +11947,7 @@
     "id": "SECURITY-2617-jobgenerator",
     "type": "plugin",
     "name": "jobgenerator",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11960,7 +11960,7 @@
     "id": "SECURITY-2617-mask-passwords",
     "type": "plugin",
     "name": "mask-passwords",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11973,7 +11973,7 @@
     "id": "SECURITY-2617-nodelabelparameter",
     "type": "plugin",
     "name": "nodelabelparameter",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11986,7 +11986,7 @@
     "id": "SECURITY-2617-promoted-builds",
     "type": "plugin",
     "name": "promoted-builds",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
@@ -11999,7 +11999,7 @@
     "id": "SECURITY-2617-subversion",
     "type": "plugin",
     "name": "subversion",
-    "message": "Stored XSS vulnerabilities in multiple plugins providing additional parameter types",
+    "message": "Stored XSS vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2022-04-12/#SECURITY-2617",
     "versions": [
       {
