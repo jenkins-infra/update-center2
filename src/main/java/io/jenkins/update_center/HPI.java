@@ -26,7 +26,6 @@ package io.jenkins.update_center;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.annotations.VisibleForTesting;
 import hudson.util.VersionNumber;
-import io.jenkins.update_center.util.JavaSpecificationVersion;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
@@ -44,7 +43,6 @@ import org.owasp.html.HtmlStreamRenderer;
 import org.owasp.html.Sanitizers;
 import org.xml.sax.SAXException;
 
-import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -119,22 +117,6 @@ public class HPI extends MavenArtifact {
 
     public String getCompatibleSinceVersion() throws IOException {
         return getManifestAttributes().getValue("Compatible-Since-Version");
-    }
-
-    /**
-     * Gets Minimum Java Version required by the plugin.
-     * This uses the value of the {@code Minimum-Java-Version} manifest entry
-     * @return Minimum Java Version or {@code null} if it is unknown
-     * @throws IOException Manifest read error
-     */
-    @CheckForNull
-    public JavaSpecificationVersion getMinimumJavaVersion() throws IOException {
-        String manifestEntry = getManifestAttributes().getValue("Minimum-Java-Version");
-        if (StringUtils.isNotBlank(manifestEntry)) {
-            return new JavaSpecificationVersion(manifestEntry);
-        }
-
-        return null;
     }
 
     public List<Dependency> getDependencies() throws IOException {

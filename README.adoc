@@ -242,11 +242,3 @@ Once update site JSON files are generated, configure Jenkins to download them in
 Either set up a local HTTP server so the URL would be something like `+http://localhost:8000/update-center.json+`, or specify a `file://` URL like `+file:///Users/yourname/git/update-center2/www2/update-center.json+`
 
 NOTE: For historical reason, the configured URL points to `update-center.json`, but the file actually downloaded by Jenkins (at least up to 2.235 as of this writing) is `update-center.json.html`.
-
-=== Filtering Java versions
-
-The `--java-version <version>` CLI argument can be used to filter plugins based on their minimum Java version requirement.
-By default such filtering happens based on the `Minimum-Java-Version` manifest entry provided in Plugin HPIs starting from https://github.com/jenkinsci/maven-hpi-plugin#30-2018-12-05[Maven HPI Plugin 3.0] and https://github.com/jenkinsci/plugin-pom/blob/master/CHANGELOG.md#329[Plugin POM 3.29].
-
-Plugin HPIs without `Minimum-Java-Version` will be accepted by default.
-If you want to create an update center for old Java, use the `--limit-plugin-core-dependency` option to set the filter for core dependencies in plugins.
