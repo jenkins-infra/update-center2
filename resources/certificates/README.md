@@ -24,6 +24,7 @@ It is included in Jenkins 2.117 and newer as a trust anchor.
 
 This certificate is valid from 2018-04-08 to 2028-04-05.
 
+### Key owners
 As of May 2020, Kohsuke, Oleg Nenashev, and Olivier Vernin have the corresponding private key.
 
 [INFRA-1502]: https://issues.jenkins-ci.org/browse/INFRA-1502
