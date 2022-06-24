@@ -13,6 +13,7 @@ import okhttp3.ResponseBody;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -37,7 +38,6 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.apache.commons.codec.digest.DigestUtils;
 
 public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private static final Logger LOGGER = Logger.getLogger(ArtifactoryRepositoryImpl.class.getName());
