@@ -25,7 +25,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
@@ -38,6 +37,7 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.apache.commons.codec.digest.DigestUtils;
 
 public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private static final Logger LOGGER = Logger.getLogger(ArtifactoryRepositoryImpl.class.getName());
@@ -227,8 +227,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private File getFile(final String url) throws IOException {
-        String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes(StandardCharsets.UTF_8));
-        File cacheFile = new File(cacheDirectory, urlBase64);
+        File cacheFile = new File(cacheDirectory, DigestUtils.sha256Hex(url));
 
         if (!cacheFile.exists()) {
             // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
