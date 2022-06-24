@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
@@ -227,7 +228,12 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private File getFile(final String url) throws IOException {
-        File cacheFile = new File(cacheDirectory, DigestUtils.sha256Hex(url));
+        String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes(StandardCharsets.UTF_8));
+        File cacheFile = new File(cacheDirectory, urlBase64);
+        if (!cacheFile.exists()) {
+            // Preferred new location (guaranteed maximum filename length):
+            cacheFile = new File(cacheDirectory, DigestUtils.sha256Hex(url));
+        }
 
         if (!cacheFile.exists()) {
             // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
