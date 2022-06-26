@@ -13,6 +13,7 @@ import okhttp3.ResponseBody;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -229,6 +230,10 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private File getFile(final String url) throws IOException {
         String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes(StandardCharsets.UTF_8));
         File cacheFile = new File(cacheDirectory, urlBase64);
+        if (!cacheFile.exists()) {
+            // Preferred new location (guaranteed maximum filename length):
+            cacheFile = new File(cacheDirectory, DigestUtils.sha256Hex(url));
+        }
 
         if (!cacheFile.exists()) {
             // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
