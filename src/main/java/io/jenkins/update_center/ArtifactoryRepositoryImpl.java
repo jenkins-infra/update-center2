@@ -233,7 +233,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         File cacheFile = new File(cacheDirectory, urlBase64);
         if (!cacheFile.exists()) {
             // Preferred new location (guaranteed maximum filename length):
-            final String sha256 = DigestUtils.sha256Hex(url);
+            final String sha256 = DigestUtils.sha256Hex(new URL(url).getPath());
             final String sha256prefix = sha256.substring(0, 2); // to limit number of files in top-level directory
             final File cachePrefixDir = new File(cacheDirectory, sha256prefix);
             if (!cachePrefixDir.exists() && !cachePrefixDir.mkdirs()) {
@@ -244,7 +244,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
         if (!cacheFile.exists()) {
             // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
-            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache) to " + cacheFile);
+            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache) to " + cacheFile.getName());
 
             final File parentFile = cacheFile.getParentFile();
             if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
