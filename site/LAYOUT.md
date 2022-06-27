@@ -78,21 +78,21 @@ This way, at least the file properties shown in the directory listing match the 
 ### Tier List
 
 The file `tiers.json` is generated as part of update-center2 execution and published in the root directory.
+It contains all recent Jenkins releases (LTS and weekly) that are used as the core dependency for a plugin.
 
 It allows programmatically determining which versions of Jenkins get served which update site.
-
 
 ## Regular tiered update sites (LTS and weekly)
 
 Directories with names containing Jenkins LTS baselines like `2.204` are version specific update sites.
 
-* `2.204/` contains the tiered update site for Jenkins 2.204 and _similar_ weekly releases not matching an LTS baseline.
-* `stable-2.204/` contains the tiered update site for Jenkins 2.204.x.
+* `dynamic-2.344/` contains the tiered update site for the Jenkins 2.344 weekly release.
+* `dynamic-stable-2.332.1/` contains the tiered update site for Jenkins 2.332.1.
 
 Each of these update sites only offer plugins compatible with the respective baseline, as well as the newest weekly or LTS release, depending on the variant (LTS or weekly).
 This increases the usefulness of the update sites to users of slightly older releases of Jenkins, as they won't regularly be offered incompatible releases of plugins.
 
-The Jenkins project publishes a limited, fixed number of tiered update sites to encourage users to regularly update Jenkins. 
+The Jenkins project publishes a number of such tiered update sites, supporting releases going back one year (as of May 2022) to encourage users to regularly update Jenkins. 
 
 ```
 2.204/
@@ -111,9 +111,13 @@ stable-2.204/
 
 Redirect rules will forward requests to the top-level update site files to the most appropriate tiered update site, or `current/`:
 
-* Releases older than the oldest supported baseline will be served the oldest update site (LTS or weekly).
-* Weekly releases between two supported LTS baselines will be served the next lower weekly update site.
-  For example, if the newest supported LTS baseline is 2.222, then Jenkins 2.210 will get the 2.204 weekly update site.
+* Weekly releases older than the oldest supported weekly update site tier will be served the oldest weekly tier update site.
+* LTS releases older than the oldest supported LTS update site tier will be served the oldest LTS tier update site.
+* Weekly releases matching a weekly update site tier will get that weekly tier update site.
+* LTS releases matching am LTS update site tier will get that LTS tier update site.
+* Weekly releases between two supported weekly update site tiers will get the next lower weekly tier update site.
+  For example, if the weekly update sites are 2.331, 2.334, and 2.339, users of Jenkins 2.336 will receive the content for 2.334.
+
 * Weekly releases newer than the most recent LTS baseline will be served the `current/` update site.
 
 As a side effect, only the exact weekly matching the most recent LTS baseline will be served that update site, any older version will be downgraded to the previous baseline, any newer version will be updated to `current/`
@@ -131,7 +135,7 @@ The directory `current` contains an update site without Jenkins version restrict
 current/
 ├── latest                           (supports top-level directory, may be moved)
 │   ├── .htaccess                    (supports top-level directory, may be moved)
-│   └── index.html                   (supports top-level directory, may be moved)
+│   └── index.html                   (supports top-level directory, may be moved)
 ├── latestCore.txt
 ├── plugin-documentation-urls.json   (supports top-level file, may be moved)
 ├── plugin-versions.json             (supports top-level file, may be moved)
@@ -183,10 +187,10 @@ This directory contains a directory tree:
 ```
 download/
 ├── plugins/
-│   └── (pluginName)/
+│   └── (pluginName)/
 │       └── index.html
 └── war/
-    └── index.html
+    └── index.html
 ```
 
 Each `index.html` file contains a list of links to `.war` (for core) and `.hpi` (for plugins) files.
