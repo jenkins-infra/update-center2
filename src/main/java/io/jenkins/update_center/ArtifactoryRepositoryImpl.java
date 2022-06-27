@@ -244,7 +244,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
         if (!cacheFile.exists()) {
             // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
-            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache)");
+            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache) to " + cacheFile);
 
             final File parentFile = cacheFile.getParentFile();
             if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
