@@ -51,7 +51,7 @@ echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
 version=3.12-SNAPSHOT
-coordinates=org/jenkins-ci/update-center2/$version/update-center2-3.12-20220627.153700-1-bin.zip
+coordinates=org/jenkins-ci/update-center2/$version/update-center2-3.12-20220627.160636-2-bin.zip
 
 if [[ -f "$MAIN_DIR"/tmp/generator-$version.zip ]] ; then
   echo "tmp/generator-$version.zip already exists, skipping download"
