@@ -23,6 +23,7 @@
  */
 package io.jenkins.update_center;
 
+import hudson.util.VersionNumber;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.output.NullWriter;
 import org.bouncycastle.util.encoders.Base64;
@@ -89,14 +90,18 @@ public class IndexHtmlBuilder implements Closeable {
         if (artifactMetadata == null) {
             return;
         }
-        add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata);
+        if (a instanceof HPI) {
+            add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata, ((HPI) a).getRequiredJenkinsVersion());
+        } else {
+            add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata, null);
+        }
     }
 
     public void add(String url, String caption) {
         add(url, null, caption, null);
     }
 
-    public void add(String url, Date releaseDate, String caption, MavenRepository.ArtifactMetadata metadata) {
+    public void add(String url, Date releaseDate, String caption, MavenRepository.ArtifactMetadata metadata, String requiredJenkinsVersion) {
         String releaseDateString = "";
         if (releaseDate != null) {
             releaseDateString = " Released: " + SimpleDateFormat.getDateInstance().format(releaseDate);
@@ -114,6 +119,9 @@ public class IndexHtmlBuilder implements Closeable {
                 content.append("\n<div class=\"checksums\">SHA-256: <code>")
                         .append(base64ToHex(metadata.sha256)).append("</code></div>");
             }
+        }
+        if (requiredJenkinsVersion != null) {
+            content.append("\n<div class=\"core-dependency\">Requires Jenkins ").append(requiredJenkinsVersion).append("</div>");
         }
         content.append("</div></li>\n");
     }
