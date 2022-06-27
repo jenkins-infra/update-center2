@@ -2,6 +2,11 @@
 
 NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
 
+== 3.11 (2022-06-27)
+
+* Switch Artifactory cache from base64 based file names to sha256 to support longer file paths (https://github.com/jenkins-infra/update-center2/pull/605[#605], https://github.com/jenkins-infra/update-center2/pull/609[#609]).
+  While existing base64 files are given preference for backward compatibility and ease of migration, this format is deprecated and will be removed in a future release.
+
 == 3.10 (2021-09-13)
 
 * Remove duplication between deprecations and ignores (https://github.com/jenkins-infra/update-center2/pull/539[#539])
