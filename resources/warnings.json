@@ -11133,7 +11133,7 @@
     "versions": [
       {
         "lastVersion": "336.v182c0fbaaeb7",
-        "pattern": ".*"
+        "pattern": "([1-3]|336)(|[.-].+)"
       }
     ]
   },
