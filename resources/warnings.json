@@ -13207,5 +13207,460 @@
         "pattern": ".*"
       }
     ]
+  },
+  {
+    "id": "SECURITY-1375-1",
+    "type": "plugin",
+    "name": "openshift-deployer",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-1375%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.2.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1375-2",
+    "type": "plugin",
+    "name": "openshift-deployer",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-1375%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1.2.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1468",
+    "type": "plugin",
+    "name": "git-client",
+    "message": "Missing hostname verification",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-1468",
+    "versions": [
+      {
+        "lastVersion": "3.11.0",
+        "pattern": "([12]|3[.][0-9]|3[.]10[.]1|3[.]11[.]0)(|[.-].+)|(3[.]10[.]0)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1849",
+    "type": "plugin",
+    "name": "github",
+    "message": "Non-constant time webhook signature comparison",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-1849",
+    "versions": [
+      {
+        "lastVersion": "1.34.4",
+        "pattern": "(0|1[.][0-9]|1[.]1[0-9]|1[.]2[0-9]|1[.]3[0-3]|1[.]34[.][024])(|[.-].+)|(1[.]34[.][13])"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2048",
+    "type": "plugin",
+    "name": "lucene-search",
+    "message": "Missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2048",
+    "versions": [
+      {
+        "lastVersion": "370.v62a5f618cd3a",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2053",
+    "type": "plugin",
+    "name": "http_request",
+    "message": "Passwords stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2053",
+    "versions": [
+      {
+        "lastVersion": "1.15",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2105-1",
+    "type": "plugin",
+    "name": "openstack-heat",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2105%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.5",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2105-2",
+    "type": "plugin",
+    "name": "openstack-heat",
+    "message": "Missing permission checks allow listing the Jenkins controller file system",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2105%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1.5",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2205",
+    "type": "plugin",
+    "name": "deployer-framework",
+    "message": "Missing permission check allows reading deployment logs",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2205",
+    "versions": [
+      {
+        "lastVersion": "85.v1d1888e8c021",
+        "pattern": "(1[.][0-2]|6[49]|75|85)(|[.-].+)|(1[.]3)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2206",
+    "type": "plugin",
+    "name": "deployer-framework",
+    "message": "Path traversal vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2206",
+    "versions": [
+      {
+        "lastVersion": "85.v1d1888e8c021",
+        "pattern": "(1[.][0-2]|6[49]|75|85)(|[.-].+)|(1[.]3)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2210",
+    "type": "plugin",
+    "name": "files-found-trigger",
+    "message": "Missing permission check allows listing the Jenkins controller file system",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2210",
+    "versions": [
+      {
+        "lastVersion": "1.5",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2402",
+    "type": "plugin",
+    "name": "rhnpush-plugin",
+    "message": "Missing permission check allows listing workspace contents",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2402",
+    "versions": [
+      {
+        "lastVersion": "0.5.1",
+        "pattern": "(0[.][14]|0[.]5[.][01])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2403",
+    "type": "plugin",
+    "name": "rpmsign-plugin",
+    "message": "Missing permission check allows listing workspace contents",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2403",
+    "versions": [
+      {
+        "lastVersion": "0.5.0",
+        "pattern": "(0[.][14]|0[.]5[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2404",
+    "type": "plugin",
+    "name": "android-signing",
+    "message": "Missing permission check allows listing workspace contents",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2404",
+    "versions": [
+      {
+        "lastVersion": "2.2.5",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2413",
+    "type": "plugin",
+    "name": "clif-performance-testing",
+    "message": "Arbitrary file write vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2413",
+    "versions": [
+      {
+        "lastVersion": "64.vc0d66de1dfb_f",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2593",
+    "type": "plugin",
+    "name": "hashicorp-vault-plugin",
+    "message": "Missing permission checks allow capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2593",
+    "versions": [
+      {
+        "lastVersion": "354.vdb_858fd6b_f48",
+        "pattern": "([1-3]|336|35[14])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2619",
+    "type": "plugin",
+    "name": "compuware-topaz-utilities",
+    "message": "Missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2619",
+    "versions": [
+      {
+        "lastVersion": "1.0.8",
+        "pattern": "(1[.]0[.][2-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2621",
+    "type": "plugin",
+    "name": "compuware-scm-downloader",
+    "message": "Missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2621",
+    "versions": [
+      {
+        "lastVersion": "2.0.12",
+        "pattern": "(1|2[.]0[.][0-9]|2[.]0[.]1[0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2626",
+    "type": "plugin",
+    "name": "compuware-xpediter-code-coverage",
+    "message": "Missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2626",
+    "versions": [
+      {
+        "lastVersion": "1.0.7",
+        "pattern": "(1[.]0[.][0-7])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2628",
+    "type": "plugin",
+    "name": "compuware-ispw-operations",
+    "message": "Missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2628",
+    "versions": [
+      {
+        "lastVersion": "1.0.8",
+        "pattern": "(1[.]0[.][2-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2629",
+    "type": "plugin",
+    "name": "compuware-ispw-operations",
+    "message": "Agent-to-controller security bypass",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2629",
+    "versions": [
+      {
+        "lastVersion": "1.0.8",
+        "pattern": "(1[.]0[.][2-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2630",
+    "type": "plugin",
+    "name": "compuware-zadviser-api",
+    "message": "Agent-to-controller security bypass",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2630",
+    "versions": [
+      {
+        "lastVersion": "1.0.3",
+        "pattern": "(1[.]0[.][0-3])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2656",
+    "type": "plugin",
+    "name": "google-cloud-backup",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2656",
+    "versions": [
+      {
+        "lastVersion": "0.6",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2665-1",
+    "type": "plugin",
+    "name": "repository-connector",
+    "message": "Missing permission checks allow enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2665%20(1)",
+    "versions": [
+      {
+        "lastVersion": "2.2.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2665-2",
+    "type": "plugin",
+    "name": "repository-connector",
+    "message": "Missing permission check allows listing the Jenkins controller file system",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2665%20(2)",
+    "versions": [
+      {
+        "lastVersion": "2.2.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2682",
+    "type": "plugin",
+    "name": "dynamic_extended_choice_parameter",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2682",
+    "versions": [
+      {
+        "lastVersion": "1.0.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2686",
+    "type": "plugin",
+    "name": "maven-metadata-plugin",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2686",
+    "versions": [
+      {
+        "lastVersion": "2.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2747",
+    "type": "plugin",
+    "name": "buckminster",
+    "message": "Missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2747",
+    "versions": [
+      {
+        "lastVersion": "1.1.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2762",
+    "type": "plugin",
+    "name": "external-monitor-job",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2762",
+    "versions": [
+      {
+        "lastVersion": "191.v363d0d1efdf8",
+        "pattern": "(189|191|1[.][0-6])(|[.-].+)|(1[.]7)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2764",
+    "type": "plugin",
+    "name": "deployer-framework",
+    "message": "Path traversal vulnerability allows reading arbitrary files",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2764",
+    "versions": [
+      {
+        "lastVersion": "85.v1d1888e8c021",
+        "pattern": "(1[.][0-2]|6[49]|75|85)(|[.-].+)|(1[.]3)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2766",
+    "type": "plugin",
+    "name": "jobConfigHistory",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2766",
+    "versions": [
+      {
+        "lastVersion": "1155.v28a_46a_cc06a_5",
+        "pattern": "([12]|1119|113[39]|114[68]|1155)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2790-1",
+    "type": "plugin",
+    "name": "coverity",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2790%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.11.4",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2790-2",
+    "type": "plugin",
+    "name": "coverity",
+    "message": "CSRF vulnerability and missing permission check allow capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2790%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1.11.4",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2812",
+    "type": "plugin",
+    "name": "lucene-search",
+    "message": "Reflected XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2812",
+    "versions": [
+      {
+        "lastVersion": "370.v62a5f618cd3a",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-284",
+    "type": "plugin",
+    "name": "git",
+    "message": "Lack of authentication mechanism webhook",
+    "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-284",
+    "versions": [
+      {
+        "lastVersion": "4.11.3",
+        "pattern": "([1-3]|4[.][0-8]|4[.]10|4[.]11[.][0-3]|4[.]9[.][0-2])(|[.-].+)"
+      }
+    ]
   }
 ]
