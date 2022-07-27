@@ -13654,7 +13654,7 @@
     "id": "SECURITY-284",
     "type": "plugin",
     "name": "git",
-    "message": "Lack of authentication mechanism webhook",
+    "message": "Lack of authentication mechanism in webhook",
     "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-284",
     "versions": [
       {
