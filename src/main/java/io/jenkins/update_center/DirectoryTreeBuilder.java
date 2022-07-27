@@ -125,12 +125,13 @@ public class DirectoryTreeBuilder {
         if (System.getProperty("os.name").toLowerCase(Locale.US).contains("windows")) {
             return;
         }
-        pb.command("ln", "-s", hpi.getLatest().version, "latest");
+        final String version = hpi.getLatest().version;
+        pb.command("ln", "-s", version, "latest");
         pb.directory(dir);
         try {
             int r = pb.start().waitFor();
             if (r != 0) {
-                throw new IOException("ln failed: " + r); // TODO better logging
+                throw new IOException("ln failed in: '" + dir + "' to: '" + version + "' exit code: " + r); // TODO better logging
             }
         } catch (InterruptedException ex) {
             LOGGER.log(Level.WARNING, "Failed to link ");
