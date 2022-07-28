@@ -125,7 +125,7 @@ public class DirectoryTreeBuilder {
         if (System.getProperty("os.name").toLowerCase(Locale.US).contains("windows")) {
             return;
         }
-        pb.command("ln", "-s", hpi.getLatest().version, "latest");
+        pb.command("ln", "-s", "--", hpi.getLatest().version, "latest");
         pb.directory(dir);
         try {
             int r = pb.start().waitFor();
