@@ -132,7 +132,7 @@ public class DirectoryTreeBuilder {
         try {
             Files.createSymbolicLink(newLink, existingFile);
         } catch (IOException | UnsupportedOperationException ex) {
-            LOGGER.log(Level.WARNING, "Failed to link ");
+            LOGGER.log(Level.WARNING, "Failed to link", ex);
         }
     }
 
