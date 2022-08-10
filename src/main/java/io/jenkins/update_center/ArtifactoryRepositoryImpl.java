@@ -14,6 +14,7 @@ import okhttp3.ResponseBody;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -230,12 +231,24 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private File getFile(final String url) throws IOException {
-        String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes(StandardCharsets.UTF_8));
+        // TODO remove old base64 based cache paths once the cache is migrated
+        final String path = new URL(url).getPath();
+        String urlBase64 = Base64.encodeBase64String(path.getBytes(StandardCharsets.UTF_8));
         File cacheFile = new File(cacheDirectory, urlBase64);
+        if (!cacheFile.exists()) {
+            // Preferred new location (guaranteed maximum filename length):
+            final String sha256 = DigestUtils.sha256Hex(path);
+            final String sha256prefix = sha256.substring(0, 2); // to limit number of files in top-level directory
+            final File cachePrefixDir = new File(cacheDirectory, sha256prefix);
+            if (!cachePrefixDir.exists() && !cachePrefixDir.mkdirs()) {
+                LOGGER.log(Level.WARNING, "Failed to create cache prefix directory " + cachePrefixDir);
+            }
+            cacheFile = new File(cachePrefixDir, sha256);
+        }
 
         if (!cacheFile.exists()) {
             // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
-            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache)");
+            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache) to " + cacheFile.getName());
 
             final File parentFile = cacheFile.getParentFile();
             if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
