@@ -159,7 +159,7 @@
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp-urlconnection</artifactId>
-      <version>4.9.3</version>
+      <version>4.10.0</version>
     </dependency>
     <dependency>
       <groupId>jaxen</groupId>
@@ -199,7 +199,7 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>version-number</artifactId>
-      <version>1.9</version>
+      <version>1.10</version>
     </dependency>
     <dependency>
       <groupId>bouncycastle</groupId>
@@ -214,18 +214,18 @@
     <dependency>
       <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
       <artifactId>owasp-java-html-sanitizer</artifactId>
-      <version>20211018.2</version>
+      <version>20220608.1</version>
     </dependency>
     <dependency>
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs-annotations</artifactId>
-      <version>4.5.3</version>
+      <version>4.7.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.14.3</version>
+      <version>1.15.2</version>
     </dependency>
 
 
@@ -233,7 +233,7 @@
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib-common</artifactId>
-      <version>1.6.10</version>
+      <version>1.7.10</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -251,7 +251,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>4.3.1</version>
+      <version>4.6.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -263,7 +263,7 @@
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>mockwebserver</artifactId>
-      <version>4.9.3</version>
+      <version>4.10.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
