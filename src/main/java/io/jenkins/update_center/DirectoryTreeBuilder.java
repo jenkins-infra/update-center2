@@ -7,6 +7,9 @@ import org.kohsuke.args4j.Option;
 import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -121,18 +124,14 @@ public class DirectoryTreeBuilder {
             throw new IOException("Failed to delete " + latest);
         }
 
-        ProcessBuilder pb = new ProcessBuilder();
         if (System.getProperty("os.name").toLowerCase(Locale.US).contains("windows")) {
             return;
         }
-        pb.command("ln", "-s", "--", hpi.getLatest().version, "latest");
-        pb.directory(dir);
+        Path newLink = Paths.get("latest");
+        Path existingFile = Paths.get(hpi.getLatest().version);
         try {
-            int r = pb.start().waitFor();
-            if (r != 0) {
-                throw new IOException("ln failed: " + r); // TODO better logging
-            }
-        } catch (InterruptedException ex) {
+            Files.createSymbolicLink(newLink, existingFile);
+        } catch (IOException | UnsupportedOperationException ex) {
             LOGGER.log(Level.WARNING, "Failed to link ");
         }
     }
@@ -157,21 +156,15 @@ public class DirectoryTreeBuilder {
             throw new IOException("Failed to create " + parentFile);
         }
 
-        ProcessBuilder pb = new ProcessBuilder();
         if (System.getProperty("os.name").toLowerCase(Locale.US).contains("windows")) {
             return;
         }
-        pb.command("ln", "-f", src.getAbsolutePath(), dst.getAbsolutePath());
-        Process p = pb.start();
+        Path newLink = Paths.get(dst.getAbsolutePath());
+        Path existingFile = Paths.get(src.getAbsolutePath());
         try {
-            if (p.waitFor() != 0) {
-                throw new IOException("'ln -f " + src.getAbsolutePath() + " " + dst.getAbsolutePath() +
-                        "' failed with code " + p.exitValue() + "\nError: " + IOUtils.toString(p.getErrorStream()) + "\nOutput: " + IOUtils.toString(p.getInputStream()));
-            } else {
-                LOGGER.log(Level.INFO, "Created new download file " + dst + " from " + src);
-            }
-        } catch (InterruptedException ex) {
-            LOGGER.log(Level.WARNING, "Interrupted creating " + dst + " from " + src, ex);
+            Files.createSymbolicLink(newLink, existingFile);
+        } catch (IOException | UnsupportedOperationException ex) {
+            LOGGER.log(Level.WARNING, "Failed to create " + dst + " from " + src, ex);
         }
 
     }
