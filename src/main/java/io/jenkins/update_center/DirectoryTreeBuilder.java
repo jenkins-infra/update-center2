@@ -130,9 +130,10 @@ public class DirectoryTreeBuilder {
         Path newLink = Paths.get("latest");
         Path existingFile = Paths.get(hpi.getLatest().version);
         try {
+            Files.deleteIfExists(newLink);
             Files.createSymbolicLink(newLink, existingFile);
         } catch (IOException | UnsupportedOperationException ex) {
-            LOGGER.log(Level.WARNING, "Failed to link ");
+            LOGGER.log(Level.WARNING, "Failed to link", ex);
         }
     }
 
@@ -162,6 +163,7 @@ public class DirectoryTreeBuilder {
         Path newLink = Paths.get(dst.getAbsolutePath());
         Path existingFile = Paths.get(src.getAbsolutePath());
         try {
+            Files.deleteIfExists(newLink);
             Files.createSymbolicLink(newLink, existingFile);
         } catch (IOException | UnsupportedOperationException ex) {
             LOGGER.log(Level.WARNING, "Failed to create " + dst + " from " + src, ex);
