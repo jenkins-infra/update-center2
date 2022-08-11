@@ -7,4 +7,28 @@
         <!-- All @JsonField fields are considered unwritten -->
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
     </Match>
+    <Match>
+        <!-- CRLF injection risk from logging is not relevant here -->
+        <Bug pattern="CRLF_INJECTION_LOGS" />
+    </Match>
+    <Match>
+        <!-- Internal representation exposure is not a risk in this utility -->
+        <Bug pattern="EI_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <!-- Internal representation exposure is not a risk in this utility -->
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <!-- Internal representation exposure is not a risk in this utility -->
+        <Bug pattern="MS_EXPOSE_REP" />
+    </Match>
+    <Match>
+        <!-- SHA1 digest is required for checksums -->
+        <Bug pattern="WEAK_MESSAGE_DIGEST_SHA1" />
+    </Match>
+    <Match>
+        <!-- Reading user specified files is part of the role of this utility -->
+        <Bug pattern="PATH_TRAVERSAL_IN" />
+    </Match>
 </FindBugsFilter>

@@ -2,6 +2,15 @@
 
 NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
 
+== 3.12.1 (2022-07-28)
+
+* * Improve robustness with unexpected version number formats (https://github.com/jenkins-infra/update-center2/pull/624[#624])
+
+== 3.12 (2022-06-27)
+
+* Do not include the host name in the Artifactory cache key for SHA-256 based cache entries (https://github.com/jenkins-infra/update-center2/pull/613[#613])
+  Files cached with 3.11 will be missed and downloaded again.
+
 == 3.11 (2022-06-27)
 
 * Switch Artifactory cache from base64 based file names to sha256 to support longer file paths (https://github.com/jenkins-infra/update-center2/pull/605[#605], https://github.com/jenkins-infra/update-center2/pull/609[#609]).

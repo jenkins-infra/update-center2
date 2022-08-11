@@ -1,8 +1,11 @@
 package io.jenkins.update_center;
 
 import com.alibaba.fastjson.JSON;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.update_center.util.Environment;
 import io.jenkins.update_center.util.HttpHelper;
+import java.util.Iterator;
+import java.util.function.Predicate;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -50,7 +53,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private static final String ARTIFACTORY_ZIP_ENTRY_URL = ARTIFACTORY_URL + "%s/%s!%s";
     private static final String ARTIFACTORY_FILE_URL = ARTIFACTORY_URL + "%s/%s";
 
-    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\", \"size\")";
+    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}},{\"name\":{\"$match\":\"*.pom\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\", \"size\")";
 
     private final String username;
     private final String password;
@@ -62,6 +65,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private Map<String, JsonFile> files = new HashMap<>();
     private Set<ArtifactCoordinates> plugins;
     private Set<ArtifactCoordinates> wars;
+    private Set<ArtifactCoordinates> poms;
 
     public ArtifactoryRepositoryImpl(String username, String password) {
         this.username = username;
@@ -158,9 +162,24 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             JsonResponse json = JSON.parseObject(body.byteStream(), mediaType == null ? StandardCharsets.UTF_8 : mediaType.charset(), JsonResponse.class);
             json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
         }
+        this.poms = this.files.values().stream().filter(it -> it.name.endsWith(".pom")).map(ArtifactoryRepositoryImpl::toGav).filter(Objects::nonNull).collect(Collectors.toSet());
         this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::toGav).filter(Objects::nonNull).collect(Collectors.toSet());
+        removeIf(this.plugins, it -> !this.poms.contains(new ArtifactCoordinates(it.groupId, it.artifactId, it.version, "pom")));
         this.wars = this.files.values().stream().filter(it -> it.name.endsWith(".war")).map(ArtifactoryRepositoryImpl::toGav).collect(Collectors.toSet());
+        removeIf(this.wars, it -> !this.poms.contains(new ArtifactCoordinates(it.groupId, it.artifactId, it.version, "pom")));
         LOGGER.log(Level.INFO, "Initialized " + this.getClass().getName());
+    }
+
+    // We cannot use Collection#removeIf because we want to log this
+    private static <E> void removeIf(Collection<E> collection, Predicate<? super E> filter) {
+        final Iterator<E> each = collection.iterator();
+        while (each.hasNext()) {
+            final E current = each.next();
+            if (filter.test(current)) {
+                each.remove();
+                LOGGER.log(Level.INFO, "Removing artifact file without corresponding pom file: " + current);
+            }
+        }
     }
 
     private String hexToBase64(String hex) throws IOException {
@@ -173,6 +192,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     @Override
+    @SuppressFBWarnings(value="DCN_NULLPOINTER_EXCEPTION",
+                        justification="Catching NPE is safer than trying to guard all cases")
     public ArtifactMetadata getMetadata(MavenArtifact artifact) throws IOException {
         ensureInitialized();
         ArtifactMetadata ret = new ArtifactMetadata();
@@ -228,23 +249,18 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private File getFile(final String url) throws IOException {
-        // TODO remove old base64 based cache paths once the cache is migrated
-        String urlBase64 = Base64.encodeBase64String(new URL(url).getPath().getBytes(StandardCharsets.UTF_8));
-        File cacheFile = new File(cacheDirectory, urlBase64);
-        if (!cacheFile.exists()) {
-            // Preferred new location (guaranteed maximum filename length):
-            final String sha256 = DigestUtils.sha256Hex(url);
-            final String sha256prefix = sha256.substring(0, 2); // to limit number of files in top-level directory
-            final File cachePrefixDir = new File(cacheDirectory, sha256prefix);
-            if (!cachePrefixDir.exists() && !cachePrefixDir.mkdirs()) {
-                LOGGER.log(Level.WARNING, "Failed to create cache prefix directory " + cachePrefixDir);
-            }
-            cacheFile = new File(cachePrefixDir, sha256);
+        final String path = new URL(url).getPath();
+        final String sha256 = DigestUtils.sha256Hex(path);
+        final String sha256prefix = sha256.substring(0, 2); // to limit number of files in top-level directory
+        final File cachePrefixDir = new File(cacheDirectory, sha256prefix);
+        if (!cachePrefixDir.exists() && !cachePrefixDir.mkdirs()) {
+            LOGGER.log(Level.WARNING, "Failed to create cache prefix directory " + cachePrefixDir);
         }
+        File cacheFile = new File(cachePrefixDir, sha256);
 
         if (!cacheFile.exists()) {
             // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
-            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache)");
+            LOGGER.log(Level.INFO, "Downloading : " + url + " (not found in cache) to " + cacheFile.getName());
 
             final File parentFile = cacheFile.getParentFile();
             if (!parentFile.mkdirs() && !parentFile.isDirectory()) {

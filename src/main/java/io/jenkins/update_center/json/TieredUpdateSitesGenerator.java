@@ -89,7 +89,7 @@ public class TieredUpdateSitesGenerator extends WithoutSignature {
             try {
                 return v.getRequiredJenkinsVersion();
             } catch (IOException e) {
-                LOGGER.log(Level.WARNING, "Failed to determine required Jenkins version for " + v.getGavId());
+                LOGGER.log(Level.WARNING, "Failed to determine required Jenkins version for " + v.getGavId(), e);
                 return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet()).stream().map(VersionNumber::new).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
