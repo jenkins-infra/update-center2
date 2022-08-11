@@ -82,8 +82,7 @@ Any entries in this file are expected to be temporary, i.e. plugin maintainers a
 
 === Deprecations
 
-// TODO Once https://github.com/jenkinsci/jenkins/pull/4073 is merged, specify which version is the first one.
-Plugins are considered _deprecated_ by Jenkins when either the update site metadata does one or both of the following:
+Plugins are considered _deprecated_ by Jenkins 2.246 and newer when the update site metadata does one or both of the following:
 
 * Uses the label `deprecated` for the plugin.
   This can be done via GitHub repository topics, or the `resources/label-definitions.properties` described above.

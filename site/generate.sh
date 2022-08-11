@@ -65,13 +65,11 @@ rm -rf "$MAIN_DIR"/tmp/generator/
 unzip -q "$MAIN_DIR"/tmp/generator-$version.zip -d "$MAIN_DIR"/tmp/generator/
 
 function execute {
-  # To use a locally built snapshot, use the following line instead:
+  # The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
+  # Define the default for certificate expiration and recent release age threshold, but if environment variables of the same name are defined, use their values.
+  java -DCERTIFICATE_MINIMUM_VALID_DAYS="${CERTIFICATE_MINIMUM_VALID_DAYS:-30}" -DRECENT_RELEASES_MAX_AGE_HOURS="${RECENT_RELEASES_MAX_AGE_HOURS:-3}" -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
+  # To use a locally built snapshot, use the following command instead:
   # java -Dfile.encoding=UTF-8 -jar target/update-center2-*-bin/update-center2-*.jar "$@"
-  # Commonly provided system properties:
-  # -DRECENT_RELEASES_MAX_AGE_HOURS=30 in case the build failed for a while
-  # -DCERTIFICATE_MINIMUM_VALID_DAYS=14 in case the cert is about to expire
-  java -DCERTIFICATE_MINIMUM_VALID_DAYS=14 -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
-  # TODO once we have a new cert, no longer override the duration
 }
 
 execute --dynamic-tier-list-file tmp/tiers.json
@@ -122,22 +120,6 @@ for version in "${STABLE_RELEASES[@]}" ; do
   generate --limit-plugin-core-dependency "$version" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/dynamic-stable-$version/latest" --www-dir "$WWW_ROOT_DIR/dynamic-stable-$version" --only-stable-core
 done
 
-# Workaround for https://github.com/jenkinsci/docker/issues/954 -- still generate fixed tier update sites
-for ltsv in "${RELEASES[@]}" ; do
-  v="${ltsv/%.1/}"
-
-  if [[ ${v/./} -gt 2240 ]] ; then # TODO Make 3.x safe
-    echo "INFRA-2615: Skipping generation of $v / stable-$v"
-    continue
-  fi
-
-  # For mainline up to $v, advertising the latest core
-  generate --limit-plugin-core-dependency "$v.999" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/$v/latest" --www-dir "$WWW_ROOT_DIR/$v"
-
-  # For LTS, advertising the latest LTS core
-  generate --limit-plugin-core-dependency "$v.999" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/stable-$v/latest" --www-dir "$WWW_ROOT_DIR/stable-$v" --only-stable-core
-done
-
 # Experimental update center without version caps, including experimental releases.
 # This is not a part of the version-based redirection rules, admins need to manually configure it.
 # Generate this first, including --downloads-directory, as this includes all releases, experimental and otherwise.
@@ -151,23 +133,9 @@ generate --generate-release-history --generate-recent-releases --generate-plugin
     --www-dir "$WWW_ROOT_DIR/current" --download-links-directory "$WWW_ROOT_DIR/download" --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/current/latest"
 
 # Actually run the update center build.
-# The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
 execute --resources-dir "$MAIN_DIR"/resources --arguments-file "$MAIN_DIR"/tmp/args.lst
 
 # Generate symlinks to global /updates directory (created by crawler)
-for ltsv in "${RELEASES[@]}" ; do
-  v="${ltsv/%.1/}"
-
-  if [[ ${v/./} -gt 2240 ]] ; then # TODO Make 3.x safe
-    continue
-  fi
-
-  sanity-check "$WWW_ROOT_DIR/$v"
-  sanity-check "$WWW_ROOT_DIR/stable-$v"
-  ln -sf ../updates "$WWW_ROOT_DIR/$v/updates"
-  ln -sf ../updates "$WWW_ROOT_DIR/stable-$v/updates"
-done
-
 for version in "${WEEKLY_RELEASES[@]}" ; do
   sanity-check "$WWW_ROOT_DIR/dynamic-$version"
   ln -sf ../updates "$WWW_ROOT_DIR/dynamic-$version/updates"
