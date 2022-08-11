@@ -1,5 +1,6 @@
 package io.jenkins.update_center;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.args4j.Option;
@@ -144,6 +145,8 @@ public class DirectoryTreeBuilder {
      * @param dst the staging location
      * @throws IOException when a problem occurs during file operations
      */
+    @SuppressFBWarnings(value="COMMAND_INJECTION",
+            justification="No injection risk from absolute path args to ln -s")
     protected void stage(MavenArtifact a, File dst) throws IOException {
         File src = a.resolve();
         if (dst.exists() && dst.lastModified() == src.lastModified() && dst.length() == src.length()) {
