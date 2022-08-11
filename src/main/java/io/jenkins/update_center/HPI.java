@@ -26,7 +26,6 @@ package io.jenkins.update_center;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.google.common.annotations.VisibleForTesting;
 import hudson.util.VersionNumber;
-import io.jenkins.update_center.util.JavaSpecificationVersion;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
@@ -44,10 +43,11 @@ import org.owasp.html.HtmlStreamRenderer;
 import org.owasp.html.Sanitizers;
 import org.xml.sax.SAXException;
 
-import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -60,8 +60,6 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.net.URL;
-import java.net.MalformedURLException;
 
 /**
  * A particular version of a plugin and its metadata.
@@ -119,22 +117,6 @@ public class HPI extends MavenArtifact {
 
     public String getCompatibleSinceVersion() throws IOException {
         return getManifestAttributes().getValue("Compatible-Since-Version");
-    }
-
-    /**
-     * Gets Minimum Java Version required by the plugin.
-     * This uses the value of the {@code Minimum-Java-Version} manifest entry
-     * @return Minimum Java Version or {@code null} if it is unknown
-     * @throws IOException Manifest read error
-     */
-    @CheckForNull
-    public JavaSpecificationVersion getMinimumJavaVersion() throws IOException {
-        String manifestEntry = getManifestAttributes().getValue("Minimum-Java-Version");
-        if (StringUtils.isNotBlank(manifestEntry)) {
-            return new JavaSpecificationVersion(manifestEntry);
-        }
-
-        return null;
     }
 
     public List<Dependency> getDependencies() throws IOException {
@@ -214,25 +196,6 @@ public class HPI extends MavenArtifact {
         }
 
         private static final String OPTIONAL_RESOLUTION = ";resolution:=optional";
-    }
-
-    public static class Developer {
-        @JSONField
-        public final String name;
-        @JSONField
-        public final String developerId;
-        @JSONField
-        public final String email;
-
-        public Developer(String name, String developerId, String email) {
-            this.name = has(name) ? name : null;
-            this.developerId = has(developerId) ? developerId : null;
-            this.email = has(email) ? email : null;
-        }
-
-        private boolean has(String s) {
-            return s!=null && s.length()>0;
-        }
     }
 
     private String name;

@@ -38,12 +38,9 @@ import io.jenkins.update_center.wrappers.VersionCappedMavenRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import io.jenkins.update_center.filters.JavaVersionPluginFilter;
 import io.jenkins.update_center.json.PluginVersionsRoot;
 import io.jenkins.update_center.json.ReleaseHistoryRoot;
 import io.jenkins.update_center.json.UpdateCenterRoot;
-import io.jenkins.update_center.util.JavaSpecificationVersion;
-import io.jenkins.update_center.wrappers.FilteringRepository;
 import io.jenkins.update_center.wrappers.TruncatedMavenRepository;
 import io.jenkins.update_center.wrappers.AllowedArtifactsListMavenRepository;
 import org.kohsuke.args4j.ClassParser;
@@ -99,9 +96,6 @@ public class Main {
 
     @Option(name = "--with-experimental", usage = "Include experimental alpha/beta releases")
     public boolean includeExperimental;
-
-    @Option(name = "--java-version", usage = "Target Java version for the update center. Plugins will be excluded if their minimum Java version does not match. If not set, required Java version will be ignored")
-    @CheckForNull public String javaVersion;
 
     @Option(name = "--max-plugins", usage = "For testing purposes: Limit the number of plugins included to the specified number.")
     @CheckForNull public Integer maxPlugins;
@@ -361,9 +355,6 @@ public class Main {
             VersionNumber vp = capPlugin == null ? null : new VersionNumber(capPlugin);
             VersionNumber vc = capCore == null ? null : new VersionNumber(capCore);
             repo = new VersionCappedMavenRepository(vp, vc).withBaseRepository(repo);
-        }
-        if (javaVersion != null) {
-            repo = new FilteringRepository().withPluginFilter(new JavaVersionPluginFilter(new JavaSpecificationVersion(this.javaVersion))).withBaseRepository(repo);
         }
         return repo;
     }

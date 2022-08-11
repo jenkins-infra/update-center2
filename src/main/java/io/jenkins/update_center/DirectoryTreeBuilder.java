@@ -7,6 +7,9 @@ import org.kohsuke.args4j.Option;
 import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -121,19 +124,16 @@ public class DirectoryTreeBuilder {
             throw new IOException("Failed to delete " + latest);
         }
 
-        ProcessBuilder pb = new ProcessBuilder();
         if (System.getProperty("os.name").toLowerCase(Locale.US).contains("windows")) {
             return;
         }
-        pb.command("ln", "-s", hpi.getLatest().version, "latest");
-        pb.directory(dir);
+        Path newLink = Paths.get("latest");
+        Path existingFile = Paths.get(hpi.getLatest().version);
         try {
-            int r = pb.start().waitFor();
-            if (r != 0) {
-                throw new IOException("ln failed: " + r); // TODO better logging
-            }
-        } catch (InterruptedException ex) {
-            LOGGER.log(Level.WARNING, "Failed to link ");
+            Files.deleteIfExists(newLink);
+            Files.createSymbolicLink(newLink, existingFile);
+        } catch (IOException | UnsupportedOperationException ex) {
+            LOGGER.log(Level.WARNING, "Failed to link", ex);
         }
     }
 
