@@ -157,16 +157,21 @@ public class DirectoryTreeBuilder {
             throw new IOException("Failed to create " + parentFile);
         }
 
+        ProcessBuilder pb = new ProcessBuilder();
         if (System.getProperty("os.name").toLowerCase(Locale.US).contains("windows")) {
             return;
         }
-        Path newLink = Paths.get(dst.getAbsolutePath());
-        Path existingFile = Paths.get(src.getAbsolutePath());
+        pb.command("ln", "-f", src.getAbsolutePath(), dst.getAbsolutePath());
+        Process p = pb.start();
         try {
-            Files.deleteIfExists(newLink);
-            Files.createSymbolicLink(newLink, existingFile);
-        } catch (IOException | UnsupportedOperationException ex) {
-            LOGGER.log(Level.WARNING, "Failed to create " + dst + " from " + src, ex);
+            if (p.waitFor() != 0) {
+                throw new IOException("'ln -f " + src.getAbsolutePath() + " " + dst.getAbsolutePath() +
+                        "' failed with code " + p.exitValue() + "\nError: " + IOUtils.toString(p.getErrorStream()) + "\nOutput: " + IOUtils.toString(p.getInputStream()));
+            } else {
+                LOGGER.log(Level.INFO, "Created new download file " + dst + " from " + src);
+            }
+        } catch (InterruptedException ex) {
+            LOGGER.log(Level.WARNING, "Interrupted creating " + dst + " from " + src, ex);
         }
 
     }
