@@ -23,7 +23,6 @@
  */
 package io.jenkins.update_center;
 
-import hudson.util.VersionNumber;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.output.NullWriter;
 import org.bouncycastle.util.encoders.Base64;
@@ -48,9 +47,9 @@ public class IndexHtmlBuilder implements Closeable {
     private final String template;
     private final String title;
     private String subtitle;
-    private String description;
-    private StringBuilder content;
-    private String opengraphImage;
+    private final String description;
+    private final StringBuilder content;
+    private final String opengraphImage;
 
     public IndexHtmlBuilder(File dir, String title, String globalTemplate) throws IOException {
         this.out = openIndexHtml(dir);
@@ -98,7 +97,7 @@ public class IndexHtmlBuilder implements Closeable {
     }
 
     public void add(String url, String caption) {
-        add(url, null, caption, null);
+        add(url, null, caption, null, null);
     }
 
     public void add(String url, Date releaseDate, String caption, MavenRepository.ArtifactMetadata metadata, String requiredJenkinsVersion) {
