@@ -65,12 +65,11 @@ rm -rf "$MAIN_DIR"/tmp/generator/
 unzip -q "$MAIN_DIR"/tmp/generator-$version.zip -d "$MAIN_DIR"/tmp/generator/
 
 function execute {
-  # To use a locally built snapshot, use the following line instead:
+  # The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
+  # Define the default for certificate expiration and recent release age threshold, but if environment variables of the same name are defined, use their values.
+  java -DCERTIFICATE_MINIMUM_VALID_DAYS="${CERTIFICATE_MINIMUM_VALID_DAYS:-30}" -DRECENT_RELEASES_MAX_AGE_HOURS="${RECENT_RELEASES_MAX_AGE_HOURS:-3}" -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
+  # To use a locally built snapshot, use the following command instead:
   # java -Dfile.encoding=UTF-8 -jar target/update-center2-*-bin/update-center2-*.jar "$@"
-  # Commonly provided system properties:
-  # -DRECENT_RELEASES_MAX_AGE_HOURS=30 in case the build failed for a while
-  # -DCERTIFICATE_MINIMUM_VALID_DAYS=14 in case the cert is about to expire
-  java -Dfile.encoding=UTF-8 -jar "$MAIN_DIR"/tmp/generator/update-center2-*.jar "$@"
 }
 
 execute --dynamic-tier-list-file tmp/tiers.json
@@ -134,7 +133,6 @@ generate --generate-release-history --generate-recent-releases --generate-plugin
     --www-dir "$WWW_ROOT_DIR/current" --download-links-directory "$WWW_ROOT_DIR/download" --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/current/latest"
 
 # Actually run the update center build.
-# The fastjson library cannot handle a file.encoding of US-ASCII even when manually specifying the encoding at every opportunity, so set a sane default here.
 execute --resources-dir "$MAIN_DIR"/resources --arguments-file "$MAIN_DIR"/tmp/args.lst
 
 # Generate symlinks to global /updates directory (created by crawler)
