@@ -36,8 +36,6 @@ import io.jenkins.update_center.wrappers.AlphaBetaOnlyRepository;
 import io.jenkins.update_center.wrappers.StableWarMavenRepository;
 import io.jenkins.update_center.wrappers.VersionCappedMavenRepository;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import io.jenkins.update_center.json.PluginVersionsRoot;
 import io.jenkins.update_center.json.ReleaseHistoryRoot;
 import io.jenkins.update_center.json.UpdateCenterRoot;
@@ -245,18 +243,7 @@ public class Main {
         metadataWriter.writeMetadataFiles(repo, www);
 
         if (!skipUpdateCenter) {
-            if (StringUtils.isEmpty(id)) {
-                throw new IllegalArgumentException("--id argument is empty");
-            }
-            if (StringUtils.isEmpty(connectionCheckUrl)) {
-                throw new IllegalArgumentException("--connection-check-url argument is empty");
-            }
-
-            UpdateCenterRoot updateCenterRoot = new UpdateCenterRoot(repo, new File(Main.resourcesDir, WARNINGS_JSON_FILENAME));
-            updateCenterRoot.id = id;
-            updateCenterRoot.connectionCheckUrl = connectionCheckUrl;
-
-            final String signedUpdateCenterJson = updateCenterRoot.encodeWithSignature(signer, prettyPrint);
+            final String signedUpdateCenterJson = new UpdateCenterRoot(id, connectionCheckUrl, repo, new File(Main.resourcesDir, WARNINGS_JSON_FILENAME)).encodeWithSignature(signer, prettyPrint);
             writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), new File(www, UPDATE_CENTER_JSON_FILENAME));
             writeToFile(signedUpdateCenterJson, new File(www, UPDATE_CENTER_ACTUAL_JSON_FILENAME));
             writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(www, UPDATE_CENTER_JSON_HTML_FILENAME));

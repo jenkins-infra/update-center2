@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 public class UpdateCenterRoot extends WithSignature {
     @JSONField
@@ -26,10 +27,10 @@ public class UpdateCenterRoot extends WithSignature {
     public final String updateCenterVersion = "1";
 
     @JSONField
-    public String connectionCheckUrl;
+    public final String connectionCheckUrl;
 
     @JSONField
-    public String id;
+    public final String id;
 
     @JSONField
     public UpdateCenterCore core;
@@ -43,7 +44,16 @@ public class UpdateCenterRoot extends WithSignature {
     @JSONField
     public Map<String, UpdateCenterDeprecation> deprecations;
 
-    public UpdateCenterRoot(MavenRepository repo, File warningsJsonFile) throws IOException {
+    public UpdateCenterRoot(String id, String connectionCheckUrl, MavenRepository repo, File warningsJsonFile) throws IOException {
+        if (StringUtils.isEmpty(id)) {
+            throw new IllegalArgumentException("'id' is required");
+        }
+        this.id = id;
+        if (StringUtils.isEmpty(connectionCheckUrl)) {
+            throw new IllegalArgumentException("'connectionCheckUrl' is required");
+        }
+        this.connectionCheckUrl = connectionCheckUrl;
+
         // load warnings
         final String warningsJsonText = String.join("", Files.readAllLines(warningsJsonFile.toPath(), StandardCharsets.UTF_8));
         warnings = Arrays.asList(JSON.parseObject(warningsJsonText, UpdateCenterWarning[].class));
