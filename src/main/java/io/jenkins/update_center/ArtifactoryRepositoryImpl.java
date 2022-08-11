@@ -250,7 +250,6 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
     private File getFile(final String url) throws IOException {
         final String path = new URL(url).getPath();
-        // Preferred new location (guaranteed maximum filename length):
         final String sha256 = DigestUtils.sha256Hex(path);
         final String sha256prefix = sha256.substring(0, 2); // to limit number of files in top-level directory
         final File cachePrefixDir = new File(cacheDirectory, sha256prefix);

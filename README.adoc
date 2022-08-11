@@ -82,7 +82,7 @@ Any entries in this file are expected to be temporary, i.e. plugin maintainers a
 
 === Deprecations
 
-Plugins are considered _deprecated_ by Jenkins 2.246 and newer when either the update site metadata does one or both of the following:
+Plugins are considered _deprecated_ by Jenkins 2.246 and newer when the update site metadata does one or both of the following:
 
 * Uses the label `deprecated` for the plugin.
   This can be done via GitHub repository topics, or the `resources/label-definitions.properties` described above.
