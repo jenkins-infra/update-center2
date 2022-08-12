@@ -13399,7 +13399,7 @@
     "versions": [
       {
         "lastVersion": "64.vc0d66de1dfb_f",
-        "pattern": ".*"
+        "pattern": "(1[.])|(64[.]).*"
       }
     ]
   },
