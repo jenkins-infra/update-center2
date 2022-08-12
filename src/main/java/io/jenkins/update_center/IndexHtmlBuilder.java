@@ -47,9 +47,9 @@ public class IndexHtmlBuilder implements Closeable {
     private final String template;
     private final String title;
     private String subtitle;
-    private String description;
-    private StringBuilder content;
-    private String opengraphImage;
+    private final String description;
+    private final StringBuilder content;
+    private final String opengraphImage;
 
     public IndexHtmlBuilder(File dir, String title, String globalTemplate) throws IOException {
         this.out = openIndexHtml(dir);
@@ -89,14 +89,18 @@ public class IndexHtmlBuilder implements Closeable {
         if (artifactMetadata == null) {
             return;
         }
-        add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata);
+        if (a instanceof HPI) {
+            add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata, ((HPI) a).getRequiredJenkinsVersion());
+        } else {
+            add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata, null);
+        }
     }
 
     public void add(String url, String caption) {
-        add(url, null, caption, null);
+        add(url, null, caption, null, null);
     }
 
-    public void add(String url, Date releaseDate, String caption, MavenRepository.ArtifactMetadata metadata) {
+    public void add(String url, Date releaseDate, String caption, MavenRepository.ArtifactMetadata metadata, String requiredJenkinsVersion) {
         String releaseDateString = "";
         if (releaseDate != null) {
             releaseDateString = " Released: " + SimpleDateFormat.getDateInstance().format(releaseDate);
@@ -114,6 +118,9 @@ public class IndexHtmlBuilder implements Closeable {
                 content.append("\n<div class=\"checksums\">SHA-256: <code>")
                         .append(base64ToHex(metadata.sha256)).append("</code></div>");
             }
+        }
+        if (requiredJenkinsVersion != null) {
+            content.append("\n<div class=\"core-dependency\">Requires Jenkins ").append(requiredJenkinsVersion).append("</div>");
         }
         content.append("</div></li>\n");
     }

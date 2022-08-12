@@ -2,6 +2,7 @@
 <head>
     <title>{{ title }}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none' ; style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com ; img-src https://www.jenkins.io ;">
     <style>
 .artifact-list {
    padding: 0;
@@ -21,6 +22,9 @@
 .artifact-list .checksums {
   font-size: .7rem;
 }
+.artifact-list .core-dependency {
+    font-size: .7rem;
+}
 .subtitle {
   color: #999;
 }
@@ -36,6 +40,9 @@
     display: table-cell;
     padding-left: 2rem;
     vertical-align: middle;
+  }
+  .artifact-list .core-dependency {
+    margin-bottom: 10px;
   }
 }
 
