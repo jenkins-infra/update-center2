@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.support_log_formatter.SupportLogFormatter;
+import io.jenkins.update_center.args4j.Default;
 import io.jenkins.update_center.args4j.LevelOptionHandler;
 import io.jenkins.update_center.json.PlatformPluginsRoot;
 import io.jenkins.update_center.json.RecentReleasesRoot;
@@ -136,9 +137,11 @@ public class Main {
     public boolean prettyPrint;
 
     @Option(name = "--id", usage = "Uniquely identifies this update center. We recommend you use a dot-separated name like \"com.sun.wts.jenkins\". This value is not exposed to users, but instead internally used by Jenkins.")
+    @Default(value = "default")
     @CheckForNull public String id = "default";
 
     @Option(name = "--connection-check-url", usage = "Specify an URL of the 'always up' server for performing connection check.")
+    @Default(value = "https://www.google.com/")
     @CheckForNull public String connectionCheckUrl = "https://www.google.com/";
 
 
@@ -210,13 +213,21 @@ public class Main {
                 if (field.getAnnotation(Option.class) != null && !Modifier.isStatic(field.getModifiers())) {
                     if (Object.class.isAssignableFrom(field.getType())) {
                         try {
-                            field.set(o, null);
+                            if (field.getAnnotation(Default.class) != null) {
+                                field.set(o, field.getAnnotation(Default.class).value());
+                            } else {
+                                field.set(o, null);
+                            }
                         } catch (IllegalAccessException e) {
                             LOGGER.log(Level.WARNING, "Failed to reset argument", e);
                         }
                     } else if (boolean.class.isAssignableFrom(field.getType())) {
                         try {
-                            field.set(o, false);
+                            if (field.getAnnotation(Default.class) != null) {
+                                field.set(o, Boolean.parseBoolean(field.getAnnotation(Default.class).value()));
+                            } else {
+                                field.set(o, false);
+                            }
                         } catch (IllegalAccessException e) {
                             LOGGER.log(Level.WARNING, "Failed to reset boolean option", e);
                         }
