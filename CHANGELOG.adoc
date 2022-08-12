@@ -1,50 +1,8 @@
 = Changelog
 
+NOTE: Since version 3.5, changelogs are provided via https://github.com/jenkins-infra/update-center2/releases[GitHub Releases].
+
 NOTE: This changelog only covers the actual tool (`update-center2-x.y.z.jar`), not changes to the wrapper scripts or metadata.
-
-== 3.12.1 (2022-07-28)
-
-* * Improve robustness with unexpected version number formats (https://github.com/jenkins-infra/update-center2/pull/624[#624])
-
-== 3.12 (2022-06-27)
-
-* Do not include the host name in the Artifactory cache key for SHA-256 based cache entries (https://github.com/jenkins-infra/update-center2/pull/613[#613])
-  Files cached with 3.11 will be missed and downloaded again.
-
-== 3.11 (2022-06-27)
-
-* Switch Artifactory cache from base64 based file names to sha256 to support longer file paths (https://github.com/jenkins-infra/update-center2/pull/605[#605], https://github.com/jenkins-infra/update-center2/pull/609[#609]).
-  While existing base64 files are given preference for backward compatibility and ease of migration, this format is deprecated and will be removed in a future release.
-
-== 3.10 (2021-09-13)
-
-* Remove duplication between deprecations and ignores (https://github.com/jenkins-infra/update-center2/pull/539[#539])
-* Internal: Set SpotBugs threshold to low and address issues (https://github.com/jenkins-infra/update-center2/pull/524[#524], https://github.com/jenkins-infra/update-center2/pull/528[#528])
-* Internal: Update dependencies (https://github.com/jenkins-infra/update-center2/pull/540[#540], https://github.com/jenkins-infra/update-center2/pull/542[#542])
-
-== 3.9 (2021-06-14)
-
-* Use template for download pages (https://github.com/jenkins-infra/update-center2/pull/469[#469])
-
-== 3.8 (2021-04-27)
-
-* Add support for generating `platform-plugins.json` (https://github.com/jenkins-infra/update-center2/pull/498[#498])
-* Add download file size to `update-center.json` (https://github.com/jenkins-infra/update-center2/pull/500[#500])
-* Add generation timestamp to metadata (https://github.com/jenkins-infra/update-center2/pull/516[#516])
-* Internal cleanup: Remove unused GitHub cache (https://github.com/jenkins-infra/update-center2/pull/504[#504])
-
-== 3.7 (2021-03-22)
-
-* Use uploader permissions and Jira display name reports as the data sources for maintainer metadata instead of `pom.xml`. (https://github.com/jenkins-infra/update-center2/pull/502[#502])
-
-== 3.6 (2021-03-20)
-
-* Expose default branch on GitHub in `update-center.json`. (https://github.com/jenkins-infra/update-center2/pull/495[#495], https://issues.jenkins.io/browse/INFRA-2929[INFRA-2929])
-* Allow overriding the max age for `recent-releases.json`. (https://github.com/jenkins-infra/update-center2/pull/497[#497])
-
-== 3.5 (2021-03-14)
-
-* Add issue tracker metadata to plugin entries in `update-center.json`. (https://github.com/jenkins-infra/update-center2/pull/492[#492])
 
 == 3.4.6 (2021-03-01)
 
