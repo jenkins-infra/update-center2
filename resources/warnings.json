@@ -12637,19 +12637,6 @@
     ]
   },
   {
-    "id": "SECURITY-2784-image-tag-parameter",
-    "type": "plugin",
-    "name": "image-tag-parameter",
-    "message": "Stored XSS vulnerability",
-    "url": "https://www.jenkins.io/security/advisory/2022-06-22/#SECURITY-2784",
-    "versions": [
-      {
-        "lastVersion": "1.10",
-        "pattern": ".*"
-      }
-    ]
-  },
-  {
     "id": "SECURITY-2784-maven-metadata-plugin",
     "type": "plugin",
     "name": "maven-metadata-plugin",
