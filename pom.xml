@@ -8,7 +8,7 @@
 
   <artifactId>update-center2</artifactId>
   
-  <version>3.12.2-SNAPSHOT</version>
+  <version>3.15-SNAPSHOT</version>
   <name>Jenkins Update Center Generator</name>
   <description>Generates update sites for updates.jenkins.io</description>
 

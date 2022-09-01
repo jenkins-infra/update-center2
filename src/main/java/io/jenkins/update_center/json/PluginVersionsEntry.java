@@ -5,7 +5,9 @@ import io.jenkins.update_center.MavenRepository;
 import io.jenkins.update_center.HPI;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class PluginVersionsEntry {
     @JSONField
@@ -24,6 +26,8 @@ public class PluginVersionsEntry {
     public final String version;
     @JSONField
     public final String compatibleSinceVersion;
+    @JSONField
+    public final String releaseTimestamp;
 
     @JSONField
     public final List<HPI.Dependency> dependencies;
@@ -39,5 +43,8 @@ public class PluginVersionsEntry {
         buildDate = hpi.getTimestampAsString();
         dependencies = hpi.getDependencies();
         compatibleSinceVersion = hpi.getCompatibleSinceVersion();
+        releaseTimestamp = TIMESTAMP_FORMATTER.format(hpi.getTimestamp());
     }
+
+    private static final SimpleDateFormat TIMESTAMP_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.00Z'", Locale.US);
 }
