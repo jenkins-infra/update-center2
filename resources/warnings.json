@@ -13398,8 +13398,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2413",
     "versions": [
       {
-        "lastVersion": "64.vc0d66de1dfb_f",
-        "pattern": "(1[.])|(64[.]).*"
+        "lastVersion": "70.v7214dfdb_32ec",
+        "pattern": "(1[.])|(64[.])|(70[.]).*"
       }
     ]
   },
