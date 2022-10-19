@@ -14069,5 +14069,421 @@
         "pattern": ".*"
       }
     ]
+  },
+  {
+    "id": "SECURITY-2337",
+    "type": "plugin",
+    "name": "repo",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2337",
+    "versions": [
+      {
+        "lastVersion": "1.15.0",
+        "pattern": "(1[.][012356789]|1[.]1[0-5])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2480",
+    "type": "plugin",
+    "name": "s3explorer",
+    "message": "AWS secrets displayed without masking",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2480",
+    "versions": [
+      {
+        "lastVersion": "1.0.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2551",
+    "type": "plugin",
+    "name": "nunit",
+    "message": "Agent-to-controller security bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2551",
+    "versions": [
+      {
+        "lastVersion": "0.27",
+        "pattern": "(0[.]1[1-9]|0[.]2[0-7])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2620",
+    "type": "plugin",
+    "name": "compuware-topaz-utilities",
+    "message": "Agent-to-controller security bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2620",
+    "versions": [
+      {
+        "lastVersion": "1.0.8",
+        "pattern": "(1[.]0[.][2-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2622",
+    "type": "plugin",
+    "name": "compuware-scm-downloader",
+    "message": "Agent-to-controller security bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2622",
+    "versions": [
+      {
+        "lastVersion": "2.0.12",
+        "pattern": "(1|2[.]0[.][0-9]|2[.]0[.]1[0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2623",
+    "type": "plugin",
+    "name": "compuware-topaz-for-total-test",
+    "message": "Missing permission checks allow enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2623",
+    "versions": [
+      {
+        "lastVersion": "2.4.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2624",
+    "type": "plugin",
+    "name": "compuware-topaz-for-total-test",
+    "message": "Agent-to-controller security bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2624",
+    "versions": [
+      {
+        "lastVersion": "2.4.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2625",
+    "type": "plugin",
+    "name": "compuware-topaz-for-total-test",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2625",
+    "versions": [
+      {
+        "lastVersion": "2.4.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2627",
+    "type": "plugin",
+    "name": "compuware-xpediter-code-coverage",
+    "message": "Agent-to-controller security bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2627",
+    "versions": [
+      {
+        "lastVersion": "1.0.7",
+        "pattern": "(1[.]0[.][0-7])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2631",
+    "type": "plugin",
+    "name": "compuware-strobe-measurement",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2631",
+    "versions": [
+      {
+        "lastVersion": "1.0.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2791",
+    "type": "plugin",
+    "name": "job-import-plugin",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2791",
+    "versions": [
+      {
+        "lastVersion": "3.5",
+        "pattern": "([12]|3[.][0-5])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2797",
+    "type": "plugin",
+    "name": "custom-checkbox-parameter",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2797",
+    "versions": [
+      {
+        "lastVersion": "1.4",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2824-1-script-security",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2824%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1183.v774b_0b_0a_a_451",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|1172|1175[.]v4b_d517d6db_f0|1183)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2824-1-workflow-cps",
+    "type": "plugin",
+    "name": "workflow-cps",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2824%20(1)",
+    "versions": [
+      {
+        "lastVersion": "2802.v5ea_628154b_c2",
+        "pattern": "([12]|2633|264[0468]|265[69]|2660|268[0236789]|2692|270[56]|2710|272[59]|2746[.]v0da_83a_332669|2759[.]v87459c4eea_ca_|2784|280[12])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2824-2-pipeline-groovy-lib",
+    "type": "plugin",
+    "name": "pipeline-groovy-lib",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2824%20(2)",
+    "versions": [
+      {
+        "lastVersion": "612.v84da_9c54906d",
+        "pattern": "(589|59[18]|593[.]va_a_fc25d520e9|612[.]v84da_9c54906d)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2824-2-workflow-cps-global-lib",
+    "type": "plugin",
+    "name": "workflow-cps-global-lib",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2824%20(2)",
+    "versions": [
+      {
+        "lastVersion": "583.vf3b_454e43966",
+        "pattern": "([12]|54[458]|552|56[146]|57[05]|58[13])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2828",
+    "type": "plugin",
+    "name": "pipeline-stage-view",
+    "message": "CSRF protection for any URL can be bypassed",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2828",
+    "versions": [
+      {
+        "lastVersion": "2.26",
+        "pattern": "(1|2[.][012345689]|2[.]1[0-9]|2[.]2[012356])(|[.-].+)|(2[.]24)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2831",
+    "type": "plugin",
+    "name": "mercurial",
+    "message": "Webhook endpoint discloses job names to unauthorized users",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2831",
+    "versions": [
+      {
+        "lastVersion": "1251.va_b_121f184902",
+        "pattern": "([12]|1251)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2836",
+    "type": "plugin",
+    "name": "contrast-continuous-application-security",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2836",
+    "versions": [
+      {
+        "lastVersion": "3.9",
+        "pattern": "([12]|3[.][0-9])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2844",
+    "type": "plugin",
+    "name": "katalon",
+    "message": "Agent-to-controller security bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2844",
+    "versions": [
+      {
+        "lastVersion": "1.0.32",
+        "pattern": "(1[.]0[.]32)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2845-1",
+    "type": "plugin",
+    "name": "katalon",
+    "message": "Missing permission checks allow capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2845%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.0.32",
+        "pattern": "(1[.]0[.]32)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2845-2",
+    "type": "plugin",
+    "name": "katalon",
+    "message": "CSRF vulnerability allows capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2845%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1.0.33",
+        "pattern": "(1[.]0[.]3[23])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2846",
+    "type": "plugin",
+    "name": "katalon",
+    "message": "API keys stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2846",
+    "versions": [
+      {
+        "lastVersion": "1.0.32",
+        "pattern": "(1[.]0[.]32)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2852",
+    "type": "plugin",
+    "name": "tuleap-git-branch-source",
+    "message": "Lack of webhook authentication mechanism",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2852",
+    "versions": [
+      {
+        "lastVersion": "3.2.4",
+        "pattern": "([12]|3[.][01]|3[.]2[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2863",
+    "type": "plugin",
+    "name": "xframium",
+    "message": "Content-Security-Policy protection for user content disabled",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2863",
+    "versions": [
+      {
+        "lastVersion": "1.0.22",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2864",
+    "type": "plugin",
+    "name": "screenrecorder",
+    "message": "Content-Security-Policy protection for user content disabled",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2864",
+    "versions": [
+      {
+        "lastVersion": "0.7",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2865",
+    "type": "plugin",
+    "name": "neuvector-vulnerability-scanner",
+    "message": "Content-Security-Policy protection for user content disabled",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2865",
+    "versions": [
+      {
+        "lastVersion": "1.20",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2866",
+    "type": "plugin",
+    "name": "fireline",
+    "message": "Content-Security-Policy protection for user content can be disabled",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2866",
+    "versions": [
+      {
+        "lastVersion": "1.7.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2874",
+    "type": "plugin",
+    "name": "generic-webhook-trigger",
+    "message": "Non-constant time webhook token comparison",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2874",
+    "versions": [
+      {
+        "lastVersion": "1.84.1",
+        "pattern": "(0|1[.][0-9]|1[.]1[0-9]|1[.]2[0-9]|1[.]3[0-9]|1[.]4[0-9]|1[.]5[0-9]|1[.]6[0-9]|1[.]7[12456789]|1[.]8[0-3]|1[.]84[.]1)(|[.-].+)|(1[.]84)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2877",
+    "type": "plugin",
+    "name": "gitlab-plugin",
+    "message": "Non-constant time webhook token comparison",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2877",
+    "versions": [
+      {
+        "lastVersion": "1.5.35",
+        "pattern": "(1[.][0-4]|1[.]5[.][0-9]|1[.]5[.]1[01239]|1[.]5[.]2[023456789]|1[.]5[.]3[0-5])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2880",
+    "type": "plugin",
+    "name": "pipeline-input-step",
+    "message": "CSRF protection for any URL can be bypassed",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2880",
+    "versions": [
+      {
+        "lastVersion": "451.vf1a_a_4f405289",
+        "pattern": "(2|427|44[6-8]|449[.]v77f0e8b_845c4|451)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2881",
+    "type": "plugin",
+    "name": "workflow-support",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2881",
+    "versions": [
+      {
+        "lastVersion": "838.va_3a_087b_4055b",
+        "pattern": "([1-3]|792|804|81[35789]|820|827[.]v7ef666c4d65c|83[38])(|[.-].+)"
+      }
+    ]
   }
 ]
