@@ -137,7 +137,7 @@ public class PluginUpdateCenterEntry {
         List<String> labels = new ArrayList<>(latestOffered.getLabels());
         if (getDevelopers().isEmpty() && !labels.contains("adopt-this-plugin")) {
             // Plugins with no maintainers are by definition up for adoption
-            LOGGER.log(Level.FINE, () -> "Adding 'adopt-this-plugin' label to " + this + " due to lack of maintainers");
+            LOGGER.log(Level.FINE, () -> "Adding 'adopt-this-plugin' label to " + this.artifactId + " due to lack of maintainers");
             labels.add("adopt-this-plugin");
         }
         return labels;
