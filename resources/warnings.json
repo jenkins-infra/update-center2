@@ -3858,7 +3858,8 @@
     "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-1042",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "1.3",
+        "pattern": "jenkins-cloudformation-plugin-[0-1][.][0-9]+"
       }
     ]
   },
