@@ -14040,8 +14040,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-09-21/#SECURITY-2858",
     "versions": [
       {
-        "lastVersion": "4.8.0.134",
-        "pattern": ".*"
+        "lastVersion": "4.8.0.146",
+        "pattern": "(4[.]6|4[.]8[.]0[.]129|4[.]8[.]0[.]13[04]|4[.]8[.]0[.]14[236]|4[.]8[.]0[.]77)(|[.-].+)"
       }
     ]
   },
