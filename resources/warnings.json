@@ -11250,8 +11250,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-03-15/#SECURITY-1350",
     "versions": [
       {
-        "lastVersion": "359.v35dcfdd0c20d",
-        "pattern": ".*"
+        "lastVersion": " 356.va_90a_94ca_62ec",
+        "pattern": "(0|34[236]|356)(|[.-].+)"
       }
     ]
   },
