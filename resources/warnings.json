@@ -13270,7 +13270,7 @@
     "versions": [
       {
         "lastVersion": "370.v62a5f618cd3a",
-        "pattern": ".*"
+        "pattern": "([1-5]|358|370)(|[.-].+)"
       }
     ]
   },
@@ -13647,7 +13647,7 @@
     "versions": [
       {
         "lastVersion": "370.v62a5f618cd3a",
-        "pattern": ".*"
+        "pattern": "([1-5]|358|370)(|[.-].+)"
       }
     ]
   },
