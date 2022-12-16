@@ -14144,7 +14144,7 @@
     "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2623",
     "versions": [
       {
-        "lastVersion": "2.4.11",
+        "lastVersion": "2.4.10",
         "pattern": "(1|2[.][0-3]|2[.]4[.][1234578]|2[.]4[.]10)(|[.-].+)"
       }
     ]
@@ -14157,7 +14157,7 @@
     "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2624",
     "versions": [
       {
-        "lastVersion": "2.4.9",
+        "lastVersion": "2.4.8",
         "pattern": "(1|2[.][0-3]|2[.]4[.][1234578])(|[.-].+)"
       }
     ]
@@ -14170,7 +14170,7 @@
     "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2625",
     "versions": [
       {
-        "lastVersion": "2.4.9",
+        "lastVersion": "2.4.8",
         "pattern": "(1|2[.][0-3]|2[.]4[.][1234578])(|[.-].+)"
       }
     ]
