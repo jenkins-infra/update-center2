@@ -14144,8 +14144,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2623",
     "versions": [
       {
-        "lastVersion": "2.4.8",
-        "pattern": ".*"
+        "lastVersion": "2.4.10",
+        "pattern": "(1|2[.][0-3]|2[.]4[.][1234578]|2[.]4[.]10)(|[.-].+)"
       }
     ]
   },
@@ -14158,7 +14158,7 @@
     "versions": [
       {
         "lastVersion": "2.4.8",
-        "pattern": ".*"
+        "pattern": "(1|2[.][0-3]|2[.]4[.][1234578])(|[.-].+)"
       }
     ]
   },
@@ -14171,7 +14171,7 @@
     "versions": [
       {
         "lastVersion": "2.4.8",
-        "pattern": ".*"
+        "pattern": "(1|2[.][0-3]|2[.]4[.][1234578])(|[.-].+)"
       }
     ]
   },
