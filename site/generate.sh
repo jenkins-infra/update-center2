@@ -165,5 +165,5 @@ popd
 
 # copy other static resource files
 echo '{}' > "$WWW_ROOT_DIR/uctest.json"
-wget -q --convert-links -O "$WWW_ROOT_DIR/index.html" --convert-links https://www.jenkins.io/templates/updates/index.html
+"${MAIN_DIR}/site/generate-jenkins-io-template.sh" "$WWW_ROOT_DIR" "https://updates.jenkins.io"
 cp -av "tmp/tiers.json" "$WWW_ROOT_DIR/tiers.json"
