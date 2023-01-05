@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Downloads the template from jenkins.io, then updates the navshell web components to update center specific values
+
 WWW_ROOT_DIR="${WWW_ROOT_DIR:-${1:-./www2}}"
 SELF_URL="${SELF_URL:-${2:-https://updates.jenkins.io}}"
 
