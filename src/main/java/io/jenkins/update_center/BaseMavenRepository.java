@@ -55,15 +55,19 @@ public abstract class BaseMavenRepository implements MavenRepository {
         for (ArtifactCoordinates artifactCoordinates : results) {
             if (artifactCoordinates.version.contains("SNAPSHOT"))     continue;       // ignore snapshots
             if (artifactCoordinates.version.contains("JENKINS"))      continue;       // non-public releases for addressing specific bug fixes
-            // Don't add blacklisted artifacts
+            // Don't add suspended artifacts
             if (IGNORE.containsKey(artifactCoordinates.artifactId)) {
                 if (excluded.add(artifactCoordinates.artifactId)) {
-                    LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + " because this artifact is blacklisted");
+                    LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + " because this artifact is suspended");
                 }
                 continue;
             }
             if (IGNORE.containsKey(artifactCoordinates.artifactId + "-" + artifactCoordinates.version)) {
-                LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is blacklisted");
+                LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is suspended");
+                continue;
+            }
+            if (!artifactCoordinates.isVersionValid()) {
+                LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is not valid");
                 continue;
             }
 
@@ -101,7 +105,7 @@ public abstract class BaseMavenRepository implements MavenRepository {
             if (!artifactCoordinates.artifactId.equals("jenkins-war")
                     && !artifactCoordinates.artifactId.equals("hudson-war"))  continue;      // somehow using this as a query results in 0 hits.
             if (IGNORE.containsKey(artifactCoordinates.artifactId + "-" + artifactCoordinates.version)) {
-                LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is blacklisted");
+                LOGGER.log(Level.CONFIG, "Ignoring " + artifactCoordinates.artifactId + ", version " + artifactCoordinates.version + " because this version is suspended");
                 continue;
             }
             if (cap != null && new VersionNumber(artifactCoordinates.version).compareTo(cap) > 0) continue;
