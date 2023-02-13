@@ -40,7 +40,7 @@ public class PluginUpdateCenterEntry {
         this.previousOffered = previousOffered;
     }
 
-    public PluginUpdateCenterEntry(Plugin plugin) {
+    public PluginUpdateCenterEntry(Plugin plugin) throws IOException {
         this.artifactId = plugin.getArtifactId();
         HPI previous = null, latest = null;
 
@@ -49,7 +49,7 @@ public class PluginUpdateCenterEntry {
         while (latest == null && it.hasNext()) {
             HPI h = it.next();
             try {
-                h.getManifest();
+                h.validate();
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Failed to resolve "+h+". Dropping this version.",e);
                 continue;
@@ -60,12 +60,16 @@ public class PluginUpdateCenterEntry {
         while (previous == null && it.hasNext()) {
             HPI h = it.next();
             try {
-                h.getManifest();
+                h.validate();
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Failed to resolve "+h+". Dropping this version.",e);
                 continue;
             }
             previous = h;
+        }
+
+        if (latest == null) {
+            throw new IOException("Plugin '" + artifactId + "' has no valid release");
         }
 
         this.latestOffered = latest;

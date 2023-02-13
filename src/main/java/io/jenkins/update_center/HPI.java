@@ -86,20 +86,45 @@ public class HPI extends MavenArtifact {
         return new URL(StringUtils.removeEnd(DOWNLOADS_ROOT_URL, "/") + "/plugins/" + artifact.artifactId + "/" + version + "/" + artifact.artifactId + ".hpi");
     }
 
+    /**
+     * Check whether a specified core dependency is valid.
+     *
+     * Dependencies on incrementals, RCs, or similar should not appear in update sites, so this only considers dependencies on versions looking like weekly or LTS versions to be valid.
+     * Currently, no effort is made to confirm that the specified version actually exists, e.g. a dependency on 2.99999999 is considered valid.
+     *
+     * @param version the specified core dependency version
+     * @return true if valid, false otherwise
+     */
+    public static boolean isValidCoreDependency(String version) {
+        return version.matches("[12][.](0|[1-9][0-9]*)([.][1-9])?");
+    }
+
+    /**
+     * Perform validation (e.g., manifest contents) and throws an exception if it fails.
+     */
+    public void validate() throws IOException {
+        getRequiredJenkinsVersion();
+    }
+
     public String getRequiredJenkinsVersion() throws IOException {
         String v = getManifestAttributes().getValue("Jenkins-Version");
-        if (v!=null)        return v;
+        if (v != null) {
+            if (!isValidCoreDependency(v)) {
+                throw new IOException("Invalid Jenkins-Version in " + this + ": " + v);
+            }
+            return v;
+        }
 
         v = getManifestAttributes().getValue("Hudson-Version");
         if (fixNull(v) != null) {
-            try {
-                VersionNumber n = new VersionNumber(v);
-                if (n.compareTo(JenkinsWar.HUDSON_CUT_OFF)<=0)
-                    return v;   // Hudson <= 1.395 is treated as Jenkins
-                // TODO: Jenkins-Version started appearing from Jenkins 1.401 POM.
-                // so maybe Hudson > 1.400 shouldn't be considered as a Jenkins plugin?
-            } catch (IllegalArgumentException e) {
+            if (!isValidCoreDependency(v)) {
+                throw new IOException("Invalid Hudson-Version in " + this + ": " + v);
             }
+            VersionNumber n = new VersionNumber(v);
+            if (n.compareTo(JenkinsWar.HUDSON_CUT_OFF)<=0)
+                return v;   // Hudson <= 1.395 is treated as Jenkins
+            // TODO: Jenkins-Version started appearing from Jenkins 1.401 POM.
+            // so maybe Hudson > 1.400 shouldn't be considered as a Jenkins plugin?
         }
 
         // Parent versions 1.393 to 1.398 failed to record requiredCore.

@@ -26,6 +26,7 @@ public class PluginVersionsRoot extends WithSignature {
         if (plugins == null) {
             plugins = new TreeMap<>(repository.listJenkinsPlugins().stream().collect(Collectors.toMap(Plugin::getArtifactId, plugin -> new PluginVersions(plugin.getArtifacts()))));
         }
+        plugins.entrySet().removeIf(e -> e.getValue().releases.isEmpty());
         return plugins;
     }
 }
