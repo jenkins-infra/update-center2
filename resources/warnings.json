@@ -10476,7 +10476,7 @@
     "versions": [
       {
         "lastVersion": "3.20",
-        "pattern": ".*"
+        "pattern": "([1-3][.])(.+)"
       }
     ]
   },
