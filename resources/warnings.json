@@ -15279,5 +15279,122 @@
         "pattern": "(0|1[.]19[69]|1[.]20[168])(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-1756",
+    "type": "plugin",
+    "name": "azure-credentials",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2023-02-15/#SECURITY-1756",
+    "versions": [
+      {
+        "lastVersion": "253.v887e0f9e898b",
+        "pattern": "([1-4]|177|18[0129]|19[0678]|216|242|25[23])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-1757",
+    "type": "plugin",
+    "name": "azure-credentials",
+    "message": "Missing permission checks allow enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2023-02-15/#SECURITY-1757",
+    "versions": [
+      {
+        "lastVersion": "253.v887e0f9e898b",
+        "pattern": "([1-4]|177|18[0129]|19[0678]|216|242|25[23])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2793-1",
+    "type": "plugin",
+    "name": "synopsys-coverity",
+    "message": "Missing permission checks allow enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2023-02-15/#SECURITY-2793%20(1)",
+    "versions": [
+      {
+        "lastVersion": "3.0.2",
+        "pattern": "([12]|3[.]0[.][0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2793-2",
+    "type": "plugin",
+    "name": "synopsys-coverity",
+    "message": "CSRF vulnerability and missing permission checks allow capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-02-15/#SECURITY-2793%20(2)",
+    "versions": [
+      {
+        "lastVersion": "3.0.2",
+        "pattern": "([12]|3[.]0[.][0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2931",
+    "type": "plugin",
+    "name": "email-ext",
+    "message": "XSS vulnerability in bundled email templates",
+    "url": "https://www.jenkins.io/security/advisory/2023-02-15/#SECURITY-2931",
+    "versions": [
+      {
+        "lastVersion": "2.93",
+        "pattern": "(2[.]1[012345689]|2[.]2[01245789]|2[.]3[0-9]|2[.]4[0-7]|2[.]5[0-9]|2[.]6[012345689]|2[.]7[1-9]|2[.]8[0-8]|2[.]89[.]1|2[.]9[0-2])(|[.-].+)|(2[.]89|2[.]93)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2934",
+    "type": "plugin",
+    "name": "email-ext",
+    "message": "Stored XSS vulnerability in custom email templates",
+    "url": "https://www.jenkins.io/security/advisory/2023-02-15/#SECURITY-2934",
+    "versions": [
+      {
+        "lastVersion": "2.93",
+        "pattern": "(2[.]1[012345689]|2[.]2[01245789]|2[.]3[0-9]|2[.]4[0-7]|2[.]5[0-9]|2[.]6[012345689]|2[.]7[1-9]|2[.]8[0-8]|2[.]89[.]1|2[.]9[0-2])(|[.-].+)|(2[.]89|2[.]93)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2939",
+    "type": "plugin",
+    "name": "email-ext",
+    "message": "Script Security sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-02-15/#SECURITY-2939",
+    "versions": [
+      {
+        "lastVersion": "2.93",
+        "pattern": "(2[.]1[012345689]|2[.]2[01245789]|2[.]3[0-9]|2[.]4[0-7]|2[.]5[0-9]|2[.]6[012345689]|2[.]7[1-9]|2[.]8[0-8]|2[.]89[.]1|2[.]9[0-2])(|[.-].+)|(2[.]89|2[.]93)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3019",
+    "type": "plugin",
+    "name": "pipeline-build-step",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-02-15/#SECURITY-3019",
+    "versions": [
+      {
+        "lastVersion": "2.18",
+        "pattern": "(2[.][0-9]|2[.]1[0-7])(|[.-].+)|(2[.]18)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3032",
+    "type": "plugin",
+    "name": "junit",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-02-15/#SECURITY-3032",
+    "versions": [
+      {
+        "lastVersion": "1166.va_436e268e972",
+        "pattern": "(1|1119[.]112[12]|1119[.]va_a_5e9068da_d7|114[34]|115[0369]|1160|1166[.]va_436e268e972)(|[.-].+)"
+      }
+    ]
   }
 ]
