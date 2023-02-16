@@ -151,4 +151,9 @@ public final class Plugin {
     public TreeMap<VersionNumber, HPI> getArtifacts() {
         return artifacts;
     }
+
+    @Override
+    public String toString() {
+        return "Plugin '" + artifactId + "'";
+    }
 }

@@ -18,10 +18,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class UpdateCenterRoot extends WithSignature {
+    private static final Logger LOGGER = Logger.getLogger(UpdateCenterRoot.class.getName());
+
     @JSONField
     @SuppressFBWarnings(value = "SS_SHOULD_BE_STATIC", justification = "Accessed by JSON serializer")
     public final String updateCenterVersion = "1";
@@ -62,8 +66,12 @@ public class UpdateCenterRoot extends WithSignature {
         deprecations = new TreeMap<>(Deprecations.getDeprecatedPlugins().collect(Collectors.toMap(Functions.identity(), UpdateCenterRoot::deprecationForPlugin)));
 
         for (Plugin plugin : repo.listJenkinsPlugins()) {
-            PluginUpdateCenterEntry entry = new PluginUpdateCenterEntry(plugin);
-            plugins.put(plugin.getArtifactId(), entry);
+            try {
+                PluginUpdateCenterEntry entry = new PluginUpdateCenterEntry(plugin);
+                plugins.put(plugin.getArtifactId(), entry);
+            } catch (IOException ex) {
+                LOGGER.log(Level.INFO, "Failed to add update center entry for: " + plugin, ex);
+            }
         }
 
         core = new UpdateCenterCore(repo.getJenkinsWarsByVersionNumber());
