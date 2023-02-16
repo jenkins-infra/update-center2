@@ -75,7 +75,7 @@ public class GitHubSource {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("query", String.format("{%n" +
                             "  organization(login: %s) {%n" +
-                            "    repositories(first: 100, after: %s) {%n" +
+                            "    repositories(first: 100, after: %s, orderBy:{field:NAME,direction:ASC}) {%n" +
                             "      pageInfo {%n" +
                             "        startCursor%n" +
                             "        hasNextPage%n" +

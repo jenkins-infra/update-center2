@@ -39,4 +39,12 @@ public class ArtifactCoordinates {
     public int hashCode() {
         return Objects.hash(groupId, artifactId, version, packaging);
     }
+
+    /**
+     * @return whether the first segment of the version (delimited by . or -)
+     *        is a number.
+     */
+    public boolean isVersionValid() {
+        return version.matches("[0-9]+([-.].*)?");
+    }
 }
