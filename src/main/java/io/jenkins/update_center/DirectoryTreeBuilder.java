@@ -188,7 +188,11 @@ public class DirectoryTreeBuilder {
         try (IndexHtmlBuilder index = service.newIndexHtmlBuilder(dir, title).withSubtitle(subtitle)) {
             index.add(permalink, "permalink to the latest");
             for (MavenArtifact a : list) {
-                index.add(a);
+                try {
+                    index.add(a);
+                } catch (IOException ex) {
+                    LOGGER.log(Level.INFO, "Failed to add " + a, ex);
+                }
             }
         }
     }

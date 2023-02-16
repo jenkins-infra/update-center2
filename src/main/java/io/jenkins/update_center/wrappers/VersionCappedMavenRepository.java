@@ -74,7 +74,7 @@ public class VersionCappedMavenRepository extends MavenRepositoryWrapper {
                         }
                     }
                 } catch (IOException x) {
-                    LOGGER.log(Level.WARNING, "Failed to filter plugin for plugin: " + h.getArtifactId(), x);
+                    LOGGER.log(Level.WARNING, "Failed to filter version " + e.getKey() + " by core dependency for plugin: " + h.getArtifactId(), x);
                 }
             }
 
