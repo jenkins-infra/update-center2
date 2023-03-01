@@ -80,10 +80,10 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
     private static boolean containsIllegalChars(String test) {
         return !test.chars().allMatch(c ->
-                c >= 0x30 && c <= 0x39 // allow digits 0-9
-                || c >= 0x41 && c <= 0x5A // allows letter A-Z
-                || c >= 0x61 && c <= 0x7A // allows letter a-z
-                || c == 0x2B || c >= 0x2D && c <= 0x2F || c == 0x5F // allows: +-./_
+                c >= '0' && c <= '9'
+                || c >= 'A' && c <= 'Z'
+                || c >= 'a' && c <= 'z'
+                || c == '+' || c == '-' || c == '.' || c == '/' || c == '_'
         );
     }
 
