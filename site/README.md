@@ -1,5 +1,5 @@
-# OSS Update Center Site Architecture
-This script generate the code and data behind https://updates.jenkins-ci.org/
+# Jenkins Update Center Site Architecture
+This script generates the code and data behind https://updates.jenkins.io/
 
 The service this website provides is as follows:
 
