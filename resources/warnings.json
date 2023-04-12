@@ -15634,5 +15634,213 @@
         "pattern": "([1-3]|4[.][0-4]|4[.]5[.][0-2])(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-2837",
+    "type": "plugin",
+    "name": "thycotic-secret-server",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2837",
+    "versions": [
+      {
+        "lastVersion": "1.0.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2840",
+    "type": "plugin",
+    "name": "image-tag-parameter",
+    "message": "Disabled SSL/TLS certificate validation for existing configurations",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2840",
+    "versions": [
+      {
+        "lastVersion": "2.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2841",
+    "type": "plugin",
+    "name": "neuvector-vulnerability-scanner",
+    "message": "SSL/TLS certificate validation unconditionally disabled",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2841",
+    "versions": [
+      {
+        "lastVersion": "1.22",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2849",
+    "type": "plugin",
+    "name": "quayio-trigger",
+    "message": "Lack of authentication mechanism webhook",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2849",
+    "versions": [
+      {
+        "lastVersion": "0.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2850",
+    "type": "plugin",
+    "name": "quayio-trigger",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2850",
+    "versions": [
+      {
+        "lastVersion": "0.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2851",
+    "type": "plugin",
+    "name": "spoonscript",
+    "message": "Lack of authentication mechanism webhook",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2851",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2872",
+    "type": "plugin",
+    "name": "assembla-merge-request-builder",
+    "message": "Lack of authentication mechanism webhook",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2872",
+    "versions": [
+      {
+        "lastVersion": "1.1.13",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2873",
+    "type": "plugin",
+    "name": "fogbugz",
+    "message": "Lack of authentication mechanism webhook",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2873",
+    "versions": [
+      {
+        "lastVersion": "2.2.17",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2944",
+    "type": "plugin",
+    "name": "consul-kv-builder",
+    "message": "Token stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2944",
+    "versions": [
+      {
+        "lastVersion": "2.0.13",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2945",
+    "type": "plugin",
+    "name": "reportportal",
+    "message": "Tokens stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2945",
+    "versions": [
+      {
+        "lastVersion": "0.5",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2950",
+    "type": "plugin",
+    "name": "reportportal",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2950",
+    "versions": [
+      {
+        "lastVersion": "0.5",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2992",
+    "type": "plugin",
+    "name": "wso2id-oauth",
+    "message": "Client secret stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-2992",
+    "versions": [
+      {
+        "lastVersion": "1.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3013",
+    "type": "plugin",
+    "name": "lucene-search",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-3013",
+    "versions": [
+      {
+        "lastVersion": "387.v938a_ecb_f7fe9",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3075-azure-keyvault",
+    "type": "plugin",
+    "name": "azure-keyvault",
+    "message": "Improper masking of credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-3075",
+    "versions": [
+      {
+        "lastVersion": "187.va_cd5fecd198a_",
+        "pattern": "([0-2]|11[69]|12[012369]|13[16]|14[36]|15[49]|16[01]|18[57])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3075-kubernetes",
+    "type": "plugin",
+    "name": "kubernetes",
+    "message": "Improper masking of credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-3075",
+    "versions": [
+      {
+        "lastVersion": "3909.v1f2c633e8590",
+        "pattern": "([01]|3538|3546|3568|3578|3580|3600|3622|3636|3646|3651|3663|3670[.]v6ca_059233222|369[07]|370[46]|3718|3724|3734|3743|3794|380[02]|383[479]|384[25]|3852|3872|3883|389[36]|3900[.]va_dce992317b_4|3909)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3075-thycotic-devops-secrets-vault",
+    "type": "plugin",
+    "name": "thycotic-devops-secrets-vault",
+    "message": "Improper masking of credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-04-12/#SECURITY-3075",
+    "versions": [
+      {
+        "lastVersion": "1.0.0",
+        "pattern": ".*"
+      }
+    ]
   }
 ]
