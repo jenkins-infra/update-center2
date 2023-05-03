@@ -8,39 +8,41 @@ import java.util.logging.Logger;
 public final class Environment {
     private Environment() {}
 
-    public static String getString(@Nonnull String key, @CheckForNull String defaultValue) {
-        final String property = System.getProperty(key);
-        if (property != null) {
-            LOGGER.log(Level.CONFIG, "Found key: " + key + " in system properties: " + property);
-            return property;
+    public static String getString(String key) {
+        return getString(key, null);
+    }
+
+    public static String getString(String key, String defaultValue) {
+        String value = System.getProperty(key);
+        if (value != null) {
+            LOGGER.log(Level.CONFIG, "Found key: " + key + " in system properties: " + value);
+            return value;
         }
 
-        final String env = System.getenv(key);
-        if (env != null) {
-            LOGGER.log(Level.CONFIG, "Found key: " + key + " in process environment: " + env);
-            return env;
+        value = System.getenv(key);
+        if (value != null) {
+            LOGGER.log(Level.CONFIG, "Found key: " + key + " in process environment: " + value);
+            return value;
         }
 
         LOGGER.log(Level.CONFIG, "Failed to find key: " + key + " so using default: " + defaultValue);
         return defaultValue;
     }
 
-    public static String getString(@Nonnull String key) {
-        return getString(key, null);
-    }
-
-    public static int getInteger(@Nonnull String key) {
+    public static int getInteger(String key) {
         return getInteger(key, 0);
     }
 
-    public static int getInteger(@Nonnull String key, int defaultValue) {
+    public static int getInteger(String key, int defaultValue) {
+        String value = getString(key, Integer.toString(defaultValue));
         try {
-            return Integer.parseInt(getString(key, Integer.toString(defaultValue)));
-        } catch (NumberFormatException nfe) {
-            LOGGER.log(Level.WARNING, nfe.getMessage(), nfe);
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.WARNING, "Invalid value for key: " + key + ", value: " + value, e);
             return defaultValue;
         }
     }
 
     private static final Logger LOGGER = Logger.getLogger(Environment.class.getName());
 }
+
