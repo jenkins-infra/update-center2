@@ -604,6 +604,10 @@ public class HPI extends MavenArtifact {
             Set<String> labels = new TreeSet<>(Arrays.asList(getLabelsFromFile()));
             labels.addAll(gitHubLabels);
 
+            if (MaintainersSource.getInstance().getMaintainers(this.artifact).isEmpty()) {
+                labels.add("adopt-this-plugin");
+            }
+
             this.labels = new ArrayList<>(labels);
         }
         return this.labels;
