@@ -12788,8 +12788,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-06-30/#SECURITY-1877",
     "versions": [
       {
-        "lastVersion": "1.9",
-        "pattern": ".*"
+        "lastVersion": "1.10",
+        "pattern": "(1[.][0-9]|1[.]10)(|[.-].*)"
       }
     ]
   },
