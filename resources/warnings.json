@@ -16440,8 +16440,8 @@
     "url": "https://www.jenkins.io/security/advisory/2023-07-12/#SECURITY-3117",
     "versions": [
       {
-        "lastVersion": "2.2.1",
-        "pattern": ".*"
+        "lastVersion": "2.2.3",
+        "pattern": "(1|2[.][01]|2[.]2[.][013])(|[.-].+)"
       }
     ]
   },
