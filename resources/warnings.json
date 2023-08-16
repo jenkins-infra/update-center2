@@ -4151,7 +4151,8 @@
     "url": "https://jenkins.io/security/advisory/2019-04-03/#SECURITY-835",
     "versions": [
       {
-        "pattern": ".*"
+        "lastVersion": "1.25",
+        "pattern": "(1[.][0-2][0-5])"
       }
     ]
   },
