@@ -15890,7 +15890,7 @@
     "url": "https://www.jenkins.io/security/advisory/2023-05-16/#SECURITY-2892",
     "versions": [
       {
-        "lastVersion": "2.8.1",
+        "lastVersion": "2.9.1",
         "pattern": "(1|2[.][0-8]|2[.]9[.]1)(|[.-].+)"
       }
     ]
