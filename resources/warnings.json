@@ -15890,8 +15890,8 @@
     "url": "https://www.jenkins.io/security/advisory/2023-05-16/#SECURITY-2892",
     "versions": [
       {
-        "lastVersion": "2.8.1",
-        "pattern": ".*"
+        "lastVersion": "2.9.1",
+        "pattern": "(1|2[.][0-8]|2[.]9[.]1)(|[.-].+)"
       }
     ]
   },
@@ -16440,8 +16440,8 @@
     "url": "https://www.jenkins.io/security/advisory/2023-07-12/#SECURITY-3117",
     "versions": [
       {
-        "lastVersion": "2.2.1",
-        "pattern": ".*"
+        "lastVersion": "2.2.3",
+        "pattern": "(1|2[.][01]|2[.]2[.][013])(|[.-].+)"
       }
     ]
   },
@@ -16466,8 +16466,8 @@
     "url": "https://www.jenkins.io/security/advisory/2023-07-12/#SECURITY-3122",
     "versions": [
       {
-        "lastVersion": "1.2.13",
-        "pattern": ".*"
+        "lastVersion": "1.2.15",
+        "pattern": "(1[.][01]|1[.]2[.][0-9]|1[.]2[.]1[0-5])(|[.-].+)"
       }
     ]
   },
@@ -16610,7 +16610,7 @@
     "versions": [
       {
         "lastVersion": "2.415",
-        "pattern": "(1|2[.][0-9]|2[.]1[0-9]|2[.]10[0-9]|2[.]11[0-9]|2[.]12[0-9]|2[.]13[0-8]|2[.]14[0-9]|2[.]15[0-9]|2[.]16[0-9]|2[.]17[0-9]|2[.]18[012345679]|2[.]19[0-9]|2[.]2[0-9]|2[.]20[0-9]|2[.]21[012345789]|2[.]22[0-9]|2[.]23[0-9]|2[.]24[0-9]|2[.]25[0-9]|2[.]26[0-9]|2[.]27[0-9]|2[.]28[0-9]|2[.]29[0-9]|2[.]3[0-9]|2[.]30[0-9]|2[.]31[1-9]|2[.]32[0-9]|2[.]33[0-9]|2[.]34[0-9]|2[.]35[0456789]|2[.]36[0-9]|2[.]37[0-9]|2[.]38[0-9]|2[.]39[0-9]|2[.]4[0-9]|2[.]40[02345679]|2[.]41[0-5]|2[.]5[0-9]|2[.]6[0-9]|2[.]7[0-9]|2[.]8[0-9]|2[.]9[0-9])(|[.-].+)|(2[.]401)"
+        "pattern": "(1|2[.][0-9]|2[.]1[0-9]|2[.]10[0-9]|2[.]11[0-9]|2[.]12[0-9]|2[.]13[0-8]|2[.]14[0-9]|2[.]15[0-9]|2[.]16[0-9]|2[.]17[0-9]|2[.]18[012345679]|2[.]19[0-9]|2[.]2[0-9]|2[.]20[0-9]|2[.]21[012345789]|2[.]22[0-9]|2[.]23[0-9]|2[.]24[0-9]|2[.]25[0-9]|2[.]26[0-9]|2[.]27[0-9]|2[.]28[0-9]|2[.]29[0-9]|2[.]3[0-9]|2[.]30[0-9]|2[.]31[1-9]|2[.]32[0-9]|2[.]33[0-9]|2[.]34[0-9]|2[.]35[0456789]|2[.]36[0-9]|2[.]37[0-9]|2[.]38[0-9]|2[.]39[0-9]|2[.]4[0-9]|2[.]40[02345679]|2[.]41[0-35]|2[.]5[0-9]|2[.]6[0-9]|2[.]7[0-9]|2[.]8[0-9]|2[.]9[0-9])(|[.-].+)|(2[.]401|2[.]414)"
       },
       {
         "lastVersion": "LTS 2.401.2",
@@ -16693,6 +16693,436 @@
       {
         "lastVersion": "2.8",
         "pattern": "(2[.]8)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2811",
+    "type": "plugin",
+    "name": "docker-swarm",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-2811",
+    "versions": [
+      {
+        "lastVersion": "1.11",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2894",
+    "type": "plugin",
+    "name": "gogs-webhook",
+    "message": "Unsafe default behavior and information disclosure in webhook",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-2894",
+    "versions": [
+      {
+        "lastVersion": "1.0.15",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3071",
+    "type": "plugin",
+    "name": "shortcut-job",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3071",
+    "versions": [
+      {
+        "lastVersion": "0.4",
+        "pattern": "(0[.]4)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3090",
+    "type": "plugin",
+    "name": "config-file-provider",
+    "message": "Improper masking of credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3090",
+    "versions": [
+      {
+        "lastVersion": "952.va_544a_6234b_46",
+        "pattern": "([1-3]|938|951[.]v0461b_87b_721b_|952)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3105",
+    "type": "plugin",
+    "name": "cloudbees-folder",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3105",
+    "versions": [
+      {
+        "lastVersion": "6.846.v23698686f0f6",
+        "pattern": "([45]|6[.][0-9]|6[.]1[0-8]|6[.]688|6[.]708|6[.]714|6[.]72[29]|6[.]736|6[.]740|6[.]758|6[.]766|6[.]77[03]|6[.]784|6[.]79[257]|6[.]800|6[.]815|6[.]846)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3106",
+    "type": "plugin",
+    "name": "cloudbees-folder",
+    "message": "CSRF vulnerability may approve unsandboxed scripts",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3106",
+    "versions": [
+      {
+        "lastVersion": "6.846.v23698686f0f6",
+        "pattern": "([45]|6[.][0-9]|6[.]1[0-8]|6[.]688|6[.]708|6[.]714|6[.]72[29]|6[.]736|6[.]740|6[.]758|6[.]766|6[.]77[03]|6[.]784|6[.]79[257]|6[.]800|6[.]815|6[.]846)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3109",
+    "type": "plugin",
+    "name": "cloudbees-folder",
+    "message": "Information disclosure",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3109",
+    "versions": [
+      {
+        "lastVersion": "6.846.v23698686f0f6",
+        "pattern": "([45]|6[.][0-9]|6[.]1[0-8]|6[.]688|6[.]708|6[.]714|6[.]72[29]|6[.]736|6[.]740|6[.]758|6[.]766|6[.]77[03]|6[.]784|6[.]79[257]|6[.]800|6[.]815|6[.]846)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3115",
+    "type": "plugin",
+    "name": "fortify",
+    "message": "CSRF vulnerability and missing permission checks allow capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3115",
+    "versions": [
+      {
+        "lastVersion": "22.1.38",
+        "pattern": "(19|2[01]|22[.]1)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3116",
+    "type": "plugin",
+    "name": "blueocean",
+    "message": "CSRF vulnerability allows capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3116",
+    "versions": [
+      {
+        "lastVersion": "1.27.5",
+        "pattern": "(1[.][0-9]|1[.]1[013456789]|1[.]2[1-6]|1[.]27[.][0-3])(|[.-].+)|(1[.]27[.][45])"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3140",
+    "type": "plugin",
+    "name": "fortify",
+    "message": "HTML injection vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3140",
+    "versions": [
+      {
+        "lastVersion": "22.1.38",
+        "pattern": "(19|2[01]|22[.]1)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3153",
+    "type": "plugin",
+    "name": "maven-artifact-choicelistprovider",
+    "message": "Exposure of system-scoped credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3153",
+    "versions": [
+      {
+        "lastVersion": "1.14",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3196",
+    "type": "plugin",
+    "name": "nodejs",
+    "message": "Improper masking of credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3196",
+    "versions": [
+      {
+        "lastVersion": "1.6.0",
+        "pattern": "(0|1[.][0-5])(|[.-].+)|(1[.]6[.]0)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3201",
+    "type": "plugin",
+    "name": "favorite-view",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3201",
+    "versions": [
+      {
+        "lastVersion": "5.v77a_37f62782d",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3214-1",
+    "type": "plugin",
+    "name": "delphix",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3214%20(1)",
+    "versions": [
+      {
+        "lastVersion": "3.0.2",
+        "pattern": "(3[.]0[.][12])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3214-2",
+    "type": "plugin",
+    "name": "delphix",
+    "message": "Exposure of system-scoped credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3214%20(2)",
+    "versions": [
+      {
+        "lastVersion": "3.0.2",
+        "pattern": "(3[.]0[.][12])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3223",
+    "type": "plugin",
+    "name": "flaky-test-handler",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3223",
+    "versions": [
+      {
+        "lastVersion": "1.2.2",
+        "pattern": "(1[.][01]|1[.]2[.][0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3229",
+    "type": "plugin",
+    "name": "tuleap-oauth",
+    "message": "Non-constant time token comparison",
+    "url": "https://www.jenkins.io/security/advisory/2023-08-16/#SECURITY-3229",
+    "versions": [
+      {
+        "lastVersion": "1.1.20",
+        "pattern": "(1[.]0|1[.]1[.][01345679]|1[.]1[.]1[0-9]|1[.]1[.]20)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2924",
+    "type": "plugin",
+    "name": "ivy",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-2924",
+    "versions": [
+      {
+        "lastVersion": "2.5",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3018",
+    "type": "plugin",
+    "name": "qualys-cs",
+    "message": "Incorrect permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3018",
+    "versions": [
+      {
+        "lastVersion": "1.6.2.6",
+        "pattern": "(1[.]6[.][01]|1[.]6[.]2[.][0-6])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3064",
+    "type": "plugin",
+    "name": "ssh2easy",
+    "message": "Disabled permissions can be granted",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3064",
+    "versions": [
+      {
+        "lastVersion": "1.4",
+        "pattern": "(1[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3065",
+    "type": "plugin",
+    "name": "assembla-auth",
+    "message": "Disabled permissions granted",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3065",
+    "versions": [
+      {
+        "lastVersion": "1.14",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3082",
+    "type": "plugin",
+    "name": "frugal-testing",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3082",
+    "versions": [
+      {
+        "lastVersion": "1.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3093",
+    "type": "plugin",
+    "name": "ivy",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3093",
+    "versions": [
+      {
+        "lastVersion": "2.5",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3101-1",
+    "type": "plugin",
+    "name": "aws-codecommit-trigger",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3101%20(1)",
+    "versions": [
+      {
+        "lastVersion": "3.0.12",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3101-2",
+    "type": "plugin",
+    "name": "aws-codecommit-trigger",
+    "message": "CSRF vulnerability and missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3101%20(2)",
+    "versions": [
+      {
+        "lastVersion": "3.0.12",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3102",
+    "type": "plugin",
+    "name": "aws-codecommit-trigger",
+    "message": "HTML injection vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3102",
+    "versions": [
+      {
+        "lastVersion": "3.0.12",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3165",
+    "type": "plugin",
+    "name": "bitbucket-push-and-pull-request",
+    "message": "SSRF vulnerability allows capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3165",
+    "versions": [
+      {
+        "firstVersion": "2.4.0",
+        "lastVersion": "2.8.3",
+        "pattern": "(2[.][4567]|2[.]8[.][0-3])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3190",
+    "type": "plugin",
+    "name": "tap",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3190",
+    "versions": [
+      {
+        "lastVersion": "2.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3227",
+    "type": "plugin",
+    "name": "azure-ad",
+    "message": "Non-constant time nonce comparison",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3227",
+    "versions": [
+      {
+        "lastVersion": "396.v86ce29279947",
+        "pattern": "([01]|146|15[0234578]|16[4578]|17[012345789]|18[034589]|19[0145]|21[38]|23[34]|241|267|30[368]|313|336|34[0589]|378[.]vd6e2874a_69eb_|385|39[1236])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3228",
+    "type": "plugin",
+    "name": "google-login",
+    "message": "Non-constant time token comparison",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3228",
+    "versions": [
+      {
+        "lastVersion": "1.7",
+        "pattern": "(1[.][0-7])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3233",
+    "type": "plugin",
+    "name": "jobConfigHistory",
+    "message": "Path traversal allows exploiting XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3233",
+    "versions": [
+      {
+        "lastVersion": "1227.v7a_79fc4dc01f",
+        "pattern": "([12]|1119|113[39]|114[68]|115[56]|116[356]|117[016]|118[37]|119[18]|120[67]|1212|1227)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3235",
+    "type": "plugin",
+    "name": "jobConfigHistory",
+    "message": "Path traversal allows exploiting XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3235",
+    "versions": [
+      {
+        "lastVersion": "1227.v7a_79fc4dc01f",
+        "pattern": "([12]|1119|113[39]|114[68]|115[56]|116[356]|117[016]|118[37]|119[18]|120[67]|1212|1227)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3257",
+    "type": "plugin",
+    "name": "pipeline-maven",
+    "message": "Improper masking of credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-09-06/#SECURITY-3257",
+    "versions": [
+      {
+        "lastVersion": "1330.v18e473854496",
+        "pattern": "([023]|1161|1195|120[135]|1226|123[59]|125[67]|127[49]|129[038]|1314|1322|1330)(|[.-].+)"
       }
     ]
   }
