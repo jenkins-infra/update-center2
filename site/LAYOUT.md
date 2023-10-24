@@ -229,8 +229,3 @@ This list is current as of June 2020, but may not be complete.
 * `/update-center.actual.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L13)
 * `/experimental/update-center.actual.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L15)
 * `/current/plugin-versions.json` in [Settings.java](https://github.com/jenkinsci/plugin-installation-manager-tool/blob/master/plugin-management-library/src/main/java/io/jenkins/tools/pluginmanager/config/Settings.java#L18)
-
-### jenkinsci/docker
-
-* LTS tiered update sites per https://github.com/jenkinsci/docker/issues/954
-* Tiered `latest/` directories per https://github.com/jenkinsci/docker/issues/953
