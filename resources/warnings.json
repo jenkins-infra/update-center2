@@ -17198,5 +17198,148 @@
         "pattern": "(1|2[.]107|2[.]121|2[.]138|2[.]150|2[.]164|2[.]176|2[.]19|2[.]190|2[.]204|2[.]222|2[.]235|2[.]249|2[.]263|2[.]277|2[.]289|2[.]303|2[.]319|2[.]32|2[.]332|2[.]346|2[.]361|2[.]375|2[.]387|2[.]401|2[.]414[.][12]|2[.]46|2[.]60|2[.]7|2[.]73|2[.]89)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-2875",
+    "type": "plugin",
+    "name": "multibranch-scan-webhook-trigger",
+    "message": "Non-constant time webhook token comparison",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-2875",
+    "versions": [
+      {
+        "lastVersion": "1.0.9",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2876",
+    "type": "plugin",
+    "name": "teams-webhook-trigger",
+    "message": "Non-constant time webhook token comparison",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-2876",
+    "versions": [
+      {
+        "lastVersion": "0.1.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2879",
+    "type": "plugin",
+    "name": "zanata",
+    "message": "Non-constant time webhook token hash comparison",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-2879",
+    "versions": [
+      {
+        "lastVersion": "0.6",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2896",
+    "type": "plugin",
+    "name": "gogs-webhook",
+    "message": "Non-constant time webhook token comparison",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-2896",
+    "versions": [
+      {
+        "lastVersion": "1.0.15",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3202",
+    "type": "plugin",
+    "name": "lambdatest-automation",
+    "message": "Exposure of token through logs",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-3202",
+    "versions": [
+      {
+        "lastVersion": "1.20.10",
+        "pattern": "(1[.]1[045689]|1[.]20|1[.]6)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3222",
+    "type": "plugin",
+    "name": "lambdatest-automation",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-3222",
+    "versions": [
+      {
+        "lastVersion": "1.20.9",
+        "pattern": "(1[.]1[045689]|1[.]20[.][014579]|1[.]6)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3237",
+    "type": "plugin",
+    "name": "electricflow",
+    "message": "Arbitrary file deletion vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-3237",
+    "versions": [
+      {
+        "lastVersion": "1.1.32",
+        "pattern": "(1[.]0|1[.]1[.][1-9]|1[.]1[.]1[0-9]|1[.]1[.]2[0-9]|1[.]1[.]3[0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3238",
+    "type": "plugin",
+    "name": "electricflow",
+    "message": "Arbitrary file read vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-3238",
+    "versions": [
+      {
+        "lastVersion": "1.1.32",
+        "pattern": "(1[.]0|1[.]1[.][1-9]|1[.]1[.]1[0-9]|1[.]1[.]2[0-9]|1[.]1[.]3[0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3246",
+    "type": "plugin",
+    "name": "github",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-3246",
+    "versions": [
+      {
+        "lastVersion": "1.37.3",
+        "pattern": "(0|1[.][0-9]|1[.]1[0-9]|1[.]2[0-9]|1[.]3[0-6]|1[.]37[.][0-2])(|[.-].+)|(1[.]37[.]3)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3247",
+    "type": "plugin",
+    "name": "trac",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-3247",
+    "versions": [
+      {
+        "lastVersion": "1.13",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3265",
+    "type": "plugin",
+    "name": "warnings-ng",
+    "message": "Exposure of system-scoped credentials",
+    "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-3265",
+    "versions": [
+      {
+        "lastVersion": "10.5.0",
+        "pattern": "([1-9]|10[.][0-3]|10[.]4[.]0|10[.]5[.]0)(|[.-].+)"
+      }
+    ]
   }
 ]
