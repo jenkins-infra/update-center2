@@ -40,7 +40,7 @@ ssh ${RSYNC_USER}@${UPDATES_SITE} "cat > /tmp/update-center2-rerecent-releases.j
 ssh ${RSYNC_USER}@${UPDATES_SITE} "/srv/releases/sync-recent-releases.sh /tmp/update-center2-rerecent-releases.json"
 
 ## 'www2' folder processing
-chmod -R a+r./ www2
+chmod -R a+r ./www2
 
 # TIME sync, used by mirrorbits to know the last update date to take in account
 date +%s > ./www2/TIME
