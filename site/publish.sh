@@ -32,20 +32,6 @@ ssh ${RSYNC_USER}@${UPDATES_SITE} "/srv/releases/sync-recent-releases.sh /tmp/up
 ## 'www2' folder processing
 chmod -R a+r ./www2
 
-# TIME sync, used by mirrorbits to know the last update date to take in account
-date +%s > ./www2/TIME
-
-## No need to remove the symlinks as the `azcopy sync` for symlinks is not yet supported and we use `--no-follow-symlinks` for `aws s3 sync`
-# Perform a copy with dereference symlink (object storage do not support symlinks)
-# copy & transform simlinks into referent file/dir
-rsync --archive --checksum --verbose --compress \
-            --copy-links `# derefence symlinks` \
-            --safe-links `# ignore symlinks outside of copied tree` \
-            --stats `# add verbose statistics` \
-            --exclude='updates' `# populated by https://github.com/jenkins-infra/crawler` \
-            --delete `# delete old sites` \
-            www2/ www3/
-
 function parallelfunction() {
     echo "=== parallelfunction: $1"
 
@@ -102,6 +88,20 @@ tasks=("rsync")
 # Sync updates.jenkins.io and azure.updates.jenkins.io File Share and R2 bucket(s) if the flag is set
 if [[ $OPT_IN_SYNC_FS_R2 == "optin" ]]
 then
+    # TIME sync, used by mirrorbits to know the last update date to take in account
+    date +%s > ./www2/TIME
+
+    ## No need to remove the symlinks as the `azcopy sync` for symlinks is not yet supported and we use `--no-follow-symlinks` for `aws s3 sync`
+    # Perform a copy with dereference symlink (object storage do not support symlinks)
+    # copy & transform simlinks into referent file/dir
+    rsync --archive --checksum --verbose --compress \
+                --copy-links `# derefence symlinks` \
+                --safe-links `# ignore symlinks outside of copied tree` \
+                --stats `# add verbose statistics` \
+                --exclude='updates' `# populated by https://github.com/jenkins-infra/crawler` \
+                --delete `# delete old sites` \
+                www2/ www3/
+
     # Add File Share sync to the tasks
     tasks+=("azsync")
 
