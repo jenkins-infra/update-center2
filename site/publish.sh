@@ -9,7 +9,7 @@ RSYNC_USER="www-data"
 
 # For syncing R2 buckets aws-cli is configured through environment variables (from Jenkins credentials)
 # https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
-export AWS_DEFAULT_REGION="auto"
+export AWS_DEFAULT_REGION='auto'
 
 ## Install jq, required by generate.sh script
 wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 || { echo "Failed to download jq" >&2 ; exit 1; }
@@ -22,7 +22,7 @@ export PATH=.:$PATH
 
 ## 'download' folder processing
 # push plugins to mirrors.jenkins-ci.org
-chmod -R a+r ./download
+chmod -R a+r download
 rsync -avz --size-only download/plugins/ ${RSYNC_USER}@${UPDATES_SITE}:/srv/releases/jenkins/plugins
 
 # Invoke a minimal mirrorsync to mirrorbits which will use the 'recent-releases.json' file as input
@@ -30,7 +30,7 @@ ssh ${RSYNC_USER}@${UPDATES_SITE} "cat > /tmp/update-center2-rerecent-releases.j
 ssh ${RSYNC_USER}@${UPDATES_SITE} "/srv/releases/sync-recent-releases.sh /tmp/update-center2-rerecent-releases.json"
 
 ## 'www2' folder processing
-chmod -R a+r ./www2
+chmod -R a+r www2
 
 function parallelfunction() {
     echo "=== parallelfunction: $1"
@@ -42,7 +42,7 @@ function parallelfunction() {
             --exclude=/updates `# populated by https://github.com/jenkins-infra/crawler` \
             --delete `# delete old sites` \
             --stats `# add verbose statistics` \
-            www2/ ${RSYNC_USER}@${UPDATES_SITE}:/var/www/${UPDATES_SITE}
+            ./www2/ "${RSYNC_USER}@${UPDATES_SITE}:/var/www/${UPDATES_SITE}"
         ;;
 
     azsync*)
@@ -60,7 +60,7 @@ function parallelfunction() {
 
         # Sync CloudFlare R2 buckets content excluding 'updates' folder from www3 sync (without symlinks)
         # as this folder is populated by https://github.com/jenkins-infra/crawler/blob/master/Jenkinsfile
-        time aws s3 sync ./www3/ s3://"${r2_bucket}"/ \
+        time aws s3 sync ./www3/ "s3://${r2_bucket}/" \
             --no-progress \
             --no-follow-symlinks \
             --size-only \
@@ -69,7 +69,7 @@ function parallelfunction() {
         ;;
 
     *)
-        echo -n "Warning: unknown parameter"
+        echo -n 'Warning: unknown parameter'
         ;;
 
     esac
@@ -82,28 +82,31 @@ export RSYNC_USER
 # Export function to use it with parallel
 export -f parallelfunction
 
+# parallel added within the permanent trusted agent here:
+# https://github.com/jenkins-infra/jenkins-infra/blob/production/dist/profile/manifests/buildagent.pp
+command -v parallel >/dev/null 2>&1 || { echo 'ERROR: parralel command not found. Exiting.'; exit 1; }
+
 # Sync only updates.jenkins.io by default
-tasks=("rsync")
+tasks=('rsync')
 
 # Sync updates.jenkins.io and azure.updates.jenkins.io File Share and R2 bucket(s) if the flag is set
-if [[ $OPT_IN_SYNC_FS_R2 == "optin" ]]
+if [[ ${OPT_IN_SYNC_FS_R2} == 'optin' ]]
 then
     # TIME sync, used by mirrorbits to know the last update date to take in account
     date +%s > ./www2/TIME
 
     ## No need to remove the symlinks as the `azcopy sync` for symlinks is not yet supported and we use `--no-follow-symlinks` for `aws s3 sync`
     # Perform a copy with dereference symlink (object storage do not support symlinks)
-    # copy & transform simlinks into referent file/dir
-    rsync --archive --checksum --verbose --compress \
-                --copy-links `# derefence symlinks` \
-                --safe-links `# ignore symlinks outside of copied tree` \
-                --stats `# add verbose statistics` \
-                --exclude='updates' `# populated by https://github.com/jenkins-infra/crawler` \
-                --delete `# delete old sites` \
-                www2/ www3/
+    rm -rf ./www3/ # Cleanup
+    
+    rsync --archive --verbose \
+        --copy-links `# derefence symlinks` \
+        --safe-links `# ignore symlinks outside of copied tree` \
+        --exclude='updates' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
+        ./www2/ ./www3/
 
     # Add File Share sync to the tasks
-    tasks+=("azsync")
+    tasks+=('azsync')
 
     # Add each R2 bucket sync to the tasks
     updates_r2_bucket_and_endpoint_pairs=("westeurope-updates-jenkins-io|https://8d1838a43923148c5cee18ccc356a594.r2.cloudflarestorage.com")
@@ -120,13 +123,13 @@ parallel --halt-on-error now,fail=1 parallelfunction ::: "${tasks[@]}"
 echo '============================ all done ============================'
 
 # Trigger a mirror scan on mirrorbits if the flag is set
-if [[ $OPT_IN_SYNC_FS_R2 == "optin" ]]
+if [[ ${OPT_IN_SYNC_FS_R2} == 'optin' ]]
 then
     echo '== Triggering a mirror scan on mirrorbits...'
     # Kubernetes namespace of mirrorbits
-    mirrorbits_namespace="updates-jenkins-io"
+    mirrorbits_namespace='updates-jenkins-io'
 
     # Requires a valid kubernetes credential file at $KUBECONFIG or $HOME/.kube/config by default
-    pod_name="$(kubectl --namespace=${mirrorbits_namespace} --no-headers=true get pod --output=name | grep mirrorbits-lite | head -n1)"
-    kubectl --namespace=${mirrorbits_namespace} --container=mirrorbits-lite exec "${pod_name}" -- mirrorbits scan -all -enable -timeout=120
+    pod_name=$(kubectl --namespace="${mirrorbits_namespace}" --no-headers=true get pod --output=name | grep mirrorbits-lite | head -n1)
+    kubectl --namespace="${mirrorbits_namespace}" --container=mirrorbits-lite exec "${pod_name}" -- mirrorbits scan -all -enable -timeout=120
 fi
