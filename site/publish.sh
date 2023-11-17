@@ -119,10 +119,14 @@ parallel --halt-on-error now,fail=1 parallelfunction ::: "${tasks[@]}"
 # Wait for all deferred tasks
 echo '============================ all done ============================'
 
-echo '== Triggering a mirror scan on mirrorbits...'
-# Kubernetes namespace of mirrorbits
-mirrorbits_namespace="updates-jenkins-io"
+# Trigger a mirror scan on mirrorbits if the flag is set
+if [[ $OPT_IN_SYNC_FS_R2 == "optin" ]]
+then
+    echo '== Triggering a mirror scan on mirrorbits...'
+    # Kubernetes namespace of mirrorbits
+    mirrorbits_namespace="updates-jenkins-io"
 
-# Requires a valid kubernetes credential file at $KUBECONFIG or $HOME/.kube/config by default
-pod_name="$(kubectl --namespace=${mirrorbits_namespace} --no-headers=true get pod --output=name | grep mirrorbits-lite | head -n1)"
-kubectl --namespace=${mirrorbits_namespace} --container=mirrorbits-lite exec "${pod_name}" -- mirrorbits scan -all -enable -timeout=120
+    # Requires a valid kubernetes credential file at $KUBECONFIG or $HOME/.kube/config by default
+    pod_name="$(kubectl --namespace=${mirrorbits_namespace} --no-headers=true get pod --output=name | grep mirrorbits-lite | head -n1)"
+    kubectl --namespace=${mirrorbits_namespace} --container=mirrorbits-lite exec "${pod_name}" -- mirrorbits scan -all -enable -timeout=120
+fi
