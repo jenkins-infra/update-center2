@@ -10558,7 +10558,7 @@
     "versions": [
       {
         "lastVersion": "1.19",
-        "pattern": ".*"
+        "pattern": "(1[.]1[5-9])(|[.-].+)"
       }
     ]
   },
