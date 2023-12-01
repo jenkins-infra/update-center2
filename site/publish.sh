@@ -49,6 +49,7 @@ function parallelfunction() {
         # Sync Azure File Share content using www3 to avoid symlinks
         time azcopy sync ./www3/ "https://updatesjenkinsio.file.core.windows.net/updates-jenkins-io/?${UPDATES_FILE_SHARE_QUERY_STRING}" \
             --recursive=true \
+            --exclude-path="updates" `# populated by https://github.com/jenkins-infra/crawler` \
             --delete-destination=true
         ;;
 
