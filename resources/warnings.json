@@ -15670,7 +15670,7 @@
     "versions": [
       {
         "lastVersion": "1.22",
-        "pattern": ".*"
+        "pattern": "(1)(|[.-].+)"
       }
     ]
   },
