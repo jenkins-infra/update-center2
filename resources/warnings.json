@@ -17207,8 +17207,8 @@
     "url": "https://www.jenkins.io/security/advisory/2023-10-25/#SECURITY-2875",
     "versions": [
       {
-        "lastVersion": "1.0.9",
-        "pattern": ".*"
+        "lastVersion": "1.0.11",
+        "pattern": "(1[.]0[.]10|1[.][0].[0-9])(|[.-].+)"
       }
     ]
   },
