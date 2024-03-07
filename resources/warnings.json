@@ -12620,7 +12620,7 @@
     "versions": [
       {
         "lastVersion": "0.0.7",
-        "pattern": ".*"
+        "pattern": "(0[.]0[.][0-7])"
       }
     ]
   },
