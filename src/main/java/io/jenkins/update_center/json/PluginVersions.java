@@ -20,8 +20,7 @@ public class PluginVersions {
     public Map<String, PluginVersionsEntry> releases = new LinkedHashMap<>();
 
     PluginVersions(Map<VersionNumber, HPI> artifacts) {
-        // TODO this is suboptimal sorting (we'd rather sort by VersionNumber, not its string representation) but imitates existing behavior
-        for (VersionNumber versionNumber : artifacts.keySet().stream().sorted(Comparator.comparing(VersionNumber::toString)).collect(Collectors.toList())) {
+        for (VersionNumber versionNumber : artifacts.keySet().stream().sorted().collect(Collectors.toList())) {
             try {
                 if (releases.put(versionNumber.toString(), new PluginVersionsEntry(artifacts.get(versionNumber))) != null) {
                     throw new IllegalStateException("Duplicate key");
