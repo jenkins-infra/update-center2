@@ -46,8 +46,11 @@ function parallelfunction() {
         ;;
 
     azsync*)
+        # Script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
+        # Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
+        fileShareUrl=$(get-fileshare-signed-url.sh)
         # Sync Azure File Share content using www3 to avoid symlinks
-        time azcopy sync ./www3/ "https://updatesjenkinsio.file.core.windows.net/updates-jenkins-io/?${UPDATES_FILE_SHARE_QUERY_STRING}" \
+        time azcopy sync ./www3/ "${fileShareUrl}" \
             --recursive=true \
             --exclude-path="updates" `# populated by https://github.com/jenkins-infra/crawler` \
             --delete-destination=true
@@ -79,6 +82,12 @@ function parallelfunction() {
 # Export local variables used in parallelfunction
 export UPDATES_SITE
 export RSYNC_USER
+
+# Export variables used in parallelfunction/azsync/get-fileshare-signed-url.sh
+export STORAGE_FILESHARE=updates-jenkins-io
+export STORAGE_NAME=updatesjenkinsio
+export STORAGE_DURATION_IN_MINUTE=5 # duration of the short-lived SAS token
+export STORAGE_PERMISSIONS=dlrw
 
 # Export function to use it with parallel
 export -f parallelfunction
