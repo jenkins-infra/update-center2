@@ -58,14 +58,7 @@ public class GitHubSource {
         this.repoNames = new TreeSet<>(String::compareToIgnoreCase);
 
         LOGGER.log(Level.INFO, "Retrieving GitHub repo data...");
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        if (GITHUB_API_USERNAME != null && GITHUB_API_PASSWORD != null) {
-            builder.authenticator((route, response) -> {
-                String credential = Credentials.basic(GITHUB_API_USERNAME, GITHUB_API_PASSWORD);
-                return response.request().newBuilder().header("Authorization", credential).build();
-            });
-        }
-        OkHttpClient client = builder.build();
+        OkHttpClient client = new OkHttpClient.Builder().build();
 
         boolean hasNextPage = true;
         String endCursor = null;
@@ -106,10 +99,13 @@ public class GitHubSource {
             ));
             LOGGER.log(Level.FINE, String.format("Retrieving GitHub topics with end token... %s", endCursor));
 
-            Request request = new Request.Builder()
+            Request.Builder builder = new Request.Builder()
                     .url(this.getGraphqlUrl())
-                    .post(RequestBody.create(jsonObject.toString(), MediaType.parse("application/json; charset=utf-8")))
-                    .build();
+                    .post(RequestBody.create(jsonObject.toString(), MediaType.parse("application/json; charset=utf-8")));
+            if (GITHUB_API_PASSWORD != null && GITHUB_API_USERNAME != null) {
+                builder = builder.header("Authorization", Credentials.basic(GITHUB_API_USERNAME, GITHUB_API_PASSWORD));
+            }
+            Request request = builder.build();
 
             String bodyString = HttpHelper.getResponseBody(client, request);
 
