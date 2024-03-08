@@ -79,7 +79,12 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private static boolean containsIllegalChars(String test) {
-        return !test.chars().allMatch(c -> c >= 0x2B && c < 0x7B);
+        return !test.chars().allMatch(c ->
+                c >= '0' && c <= '9'
+                || c >= 'A' && c <= 'Z'
+                || c >= 'a' && c <= 'z'
+                || c == '+' || c == '-' || c == '.' || c == '/' || c == '_'
+        );
     }
 
     private static ArtifactCoordinates toGav(JsonFile f) {
@@ -87,7 +92,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         String path = f.path;
 
         if (containsIllegalChars(fileName) || containsIllegalChars(path)) {
-            LOGGER.log(Level.INFO, "Not only printable ascii: " + f.path + " / " + f.name);
+            LOGGER.log(Level.INFO, "Characters outside allowed set: " + f.path + " / " + f.name);
             return null;
         }
 
