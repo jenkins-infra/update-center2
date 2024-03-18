@@ -17403,7 +17403,7 @@
     "versions": [
       {
         "lastVersion": "2.6",
-        "pattern": ".*"
+        "pattern": "[12][.].*)"
       }
     ]
   },
