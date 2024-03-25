@@ -5,7 +5,7 @@
 
 # Used later for rsyncing updates
 UPDATES_SITE="updates.jenkins.io"
-RSYNC_USER="www-data"
+RSYNC_USER="mirrorbrain"
 
 # For syncing R2 buckets aws-cli is configured through environment variables (from Jenkins credentials)
 # https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
