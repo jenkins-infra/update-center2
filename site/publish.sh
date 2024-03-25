@@ -23,7 +23,7 @@ export PATH=.:$PATH
 ## 'download' folder processing
 # push plugins to mirrors.jenkins-ci.org
 chmod -R a+r download
-rsync -avz --size-only download/plugins/ ${RSYNC_USER}@${UPDATES_SITE}:/srv/releases/jenkins/plugins
+rsync -rlptDvz --chown=mirrorbrain:www-data --size-only download/plugins/ ${RSYNC_USER}@${UPDATES_SITE}:/srv/releases/jenkins/plugins
 
 # Invoke a minimal mirrorsync to mirrorbits which will use the 'recent-releases.json' file as input
 ssh ${RSYNC_USER}@${UPDATES_SITE} "cat > /tmp/update-center2-rerecent-releases.json" < www2/experimental/recent-releases.json
@@ -38,7 +38,8 @@ function parallelfunction() {
     case $1 in
     rsync*)
         # Push generated index to the production server
-        time rsync --archive --checksum --verbose --compress \
+        time rsync --chown=mirrorbrain:www-data --recursive --links --perms --times -D \
+            --checksum --verbose --compress \
             --exclude=/updates `# populated by https://github.com/jenkins-infra/crawler` \
             --delete `# delete old sites` \
             --stats `# add verbose statistics` \
