@@ -52,6 +52,7 @@ function parallelfunction() {
         fileShareUrl=$(get-fileshare-signed-url.sh)
         # Sync Azure File Share content using www3 to avoid symlinks
         time azcopy sync ./www3/ "${fileShareUrl}" \
+            --skip-version-check `# Do not check for new azcopy versions (we have updatecli for this)` \
             --recursive=true \
             --exclude-path="updates" `# populated by https://github.com/jenkins-infra/crawler` \
             --delete-destination=true
