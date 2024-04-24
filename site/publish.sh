@@ -117,6 +117,12 @@ then
         --exclude='updates' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
         ./www2/ ./www3/
 
+    # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www3 only
+    mirrorbits_hostname='mirrors.updates.jenkins.io'
+    echo '' >> ./www3/.htaccess
+    echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}" >> ./www3/.htaccess
+    echo "RewriteRule ^.* https://${mirrorbits_hostname}%{REQUEST_URI}? [NC,L,R=307]" >> ./www3/.htaccess
+
     # Add File Share sync to the tasks
     tasks+=('azsync')
 
