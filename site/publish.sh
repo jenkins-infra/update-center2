@@ -46,12 +46,33 @@ function parallelfunction() {
             ./www2/ "${RSYNC_USER}@${UPDATES_SITE}:/var/www/${UPDATES_SITE}"
         ;;
 
-    azsync*)
+    azsync-www3*)
+        # Set variables used by get-fileshare-signed-url.sh to use the mirrorbits dedicated file share and service principal
+        export STORAGE_FILESHARE="${STORAGE_FILESHARE_MIRRORBITS}"
+        export JENKINS_INFRA_FILESHARE_CLIENT_ID="${JENKINS_INFRA_FILESHARE_CLIENT_ID_MIRRORBITS}"
+        export JENKINS_INFRA_FILESHARE_CLIENT_SECRET="${JENKINS_INFRA_FILESHARE_CLIENT_SECRET_MIRRORBITS}"
         # Script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
         # Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
         fileShareUrl=$(get-fileshare-signed-url.sh)
         # Sync Azure File Share content using www3 to avoid symlinks
         time azcopy sync ./www3/ "${fileShareUrl}" \
+            --skip-version-check `# Do not check for new azcopy versions (we have updatecli for this)` \
+            --recursive=true \
+            --exclude-path="updates" `# populated by https://github.com/jenkins-infra/crawler` \
+            --delete-destination=true
+        ;;
+
+    azsync-www4*)
+        # Set variables used by get-fileshare-signed-url.sh to use the httpd dedicated file share and service principal
+        export STORAGE_FILESHARE="${STORAGE_FILESHARE_HTTPD}"
+        export JENKINS_INFRA_FILESHARE_CLIENT_ID="${JENKINS_INFRA_FILESHARE_CLIENT_ID_HTTPD}"
+        export JENKINS_INFRA_FILESHARE_CLIENT_SECRET="${JENKINS_INFRA_FILESHARE_CLIENT_SECRET_HTTPD}"
+        # Script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
+        # Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
+        httpdFileShareUrl=$(get-fileshare-signed-url.sh)
+        # Sync Azure File Share content using www4 to avoid symlinks
+        # TODO: check crawler
+        time azcopy sync ./www4/ "${httpdFileShareUrl}" \
             --skip-version-check `# Do not check for new azcopy versions (we have updatecli for this)` \
             --recursive=true \
             --exclude-path="updates" `# populated by https://github.com/jenkins-infra/crawler` \
@@ -66,6 +87,7 @@ function parallelfunction() {
 
         # Sync CloudFlare R2 buckets content excluding 'updates' folder from www3 sync (without symlinks)
         # as this folder is populated by https://github.com/jenkins-infra/crawler/blob/master/Jenkinsfile
+        # TODO: review/remove .htaccess exclude, already taken in account (?)
         time aws s3 sync ./www3/ "s3://${r2_bucket}/" \
             --no-progress \
             --no-follow-symlinks \
@@ -86,7 +108,8 @@ export UPDATES_SITE
 export RSYNC_USER
 
 # Export variables used in parallelfunction/azsync/get-fileshare-signed-url.sh
-export STORAGE_FILESHARE=updates-jenkins-io
+export STORAGE_FILESHARE_MIRRORBITS=updates-jenkins-io
+export STORAGE_FILESHARE_HTTPD=updates-jenkins-io-httpd
 export STORAGE_NAME=updatesjenkinsio
 export STORAGE_DURATION_IN_MINUTE=5 # duration of the short-lived SAS token
 export STORAGE_PERMISSIONS=dlrw
@@ -111,20 +134,31 @@ then
     # Perform a copy with dereference symlink (object storage do not support symlinks)
     rm -rf ./www3/ # Cleanup
     
+    # Prepare www3, a copy of www2 dedicated to mirrorbits service, excluding every .htaccess files
     rsync --archive --verbose \
         --copy-links `# derefence symlinks` \
         --safe-links `# ignore symlinks outside of copied tree` \
         --exclude='updates' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
+        --exclude='**/.htaccess' `# Exclude every .htaccess files` \
         ./www2/ ./www3/
 
-    # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www3 only
+    # Prepare www4, a copy of www2 dedicated to httpd service, including only .htaccess files
+    rsync --archive --verbose \
+        --copy-links `# derefence symlinks` \
+        --safe-links `# ignore symlinks outside of copied tree` \
+        --exclude='updates' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
+        --include='**/.htaccess' `# Include only .htaccess files` \
+        ./www2/ ./www4/
+
+    # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www4 only
+    # TODO: patch all .htacess files?
     mirrorbits_hostname='mirrors.updates.jenkins.io'
-    echo '' >> ./www3/.htaccess
+    echo '' >> ./www4/.htaccess
     echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}" >> ./www3/.htaccess
     echo "RewriteRule ^.* https://${mirrorbits_hostname}%{REQUEST_URI}? [NC,L,R=307]" >> ./www3/.htaccess
 
-    # Add File Share sync to the tasks
-    tasks+=('azsync')
+    # Add mirrorbits and httpd file shares sync to the tasks
+    tasks+=('azsync-ww3' 'azsync-ww4')
 
     # Add each R2 bucket sync to the tasks
     updates_r2_bucket_and_endpoint_pairs=("westeurope-updates-jenkins-io|https://8d1838a43923148c5cee18ccc356a594.r2.cloudflarestorage.com")
