@@ -47,7 +47,7 @@ function parallelfunction() {
         ;;
 
     azsync*)
-        # Load the env variables corresponding to use get-fileshare-signed-url.sh wurg the Azure File Share to sync, extracted from the end of the task name
+        # Load the env variables corresponding to use get-fileshare-signed-url.sh for the Azure File Share to sync, extracted from the end of the task name
         envToLoad=".env-${1#azsync-}"
         # shellcheck source=/dev/null
         source "${envToLoad}"
@@ -59,11 +59,12 @@ function parallelfunction() {
         # Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
         fileShareUrl=$(get-fileshare-signed-url.sh)
         # Sync Azure File Share
-        time azcopy sync "${FILESHARE_SYNC_SOURCE?}" "${fileShareUrl}" \
+        time azcopy sync \
             --skip-version-check `# Do not check for new azcopy versions (we have updatecli for this)` \
             --recursive=true \
             --exclude-path="updates" `# populated by https://github.com/jenkins-infra/crawler` \
-            --delete-destination=true
+            --delete-destination=true \
+            "${FILESHARE_SYNC_SOURCE}" "${fileShareUrl}"
         ;;
 
     s3sync*)
@@ -75,12 +76,13 @@ function parallelfunction() {
         # Sync CloudFlare R2 buckets content excluding 'updates' folder from www-content sync (without symlinks)
         # as this folder is populated by https://github.com/jenkins-infra/crawler/blob/master/Jenkinsfile
         # TODO: review/remove .htaccess exclude, already taken in account (?)
-        time aws s3 sync ./www-content/ "s3://${r2_bucket}/" \
+        time aws s3 sync \
             --no-progress \
             --no-follow-symlinks \
             --size-only \
             --exclude '.htaccess' \
-            --endpoint-url "${r2_endpoint}"
+            --endpoint-url "${r2_endpoint}" \
+            ./www-content/ "s3://${r2_bucket}/"
         ;;
 
     *)
@@ -122,7 +124,7 @@ then
         --exclude='**/.htaccess' `# Exclude every .htaccess files` \
         ./www2/ ./www-content/
 
-    # Prepare www-htaccess, a copy of www2 dedicated to httpd service, including only .htaccess & html files
+    # Prepare www-htaccess, a copy of www2 dedicated to httpd service, including only .htaccess files (TODO: and html for plugin versions listing?)
     rsync --archive --verbose \
         --copy-links `# derefence symlinks` \
         --safe-links `# ignore symlinks outside of copied tree` \
@@ -132,9 +134,11 @@ then
 
     # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-htaccess only
     mirrorbits_hostname='mirrors.updates.jenkins.io'
-    echo '' >> ./www-htaccess/.htaccess
-    echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}" >> ./www-content/.htaccess
-    echo "RewriteRule ^.* https://${mirrorbits_hostname}%{REQUEST_URI}? [NC,L,R=307]" >> ./www-content/.htaccess
+    {
+        echo ''
+        echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
+        echo "RewriteRule ^.* https://${mirrorbits_hostname}%{REQUEST_URI}? [NC,L,R=307]"
+    } >> ./www-htaccess/.htaccess
 
     # Add mirrorbits and httpd file shares sync to the tasks
     tasks+=('azsync-content' 'azsync-htaccess')
