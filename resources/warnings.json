@@ -17925,5 +17925,57 @@
         "pattern": "(1|2[.]107|2[.]121|2[.]138|2[.]150|2[.]164|2[.]176|2[.]19|2[.]190|2[.]204|2[.]222|2[.]235|2[.]249|2[.]263|2[.]277|2[.]289|2[.]303|2[.]319|2[.]32|2[.]332|2[.]346|2[.]361|2[.]375|2[.]387|2[.]401|2[.]414|2[.]426|2[.]440[.][12]|2[.]46|2[.]60|2[.]7|2[.]73|2[.]89)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3294",
+    "type": "plugin",
+    "name": "telegram-notifications",
+    "message": "Token stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2024-05-02/#SECURITY-3294",
+    "versions": [
+      {
+        "lastVersion": "1.4.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3331",
+    "type": "plugin",
+    "name": "svn-partial-release-mgr",
+    "message": "Security protection disabled",
+    "url": "https://www.jenkins.io/security/advisory/2024-05-02/#SECURITY-3331",
+    "versions": [
+      {
+        "lastVersion": "1.0.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3341",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Multiple sandbox bypass vulnerabilities",
+    "url": "https://www.jenkins.io/security/advisory/2024-05-02/#SECURITY-3341",
+    "versions": [
+      {
+        "lastVersion": "1335.vf07d9ce377a_e",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|1335)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3342",
+    "type": "plugin",
+    "name": "git-server",
+    "message": "Missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2024-05-02/#SECURITY-3342",
+    "versions": [
+      {
+        "lastVersion": "114.v068a_c7cc2574",
+        "pattern": "(1|114|99)(|[.-].+)"
+      }
+    ]
   }
 ]
