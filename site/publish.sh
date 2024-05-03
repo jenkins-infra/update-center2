@@ -55,6 +55,8 @@ function parallelfunction() {
         # Required variables that should now be set from the .env file
         : "${STORAGE_FILESHARE?}" "${JENKINS_INFRA_FILESHARE_CLIENT_ID?}" "${JENKINS_INFRA_FILESHARE_CLIENT_SECRET?}" "${FILESHARE_SYNC_SOURCE?}"
 
+# Ensure a trailing slash is always present (as it will be a source for a recursive `azcopy sync`)
+FILESHARE_SYNC_SOURCE="${FILESHARE_SYNC_SOURCE%/}/"
         # Script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
         # Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
         fileShareUrl=$(get-fileshare-signed-url.sh)
