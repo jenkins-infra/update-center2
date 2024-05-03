@@ -124,21 +124,21 @@ then
         --exclude='**/.htaccess' `# Exclude every .htaccess files` \
         ./www2/ ./www-content/
 
-    # Prepare www-htaccess, a copy of www2 dedicated to httpd service, including only .htaccess files (TODO: and html for plugin versions listing?)
+    # Prepare www-redirections, a copy of www2 dedicated to httpd service, including only .htaccess files (TODO: and html for plugin versions listing?)
     rsync --archive --verbose \
         --copy-links `# derefence symlinks` \
         --safe-links `# ignore symlinks outside of copied tree` \
         --exclude='updates' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
         --include='**/.htaccess' `# Include only .htaccess files` \
-        ./www2/ ./www-htaccess/
+        ./www2/ ./www-redirections/
 
-    # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-htaccess only
+    # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections only
     mirrorbits_hostname='mirrors.updates.jenkins.io'
     {
         echo ''
         echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
         echo "RewriteRule ^.* https://${mirrorbits_hostname}%{REQUEST_URI}? [NC,L,R=307]"
-    } >> ./www-htaccess/.htaccess
+    } >> ./www-redirections/.htaccess
 
     # Add mirrorbits and httpd file shares sync to the tasks
     tasks+=('azsync-content' 'azsync-htaccess')
