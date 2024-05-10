@@ -47,8 +47,11 @@ function parallelfunction() {
         ;;
 
     azsync*)
+        # Ensure credentials is defined
+        : "${UPDATE_CENTER_FILESHARES_ENV_FILES?}"
+
         # Load the env variables corresponding to use get-fileshare-signed-url.sh for the Azure File Share to sync, extracted from the end of the task name
-        envToLoad=".env-${1#azsync-}"
+        envToLoad="${UPDATE_CENTER_FILESHARES_ENV_FILES}/.env-${1#azsync-}"
         # shellcheck source=/dev/null
         source "${envToLoad}"
 
