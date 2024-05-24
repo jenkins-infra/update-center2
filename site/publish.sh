@@ -50,23 +50,26 @@ function parallelfunction() {
         # Ensure credentials is defined
         : "${UPDATE_CENTER_FILESHARES_ENV_FILES?}"
 
-        local STORAGE_FILESHARE JENKINS_INFRA_FILESHARE_CLIENT_ID JENKINS_INFRA_FILESHARE_CLIENT_SECRET FILESHARE_SYNC_SOURCE
-
         # Load the env variables corresponding to use get-fileshare-signed-url.sh for the Azure File Share to sync, extracted from the end of the task name
         envToLoad="${UPDATE_CENTER_FILESHARES_ENV_FILES}/.env-${1#azsync-}"
         # shellcheck source=/dev/null
         source "${envToLoad}"
 
         # Required variables that should now be set from the .env file
-        : "${STORAGE_FILESHARE?}" "${JENKINS_INFRA_FILESHARE_CLIENT_ID?}" "${JENKINS_INFRA_FILESHARE_CLIENT_SECRET?}" "${FILESHARE_SYNC_SOURCE?}"
+        : "${STORAGE_NAME?}" "${STORAGE_FILESHARE?}" "${STORAGE_DURATION_IN_MINUTE?}" "${STORAGE_PERMISSIONS?}" "${JENKINS_INFRA_FILESHARE_CLIENT_ID?}" "${JENKINS_INFRA_FILESHARE_CLIENT_SECRET?}" "${JENKINS_INFRA_FILESHARE_TENANT_ID?}" "${FILESHARE_SYNC_SOURCE?}"
 
         # Ensure absolute path WITH a trailing slash (as it will be a source for a recursive `azcopy sync` so trailing slash is a feature)
         local fileshare_sync_source_abs
         fileshare_sync_source_abs="$(cd "${FILESHARE_SYNC_SOURCE}" && pwd -P)/"
 
-        # Script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
-        # Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
-        fileShareUrl=$(get-fileshare-signed-url.sh)
+        ## 'get-fileshare-signed-url.sh' command is a script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
+        ## Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
+        # Env. vars required for the script execution
+        export STORAGE_NAME STORAGE_FILESHARE STORAGE_DURATION_IN_MINUTE STORAGE_PERMISSIONS JENKINS_INFRA_FILESHARE_CLIENT_ID JENKINS_INFRA_FILESHARE_CLIENT_SECRET JENKINS_INFRA_FILESHARE_TENANT_ID
+        fileShareUrl="$(get-fileshare-signed-url.sh)"
+        # Fail fast if no share URL can be generated
+        : "${fileShareUrl?}"
+
         # Sync Azure File Share
         time azcopy sync \
             --skip-version-check `# Do not check for new azcopy versions (we have updatecli for this)` \
@@ -150,7 +153,7 @@ then
     } >> ./www-redirections/.htaccess
 
     # Add mirrorbits and httpd file shares sync to the tasks
-    tasks+=('azsync-content' 'azsync-htaccess')
+    tasks+=('azsync-content' 'azsync-redirections')
 
     # Add each R2 bucket sync to the tasks
     updates_r2_bucket_and_endpoint_pairs=("westeurope-updates-jenkins-io|https://8d1838a43923148c5cee18ccc356a594.r2.cloudflarestorage.com")
