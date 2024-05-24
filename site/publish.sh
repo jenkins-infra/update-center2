@@ -50,6 +50,8 @@ function parallelfunction() {
         # Ensure credentials is defined
         : "${UPDATE_CENTER_FILESHARES_ENV_FILES?}"
 
+        local STORAGE_FILESHARE JENKINS_INFRA_FILESHARE_CLIENT_ID JENKINS_INFRA_FILESHARE_CLIENT_SECRET FILESHARE_SYNC_SOURCE
+
         # Load the env variables corresponding to use get-fileshare-signed-url.sh for the Azure File Share to sync, extracted from the end of the task name
         envToLoad="${UPDATE_CENTER_FILESHARES_ENV_FILES}/.env-${1#azsync-}"
         # shellcheck source=/dev/null
@@ -58,8 +60,10 @@ function parallelfunction() {
         # Required variables that should now be set from the .env file
         : "${STORAGE_FILESHARE?}" "${JENKINS_INFRA_FILESHARE_CLIENT_ID?}" "${JENKINS_INFRA_FILESHARE_CLIENT_SECRET?}" "${FILESHARE_SYNC_SOURCE?}"
 
-        # Ensure a trailing slash is always present (as it will be a source for a recursive `azcopy sync`)
-        FILESHARE_SYNC_SOURCE="${FILESHARE_SYNC_SOURCE%/}/"
+        # Ensure absolute path WITH a trailing slash (as it will be a source for a recursive `azcopy sync` so trailing slash is a feature)
+        local fileshare_sync_source_abs
+        fileshare_sync_source_abs="$(cd "${FILESHARE_SYNC_SOURCE}" && pwd -P)/"
+
         # Script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
         # Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
         fileShareUrl=$(get-fileshare-signed-url.sh)
@@ -69,7 +73,7 @@ function parallelfunction() {
             --recursive=true \
             --exclude-path="updates" `# populated by https://github.com/jenkins-infra/crawler` \
             --delete-destination=true \
-            "${FILESHARE_SYNC_SOURCE}" "${fileShareUrl}"
+            "${fileshare_sync_source_abs}" "${fileShareUrl}"
         ;;
 
     s3sync*)
@@ -120,7 +124,7 @@ then
     ## No need to remove the symlinks as the `azcopy sync` for symlinks is not yet supported and we use `--no-follow-symlinks` for `aws s3 sync`
     # Perform a copy with dereference symlink (object storage do not support symlinks)
     rm -rf ./www-content/ # Cleanup
-    
+
     # Prepare www-content, a copy of www2 dedicated to mirrorbits service, excluding every .htaccess files
     rsync --archive --verbose \
         --copy-links `# derefence symlinks` \
