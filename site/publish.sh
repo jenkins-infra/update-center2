@@ -126,7 +126,7 @@ then
 
     ## No need to remove the symlinks as the `azcopy sync` for symlinks is not yet supported and we use `--no-follow-symlinks` for `aws s3 sync`
     # Perform a copy with dereference symlink (object storage do not support symlinks)
-    rm -rf ./www-content/ # Cleanup
+    rm -rf ./www-content/ ./www-redirections/ # Cleanup
 
     # Prepare www-content, a copy of www2 dedicated to mirrorbits service, excluding every .htaccess files
     rsync --archive --verbose \
@@ -140,8 +140,10 @@ then
     rsync --archive --verbose \
         --copy-links `# derefence symlinks` \
         --safe-links `# ignore symlinks outside of copied tree` \
-        --exclude='updates' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
-        --include='**/.htaccess' `# Include only .htaccess files` \
+        --prune-empty-dirs `# Do not copy empty directories` \
+        --include "*/" `# Includes all directories in the filtering` \
+        --include=".htaccess" `# Includes all elements named '.htaccess' in the filtering - redirections logic` \
+        --exclude="*" `# Exclude all elements found in source and not matching pattern aboves (must be the last filter flag)` \
         ./www2/ ./www-redirections/
 
     # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections only
