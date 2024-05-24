@@ -132,8 +132,9 @@ then
     rsync --archive --verbose \
         --copy-links `# derefence symlinks` \
         --safe-links `# ignore symlinks outside of copied tree` \
-        --exclude='updates' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
-        --exclude='**/.htaccess' `# Exclude every .htaccess files` \
+        --prune-empty-dirs `# Do not copy empty directories` \
+        --exclude='updates/' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
+        --exclude='.htaccess' `# Exclude every .htaccess files` \
         ./www2/ ./www-content/
 
     # Prepare www-redirections, a copy of www2 dedicated to httpd service, including only .htaccess files (TODO: and html for plugin versions listing?)
