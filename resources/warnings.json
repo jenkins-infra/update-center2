@@ -17979,5 +17979,57 @@
         "pattern": "(1|114|99)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3070",
+    "type": "plugin",
+    "name": "report-info",
+    "message": "Path traversal vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2024-05-24/#SECURITY-3070",
+    "versions": [
+      {
+        "lastVersion": "1.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3250",
+    "type": "plugin",
+    "name": "teamconcert-git",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2024-05-24/#SECURITY-3250",
+    "versions": [
+      {
+        "lastVersion": "2.0.4",
+        "pattern": "(1|2[.]0[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3277",
+    "type": "plugin",
+    "name": "hp-application-automation-tools-plugin",
+    "message": "Missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2024-05-24/#SECURITY-3277",
+    "versions": [
+      {
+        "lastVersion": "24.1.0",
+        "pattern": "([1-8]|23|24[.]1[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3278",
+    "type": "plugin",
+    "name": "hp-application-automation-tools-plugin",
+    "message": "XXE vulnerabilities",
+    "url": "https://www.jenkins.io/security/advisory/2024-05-24/#SECURITY-3278",
+    "versions": [
+      {
+        "lastVersion": "24.1.0",
+        "pattern": "([1-8]|23|24[.]1[.]0)(|[.-].+)"
+      }
+    ]
   }
 ]
