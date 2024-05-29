@@ -1,7 +1,8 @@
 #!/bin/bash -ex
 
 ## Environment variables that can be configured at the job level:
-# - [optional] SYNC_TASKS (string): list of script (sync.) tasks to execute. Separator is the pipe character '|'. Used to customize the tasks to run (when testing for instance)
+# - [optional] RUN_STAGES (string): list of top-level tasks ("stages") to execute. Separator is the pipe character '|'. Used to customize the tasks to run (when testing for instance)
+# - [optional] SYNC_UC_TASKS (string): list of UC "sync" tasks to perform in parallel during the 'sync-uc' stage. Separator is the pipe character '|'. Used to customize the tasks to run (when testing for instance)
 # - [mandatory] UPDATE_CENTER_FILESHARES_ENV_FILES (directory path): directory containing environment files to be sources for each sync. destination.
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-'generate-site|sync-plugins|sync-uc'}"
