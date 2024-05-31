@@ -6,7 +6,7 @@
 # - [mandatory] UPDATE_CENTER_FILESHARES_ENV_FILES (directory path): directory containing environment files to be sources for each sync. destination.
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-'generate-site|sync-plugins|sync-uc'}"
-SYNC_UC_TASKS="${SYNC_UC_TASKS:-'rsync-pkg|azsync-content|s3sync-westeurope'}"
+SYNC_UC_TASKS="${SYNC_UC_TASKS:-'rsync-updates.jenkins.io|azsync-content|s3sync-westeurope'}"
 
 # Split strings to arrays for feature flags setup
 run_stages=()
@@ -70,9 +70,10 @@ then
         case $1 in
         rsync*)
             # Required variables that should now be set from the .env file
-            : "${RSYNC_HOST?}" "${RSYNC_USER?}" "${RSYNC_GROUP?}" "${RSYNC_REMOTE_DIR?}"
+            : "${RSYNC_HOST?}" "${RSYNC_USER?}" "${RSYNC_GROUP?}" "${RSYNC_REMOTE_DIR?}" "${RSYNC_IDENTITY_NAME?}"
 
             time rsync --chown="${RSYNC_USER}":"${RSYNC_GROUP}" --recursive --links --perms --times -D \
+                --rsh="ssh -i ${UPDATE_CENTER_FILESHARES_ENV_FILES}/${RSYNC_IDENTITY_NAME}" `# rsync identity file is stored with .env files` \
                 --checksum --verbose --compress \
                 --exclude=/updates `# populated by https://github.com/jenkins-infra/crawler` \
                 --delete `# delete old sites` \
