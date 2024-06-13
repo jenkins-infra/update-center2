@@ -44,14 +44,12 @@ fi
 
 if [[ "${run_stages[*]}" =~ 'sync-uc' ]]
 then
-    # Ensure credentials is defined
+    # Ensure credentials are defined
     : "${UPDATE_CENTER_FILESHARES_ENV_FILES?}"
 
     sync_uc_tasks=()
     IFS='|' read -r -a sync_uc_tasks <<< "${SYNC_UC_TASKS}"
 
-    # parallel added within the permanent trusted agent here:
-    # https://github.com/jenkins-infra/jenkins-infra/blob/production/dist/profile/manifests/buildagent.pp
     command -v parallel >/dev/null 2>&1 || { echo 'ERROR: parallel command not found. Exiting.'; exit 1; }
 
     # Define function to be called for each parallel UC tasks (see call after the function code)
