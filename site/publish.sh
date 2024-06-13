@@ -108,7 +108,7 @@ then
             : "${BUCKET_NAME?}" "${BUCKET_ENDPOINT_URL?}" "${AWS_ACCESS_KEY_ID?}" "${AWS_SECRET_ACCESS_KEY?}" "${AWS_DEFAULT_REGION?}"
 
             # Sync 'www-content' (without symlinks) to the bucket,
-            # excluding 'updates/' folderas it is populated by https://github.com/jenkins-infra/crawler/blob/master/Jenkinsfile
+            # excluding 'updates/' folder as it is populated by https://github.com/jenkins-infra/crawler/blob/master/Jenkinsfile
             time aws s3 sync \
                 --no-progress \
                 --no-follow-symlinks \
