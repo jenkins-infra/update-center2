@@ -47,15 +47,36 @@ function parallelfunction() {
         ;;
 
     azsync*)
-        # Script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
-        # Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
-        fileShareUrl=$(get-fileshare-signed-url.sh)
-        # Sync Azure File Share content using www3 to avoid symlinks
-        time azcopy sync ./www3/ "${fileShareUrl}" \
+        # Ensure credentials is defined
+        : "${UPDATE_CENTER_FILESHARES_ENV_FILES?}"
+
+        # Load the env variables corresponding to use get-fileshare-signed-url.sh for the Azure File Share to sync, extracted from the end of the task name
+        envToLoad="${UPDATE_CENTER_FILESHARES_ENV_FILES}/.env-${1#azsync-}"
+        # shellcheck source=/dev/null
+        source "${envToLoad}"
+
+        # Required variables that should now be set from the .env file
+        : "${STORAGE_NAME?}" "${STORAGE_FILESHARE?}" "${STORAGE_DURATION_IN_MINUTE?}" "${STORAGE_PERMISSIONS?}" "${JENKINS_INFRA_FILESHARE_CLIENT_ID?}" "${JENKINS_INFRA_FILESHARE_CLIENT_SECRET?}" "${JENKINS_INFRA_FILESHARE_TENANT_ID?}" "${FILESHARE_SYNC_SOURCE?}"
+
+        # Ensure absolute path WITH a trailing slash (as it will be a source for a recursive `azcopy sync` so trailing slash is a feature)
+        local fileshare_sync_source_abs
+        fileshare_sync_source_abs="$(cd "${FILESHARE_SYNC_SOURCE}" && pwd -P)/"
+
+        ## 'get-fileshare-signed-url.sh' command is a script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
+        ## Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
+        # Env. vars required for the script execution
+        export STORAGE_NAME STORAGE_FILESHARE STORAGE_DURATION_IN_MINUTE STORAGE_PERMISSIONS JENKINS_INFRA_FILESHARE_CLIENT_ID JENKINS_INFRA_FILESHARE_CLIENT_SECRET JENKINS_INFRA_FILESHARE_TENANT_ID
+        fileShareUrl="$(get-fileshare-signed-url.sh)"
+        # Fail fast if no share URL can be generated
+        : "${fileShareUrl?}"
+
+        # Sync Azure File Share
+        time azcopy sync \
             --skip-version-check `# Do not check for new azcopy versions (we have updatecli for this)` \
             --recursive=true \
             --exclude-path="updates" `# populated by https://github.com/jenkins-infra/crawler` \
-            --delete-destination=true
+            --delete-destination=true \
+            "${fileshare_sync_source_abs}" "${fileShareUrl}"
         ;;
 
     s3sync*)
@@ -64,14 +85,16 @@ function parallelfunction() {
         r2_bucket=${updates_r2_bucket_and_endpoint%|*}
         r2_endpoint=${updates_r2_bucket_and_endpoint#*|}
 
-        # Sync CloudFlare R2 buckets content excluding 'updates' folder from www3 sync (without symlinks)
+        # Sync CloudFlare R2 buckets content excluding 'updates' folder from www-content sync (without symlinks)
         # as this folder is populated by https://github.com/jenkins-infra/crawler/blob/master/Jenkinsfile
-        time aws s3 sync ./www3/ "s3://${r2_bucket}/" \
+        # TODO: review/remove .htaccess exclude, already taken in account (?)
+        time aws s3 sync \
             --no-progress \
             --no-follow-symlinks \
             --size-only \
             --exclude '.htaccess' \
-            --endpoint-url "${r2_endpoint}"
+            --endpoint-url "${r2_endpoint}" \
+            ./www-content/ "s3://${r2_bucket}/"
         ;;
 
     *)
@@ -84,12 +107,6 @@ function parallelfunction() {
 # Export local variables used in parallelfunction
 export UPDATES_SITE
 export RSYNC_USER
-
-# Export variables used in parallelfunction/azsync/get-fileshare-signed-url.sh
-export STORAGE_FILESHARE=updates-jenkins-io
-export STORAGE_NAME=updatesjenkinsio
-export STORAGE_DURATION_IN_MINUTE=5 # duration of the short-lived SAS token
-export STORAGE_PERMISSIONS=dlrw
 
 # Export function to use it with parallel
 export -f parallelfunction
@@ -109,16 +126,37 @@ then
 
     ## No need to remove the symlinks as the `azcopy sync` for symlinks is not yet supported and we use `--no-follow-symlinks` for `aws s3 sync`
     # Perform a copy with dereference symlink (object storage do not support symlinks)
-    rm -rf ./www3/ # Cleanup
-    
+    rm -rf ./www-content/ ./www-redirections/ # Cleanup
+
+    # Prepare www-content, a copy of www2 dedicated to mirrorbits service, excluding every .htaccess files
     rsync --archive --verbose \
         --copy-links `# derefence symlinks` \
         --safe-links `# ignore symlinks outside of copied tree` \
-        --exclude='updates' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
-        ./www2/ ./www3/
+        --prune-empty-dirs `# Do not copy empty directories` \
+        --exclude='updates/' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
+        --exclude='.htaccess' `# Exclude every .htaccess files` \
+        ./www2/ ./www-content/
 
-    # Add File Share sync to the tasks
-    tasks+=('azsync')
+    # Prepare www-redirections, a copy of www2 dedicated to httpd service, including only .htaccess files (TODO: and html for plugin versions listing?)
+    rsync --archive --verbose \
+        --copy-links `# derefence symlinks` \
+        --safe-links `# ignore symlinks outside of copied tree` \
+        --prune-empty-dirs `# Do not copy empty directories` \
+        --include "*/" `# Includes all directories in the filtering` \
+        --include=".htaccess" `# Includes all elements named '.htaccess' in the filtering - redirections logic` \
+        --exclude="*" `# Exclude all elements found in source and not matching pattern aboves (must be the last filter flag)` \
+        ./www2/ ./www-redirections/
+
+    # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections only
+    mirrorbits_hostname='mirrors.updates.jenkins.io'
+    {
+        echo ''
+        echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
+        echo "RewriteRule ^.* https://${mirrorbits_hostname}%{REQUEST_URI}? [NC,L,R=307]"
+    } >> ./www-redirections/.htaccess
+
+    # Add mirrorbits and httpd file shares sync to the tasks
+    tasks+=('azsync-content' 'azsync-redirections')
 
     # Add each R2 bucket sync to the tasks
     updates_r2_bucket_and_endpoint_pairs=("westeurope-updates-jenkins-io|https://8d1838a43923148c5cee18ccc356a594.r2.cloudflarestorage.com")
