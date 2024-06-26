@@ -13,8 +13,6 @@ The service this website provides is as follows:
 
 ## Multiple update sites for different version ranges
 
-### Dynamic update site tiers
-
 Update center metadata can contain only one version per a plugin.
 Because newer versions of the same plugin may depend on newer version of Jenkins, if we just serve one update center for every Jenkins out there, older versions of Jenkins will see plugin versions that do not work with them, making it impossible to install the said plugin.
 This is unfortunate because some younger versions of the plugin might have worked with that Jenkins core.
@@ -29,15 +27,6 @@ Directories containing these tiered update sites have the prefix `dynamic-`.
 mod_rewrite rules in an `.htaccess` file are then used to redirect requests from Jenkins versions to the next lower update site.
 It will serve the newest release of each plugin that is compatible with the specified Jenkins version.
 See [generate-htaccess.sh](generate-htaccess.sh) for how these rules are generated.
-
-### Static update site tiers
-
-Before June 2020, update site tiers were fixed:
-Update sites were generated for the five most recent LTS baselines, and each update site would offer plugins compatible with the latest release of each LTS line.
-
-These update site tiers are *deprecated*: They are currently still being generated, but `.htaccess` no longer reference them.
-See e.g. https://github.com/jenkinsci/docker/issues/954
-
 
 ## Generating update sites
 
