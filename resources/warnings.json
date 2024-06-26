@@ -18031,5 +18031,44 @@
         "pattern": "([1-8]|23|24[.]1[.]0)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-2495",
+    "type": "plugin",
+    "name": "plain-credentials",
+    "message": "Secret file credentials stored unencrypted in rare cases",
+    "url": "https://www.jenkins.io/security/advisory/2024-06-26/#SECURITY-2495",
+    "versions": [
+      {
+        "lastVersion": "182.v468b_97b_9dcb_8",
+        "pattern": "(1|139|143|17[79]|182)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3363",
+    "type": "plugin",
+    "name": "cloudbees-bitbucket-branch-source",
+    "message": "Bitbucket OAuth access token exposed in the build log",
+    "url": "https://www.jenkins.io/security/advisory/2024-06-26/#SECURITY-3363",
+    "versions": [
+      {
+        "lastVersion": "886.v44cf5e4ecec5",
+        "pattern": "([12]|72[356]|73[147]|746|75[167]|76[25]|773|78[45]|79[16]|80[03459]|82[05]|832|84[358]|856|866|87[1234678]|88[036])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3371",
+    "type": "plugin",
+    "name": "structs",
+    "message": "Exposure of secrets through system log",
+    "url": "https://www.jenkins.io/security/advisory/2024-06-26/#SECURITY-3371",
+    "versions": [
+      {
+        "lastVersion": "337.v1b_04ea_4df7c8",
+        "pattern": "(1|308|31[78]|32[45]|337)(|[.-].+)"
+      }
+    ]
   }
 ]
