@@ -5,8 +5,10 @@
 # - [optional] SYNC_UC_TASKS (string): list of UC "sync" tasks to perform in parallel during the 'sync-uc' stage. Separator is the pipe character '|'. Used to customize the tasks to run (when testing for instance)
 # - [mandatory] UPDATE_CENTER_FILESHARES_ENV_FILES (directory path): directory containing environment files to be sources for each sync. destination.
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
-RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
-SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-updates.jenkins.io|azsync-content|s3sync-westeurope}"
+# RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
+# SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-updates.jenkins.io|azsync-content|s3sync-westeurope|s3sync-eastamerica}"
+RUN_STAGES="${RUN_STAGES:-sync-uc}"
+SYNC_UC_TASKS="${SYNC_UC_TASKS:-s3sync-eastamerica}"
 
 # Split strings to arrays for feature flags setup
 run_stages=()
