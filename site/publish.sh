@@ -157,7 +157,6 @@ then
     {
         echo ''
         echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
-        echo "RewriteRule ^.* https://${mirrorbits_hostname}%{REQUEST_URI}? [NC,L,R=307]"
         echo 'RedirectMatch 307 (.*)$ https://'"${mirrorbits_hostname}"'$1'
     } >> ./www-redirections/.htaccess
 
