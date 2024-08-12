@@ -172,6 +172,6 @@ then
     mirrorbits_namespace='updates-jenkins-io'
 
     # Requires a valid kubernetes credential file at $KUBECONFIG or $HOME/.kube/config by default
-    pod_name="$(kubectl --namespace="${mirrorbits_namespace}" --no-headers=true get pod --output=name | grep mirrorbits | head -n1)"
+    pod_name="$(kubectl --namespace="${mirrorbits_namespace}" --no-headers=true get pod --output=name --field-selector=status.phase==Running | grep mirrorbits | head -n1)"
     kubectl --namespace="${mirrorbits_namespace}" --container=mirrorbits exec "${pod_name}" -- mirrorbits scan -all -enable -timeout=120
 fi
