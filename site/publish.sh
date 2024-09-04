@@ -7,6 +7,7 @@
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
 SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-updates.jenkins.io|azsync-content|azsync-redirections|s3sync-westeurope|s3sync-eastamerica}"
+MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jio-cli.trusted.ci.jenkins.io}"
 
 # Split strings to arrays for feature flags setup
 run_stages=()
@@ -168,10 +169,6 @@ then
 
     # Trigger a mirror scan on mirrorbits once all synchronized copies are finished
     echo '== Triggering a mirror scan on mirrorbits...'
-    # Kubernetes namespace of mirrorbits
-    mirrorbits_namespace='updates-jenkins-io'
-
-    # Requires a valid kubernetes credential file at $KUBECONFIG or $HOME/.kube/config by default
-    pod_name="$(kubectl --namespace="${mirrorbits_namespace}" --no-headers=true get pod --output=name --field-selector=status.phase==Running | grep mirrorbits | head -n1)"
-    kubectl --namespace="${mirrorbits_namespace}" --container=mirrorbits exec "${pod_name}" -- mirrorbits scan -all -enable -timeout=120
+    # MIRRORBITS_CLI_PASSWORD is a sensitive values (comes from encrypted credentials)
+    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -a scan -all -enable -timeout=120
 fi
