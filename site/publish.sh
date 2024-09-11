@@ -30,7 +30,7 @@ fi
 
 if [[ "${run_stages[*]}" =~ 'sync-plugins' ]]
 then
-    UPDATES_SITE="updates.jenkins.io"
+    UPDATES_SITE="aws.updates.jenkins.io"
     RSYNC_USER="mirrorbrain"
 
     ## $download_dir folder processing
