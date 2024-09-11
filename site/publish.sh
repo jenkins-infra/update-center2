@@ -111,7 +111,6 @@ then
             time aws s3 sync \
                 --no-progress \
                 --no-follow-symlinks \
-                --size-only \
                 --exclude '.htaccess' \
                 --endpoint-url "${BUCKET_ENDPOINT_URL}" \
                 "${fileshare_sync_source_abs}" "s3://${BUCKET_NAME}/"
