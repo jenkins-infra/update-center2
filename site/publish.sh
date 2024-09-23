@@ -162,10 +162,8 @@ then
         --exclude="*" `# Exclude all elements found in source and not matching pattern aboves (must be the last filter flag)` \
         "${www2_dir}"/ "${httpd_secured_dir}/"
 
-    # Same base
+    # Same base content
     cp -r "${httpd_secured_dir}" "${httpd_unsecured_dir}"
-    # TODO: remove this line once fully migrated to `azsync-redirections-(*)secured` tasks
-    cp -r "${httpd_secured_dir}" ./www-redirections/
 
     # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections only
     # Note: "RedirectMatch" must be used as it's evaluated as the last item
@@ -184,6 +182,9 @@ then
         # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
         echo 'RedirectMatch 307 (.*)$ http://'"${mirrorbits_hostname}"'$1'
     } >> "${httpd_unsecured_dir}"/.htaccess
+
+    # TODO: remove this line once fully migrated to `azsync-redirections-(*)secured` tasks
+    cp -r "${httpd_secured_dir}" ./www-redirections/
 
     echo '----------------------- Launch synchronisation(s) -----------------------'
     parallel --halt-on-error now,fail=1 parallelfunction ::: "${sync_uc_tasks[@]}"
