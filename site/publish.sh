@@ -6,7 +6,8 @@
 # - [mandatory] UPDATE_CENTER_FILESHARES_ENV_FILES (directory path): directory containing environment files to be sources for each sync. destination.
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
-SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-updates.jenkins.io|azsync-content|azsync-redirections|s3sync-westeurope|s3sync-eastamerica}"
+# TODO: remove 'azsync-redirections' task once fully migrated to `azsync-redirections-(*)secured` tasks
+SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-updates.jenkins.io|azsync-content|azsync-redirections|azsync-redirections-unsecured|azsync-redirections-secured|s3sync-westeurope|s3sync-eastamerica}"
 MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jio-cli.trusted.ci.jenkins.io}"
 
 # Split strings to arrays for feature flags setup
@@ -85,13 +86,18 @@ then
 
         azsync*)
             # Required variables that should now be set from the .env file
-            : "${STORAGE_NAME?}" "${STORAGE_FILESHARE?}" "${STORAGE_DURATION_IN_MINUTE?}" "${STORAGE_PERMISSIONS?}" "${JENKINS_INFRA_FILESHARE_CLIENT_ID?}" "${JENKINS_INFRA_FILESHARE_CLIENT_SECRET?}" "${JENKINS_INFRA_FILESHARE_TENANT_ID?}"
+            : "${STORAGE_NAME?}" "${STORAGE_FILESHARE?}" "${STORAGE_DURATION_IN_MINUTE?}" "${STORAGE_PERMISSIONS?}" "${JENKINS_INFRA_FILESHARE_CLIENT_ID?}" "${JENKINS_INFRA_FILESHARE_CLIENT_SECRET?}" "${JENKINS_INFRA_FILESHARE_TENANT_ID?}" "${FILESHARE_SYNC_DEST_URI?}"
 
             ## 'get-fileshare-signed-url.sh' command is a script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
             ## Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
-            fileShareUrl="$(get-fileshare-signed-url.sh)"
+            fileShareBaseUrl="$(get-fileshare-signed-url.sh)"
             # Fail fast if no share URL can be generated
-            : "${fileShareUrl?}"
+            : "${fileShareBaseUrl?}"
+
+            # Append the '$FILESHARE_SYNC_DEST_URI' path on the URI of the generated URL
+            # But the URL has a query string so we need a text transformation
+            # shellcheck disable=SC2001 # The shell internal search and replace would be tedious due to escapings, hence keeping sed
+            fileShareUrl="$(echo "${fileShareBaseUrl}" | sed "s#/?#${FILESHARE_SYNC_DEST_URI}?#")"
 
             # Sync Azure File Share
             time azcopy sync \
@@ -129,9 +135,13 @@ then
     chmod -R a+r "${www2_dir}"
     date +%s > "${www2_dir}"/TIME # TIME sync, used by mirrorbits to know the last update date to take in account
 
+    # Note: these PATH must map to the FILESHARE_SYNC_SOURCE in the ZIP env files (!). Yeah not easy but that's how it works temporarily.
+    httpd_secured_dir=./www-redirections-secured
+    httpd_unsecured_dir=./www-redirections-unsecured
+
     ## No need to remove the symlinks as the `azcopy sync` for symlinks is not yet supported and we use `--no-follow-symlinks` for `aws s3 sync`
     # Perform a copy with dereference symlink (object storage do not support symlinks)
-    rm -rf ./www-content/ ./www-redirections/ # Cleanup
+    rm -rf ./www-content/ ./www-redirections/ "${httpd_secured_dir}" "${httpd_unsecured_dir}" # Cleanup
 
     # Prepare www-content, a copy of the $www2_dir dedicated to mirrorbits service, excluding every .htaccess files
     rsync --archive --verbose \
@@ -142,7 +152,7 @@ then
         --exclude='.htaccess' `# Exclude every .htaccess files` \
         "${www2_dir}"/ ./www-content/
 
-    # Prepare www-redirections, a copy of $www2_dir dedicated to httpd service, including only .htaccess files (TODO: and html for plugin versions listing?)
+    # Prepare www-redirections-*secured/ directories, from $www2_dir, dedicated to httpd services, including only (customized) .htaccess files
     rsync --archive --verbose \
         --copy-links `# derefence symlinks` \
         --safe-links `# ignore symlinks outside of copied tree` \
@@ -150,15 +160,30 @@ then
         --include "*/" `# Includes all directories in the filtering` \
         --include=".htaccess" `# Includes all elements named '.htaccess' in the filtering - redirections logic` \
         --exclude="*" `# Exclude all elements found in source and not matching pattern aboves (must be the last filter flag)` \
-        "${www2_dir}"/ ./www-redirections/
+        "${www2_dir}"/ "${httpd_secured_dir}/"
+
+    # Same base
+    cp -r "${httpd_secured_dir}" "${httpd_unsecured_dir}"
+    # TODO: remove this line once fully migrated to `azsync-redirections-(*)secured` tasks
+    cp -r "${httpd_secured_dir}" ./www-redirections/
 
     # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections only
+    # Note: "RedirectMatch" must be used as it's evaluated as the last item
+    # Note: "RedirectMatch" only support absolute target path with no Apache variable. Request scheme is raw and depends on the httpd instance.
     mirrorbits_hostname='mirrors.updates.jenkins.io'
     {
         echo ''
         echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
+        # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
         echo 'RedirectMatch 307 (.*)$ https://'"${mirrorbits_hostname}"'$1'
-    } >> ./www-redirections/.htaccess
+    } >> "${httpd_secured_dir}"/.htaccess
+    mirrorbits_hostname='mirrors.updates.jenkins.io'
+    {
+        echo ''
+        echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
+        # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
+        echo 'RedirectMatch 307 (.*)$ http://'"${mirrorbits_hostname}"'$1'
+    } >> "${httpd_unsecured_dir}"/.htaccess
 
     echo '----------------------- Launch synchronisation(s) -----------------------'
     parallel --halt-on-error now,fail=1 parallelfunction ::: "${sync_uc_tasks[@]}"
