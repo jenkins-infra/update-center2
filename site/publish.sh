@@ -189,7 +189,11 @@ then
     echo '============================ all parallel sync tasks done ============================'
 
     # Trigger a mirror scan on mirrorbits once all synchronized copies are finished
-    echo '== Triggering a mirror scan on mirrorbits...'
+    echo '== Triggering mirrors scans...'
     # MIRRORBITS_CLI_PASSWORD is a sensitive values (comes from encrypted credentials)
-    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -a scan -all -enable -timeout=120
+    # 3390 is the port of the "secured" instance (HTTPS) while 3391 of the "unsecured" (HTTP) instance. It's the only difference.
+    for mirrorbits_cli_port in 3390 3391
+    do
+        echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a scan -all -enable -timeout=120
+    done
 fi
