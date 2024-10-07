@@ -1,5 +1,18 @@
 [
   {
+    "id": "SECURITY-3466",
+    "type": "plugin",
+    "name": "shared-library-version-override",
+    "message": "Script security sandbox bypass",
+    "url": "https://github.com/jenkins-infra/update-center2/pull/802",
+    "versions": [
+      {
+        "lastVersion": "17.v786074c9fce7 ",
+        "pattern": "(1[17])(|[.-].+)"
+      }
+    ]
+  },
+  {
     "id": "SECURITY-208",
     "type": "plugin",
     "name": "google-login",
