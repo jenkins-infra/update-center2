@@ -76,9 +76,6 @@ execute --dynamic-tier-list-file tmp/tiers.json
 readarray -t WEEKLY_RELEASES < <( jq --raw-output '.weeklyCores[]' tmp/tiers.json ) || { echo "Failed to determine weekly tier list" >&2 ; exit 1 ; }
 readarray -t STABLE_RELEASES < <( jq --raw-output '.stableCores[]' tmp/tiers.json ) || { echo "Failed to determine stable tier list" >&2 ; exit 1 ; }
 
-# Workaround for https://github.com/jenkinsci/docker/issues/954 -- still generate fixed tier update sites
-readarray -t RELEASES < <( curl --silent --fail 'https://repo.jenkins-ci.org/api/search/versions?g=org.jenkins-ci.main&a=jenkins-core&repos=releases&v=?.*.1' | jq --raw-output '.results[].version' | head -n 5 | $SORT --version-sort ) || { echo "Failed to retrieve list of recent LTS releases" >&2 ; exit 1 ; }
-
 # prepare the www workspace for execution
 rm -rf "$WWW_ROOT_DIR"
 mkdir -p "$WWW_ROOT_DIR"
@@ -112,12 +109,12 @@ function sanity-check {
 # This supports updating Jenkins (core) once a year while getting offered compatible plugin updates.
 for version in "${WEEKLY_RELEASES[@]}" ; do
   # For mainline, advertising the latest core
-  generate --limit-plugin-core-dependency "$version" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/dynamic-$version/latest" --www-dir "$WWW_ROOT_DIR/dynamic-$version"
+  generate --limit-plugin-core-dependency "$version" --write-latest-core --www-dir "$WWW_ROOT_DIR/dynamic-$version"
 done
 
 for version in "${STABLE_RELEASES[@]}" ; do
   # For LTS, advertising the latest LTS core
-  generate --limit-plugin-core-dependency "$version" --write-latest-core --latest-links-directory "$WWW_ROOT_DIR/dynamic-stable-$version/latest" --www-dir "$WWW_ROOT_DIR/dynamic-stable-$version" --only-stable-core
+  generate --limit-plugin-core-dependency "$version" --write-latest-core --www-dir "$WWW_ROOT_DIR/dynamic-stable-$version" --only-stable-core
 done
 
 # Experimental update center without version caps, including experimental releases.
