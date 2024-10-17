@@ -90,9 +90,9 @@ public class IndexHtmlBuilder implements Closeable {
             return;
         }
         if (a instanceof HPI) {
-            add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata, ((HPI) a).getRequiredJenkinsVersion());
+            add(a.getDownloadUrl().toExternalForm(), a.getTimestampAsDate(), a.version, artifactMetadata, ((HPI) a).getRequiredJenkinsVersion());
         } else {
-            add(a.getDownloadUrl().getPath(), a.getTimestampAsDate(), a.version, artifactMetadata, null);
+            add(a.getDownloadUrl().toExternalForm(), a.getTimestampAsDate(), a.version, artifactMetadata, null);
         }
     }
 

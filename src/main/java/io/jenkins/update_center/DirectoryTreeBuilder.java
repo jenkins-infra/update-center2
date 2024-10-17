@@ -58,7 +58,7 @@ public class DirectoryTreeBuilder {
             /* Process plugins */
             for (Plugin plugin : repo.listJenkinsPlugins()) {
                 if (latestLinks != null) {
-                    latestLinks.add(plugin.getArtifactId() + ".hpi", plugin.getLatest().getDownloadUrl().getPath());
+                    latestLinks.add(plugin.getArtifactId() + ".hpi", plugin.getLatest().getDownloadUrl().toExternalForm());
                 }
 
                 final TreeMap<VersionNumber, HPI> artifacts = plugin.getArtifacts();
@@ -85,7 +85,7 @@ public class DirectoryTreeBuilder {
 
             if (!jenkinsWars.isEmpty()) {
                 if (latestLinks != null) {
-                    latestLinks.add("jenkins.war", jenkinsWars.firstEntry().getValue().getDownloadUrl().getPath());
+                    latestLinks.add("jenkins.war", jenkinsWars.firstEntry().getValue().getDownloadUrl().toExternalForm());
                 }
 
                 if (download != null) {
