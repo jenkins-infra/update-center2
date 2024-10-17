@@ -129,6 +129,11 @@ test_redirect "$TEST_BASE_URL/download/war/latest/jenkins.war" "https://updates.
 test_redirect "$TEST_BASE_URL/download/plugins/git/latest/git.hpi" "https://updates.jenkins.io/latest/git.hpi"
 test_redirect "$TEST_BASE_URL/download/plugins/lolwut/latest/git.hpi" "https://updates.jenkins.io/latest/git.hpi" # Fun side effect of the redirect rule
 
+# Check static redirections to get.jenkins.io website
+test_redirect "$TEST_BASE_URL/download/war/2.246/jenkins.war" "https://get.jenkins.io/war/2.246/jenkins.war"
+test_redirect "$TEST_BASE_URL/download/war/2.204.1/jenkins.war" "https://get.jenkins.io/war-stable/2.204.1/jenkins.war"
+test_redirect "$TEST_BASE_URL/download/plugins/git/5.6.0/git.hpi" "https://get.jenkins.io/plugins/git/5.6.0/git.hpi"
+
 # Ensure that ?uctest gets a tiny OK response
 OUTPUT="$( curl -I "$TEST_BASE_URL/update-center.json?uctest" 2>/dev/null )"
 assert 'HTTP/1.1 200 OK'   "$( echo "$OUTPUT" | dos2unix | grep -F 'HTTP/1.1' )"
