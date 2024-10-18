@@ -29,7 +29,7 @@ function test_redirect () {
   local REQUEST_URL="$1"
   local DESTINATION="$2"
   echo "Requesting $REQUEST_URL (-> $DESTINATION)"
-  REDIRECT=$( curl -I "$REQUEST_URL" 2>/dev/null | fgrep 'Location:' | cut -d' ' -f2 | tr -d '[:space:]' ) || { echo "Failed to curl $REQUEST_URL" >&2 ; }
+  REDIRECT=$( curl -I "$REQUEST_URL" 2>/dev/null | grep -Fi 'Location:' | cut -d' ' -f2 | tr -d '[:space:]' ) || { echo "Failed to curl $REQUEST_URL" >&2 ; }
   if [ "$REDIRECT" != "$DESTINATION" ] ; then
     echo "Expected $DESTINATION but got $REDIRECT for $REQUEST_URL"
   fi
@@ -132,9 +132,9 @@ test_redirect "$TEST_BASE_URL/download/plugins/lolwut/latest/git.hpi" "https://u
 # Ensure that ?uctest gets a tiny OK response
 OUTPUT="$( curl -I "$TEST_BASE_URL/update-center.json?uctest" 2>/dev/null )"
 assert 'HTTP/1.1 200 OK'   "$( echo "$OUTPUT" | dos2unix | grep -F 'HTTP/1.1' )"
-assert 'Content-Length: 3' "$( echo "$OUTPUT" | dos2unix | grep -F 'Content-Length: ' )"
+assert 'Content-Length: 3' "$( echo "$OUTPUT" | dos2unix | grep -Fi 'Content-Length: ' )"
 
 # Also applies to any subdirectories
 OUTPUT="$( curl -I "$TEST_BASE_URL/foo/update-center.json?uctest" 2>/dev/null )"
 assert 'HTTP/1.1 200 OK'   "$( echo "$OUTPUT" | dos2unix | grep -F 'HTTP/1.1' )"
-assert 'Content-Length: 3' "$( echo "$OUTPUT" | dos2unix | grep -F 'Content-Length: ' )"
+assert 'Content-Length: 3' "$( echo "$OUTPUT" | dos2unix | grep -Fi 'Content-Length: ' )"
