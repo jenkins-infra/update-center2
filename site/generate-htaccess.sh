@@ -129,10 +129,10 @@ DirectoryIndex index.html
 # download/* directories contain virtual URL spaces for redirecting download traffic to mirrors.
 
 # 'latest' need special handling here since they're not getting mirrored properly to get.jenkins.io
-RedirectMatch 302 /download/war/latest/jenkins[.]war$ https://updates.jenkins.io/latest/jenkins.war
-RedirectMatch 302 /download/plugins/(.*)/latest/(.+)[.]hpi$ https://updates.jenkins.io/latest/\$2.hpi
+RewriteRule ^download/war/latest/jenkins[.]war$ https://updates.jenkins.io/latest/jenkins.war [NC,L,R=302]
+RewriteRule ^download/plugins/(.*)/latest/(.+)[.]hpi$ https://updates.jenkins.io/latest/\$2.hpi [NC,L,R=302]
 
-RedirectMatch 302 /download/war/([0-9]+[.][0-9]+[.][0-9]+/jenkins)[.]war$ https://get.jenkins.io/war-stable/\$1.war
-RedirectMatch 302 /download/war/(.+)[.]war$ https://get.jenkins.io/war/\$1.war
-RedirectMatch 302 /download/plugins/(.+)[.]hpi$ https://get.jenkins.io/plugins/\$1.hpi
+RewriteRule ^download/war/([0-9]+[.][0-9]+[.][0-9]+/jenkins)[.]war$ https://get.jenkins.io/war-stable/\$1.war [NC,L,R=302]
+RewriteRule ^download/war/(.+)[.]war$ https://get.jenkins.io/war/\$1.war [NC,L,R=302]
+RewriteRule ^download/plugins/(.+)[.]hpi$ https://get.jenkins.io/plugins/\$1.hpi [NC,L,R=302]
 EOF

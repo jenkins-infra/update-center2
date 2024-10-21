@@ -164,23 +164,19 @@ then
     # Same base content
     cp -r "${httpd_secured_dir}" "${httpd_unsecured_dir}"
 
-    # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections only
-    # Note: "RedirectMatch" must be used as it's evaluated as the last item
-    # Note: "RedirectMatch" only support absolute target path with no Apache variable. Request scheme is raw and depends on the httpd instance.
+    # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections (both secured and unsecured)
     mirrorbits_hostname='mirrors.updates.jenkins.io'
-    {
-        echo ''
-        echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
-        # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
-        echo 'RedirectMatch 307 (.*)$ https://'"${mirrorbits_hostname}"'$1'
-    } >> "${httpd_secured_dir}"/.htaccess
-    mirrorbits_hostname='mirrors.updates.jenkins.io'
-    {
-        echo ''
-        echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
-        # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
-        echo 'RedirectMatch 307 (.*)$ http://'"${mirrorbits_hostname}"'$1'
-    } >> "${httpd_unsecured_dir}"/.htaccess
+    for httpd_dir in "${httpd_secured_dir}" "${httpd_unsecured_dir}"
+    do
+        {
+            echo ''
+            echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
+            # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
+            echo 'RewriteCond %{DOCUMENT_ROOT}/$1 !-f'
+            # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
+            echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
+        } >> "${httpd_dir}"/.htaccess
+    done
 
     echo '----------------------- Launch synchronisation(s) -----------------------'
     parallel --halt-on-error now,fail=1 parallelfunction ::: "${sync_uc_tasks[@]}"
