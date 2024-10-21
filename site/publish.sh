@@ -149,6 +149,8 @@ then
         --prune-empty-dirs `# Do not copy empty directories` \
         --exclude='updates/' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
         --exclude='.htaccess' `# Exclude every .htaccess files` \
+        --exclude="uctest.json" `# Service Applicative Healthcheck (empty JSON)` \
+        --exclude="download/***" `# Virtual Tree of the download service, redirected to get.jio, with only HTML version listings with relative links to UC itself` \
         "${www2_dir}"/ ./www-content/
 
     # Prepare www-redirections-*secured/ directories, from $www2_dir, dedicated to httpd services, including only (customized) .htaccess files
@@ -158,6 +160,8 @@ then
         --prune-empty-dirs `# Do not copy empty directories` \
         --include "*/" `# Includes all directories in the filtering` \
         --include=".htaccess" `# Includes all elements named '.htaccess' in the filtering - redirections logic` \
+        --include="uctest.json" `# Service Applicative Healthcheck (empty JSON)` \
+        --include="download/***" `# Virtual Tree of the download service, redirected to get.jio, with only HTML version listings with relative links to UC itself` \
         --exclude="*" `# Exclude all elements found in source and not matching pattern aboves (must be the last filter flag)` \
         "${www2_dir}"/ "${httpd_secured_dir}/"
 
