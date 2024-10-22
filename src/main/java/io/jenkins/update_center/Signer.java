@@ -10,6 +10,7 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.jvnet.hudson.crypto.CertificateUtil;
@@ -87,8 +88,16 @@ public class Signer {
 
         PrivateKey key;
         try (PEMParser pem = new PEMParser(Files.newBufferedReader(privateKey.toPath(), StandardCharsets.UTF_8))) {
-            PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) pem.readObject();
-            key = new JcaPEMKeyConverter().getPrivateKey(privateKeyInfo);
+            final Object o = pem.readObject();
+            if (o instanceof PrivateKeyInfo) {
+                final PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) o;
+                key = new JcaPEMKeyConverter().getPrivateKey(privateKeyInfo);
+            } else if (o instanceof PEMKeyPair) {
+                final PEMKeyPair pemKeyPair = (PEMKeyPair) o;
+                key = new JcaPEMKeyConverter().getKeyPair(pemKeyPair).getPrivate();
+            } else {
+                throw new IllegalArgumentException("Unexpected type for private key: " + o.getClass().getName());
+            }
         }
 
         // the correct signature (since Jenkins 1.433); no longer generate wrong signatures for older releases.
