@@ -49,14 +49,16 @@ import org.jetbrains.annotations.NotNull;
 public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private static final Logger LOGGER = Logger.getLogger(ArtifactoryRepositoryImpl.class.getName());
 
-    private static final String ARTIFACTORY_URL = "https://repo.jenkins-ci.org/";
-    private static final String ARTIFACTORY_API_URL = "https://repo.jenkins-ci.org/api/";
+    private static final String ARTIFACTORY_URL = Environment.getString("ARTIFACTORY_URL", "https://repo.jenkins-ci.org/");
+    private static final String ARTIFACTORY_API_URL = Environment.getString("ARTIFACTORY_API_URL", "https://repo.jenkins-ci.org/api/");
+    private static final String ARTIFACTORY_REPOSITORY = Environment.getString("ARTIFACTORY_REPOSITORY", "releases");
+
     private static final String ARTIFACTORY_AQL_URL = ARTIFACTORY_API_URL + "search/aql";
     private static final String ARTIFACTORY_MANIFEST_URL = ARTIFACTORY_URL + "%s/%s!/META-INF/MANIFEST.MF";
     private static final String ARTIFACTORY_ZIP_ENTRY_URL = ARTIFACTORY_URL + "%s/%s!%s";
     private static final String ARTIFACTORY_FILE_URL = ARTIFACTORY_URL + "%s/%s";
 
-    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"releases\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}},{\"name\":{\"$match\":\"*.pom\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\", \"size\")";
+    private static final String AQL_QUERY = "items.find({\"repo\":{\"$eq\":\"" + ARTIFACTORY_REPOSITORY + "\"},\"$or\":[{\"name\":{\"$match\":\"*.hpi\"}},{\"name\":{\"$match\":\"*.jpi\"}},{\"name\":{\"$match\":\"*.war\"}},{\"name\":{\"$match\":\"*.pom\"}}]}).include(\"repo\", \"path\", \"name\", \"modified\", \"created\", \"sha256\", \"actual_sha1\", \"size\")";
 
     private final String username;
     private final String password;
@@ -82,7 +84,12 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private static boolean containsIllegalChars(String test) {
-        return !test.chars().allMatch(c -> c >= 0x2B && c < 0x7B);
+        return !test.chars().allMatch(c ->
+                c >= '0' && c <= '9'
+                || c >= 'A' && c <= 'Z'
+                || c >= 'a' && c <= 'z'
+                || c == '+' || c == '-' || c == '.' || c == '/' || c == '_'
+        );
     }
 
     private static ArtifactCoordinates toGav(JsonFile f) {
@@ -90,7 +97,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         String path = f.path;
 
         if (containsIllegalChars(fileName) || containsIllegalChars(path)) {
-            LOGGER.log(Level.INFO, "Not only printable ascii: " + f.path + " / " + f.name);
+            LOGGER.log(Level.INFO, "Characters outside allowed set: " + f.path + " / " + f.name);
             return null;
         }
 
@@ -234,7 +241,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
     @Override
     public Manifest getManifest(MavenArtifact artifact) throws IOException {
-        try (InputStream is = getFileContent(String.format(ARTIFACTORY_MANIFEST_URL, "releases", getUri(artifact.artifact)))) {
+        try (InputStream is = getFileContent(String.format(ARTIFACTORY_MANIFEST_URL, ARTIFACTORY_REPOSITORY, getUri(artifact.artifact)))) {
             return new Manifest(is);
         }
     }
@@ -265,7 +272,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             try {
                 OkHttpClient.Builder builder = new OkHttpClient.Builder();
                 OkHttpClient client = builder.build();
-                Request request = new Request.Builder().url(url).get().build();
+                Request request = new Request.Builder().addHeader("Authorization", Credentials.basic(username, password)).url(url).get().build();
                 final Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
                     try (final ResponseBody body = HttpHelper.body(response)) {
@@ -322,7 +329,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
 
     @Override
     public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException {
-        return getFileContent(String.format(ARTIFACTORY_ZIP_ENTRY_URL, "releases", getUri(artifact.artifact), StringUtils.prependIfMissing(path, "/")));
+        return getFileContent(String.format(ARTIFACTORY_ZIP_ENTRY_URL, ARTIFACTORY_REPOSITORY, getUri(artifact.artifact), StringUtils.prependIfMissing(path, "/")));
     }
 
     @Override
@@ -330,7 +337,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         /* Support loading files from local Maven repository to reduce redundancy */
         final String uri = getUri(artifact);
         final File localFile = new File(LOCAL_REPO, uri);
-        final String url = String.format(ARTIFACTORY_FILE_URL, "releases", uri);
+        final String url = String.format(ARTIFACTORY_FILE_URL, ARTIFACTORY_REPOSITORY, uri);
         if (localFile.exists()) {
             File cacheFile = getCacheFile(url);
             final File cacheFileParent = cacheFile.getParentFile();
