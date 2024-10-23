@@ -1,0 +1,2 @@
+/site/publish.sh            @jenkins-infra/core
+/resources/warnings.json    @jenkins-infra/security
