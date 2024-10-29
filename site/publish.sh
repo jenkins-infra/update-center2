@@ -151,10 +151,10 @@ then
         --safe-links `# ignore symlinks outside of copied tree` \
         --prune-empty-dirs `# Do not copy empty directories` \
         --exclude='updates/' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
-        --exclude="uctest.json" `# Service Applicative Healthcheck (empty JSON) only used by Apache` \
+        --exclude="uctest.json" `# Service Healthcheck (empty JSON) only used by Apache` \
         --exclude="download/***" `# Virtual Tree of the download service, redirected to get.jio, with only HTML version listings with relative links to UC itself` \
         --include='*/' `# Include all other directories` \
-        --include='**/*.json' `# Only includ JSON files` \
+        --include='**/*.json' `# Only include JSON files` \
         --exclude='*' `# Exclude all other files` \
         "${www2_dir}"/ "${content_dir}"/
 
