@@ -174,6 +174,10 @@ then
             echo 'RewriteCond %{REQUEST_URI} !/uctest\.json$'
             # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
             echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
+            echo "## Send requests to crawler's html files to ${mirrorbits_hostname} (JSON already sent, but we still want directory listing)"
+            echo 'RewriteCond %{REQUEST_URI} ^/updates/(.*).html$'
+            # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
+            echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
         } >> "${httpd_dir}"/.htaccess
     done
 
