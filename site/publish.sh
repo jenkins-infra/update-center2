@@ -155,9 +155,9 @@ then
         --exclude="download/***" `# Virtual Tree of the download service, redirected to get.jio, with only HTML version listings with relative links to UC itself` \
         --include='*/' `# Include all other directories` \
         --include='*.json' `# Only include JSON files` \
+        --include='*.json.html' `# Only include HTML-wrapped JSON files` \
         --exclude='*' `# Exclude all other files` \
         "${www2_dir}"/ "${content_dir}"/
-
 
     # Prepare www-redirections-*secured/ directories, same content as $www2_dir (to allow directory listing), dedicated to httpd services
     cp -r "${www2_dir}" "${httpd_secured_dir}"
@@ -170,12 +170,8 @@ then
         {
             echo ''
             echo "## Send JSON files to ${mirrorbits_hostname}, except uctest.json (healthcheck served by Apache)"
-            echo 'RewriteCond %{REQUEST_URI} ([.](json)|TIME)$'
+            echo 'RewriteCond %{REQUEST_URI} ([.](json|json.html)|TIME)$'
             echo 'RewriteCond %{REQUEST_URI} !/uctest.json$'
-            # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
-            echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
-            echo "## Send requests to crawler's html files to ${mirrorbits_hostname} (JSON already sent, but we still want directory listing)"
-            echo 'RewriteCond %{REQUEST_URI} ^/updates/(.*).json.html$'
             # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
             echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
         } >> "${httpd_dir}"/.htaccess
