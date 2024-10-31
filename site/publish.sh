@@ -131,42 +131,37 @@ then
     export -f parallelfunction
 
     ############# Prepare the different UC source directories to be copied to different destinations
-    chmod -R a+r "${www2_dir}"
-    date +%s > "${www2_dir}"/TIME # TIME sync, used by mirrorbits to know the last update date to take in account
+    chmod -R a+r "${www2_dir}" # Required for updates.jenkins.io rsync copy using distinct user than httpd's
+    date +%s > "${www2_dir}"/TIME # Used by mirrorbits and healthchecks
 
-    # Note: these PATH must map to the FILESHARE_SYNC_SOURCE in the ZIP env files (!). Yeah not easy but that's how it works temporarily.
+    # Note: these PATH must map to the FILESHARE_SYNC_SOURCE in the ZIP env files (!)
     httpd_secured_dir=./www-redirections-secured
     httpd_unsecured_dir=./www-redirections-unsecured
+    content_dir=./www-content
 
-    ## No need to remove the symlinks as the `azcopy sync` for symlinks is not yet supported and we use `--no-follow-symlinks` for `aws s3 sync`
-    # Perform a copy with dereference symlink (object storage do not support symlinks)
-    rm -rf ./www-content/ "${httpd_secured_dir}" "${httpd_unsecured_dir}" # Cleanup
+    # Cleanup
+    rm -rf "${content_dir}" "${httpd_secured_dir}" "${httpd_unsecured_dir}"
 
-    # Prepare www-content, a copy of the $www2_dir dedicated to mirrorbits service, excluding every .htaccess files
+    # Prepare www-content dir destined to the mirrorbits service
+    # By retrieving all JSON files from $www2_dir
+    # and dereferencing all internal symlinks to files (as AWS and azcopy CLIs do not support symlinks)
+    # NOTE: order of include and exclude flags MATTERS A LOT
     rsync --archive --verbose \
-        --copy-links `# derefence symlinks` \
+        --copy-links `# dereference symlinks to avoid issues with aws s3 or azcopy` \
         --safe-links `# ignore symlinks outside of copied tree` \
         --prune-empty-dirs `# Do not copy empty directories` \
         --exclude='updates/' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
-        --exclude='.htaccess' `# Exclude every .htaccess files` \
-        --exclude="uctest.json" `# Service Applicative Healthcheck (empty JSON)` \
+        --exclude="uctest.json" `# Service Healthcheck (empty JSON) only used by Apache` \
         --exclude="download/***" `# Virtual Tree of the download service, redirected to get.jio, with only HTML version listings with relative links to UC itself` \
-        "${www2_dir}"/ ./www-content/
+        --include='*/' `# Include all other directories` \
+        --include='*.json' `# Only include JSON files` \
+        --exclude='*' `# Exclude all other files` \
+        "${www2_dir}"/ "${content_dir}"/
 
-    # Prepare www-redirections-*secured/ directories, from $www2_dir, dedicated to httpd services, including only (customized) .htaccess files
-    rsync --archive --verbose \
-        --copy-links `# derefence symlinks` \
-        --safe-links `# ignore symlinks outside of copied tree` \
-        --prune-empty-dirs `# Do not copy empty directories` \
-        --include "*/" `# Includes all directories in the filtering` \
-        --include=".htaccess" `# Includes all elements named '.htaccess' in the filtering - redirections logic` \
-        --include="uctest.json" `# Service Applicative Healthcheck (empty JSON)` \
-        --include="download/***" `# Virtual Tree of the download service, redirected to get.jio, with only HTML version listings with relative links to UC itself` \
-        --exclude="*" `# Exclude all elements found in source and not matching pattern aboves (must be the last filter flag)` \
-        "${www2_dir}"/ "${httpd_secured_dir}/"
 
-    # Same base content
-    cp -r "${httpd_secured_dir}" "${httpd_unsecured_dir}"
+    # Prepare www-redirections-*secured/ directories, same content as $www2_dir (to allow directory listing), dedicated to httpd services
+    cp -r "${www2_dir}" "${httpd_secured_dir}"
+    cp -r "${www2_dir}" "${httpd_unsecured_dir}"
 
     # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections (both secured and unsecured)
     mirrorbits_hostname='mirrors.updates.jenkins.io'
@@ -174,9 +169,13 @@ then
     do
         {
             echo ''
-            echo "## Fallback: if not rules match then redirect to ${mirrorbits_hostname}"
+            echo "## Send JSON files to ${mirrorbits_hostname}, except uctest.json (healthcheck served by Apache)"
+            echo 'RewriteCond %{REQUEST_URI} ([.](json)|TIME)$'
+            echo 'RewriteCond %{REQUEST_URI} !/uctest.json$'
             # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
-            echo 'RewriteCond %{DOCUMENT_ROOT}/$1 !-f'
+            echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
+            echo "## Send requests to crawler's html files to ${mirrorbits_hostname} (JSON already sent, but we still want directory listing)"
+            echo 'RewriteCond %{REQUEST_URI} ^/updates/(.*).json.html$'
             # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
             echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
         } >> "${httpd_dir}"/.htaccess
