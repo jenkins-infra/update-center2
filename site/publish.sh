@@ -147,14 +147,14 @@ then
     # and dereferencing all internal symlinks to files (as AWS and azcopy CLIs do not support symlinks)
     # NOTE: order of include and exclude flags MATTERS A LOT
     rsync --archive --verbose \
-        --copy-links `# derefence symlinks to avoid issues with aws s3 or azcopy` \
+        --copy-links `# dereference symlinks to avoid issues with aws s3 or azcopy` \
         --safe-links `# ignore symlinks outside of copied tree` \
         --prune-empty-dirs `# Do not copy empty directories` \
         --exclude='updates/' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
         --exclude="uctest.json" `# Service Healthcheck (empty JSON) only used by Apache` \
         --exclude="download/***" `# Virtual Tree of the download service, redirected to get.jio, with only HTML version listings with relative links to UC itself` \
         --include='*/' `# Include all other directories` \
-        --include='**/*.json' `# Only include JSON files` \
+        --include='*.json' `# Only include JSON files` \
         --exclude='*' `# Exclude all other files` \
         "${www2_dir}"/ "${content_dir}"/
 
@@ -171,11 +171,11 @@ then
             echo ''
             echo "## Send JSON files to ${mirrorbits_hostname}, except uctest.json (healthcheck served by Apache)"
             echo 'RewriteCond %{REQUEST_URI} ([.](json)|TIME)$'
-            echo 'RewriteCond %{REQUEST_URI} !/uctest\.json$'
+            echo 'RewriteCond %{REQUEST_URI} !/uctest.json$'
             # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
             echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
             echo "## Send requests to crawler's html files to ${mirrorbits_hostname} (JSON already sent, but we still want directory listing)"
-            echo 'RewriteCond %{REQUEST_URI} ^/updates/(.*).html$'
+            echo 'RewriteCond %{REQUEST_URI} ^/updates/(.*).json.html$'
             # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
             echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
         } >> "${httpd_dir}"/.htaccess
