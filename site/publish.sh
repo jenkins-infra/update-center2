@@ -161,11 +161,15 @@ then
 
     # create an empty folder for the cawler content to avoid error with deference symlinks
     mkdir -p "${www2_dir}"/updates
+
     # Prepare www-redirections-*secured/ directories, same content as $www2_dir (to allow directory listing) but with dereferenced symlinks, dedicated to httpd services
     rsync --archive --verbose \
         --copy-links `# derefence symlinks` \
         --safe-links `# ignore symlinks outside of copied tree` \
         "${www2_dir}"/ "${httpd_secured_dir}/"
+
+    # Not needed anymore (let's avoid copying empty dirs to remote)
+    rmdir "${www2_dir}"/updates
 
     mirrorbits_hostname='mirrors.updates.jenkins.io'
     {
