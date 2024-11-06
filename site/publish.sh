@@ -159,26 +159,23 @@ then
         --exclude='*' `# Exclude all other files` \
         "${www2_dir}"/ "${content_dir}"/
 
-    # Prepare www-redirections-*secured/ directories, same content as $www2_dir (to allow directory listing) but with dereferenced symlinks, dedicated to httpd services
-    rsync --archive --verbose \
-        --copy-links `# derefence symlinks` \
-        --safe-links `# ignore symlinks outside of copied tree` \
-        "${www2_dir}"/ "${httpd_secured_dir}/"
+    # Prepare www-redirections-*secured/ directories, same content as $www2_dir (to allow directory listing), dedicated to httpd services
+    cp -r "${www2_dir}" "${httpd_secured_dir}"
+    cp -r "${www2_dir}" "${httpd_unsecured_dir}"
 
+    # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections (both secured and unsecured)
     mirrorbits_hostname='mirrors.updates.jenkins.io'
-    {
-        # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections (both secured and unsecured)
-        echo ''
-        echo "## Send JSON files to ${mirrorbits_hostname}, except uctest.json (healthcheck served by Apache)"
-        echo 'RewriteCond %{REQUEST_URI} ([.](json|json.html)|TIME)$'
-        echo 'RewriteCond %{REQUEST_URI} !/uctest.json$'
-        # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
-        echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
-    } >> "${httpd_secured_dir}"/.htaccess
-
-    # Duplicate to a distinct dir (not required but allow custom HTTP customization if need be)
-    # TODO: remove when we force HTTPS
-    cp -r "${httpd_secured_dir}" "${httpd_unsecured_dir}"
+    for httpd_dir in "${httpd_secured_dir}" "${httpd_unsecured_dir}"
+    do
+        {
+            echo ''
+            echo "## Send JSON files to ${mirrorbits_hostname}, except uctest.json (healthcheck served by Apache)"
+            echo 'RewriteCond %{REQUEST_URI} ([.](json|json.html)|TIME)$'
+            echo 'RewriteCond %{REQUEST_URI} !/uctest.json$'
+            # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
+            echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
+        } >> "${httpd_dir}"/.htaccess
+    done
 
     echo '----------------------- Launch synchronisation(s) -----------------------'
     parallel --halt-on-error now,fail=1 parallelfunction ::: "${sync_uc_tasks[@]}"
