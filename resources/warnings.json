@@ -1,18 +1,5 @@
 [
   {
-    "id": "SECURITY-3466",
-    "type": "plugin",
-    "name": "shared-library-version-override",
-    "message": "Script security sandbox bypass",
-    "url": "https://github.com/jenkins-infra/update-center2/pull/802",
-    "versions": [
-      {
-        "lastVersion": "17.v786074c9fce7 ",
-        "pattern": "(1[17])(|[.-].+)"
-      }
-    ]
-  },
-  {
     "id": "SECURITY-208",
     "type": "plugin",
     "name": "google-login",
@@ -18154,6 +18141,97 @@
       {
         "lastVersion": "4.354.v321ce67a_1de8",
         "pattern": "([1-3]|4[.]22[0345789]|4[.]23[689]|4[.]25[07]|4[.]269|4[.]279|4[.]284|4[.]29[079]|4[.]303|4[.]32[049]|4[.]33[01]|4[.]34[06]|4[.]35[04])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-2954",
+    "type": "plugin",
+    "name": "ivytrigger",
+    "message": "XXE vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2024-11-13/#SECURITY-2954",
+    "versions": [
+      {
+        "lastVersion": "1.01",
+        "pattern": "(0|1[.]0[01])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3010",
+    "type": "plugin",
+    "name": "authorize-project",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2024-11-13/#SECURITY-3010",
+    "versions": [
+      {
+        "lastVersion": "1.7.2",
+        "pattern": "(1[.][0-7])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3361",
+    "type": "plugin",
+    "name": "pipeline-model-definition",
+    "message": "Restarting a run with revoked script approval allowed",
+    "url": "https://www.jenkins.io/security/advisory/2024-11-13/#SECURITY-3361",
+    "versions": [
+      {
+        "lastVersion": "2.2214.vb_b_34b_2ea_9b_83",
+        "pattern": "([01]|2[.]2064|2[.]207[57]|2[.]208[146]|2[.]2097|2[.]211[48]|2[.]212[135]|2[.]213[13]|2[.]214[14]|2[.]215[01]|2[.]216[89]|2[.]2175|2[.]218[348]|2[.]2198|2[.]220[35]|2[.]2214)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3362",
+    "type": "plugin",
+    "name": "workflow-cps",
+    "message": "Rebuilding a run with revoked script approval allowed",
+    "url": "https://www.jenkins.io/security/advisory/2024-11-13/#SECURITY-3362",
+    "versions": [
+      {
+        "lastVersion": "3990.vd281dd77a_388",
+        "pattern": "([12]|2633|264[0468]|265[69]|2660|268[0236789]|2692|270[56]|2710|272[59]|2746|2759|2784|280[1-3]|3520|3536|3565|358[13]|360[16]|361[168]|362[469]|363[57]|3641|365[139]|3668|3673|369[137]|3705|371[37]|372[268]|373[12]|374[04]|376[79]|377[34]|378[57]|379[13]|380[256]|381[27]|382[16]|383[257]|385[39]|3867|388[039]|3894|390[38]|3922|394[36]|3953|396[149]|3975[.]v567e2a_1ffa_22|3990)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3447",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Missing permission check",
+    "url": "https://www.jenkins.io/security/advisory/2024-11-13/#SECURITY-3447",
+    "versions": [
+      {
+        "lastVersion": "1367.vdf2fc45f229c",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[167]|1362[.]v67dc1f0e1b_b_3|1365[.]v4778ca_84b_de5)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3466",
+    "type": "plugin",
+    "name": "shared-library-version-override",
+    "message": "Script security sanbox bypass",
+    "url": "https://www.jenkins.io/security/advisory/2024-11-13/#SECURITY-3466",
+    "versions": [
+      {
+        "lastVersion": "17.v786074c9fce7",
+        "pattern": "(1[17])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3473",
+    "type": "plugin",
+    "name": "oic-auth",
+    "message": "Session fixation vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2024-11-13/#SECURITY-3473",
+    "versions": [
+      {
+        "lastVersion": "4.418.vccc7061f5b_6d",
+        "pattern": "([1-3]|4[.]22[0345789]|4[.]23[689]|4[.]25[07]|4[.]269|4[.]279|4[.]284|4[.]29[079]|4[.]303|4[.]32[049]|4[.]33[01]|4[.]34[06]|4[.]35[045]|4[.]371|4[.]388|4[.]409|4[.]41[18])(|[.-].+)"
       }
     ]
   }
