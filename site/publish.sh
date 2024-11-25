@@ -74,7 +74,7 @@ then
             # Required variables that should now be set from the .env file
             : "${RSYNC_HOST?}" "${RSYNC_USER?}" "${RSYNC_GROUP?}" "${RSYNC_REMOTE_DIR?}" "${RSYNC_IDENTITY_NAME?}"
 
-            time rsync --chown="${RSYNC_USER}":"${RSYNC_GROUP}" --recursive --links --perms --times -D \
+            time rsync --recursive --links --perms --times -D \
                 --rsh="ssh -i ${UPDATE_CENTER_FILESHARES_ENV_FILES}/${RSYNC_IDENTITY_NAME}" `# rsync identity file is stored with .env files` \
                 --checksum --verbose --compress \
                 --exclude=/updates `# populated by https://github.com/jenkins-infra/crawler` \
