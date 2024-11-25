@@ -6,7 +6,7 @@
 # - [mandatory] UPDATE_CENTER_FILESHARES_ENV_FILES (directory path): directory containing environment files to be sources for each sync. destination.
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
-SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-updates.jenkins.io|rsync-updates.jenkins.io-data-content|azsync-content|rsync-updates.jenkins.io-data-redirections-unsecured|azsync-redirections-unsecured|rsync-updates.jenkins.io-data-redirections-secured|azsync-redirections-secured|s3sync-westeurope|s3sync-eastamerica}"
+SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-updates.jenkins.io|azsync-content|azsync-redirections-unsecured|azsync-redirections-secured|s3sync-westeurope|s3sync-eastamerica}"
 MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jio-cli.trusted.ci.jenkins.io}"
 
 # Split strings to arrays for feature flags setup
@@ -74,7 +74,7 @@ then
             # Required variables that should now be set from the .env file
             : "${RSYNC_HOST?}" "${RSYNC_USER?}" "${RSYNC_GROUP?}" "${RSYNC_REMOTE_DIR?}" "${RSYNC_IDENTITY_NAME?}"
 
-            time rsync --recursive --links --perms --times -D \
+            time rsync --chown="${RSYNC_USER}":"${RSYNC_GROUP}" --recursive --links --perms --times -D \
                 --rsh="ssh -i ${UPDATE_CENTER_FILESHARES_ENV_FILES}/${RSYNC_IDENTITY_NAME}" `# rsync identity file is stored with .env files` \
                 --checksum --verbose --compress \
                 --exclude=/updates `# populated by https://github.com/jenkins-infra/crawler` \
