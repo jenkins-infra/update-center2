@@ -6,7 +6,7 @@
 # - [mandatory] UPDATE_CENTER_FILESHARES_ENV_FILES (directory path): directory containing environment files to be sources for each sync. destination.
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
-SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-updates.jenkins.io|rsync-updates.jenkins.io-data-content|azsync-content|rsync-updates.jenkins.io-data-redirections-unsecured|azsync-redirections-unsecured|rsync-updates.jenkins.io-data-redirections-secured|azsync-redirections-secured|s3sync-westeurope|s3sync-eastamerica}"
+SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-updates.jenkins.io|rsync-updates.jenkins.io-data-content|rsync-updates.jenkins.io-data-redirections-unsecured|rsync-updates.jenkins.io-data-redirections-secured|s3sync-westeurope|s3sync-eastamerica}"
 MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jio-cli.trusted.ci.jenkins.io}"
 
 # Split strings to arrays for feature flags setup
@@ -83,30 +83,6 @@ then
                 "${fileshare_sync_source_abs}" "${RSYNC_USER}"@"${RSYNC_HOST}":"${RSYNC_REMOTE_DIR}"
             ;;
 
-        azsync*)
-            # Required variables that should now be set from the .env file
-            : "${STORAGE_NAME?}" "${STORAGE_FILESHARE?}" "${STORAGE_DURATION_IN_MINUTE?}" "${STORAGE_PERMISSIONS?}" "${JENKINS_INFRA_FILESHARE_CLIENT_ID?}" "${JENKINS_INFRA_FILESHARE_CLIENT_SECRET?}" "${JENKINS_INFRA_FILESHARE_TENANT_ID?}" "${FILESHARE_SYNC_DEST_URI?}"
-
-            ## 'get-fileshare-signed-url.sh' command is a script stored in /usr/local/bin used to generate a signed file share URL with a short-lived SAS token
-            ## Source: https://github.com/jenkins-infra/pipeline-library/blob/master/resources/get-fileshare-signed-url.sh
-            fileShareBaseUrl="$(get-fileshare-signed-url.sh)"
-            # Fail fast if no share URL can be generated
-            : "${fileShareBaseUrl?}"
-
-            # Append the '$FILESHARE_SYNC_DEST_URI' path on the URI of the generated URL
-            # But the URL has a query string so we need a text transformation
-            # shellcheck disable=SC2001 # The shell internal search and replace would be tedious due to escapings, hence keeping sed
-            fileShareUrl="$(echo "${fileShareBaseUrl}" | sed "s#/?#${FILESHARE_SYNC_DEST_URI}?#")"
-
-            # Sync Azure File Share
-            time azcopy sync \
-                --skip-version-check `# Do not check for new azcopy versions (we have updatecli for this)` \
-                --recursive=true \
-                --exclude-path="updates" `# populated by https://github.com/jenkins-infra/crawler` \
-                --delete-destination=true \
-                "${fileshare_sync_source_abs}" "${fileShareUrl}"
-            ;;
-
         s3sync*)
             # Required variables that should now be set from the .env file
             : "${BUCKET_NAME?}" "${BUCKET_ENDPOINT_URL?}" "${AWS_ACCESS_KEY_ID?}" "${AWS_SECRET_ACCESS_KEY?}" "${AWS_DEFAULT_REGION?}"
@@ -144,10 +120,10 @@ then
 
     # Prepare www-content dir destined to the mirrorbits service
     # By retrieving all JSON files from $www2_dir
-    # and dereferencing all internal symlinks to files (as AWS and azcopy CLIs do not support symlinks)
+    # and dereferencing all internal symlinks to files (as AWS CLIs do not support symlinks)
     # NOTE: order of include and exclude flags MATTERS A LOT
     rsync --archive --verbose \
-        --copy-links `# dereference symlinks to avoid issues with aws s3 or azcopy` \
+        --copy-links `# dereference symlinks to avoid issues with aws s3` \
         --safe-links `# ignore symlinks outside of copied tree` \
         --prune-empty-dirs `# Do not copy empty directories` \
         --exclude='updates/' `# Exclude ALL 'updates' directories, not only the root /updates (because symlink dereferencing create additional directories` \
@@ -159,18 +135,9 @@ then
         --exclude='*' `# Exclude all other files` \
         "${www2_dir}"/ "${content_dir}"/
 
-    # create an empty folder for the cawler content to avoid error with deference symlinks
-    mkdir -p "${www2_dir}"/updates
-
-    # Prepare www-redirections-*secured/ directories, same content as $www2_dir (to allow directory listing) but with dereferenced symlinks, dedicated to httpd services
-    rsync --archive --verbose \
-        --copy-links `# derefence symlinks` \
-        --safe-links `# ignore symlinks outside of copied tree` \
-        "${www2_dir}"/ "${httpd_secured_dir}/"
-
-    # Not needed anymore (let's avoid copying empty dirs to remote)
-    rmdir "${www2_dir}"/updates
-
+    # Prepare redirections-*secured/ directories, same content as $www2_dir
+    ## TODO: use only www2_dir when the old PKG machine will be decommissioned
+    cp -r "${www2_dir}" "${httpd_secured_dir}"
     mirrorbits_hostname='mirrors.updates.jenkins.io'
     {
         # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections (both secured and unsecured)
