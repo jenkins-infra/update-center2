@@ -123,7 +123,7 @@ done
 # Experimental update center without version caps, including experimental releases.
 # This is not a part of the version-based redirection rules, admins need to manually configure it.
 # Generate this first, including --downloads-directory, as this includes all releases, experimental and otherwise.
-generate --www-dir "$WWW_ROOT_DIR/experimental" --generate-recent-releases --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/experimental/latest"
+generate --www-dir "$WWW_ROOT_DIR/experimental" --generate-recent-releases --generate-plugin-versions --with-experimental --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/experimental/latest"
 
 # Current update site without version caps, excluding experimental releases.
 # This generates -download after the experimental update site above to change the 'latest' symlinks to the latest released version.
