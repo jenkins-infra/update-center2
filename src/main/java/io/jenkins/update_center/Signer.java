@@ -1,7 +1,6 @@
 package io.jenkins.update_center;
 
 import io.jenkins.update_center.json.JsonSignature;
-
 import io.jenkins.update_center.util.Environment;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -9,8 +8,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.io.output.TeeOutputStream;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.jvnet.hudson.crypto.CertificateUtil;
 import org.jvnet.hudson.crypto.SignatureOutputStream;
 import org.kohsuke.args4j.Option;
@@ -23,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.DigestOutputStream;
 import java.security.GeneralSecurityException;
-import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.Signature;
@@ -86,8 +87,17 @@ public class Signer {
         X509Certificate signer = certs.get(0); // the first one is the signer, and the rest is the chain to a root CA.
 
         PrivateKey key;
-        try (PEMReader pem = new PEMReader(Files.newBufferedReader(privateKey.toPath(), StandardCharsets.UTF_8))) {
-             key = ((KeyPair) pem.readObject()).getPrivate();
+        try (PEMParser pem = new PEMParser(Files.newBufferedReader(privateKey.toPath(), StandardCharsets.UTF_8))) {
+            final Object o = pem.readObject();
+            if (o instanceof PrivateKeyInfo) {
+                final PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) o;
+                key = new JcaPEMKeyConverter().getPrivateKey(privateKeyInfo);
+            } else if (o instanceof PEMKeyPair) {
+                final PEMKeyPair pemKeyPair = (PEMKeyPair) o;
+                key = new JcaPEMKeyConverter().getKeyPair(pemKeyPair).getPrivate();
+            } else {
+                throw new IllegalArgumentException("Unexpected type for private key: " + o.getClass().getName());
+            }
         }
 
         // the correct signature (since Jenkins 1.433); no longer generate wrong signatures for older releases.
