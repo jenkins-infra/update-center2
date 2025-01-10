@@ -18213,7 +18213,7 @@
     "id": "SECURITY-3466",
     "type": "plugin",
     "name": "shared-library-version-override",
-    "message": "Script security sanbox bypass",
+    "message": "Script security sandbox bypass vulnerability",
     "url": "https://www.jenkins.io/security/advisory/2024-11-13/#SECURITY-3466",
     "versions": [
       {
