@@ -18277,5 +18277,109 @@
         "pattern": "(1[.][1-3]|1[.]4[.][0134])(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3062",
+    "type": "plugin",
+    "name": "folder-auth",
+    "message": "Disabled permissions can be granted",
+    "url": "https://www.jenkins.io/security/advisory/2025-01-22/#SECURITY-3062",
+    "versions": [
+      {
+        "lastVersion": "217.vd5b_18537403e",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3094",
+    "type": "plugin",
+    "name": "service-fabric",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2025-01-22/#SECURITY-3094",
+    "versions": [
+      {
+        "lastVersion": "1.6",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3260",
+    "type": "plugin",
+    "name": "gitlab-plugin",
+    "message": "Incorrect permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2025-01-22/#SECURITY-3260",
+    "versions": [
+      {
+        "lastVersion": "1.9.6",
+        "pattern": "(1[.][0-8]|1[.]9[.][0-6])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3292-1",
+    "type": "plugin",
+    "name": "zoom",
+    "message": "Tokens stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-01-22/#SECURITY-3292%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1.3",
+        "pattern": "(1[.][0-3])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3292-2",
+    "type": "plugin",
+    "name": "zoom",
+    "message": "Tokens displayed without masking",
+    "url": "https://www.jenkins.io/security/advisory/2025-01-22/#SECURITY-3292%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1.5",
+        "pattern": "(1[.][0-5])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3434",
+    "type": "plugin",
+    "name": "atlassian-bitbucket-server-integration",
+    "message": "CSRF protection for any URL can be bypassed",
+    "url": "https://www.jenkins.io/security/advisory/2025-01-22/#SECURITY-3434",
+    "versions": [
+      {
+        "lastVersion": "4.1.3",
+        "pattern": "([1-3]|4[.]0|4[.]1[.][0-3])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3461",
+    "type": "plugin",
+    "name": "oic-auth",
+    "message": "Improper handling of case sensitivity",
+    "url": "https://www.jenkins.io/security/advisory/2025-01-22/#SECURITY-3461",
+    "versions": [
+      {
+        "lastVersion": "4.452.v2849b_d3945fa_",
+        "pattern": "([1-3]|4[.]22[0345789]|4[.]23[689]|4[.]25[07]|4[.]269|4[.]279|4[.]284|4[.]29[079]|4[.]303|4[.]32[049]|4[.]33[01]|4[.]34[06]|4[.]35[045]|4[.]371|4[.]388|4[.]409|4[.]41[18]|4[.]421|4[.]438[.]v6e62f6782770|4[.]444|4[.]452)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3485",
+    "type": "plugin",
+    "name": "eiffel-broadcaster",
+    "message": "Cache confusion",
+    "url": "https://www.jenkins.io/security/advisory/2025-01-22/#SECURITY-3485",
+    "versions": [
+      {
+        "lastVersion": "2.10.2",
+        "pattern": "(1|2[.][0-9]|2[.]10[.][0-2])(|[.-].+)"
+      }
+    ]
   }
 ]
