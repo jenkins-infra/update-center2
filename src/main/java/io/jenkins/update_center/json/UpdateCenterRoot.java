@@ -2,7 +2,6 @@ package io.jenkins.update_center.json;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.google.common.base.Functions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.update_center.BaseMavenRepository;
 import io.jenkins.update_center.Deprecations;
@@ -18,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -63,7 +63,7 @@ public class UpdateCenterRoot extends WithSignature {
         warnings = Arrays.asList(JSON.parseObject(warningsJsonText, UpdateCenterWarning[].class));
 
         // load deprecations
-        deprecations = new TreeMap<>(Deprecations.getDeprecatedPlugins().collect(Collectors.toMap(Functions.identity(), UpdateCenterRoot::deprecationForPlugin)));
+        deprecations = new TreeMap<>(Deprecations.getDeprecatedPlugins().collect(Collectors.toMap(Function.identity(), UpdateCenterRoot::deprecationForPlugin)));
 
         for (Plugin plugin : repo.listJenkinsPlugins()) {
             try {
