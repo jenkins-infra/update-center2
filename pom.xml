@@ -136,6 +136,16 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib-common</artifactId>
+        <version>1.9.25</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib-jdk8</artifactId>
+        <version>1.9.25</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -169,7 +179,7 @@
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp-urlconnection</artifactId>
-      <version>4.10.0</version>
+      <version>4.12.0</version>
     </dependency>
     <dependency>
       <groupId>jaxen</groupId>
@@ -241,19 +251,6 @@
       <version>1.18.3</version>
     </dependency>
 
-
-    <!-- for requireUpperBoundDeps -->
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib-common</artifactId>
-      <version>1.7.10</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>3.0.2</version>
-    </dependency>
-
     <!-- test dependencies -->
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -270,7 +267,7 @@
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>mockwebserver</artifactId>
-      <version>4.10.0</version>
+      <version>4.12.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
