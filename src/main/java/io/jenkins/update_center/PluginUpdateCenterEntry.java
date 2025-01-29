@@ -3,6 +3,7 @@ package io.jenkins.update_center;
 import com.alibaba.fastjson.annotation.JSONField;
 import hudson.util.VersionNumber;
 
+import java.util.ArrayList;
 import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -137,7 +138,13 @@ public class PluginUpdateCenterEntry {
     }
 
     public List<String> getLabels() throws IOException {
-        return latestOffered.getLabels();
+        List<String> labels = new ArrayList<>(latestOffered.getLabels());
+        if (getDevelopers().isEmpty() && !labels.contains("adopt-this-plugin")) {
+            // Plugins with no maintainers are by definition up for adoption
+            LOGGER.log(Level.INFO, () -> "Adding 'adopt-this-plugin' label to " + this.artifactId + " due to lack of maintainers");
+            labels.add("adopt-this-plugin");
+        }
+        return labels;
     }
 
     public String getDefaultBranch() throws IOException {
