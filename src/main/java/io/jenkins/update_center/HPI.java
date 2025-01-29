@@ -24,7 +24,6 @@
 package io.jenkins.update_center;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.google.common.annotations.VisibleForTesting;
 import hudson.util.VersionNumber;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -242,7 +241,6 @@ public class HPI extends MavenArtifact {
         return name;
     }
 
-    @VisibleForTesting
     static String simplifyPluginName(String name) {
         name = org.apache.commons.lang3.StringUtils.removeStart(name, "Jenkins ");
         name = org.apache.commons.lang3.StringUtils.removeStart(name, "Hudson ");
@@ -353,7 +351,6 @@ public class HPI extends MavenArtifact {
         return pluginUrl;
     }
 
-    @VisibleForTesting
     static String requireTopLevelUrl(String scmUrl) {
         if (scmUrl == null) {
             return null;
@@ -625,10 +622,8 @@ public class HPI extends MavenArtifact {
 
     // declared type is generic here because return value of com.google.common.base.Function::apply
     // (and hence PolicyFactory) is considered nullable, triggering SpotBugs warnings
-    @VisibleForTesting
     public static final Function<HtmlStreamEventReceiver, HtmlSanitizer.Policy> HTML_POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS).and(new HtmlPolicyBuilder().allowElements("a").requireRelsOnLinks("noopener", "noreferrer").allowAttributes("target").matching(false, "_blank").onElements("a").toFactory());
 
-    @VisibleForTesting
     public static final HtmlStreamEventProcessor PRE_PROCESSOR = receiver -> new HtmlStreamEventReceiverWrapper(receiver) {
         @Override
         public void openTag(String elementName, List<String> attrs) {

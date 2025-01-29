@@ -50,7 +50,7 @@ MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$
 echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
-version=3.15
+version=3.16
 coordinates=org/jenkins-ci/update-center2/$version/update-center2-$version-bin.zip
 
 if [[ -f "$MAIN_DIR"/tmp/generator-$version.zip ]] ; then
@@ -109,12 +109,12 @@ function sanity-check {
 # This supports updating Jenkins (core) once a year while getting offered compatible plugin updates.
 for version in "${WEEKLY_RELEASES[@]}" ; do
   # For mainline, advertising the latest core
-  generate --limit-plugin-core-dependency "$version" --write-latest-core --www-dir "$WWW_ROOT_DIR/dynamic-$version"
+  generate --limit-plugin-core-dependency "$version" --write-latest-core --write-timestamp --www-dir "$WWW_ROOT_DIR/dynamic-$version"
 done
 
 for version in "${STABLE_RELEASES[@]}" ; do
   # For LTS, advertising the latest LTS core
-  generate --limit-plugin-core-dependency "$version" --write-latest-core --www-dir "$WWW_ROOT_DIR/dynamic-stable-$version" --only-stable-core
+  generate --limit-plugin-core-dependency "$version" --write-latest-core --write-timestamp --www-dir "$WWW_ROOT_DIR/dynamic-stable-$version" --only-stable-core
 done
 
 # Experimental update center without version caps, including experimental releases.
@@ -126,7 +126,7 @@ generate --www-dir "$WWW_ROOT_DIR/experimental" --generate-recent-releases --wit
 # This generates -download after the experimental update site above to change the 'latest' symlinks to the latest released version.
 # This also generates --download-links-directory to only visibly show real releases on index.html pages.
 generate --generate-release-history --generate-recent-releases --generate-plugin-versions --generate-plugin-documentation-urls \
-    --write-latest-core --write-plugin-count \
+    --write-latest-core --write-timestamp --write-plugin-count \
     --www-dir "$WWW_ROOT_DIR/current" --download-links-directory "$WWW_ROOT_DIR/download" --downloads-directory "$DOWNLOAD_ROOT_DIR" --latest-links-directory "$WWW_ROOT_DIR/current/latest"
 
 # Actually run the update center build.

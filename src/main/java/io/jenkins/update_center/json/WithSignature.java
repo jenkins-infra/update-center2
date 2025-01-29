@@ -5,6 +5,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.jenkins.update_center.Signer;
 
+import io.jenkins.update_center.util.Timestamp;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,16 +15,12 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Support generation of JSON output with included checksum + signatures block for the same JSON output.
  */
 public abstract class WithSignature {
     private JsonSignature signature;
-    private final String generationTimestamp = DateTimeFormatter.ISO_DATE_TIME.format(Instant.now().atOffset(ZoneOffset.UTC).withNano(0));
 
     @JSONField
     public JsonSignature getSignature() {
@@ -37,7 +34,7 @@ public abstract class WithSignature {
      * @return a string with the current date and time in the format YYYY-MM-DD'T'HH:mm:ss'Z'
      */
     public String getGenerationTimestamp() {
-        return generationTimestamp;
+        return Timestamp.TIMESTAMP;
     }
 
     /**

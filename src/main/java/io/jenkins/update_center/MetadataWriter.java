@@ -1,6 +1,7 @@
 package io.jenkins.update_center;
 
 import hudson.util.VersionNumber;
+import io.jenkins.update_center.util.Timestamp;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.args4j.Option;
 
@@ -19,6 +20,7 @@ public class MetadataWriter {
     private static final Logger LOGGER = Logger.getLogger(MetadataWriter.class.getName());
     private static final String LATEST_CORE_FILENAME = "latestCore.txt";
     private static final String PLUGIN_COUNT_FILENAME = "pluginCount.txt";
+    private static final String TIMESTAMP_FILENAME = "timestamp.txt";
 
     @Option(name = "--write-plugin-count", usage = "Report the number of plugins published by the update site")
     public boolean generatePluginCount;
@@ -26,10 +28,13 @@ public class MetadataWriter {
     @Option(name = "--write-latest-core", usage = "Generate a text file with the core version offered by this update site")
     public boolean generateLatestCore;
 
+    @Option(name = "--write-timestamp", usage = "Generate a text file with the generation timestamp of this update site")
+    public boolean generateTimestamp;
+
     public void writeMetadataFiles(@Nonnull MavenRepository repository, @CheckForNull File outputDirectory) throws IOException {
         Objects.requireNonNull(repository, "repository");
 
-        if (!generateLatestCore && !generatePluginCount) {
+        if (!generateLatestCore && !generatePluginCount && !generateTimestamp) {
             LOGGER.log(Level.INFO, "Skipping generation of metadata files");
             return;
         }
@@ -56,6 +61,12 @@ public class MetadataWriter {
         if (generatePluginCount) {
             try (final FileOutputStream output = new FileOutputStream(new File(outputDirectory, PLUGIN_COUNT_FILENAME))) {
                 IOUtils.write(Integer.toString(repository.listJenkinsPlugins().size()), output, StandardCharsets.UTF_8);
+            }
+        }
+
+        if (generateTimestamp) {
+            try (final FileOutputStream output = new FileOutputStream(new File(outputDirectory, TIMESTAMP_FILENAME))) {
+                IOUtils.write(Timestamp.TIMESTAMP, output, StandardCharsets.UTF_8);
             }
         }
     }

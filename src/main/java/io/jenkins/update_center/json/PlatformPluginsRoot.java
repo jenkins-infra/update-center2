@@ -2,7 +2,7 @@ package io.jenkins.update_center.json;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.google.common.io.Files;
+import java.nio.file.Files;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -18,7 +18,7 @@ public class PlatformPluginsRoot extends WithSignature {
     public List<PlatformCategory> categories;
 
     public PlatformPluginsRoot(File referenceFile) throws IOException {
-        try (Reader r = Files.newReader(referenceFile, StandardCharsets.UTF_8)) {
+        try (Reader r = Files.newBufferedReader(referenceFile.toPath(), StandardCharsets.UTF_8)) {
             categories = Arrays.asList(JSON.parseObject(IOUtils.toString(r), PlatformCategory[].class));
         }
     }
