@@ -13,7 +13,7 @@
   <description>Generates update sites for updates.jenkins.io</description>
 
   <properties>
-    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.release>21</maven.compiler.release>
     <main.class>io.jenkins.update_center.Main</main.class>
     <spotbugs.failOnError>false</spotbugs.failOnError>
     <spotbugs.threshold>Low</spotbugs.threshold>
@@ -34,13 +34,6 @@
               <mainClass>${main.class}</mainClass>
             </manifest>
           </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
