@@ -1,16 +1,16 @@
 package io.jenkins.update_center;
 
 import io.jenkins.update_center.util.Environment;
-import io.jenkins.update_center.util.HttpHelper;
 import net.sf.json.JSONObject;
-import okhttp3.Credentials;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.annotation.CheckForNull;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,7 +58,6 @@ public class GitHubSource {
         this.repoNames = new TreeSet<>(String::compareToIgnoreCase);
 
         LOGGER.log(Level.INFO, "Retrieving GitHub repo data...");
-        OkHttpClient client = new OkHttpClient.Builder().build();
 
         boolean hasNextPage = true;
         String endCursor = null;
@@ -99,59 +98,62 @@ public class GitHubSource {
             ));
             LOGGER.log(Level.FINE, String.format("Retrieving GitHub topics with end token... %s", endCursor));
 
-            Request.Builder builder = new Request.Builder()
-                    .url(this.getGraphqlUrl())
-                    .post(RequestBody.create(jsonObject.toString(), MediaType.parse("application/json; charset=utf-8")));
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonObject.toString()))
+                    .uri(URI.create(getGraphqlUrl()));
             if (GITHUB_API_PASSWORD != null && GITHUB_API_USERNAME != null) {
-                builder = builder.header("Authorization", Credentials.basic(GITHUB_API_USERNAME, GITHUB_API_PASSWORD));
-            }
-            Request request = builder.build();
-
-            String bodyString = HttpHelper.getResponseBody(client, request);
-
-            JSONObject jsonResponse = JSONObject.fromObject(bodyString);
-            if (jsonResponse.has("errors")) {
-                throw new IOException(
-                        jsonResponse.getJSONArray("errors").toString()// .stream().map(o -> ((JSONObject)o).getString("message")).collect( Collectors.joining( "," ) )
+                builder = builder.header(
+                        "Authorization",
+                        "Basic %s".formatted(Base64.encodeBase64String("%s:%s".formatted(GITHUB_API_USERNAME, GITHUB_API_PASSWORD).getBytes(StandardCharsets.UTF_8)))
                 );
             }
-
-            if (jsonResponse.has("message") && !jsonResponse.has("data")) {
-                throw new IOException(jsonResponse.getString("message"));
-            }
-
-            JSONObject repositories = jsonResponse.getJSONObject("data").getJSONObject("organization").getJSONObject("repositories");
-
-            hasNextPage = repositories.getJSONObject("pageInfo").getBoolean("hasNextPage");
-            endCursor = repositories.getJSONObject("pageInfo").getString("endCursor");
-
-            for (Object repository : repositories.getJSONArray("edges")) {
-                JSONObject node = ((JSONObject) repository).getJSONObject("node");
-                String name = node.getString("name");
-                this.repoNames.add("https://github.com/" + organization + "/" + name);
-
-                if (node.optJSONObject("defaultBranchRef") == null) {
-                    // empty repo, so ignore everything else
-                    LOGGER.log(Level.WARNING, "Unexpected empty GitHub repository: " + name);
-                    continue;
-                }
-                final String defaultBranchName = node.getJSONObject("defaultBranchRef").getString("name");
-                if (defaultBranchName != null) {
-                    this.defaultBranches.put(organization + "/" + name, defaultBranchName);
-                }
-
-                if (node.getJSONObject("repositoryTopics").getJSONArray("edges").size() == 0) {
-                    continue;
-                }
-                this.topicNames.put(organization + "/" + name, new ArrayList<>());
-                for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
-                    this.topicNames.get(organization + "/" + name).add(
-                            ((JSONObject) repositoryTopic)
-                                    .getJSONObject("node")
-                                    .getJSONObject("topic")
-                                    .getString("name")
+            HttpRequest request = builder.build();
+            try (HttpClient client = HttpClient.newHttpClient()) {
+                final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                final JSONObject jsonResponse = JSONObject.fromObject(response.body());
+                if (jsonResponse.has("errors")) {
+                    throw new IOException(
+                            jsonResponse.getJSONArray("errors").toString()// .stream().map(o -> ((JSONObject)o).getString("message")).collect( Collectors.joining( "," ) )
                     );
                 }
+                if (jsonResponse.has("message") && !jsonResponse.has("data")) {
+                    throw new IOException(jsonResponse.getString("message"));
+                }
+                JSONObject repositories = jsonResponse.getJSONObject("data").getJSONObject("organization").getJSONObject("repositories");
+
+                hasNextPage = repositories.getJSONObject("pageInfo").getBoolean("hasNextPage");
+                endCursor = repositories.getJSONObject("pageInfo").getString("endCursor");
+
+                for (Object repository : repositories.getJSONArray("edges")) {
+                    JSONObject node = ((JSONObject) repository).getJSONObject("node");
+                    String name = node.getString("name");
+                    this.repoNames.add("https://github.com/" + organization + "/" + name);
+
+                    if (node.optJSONObject("defaultBranchRef") == null) {
+                        // empty repo, so ignore everything else
+                        LOGGER.log(Level.WARNING, "Unexpected empty GitHub repository: " + name);
+                        continue;
+                    }
+                    final String defaultBranchName = node.getJSONObject("defaultBranchRef").getString("name");
+                    if (defaultBranchName != null) {
+                        this.defaultBranches.put(organization + "/" + name, defaultBranchName);
+                    }
+
+                    if (node.getJSONObject("repositoryTopics").getJSONArray("edges").isEmpty()) {
+                        continue;
+                    }
+                    this.topicNames.put(organization + "/" + name, new ArrayList<>());
+                    for (Object repositoryTopic : node.getJSONObject("repositoryTopics").getJSONArray("edges")) {
+                        this.topicNames.get(organization + "/" + name).add(
+                                ((JSONObject) repositoryTopic)
+                                        .getJSONObject("node")
+                                        .getJSONObject("topic")
+                                        .getString("name")
+                        );
+                    }
+                }
+            } catch(InterruptedException e) {
+                throw new IOException(e);
             }
         }
         LOGGER.log(Level.INFO, "Retrieved GitHub repo data");
@@ -176,7 +178,6 @@ public class GitHubSource {
         }
         return instance;
     }
-
 
     public boolean isRepoExisting(String url) {
         return repoNames.contains(url);
