@@ -3,16 +3,13 @@ package io.jenkins.update_center;
 import com.alibaba.fastjson.JSON;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.update_center.util.Environment;
-import io.jenkins.update_center.util.HttpHelper;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Iterator;
 import java.util.function.Predicate;
-import okhttp3.Credentials;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -162,13 +159,21 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         }
         LOGGER.log(Level.INFO, "Initializing " + this.getClass().getName());
 
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        Request request = new Request.Builder().url(ARTIFACTORY_AQL_URL).addHeader("Authorization", Credentials.basic(username, password)).post(RequestBody.create(AQL_QUERY, MediaType.parse("text/plain; charset=utf-8"))).build();
-        try (final ResponseBody body = HttpHelper.body(client.newCall(request).execute())) {
-            final MediaType mediaType = body.contentType();
-            JsonResponse json = JSON.parseObject(body.byteStream(), mediaType == null ? StandardCharsets.UTF_8 : mediaType.charset(), JsonResponse.class);
-            json.results.forEach(it -> this.files.put("/" + it.path + "/" + it.name, it));
+        final HttpRequest request = HttpRequest.newBuilder(URI.create(ARTIFACTORY_AQL_URL))
+                .POST(HttpRequest.BodyPublishers.ofString(AQL_QUERY))
+                .header("Accept", "application/json")
+                .header("Authorization", "Basic " +  (Base64.encodeBase64String((username + ":" + password).getBytes(StandardCharsets.UTF_8))))
+                .build();
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            JSON.parseObject(response.body(), JsonResponse.class)
+                    .results
+                    .forEach(result -> this.files.put("/" + result.path + "/" + result.name, result));
+        } catch(InterruptedException e) {
+            throw new IOException(e);
         }
+
         this.poms = this.files.values().stream().filter(it -> it.name.endsWith(".pom")).map(ArtifactoryRepositoryImpl::toGav).filter(Objects::nonNull).collect(Collectors.toSet());
         this.plugins = this.files.values().stream().filter(it -> it.name.endsWith(".hpi") || it.name.endsWith(".jpi")).map(ArtifactoryRepositoryImpl::toGav).filter(Objects::nonNull).collect(Collectors.toSet());
         removeIf(this.plugins, it -> !this.poms.contains(new ArtifactCoordinates(it.groupId, it.artifactId, it.version, "pom")));
@@ -256,7 +261,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private File getFile(final String url) throws IOException {
-        final String path = new URL(url).getPath();
+        final String path = URI.create(url).getPath();
         final String sha256 = DigestUtils.sha256Hex(path);
         final String sha256prefix = sha256.substring(0, 2); // to limit number of files in top-level directory
         final File cachePrefixDir = new File(cacheDirectory, sha256prefix);
@@ -274,28 +279,29 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                 throw new IllegalStateException("Failed to create non-existing directory " + parentFile);
             }
             try {
-                OkHttpClient.Builder builder = new OkHttpClient.Builder();
-                OkHttpClient client = builder.build();
-                Request request = new Request.Builder().addHeader("Authorization", Credentials.basic(username, password)).url(url).get().build();
-                final Response response = client.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    try (final ResponseBody body = HttpHelper.body(response)) {
-                        try (InputStream inputStream = body.byteStream(); ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
-                            IOUtils.copy(inputStream, tos);
-                            if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
-                                final String value = baos.toString("UTF-8");
-                                LOGGER.log(Level.FINE, () -> "Caching in memory: " + url + " with content: " + value);
-                                this.cache.put(url, value);
-                            }
+                final HttpClient client = HttpClient.newHttpClient();
+                final HttpRequest request = HttpRequest.newBuilder()
+                        .GET()
+                        .uri(URI.create(url))
+                        .header("Authorization", "Basic " +  (Base64.encodeBase64String((username + ":" + password).getBytes(StandardCharsets.UTF_8))))
+                        .build();
+                final HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                if (response.statusCode() == 200 || response.statusCode() == 204) {
+                    try (InputStream is = response.body(); final ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
+                        IOUtils.copy(is, tos);
+                        if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
+                            final String value = baos.toString(StandardCharsets.UTF_8);
+                            LOGGER.log(Level.FINE, () -> "Caching in memory: " + url + " with content: " + value);
+                            this.cache.put(url, value);
                         }
                     }
                 } else {
-                    LOGGER.log(Level.INFO, "Received HTTP error response: " + response.code() + " for URL: " + url);
+                    LOGGER.log(Level.INFO, "Received HTTP error response: " + response.statusCode() + " for URL: " + url);
                     if (!cacheFile.mkdir()) {
                         LOGGER.log(Level.WARNING, "Failed to create cache 'not found' directory" + cacheFile);
                     }
                 }
-            } catch (RuntimeException e) {
+            } catch (RuntimeException | InterruptedException e) {
                 throw new IOException(e);
             }
         } else {

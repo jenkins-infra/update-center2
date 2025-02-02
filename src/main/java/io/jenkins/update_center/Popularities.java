@@ -1,11 +1,12 @@
 package io.jenkins.update_center;
 
 import com.alibaba.fastjson.JSON;
-import io.jenkins.update_center.util.HttpHelper;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,17 +34,24 @@ public class Popularities {
     }
 
     private static void initialize() throws IOException {
-        Request request = new Request.Builder().url(JSON_URL).get().build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(JSON_URL))
+                .build();
+        try {
+            final HttpClient client = HttpClient.newHttpClient();
+            final HttpResponse<String> httpResp = client.send(request, HttpResponse.BodyHandlers.ofString());
+            final JsonResponse response = JSON.parseObject(httpResp.body(), JsonResponse.class);
 
-        String bodyString = HttpHelper.getResponseBody(new OkHttpClient(), request);
-
-        JsonResponse response = JSON.parseObject(bodyString, JsonResponse.class);
-        if (response.plugins == null) {
-            throw new IllegalArgumentException("Specified popularity URL '" + JSON_URL + "' does not contain a JSON object 'plugins'");
+            if (response.plugins == null) {
+                throw new IllegalArgumentException("Specified popularity URL '" + JSON_URL + "' does not contain a JSON object 'plugins'");
+            }
+            Map<String, Integer> popularities = response.plugins.keySet().stream()
+                    .collect(Collectors.toMap(Function.identity(), value -> Integer.valueOf(response.plugins.get(value))));
+            instance = new Popularities(popularities);
+        } catch(InterruptedException e) {
+            throw new IOException(e);
         }
-
-        Map<String, Integer> popularities = response.plugins.keySet().stream().collect(Collectors.toMap(Function.identity(), value -> Integer.valueOf(response.plugins.get(value))));
-        instance = new Popularities(popularities);
     }
 
     private static class JsonResponse {

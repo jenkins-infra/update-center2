@@ -1,6 +1,10 @@
 package io.jenkins.update_center;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -8,9 +12,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSON;
-import io.jenkins.update_center.util.HttpHelper;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 
 /**
  * Health score is an integer, from 0 to 100, which represents the health of the plugin.
@@ -39,18 +40,21 @@ public class HealthScores {
     }
 
     private static void initialize() {
-        final Request request = new Request.Builder().url(HEALTH_SCORES_URL).get().build();
+        final HttpRequest request = HttpRequest.newBuilder(URI.create(HEALTH_SCORES_URL))
+                .GET()
+                .build();
 
-        try {
-            final String bodyString = HttpHelper.getResponseBody(new OkHttpClient(), request);
-            final JsonResponse response = JSON.parseObject(bodyString, JsonResponse.class);
-            if (response.plugins == null) {
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            final JsonResponse jsonResponse = JSON.parseObject(response.body(), JsonResponse.class);
+            if (jsonResponse.plugins == null) {
                 throw new IOException("Specified popularity URL '" + HEALTH_SCORES_URL + "' does not contain a JSON object 'plugins'");
             }
 
-            final Map<String, Integer> healthScores = response.plugins.keySet().stream().collect(Collectors.toMap(Function.identity(), pluginId -> response.plugins.get(pluginId).value));
+            final Map<String, Integer> healthScores = jsonResponse.plugins.keySet().stream()
+                    .collect(Collectors.toMap(Function.identity(), pluginId -> jsonResponse.plugins.get(pluginId).value));
             instance = new HealthScores(healthScores);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             LOGGER.log(Level.WARNING, e.getMessage());
             instance = new HealthScores(Map.of());
         }
