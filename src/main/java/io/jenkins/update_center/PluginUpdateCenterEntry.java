@@ -191,7 +191,7 @@ public class PluginUpdateCenterEntry {
         return Popularities.getInstance().getPopularity(artifactId);
     }
 
-    public int getHealthScore() throws IOException {
+    public int getHealthScore() {
         return HealthScores.getInstance().getHealthScore(artifactId);
     }
 
