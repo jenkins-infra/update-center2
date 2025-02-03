@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.update_center.util.Environment;
 import io.jenkins.update_center.util.HttpHelper;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.function.Predicate;
 import okhttp3.Credentials;
@@ -42,6 +44,7 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 
 public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     private static final Logger LOGGER = Logger.getLogger(ArtifactoryRepositoryImpl.class.getName());
@@ -256,14 +259,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private File getFile(final String url) throws IOException {
-        final String path = new URL(url).getPath();
-        final String sha256 = DigestUtils.sha256Hex(path);
-        final String sha256prefix = sha256.substring(0, 2); // to limit number of files in top-level directory
-        final File cachePrefixDir = new File(cacheDirectory, sha256prefix);
-        if (!cachePrefixDir.exists() && !cachePrefixDir.mkdirs()) {
-            LOGGER.log(Level.WARNING, "Failed to create cache prefix directory " + cachePrefixDir);
-        }
-        File cacheFile = new File(cachePrefixDir, sha256);
+        File cacheFile = getCacheFile(url);
 
         if (!cacheFile.exists()) {
             // High log level, but during regular operation this will indicate when an artifact is newly picked up, so useful to know.
@@ -313,6 +309,24 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         return cacheFile;
     }
 
+    /**
+     * Computes the file name for the cache file based on the URL
+     * @param url the URL
+     * @return the cache file name
+     * @throws MalformedURLException
+     */
+    @NotNull
+    private File getCacheFile(String url) throws MalformedURLException {
+        final String path = new URL(url).getPath();
+        final String sha256 = DigestUtils.sha256Hex(path);
+        final String sha256prefix = sha256.substring(0, 2); // to limit number of files in top-level directory
+        final File cachePrefixDir = new File(cacheDirectory, sha256prefix);
+        if (!cachePrefixDir.exists() && !cachePrefixDir.mkdirs()) {
+            LOGGER.log(Level.WARNING, "Failed to create cache prefix directory " + cachePrefixDir);
+        }
+        return new File(cachePrefixDir, sha256);
+    }
+
     @Override
     public InputStream getZipFileEntry(MavenArtifact artifact, String path) throws IOException {
         return getFileContent(String.format(ARTIFACTORY_ZIP_ENTRY_URL, ARTIFACTORY_REPOSITORY, getUri(artifact.artifact), StringUtils.prependIfMissing(path, "/")));
@@ -323,10 +337,22 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         /* Support loading files from local Maven repository to reduce redundancy */
         final String uri = getUri(artifact);
         final File localFile = new File(LOCAL_REPO, uri);
+        final String url = String.format(ARTIFACTORY_FILE_URL, ARTIFACTORY_REPOSITORY, uri);
         if (localFile.exists()) {
+            File cacheFile = getCacheFile(url);
+            final File cacheFileParent = cacheFile.getParentFile();
+            if (!cacheFile.exists() && (cacheFileParent.isDirectory() || cacheFileParent.mkdirs())) {
+                /* Create hard link cache file to local Maven repo, anticipating removal of the latter */
+                try {
+                    Files.createLink(cacheFile.toPath(), localFile.toPath());
+                } catch (IOException ex) {
+                    // Since this is only to prepare migration to caches/artifactory, make this non-fatal
+                    LOGGER.log(Level.WARNING, () -> "Failed to link from " + localFile + " to " + cacheFile + ": " + ex.getMessage());
+                }
+            }
             return localFile;
         }
-        return getFile(String.format(ARTIFACTORY_FILE_URL, ARTIFACTORY_REPOSITORY, uri));
+        return getFile(url);
     }
 
     private static final File LOCAL_REPO = new File(new File(System.getProperty("user.home")), ".m2/repository");
