@@ -56,7 +56,7 @@ public class HealthScores {
         public int value;
     }
 
-    public int getHealthScore(String pluginId) {
-        return this.healthScores.getOrDefault(pluginId, 0);
+    public Integer getHealthScore(String pluginId) {
+        return this.healthScores.getOrDefault(pluginId, null);
     }
 }
