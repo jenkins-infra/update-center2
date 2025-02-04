@@ -37,7 +37,7 @@ public class HealthScores {
             final String bodyString = HttpHelper.getResponseBody(new OkHttpClient(), request);
             final JsonResponse response = JSON.parseObject(bodyString, JsonResponse.class);
             if (response.plugins == null) {
-                throw new IllegalArgumentException("Specified popularity URL '" + HEALTH_SCORES_URL + "' does not contain a JSON object 'plugins'");
+                throw new IOException("Specified popularity URL '" + HEALTH_SCORES_URL + "' does not contain a JSON object 'plugins'");
             }
 
             final Map<String, Integer> healthScores = response.plugins.keySet().stream().collect(Collectors.toMap(Function.identity(), pluginId -> response.plugins.get(pluginId).value));
@@ -57,6 +57,6 @@ public class HealthScores {
     }
 
     public Integer getHealthScore(String pluginId) {
-        return this.healthScores.getOrDefault(pluginId, null);
+        return this.healthScores.get(pluginId);
     }
 }
