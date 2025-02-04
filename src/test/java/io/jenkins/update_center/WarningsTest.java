@@ -1,22 +1,19 @@
 package io.jenkins.update_center;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.apache.commons.io.IOUtils;
-import org.apache.tools.ant.taskdefs.condition.Http;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +24,7 @@ import java.util.regex.Pattern;
 public class WarningsTest {
     @Test
     public void testValidJsonFile() throws Exception {
-        String warningsText = IOUtils.toString(new FileInputStream(new File("resources/warnings.json")));
+        String warningsText = IOUtils.toString(Files.newInputStream(new File("resources/warnings.json").toPath()), Charset.defaultCharset());
         JSONArray warnings = JSONArray.fromObject(warningsText);
 
         for (int i = 0 ; i < warnings.size() ; i++) {
@@ -49,7 +46,7 @@ public class WarningsTest {
 
     private void assertNonEmptyString(String str) {
         Assert.assertNotNull(str);
-        Assert.assertFalse("".equals(str));
+        Assert.assertFalse(str.isEmpty());
     }
 
     static class Warning {
@@ -60,7 +57,7 @@ public class WarningsTest {
     private Map<String, List<Warning>> loadPluginWarnings() throws IOException {
         Map<String, List<Warning>> loadedWarnings = new HashMap<>();
 
-        String warningsText = IOUtils.toString(Files.newInputStream(new File(Main.resourcesDir, "warnings.json").toPath()));
+        String warningsText = IOUtils.toString(Files.newInputStream(new File(Main.resourcesDir, "warnings.json").toPath()), Charset.defaultCharset());
         JSONArray warnings = JSONArray.fromObject(warningsText);
 
         for (int i = 0 ; i < warnings.size() ; i++) {

@@ -7,6 +7,7 @@ import io.jenkins.update_center.util.Environment;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class IssueTrackerSource {
 
     private void init() {
         try {
-            final String jsonData = IOUtils.toString(new URL(DATA_URL), StandardCharsets.UTF_8);
+            final String jsonData = IOUtils.toString(URI.create(DATA_URL).toURL(), StandardCharsets.UTF_8);
             pluginToIssueTrackers = JSON.parseObject(jsonData, new TypeReferenceForHashMapFromStringToListOfIssueTracker().getType());
         } catch (RuntimeException | IOException ex) {
             LOGGER.log(Level.WARNING, ex.getMessage());

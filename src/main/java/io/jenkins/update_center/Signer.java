@@ -133,8 +133,8 @@ public class Signer {
             // this is for computing a digest
             sha1 = DigestUtils.getSha1Digest();
             sha512 = DigestUtils.getSha512Digest();
-            DigestOutputStream dos1 = new DigestOutputStream(new NullOutputStream(), sha1);
-            DigestOutputStream dos512 = new DigestOutputStream(new NullOutputStream(), sha512);
+            DigestOutputStream dos1 = new DigestOutputStream(NullOutputStream.INSTANCE, sha1);
+            DigestOutputStream dos512 = new DigestOutputStream(NullOutputStream.INSTANCE, sha512);
 
             // this is for computing a signature
             sha1sig = Signature.getInstance("SHA1withRSA");
@@ -193,7 +193,7 @@ public class Signer {
                 c.checkValidity(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(MINIMUM_VALIDITY_DURATION)));
                 if (certs.isEmpty()) {
                     // This is the first cert we add to the list, i.e. it's the one most likely to expire soonest
-                    LOGGER.log(Level.INFO, () -> "Update site certificate: Subject: " + c.getSubjectDN() + " Issuer: " + c.getIssuerDN() + " NotBefore: " + c.getNotBefore() + " NotAfter: " + c.getNotAfter());
+                    LOGGER.log(Level.INFO, () -> "Update site certificate: Subject: " + c.getSubjectX500Principal() + " Issuer: " + c.getIssuerX500Principal() + " NotBefore: " + c.getNotBefore() + " NotAfter: " + c.getNotAfter());
                 }
                 certs.add(c);
             }
@@ -214,7 +214,7 @@ public class Signer {
             LOGGER.log(Level.CONFIG, "Trust anchor: " + anchor);
         }
 
-        if (rootCA == null || rootCA.size() == 0) {
+        if (rootCA == null || rootCA.isEmpty()) {
             LOGGER.log(Level.WARNING, "No root CA specified, skipping path validation");
         } else {
             try {

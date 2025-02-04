@@ -70,7 +70,7 @@ public class IndexHtmlBuilder implements Closeable {
 
     private static PrintWriter openIndexHtml(File dir) throws IOException {
         if (dir == null) {
-            return new PrintWriter(new NullWriter()); // ignore output
+            return new PrintWriter(NullWriter.INSTANCE); // ignore output
         }
 
         if (!dir.mkdirs() && !dir.isDirectory()) {
