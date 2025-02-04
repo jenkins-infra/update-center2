@@ -12,6 +12,14 @@ import io.jenkins.update_center.util.HttpHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
+/**
+ * Health score is an integer, from 0 to 100, which represents the health of the plugin.
+ * The health is determined by the Plugin Health Scoring project hosted on https://github.com/jenkins-infra/plugin-health-scoring.
+ * <p>
+ * The list of plugins on which the scores are computed by this project is coming from the update-center file.
+ * This means that when a plugin is for the first time in the update-center, it won't have any score.
+ * </p>
+ */
 public class HealthScores {
     private static final Logger LOGGER = Logger.getLogger(HealthScores.class.getName());
     private static final String HEALTH_SCORES_URL = "https://reports.jenkins.io/plugin-health-scoring/scores.json";
