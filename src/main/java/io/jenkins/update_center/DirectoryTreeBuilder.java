@@ -8,6 +8,7 @@ import org.kohsuke.args4j.Option;
 import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -169,7 +170,7 @@ public class DirectoryTreeBuilder {
         try {
             if (p.waitFor() != 0) {
                 throw new IOException("'ln -f " + src.getAbsolutePath() + " " + dst.getAbsolutePath() +
-                        "' failed with code " + p.exitValue() + "\nError: " + IOUtils.toString(p.getErrorStream()) + "\nOutput: " + IOUtils.toString(p.getInputStream()));
+                        "' failed with code " + p.exitValue() + "\nError: " + IOUtils.toString(p.getErrorStream(), Charset.defaultCharset()) + "\nOutput: " + IOUtils.toString(p.getInputStream(), Charset.defaultCharset()));
             } else {
                 LOGGER.log(Level.INFO, "Created new download file " + dst + " from " + src);
             }

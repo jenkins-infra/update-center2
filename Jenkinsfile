@@ -14,8 +14,8 @@ node('linux') {
     stage('Generate') {
         withEnv([
                 "PATH+MVN=${tool 'mvn'}/bin",
-                "JAVA_HOME=${tool 'jdk11'}",
-                "PATH+JAVA=${tool 'jdk11'}/bin"
+                "JAVA_HOME=${tool 'jdk21'}",
+                "PATH+JAVA=${tool 'jdk21'}/bin"
         ]) {
             sh 'mvn -e clean verify'
         }

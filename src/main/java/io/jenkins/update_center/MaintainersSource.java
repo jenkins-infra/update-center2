@@ -30,6 +30,7 @@ import io.jenkins.update_center.util.Environment;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
@@ -97,7 +98,7 @@ public class MaintainersSource {
     private void init() {
         // Obtain maintainer info
         try {
-            final String jsonData = IOUtils.toString(new URL(MAINTAINERS_INFO_URL), StandardCharsets.UTF_8);
+            final String jsonData = IOUtils.toString(URI.create(MAINTAINERS_INFO_URL).toURL(), StandardCharsets.UTF_8);
             final List<JsonMaintainer> rawMaintainersInfo = JSON.parseObject(jsonData, new TypeReferenceForListOfJsonMaintainer().getType());
             maintainerInfo = new HashMap<>();
             rawMaintainersInfo.forEach(m -> {
@@ -113,7 +114,7 @@ public class MaintainersSource {
 
         // Obtain plugin/maintainers mapping
         try {
-            final String jsonData = IOUtils.toString(new URL(PLUGIN_MAINTAINERS_DATA_URL), StandardCharsets.UTF_8);
+            final String jsonData = IOUtils.toString(URI.create(PLUGIN_MAINTAINERS_DATA_URL).toURL(), StandardCharsets.UTF_8);
             pluginToMaintainers = JSON.parseObject(jsonData, new TypeReferenceForHashMapFromStringToListOfString().getType());
         } catch (RuntimeException | IOException ex) {
             pluginToMaintainers = new HashMap<>();
@@ -126,10 +127,10 @@ public class MaintainersSource {
         if (pluginToMaintainers.containsKey(ga)) {
             return pluginToMaintainers.get(ga);
         }
-        final List<String> candidateGAs = pluginToMaintainers.keySet().stream().filter(s -> s.endsWith(":" + plugin.artifactId)).collect(Collectors.toList());
+        final List<String> candidateGAs = pluginToMaintainers.keySet().stream().filter(s -> s.endsWith(":" + plugin.artifactId)).toList();
         switch (candidateGAs.size()) {
             case 1:
-                final String key = candidateGAs.get(0);
+                final String key = candidateGAs.getFirst();
                 LOGGER.log(Level.INFO, "Apparent mismatch of group IDs between permissions assignment: " + key + " and latest available release of plugin: " + plugin);
                 return pluginToMaintainers.get(key);
             case 0:
