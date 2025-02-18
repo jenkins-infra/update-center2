@@ -15023,19 +15023,6 @@
     ]
   },
   {
-    "id": "SECURITY-2786",
-    "type": "plugin",
-    "name": "jira-steps",
-    "message": "CSRF vulnerability and missing permission checks",
-    "url": "https://www.jenkins.io/security/advisory/2023-01-24/#SECURITY-2786",
-    "versions": [
-      {
-        "lastVersion": "2.0.165.v8846cf59f3db",
-        "pattern": ".*"
-      }
-    ]
-  },
-  {
     "id": "SECURITY-2787",
     "type": "plugin",
     "name": "view-cloner",
