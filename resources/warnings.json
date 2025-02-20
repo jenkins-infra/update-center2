@@ -5308,7 +5308,7 @@
     "versions": [
       {
         "lastVersion": "1.2",
-        "pattern": ".*"
+        "pattern": "1[.].*"
       }
     ]
   },
