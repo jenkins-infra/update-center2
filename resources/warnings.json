@@ -14997,19 +14997,6 @@
     ]
   },
   {
-    "id": "SECURITY-2774",
-    "type": "plugin",
-    "name": "jira-steps",
-    "message": "Keys stored in plain text",
-    "url": "https://www.jenkins.io/security/advisory/2023-01-24/#SECURITY-2774",
-    "versions": [
-      {
-        "lastVersion": "2.0.165.v8846cf59f3db",
-        "pattern": ".*"
-      }
-    ]
-  },
-  {
     "id": "SECURITY-2778",
     "type": "plugin",
     "name": "rabbitmq-consumer",
