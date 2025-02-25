@@ -48,7 +48,7 @@ public class HealthScores {
             final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             final JsonResponse jsonResponse = JSON.parseObject(response.body(), JsonResponse.class);
             if (jsonResponse.plugins == null) {
-                throw new IOException("Specified popularity URL '" + HEALTH_SCORES_URL + "' does not contain a JSON object 'plugins'");
+                throw new IOException("Specified healthScore URL '" + HEALTH_SCORES_URL + "' does not contain a JSON object 'plugins'");
             }
 
             final Map<String, Integer> healthScores = jsonResponse.plugins.keySet().stream()
