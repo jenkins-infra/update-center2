@@ -159,7 +159,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
         }
         LOGGER.log(Level.INFO, "Initializing " + this.getClass().getName());
 
-        final HttpRequest request = HttpRequest.newBuilder(URI.create(ARTIFACTORY_AQL_URL))
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(ARTIFACTORY_AQL_URL))
                 .POST(HttpRequest.BodyPublishers.ofString(AQL_QUERY))
                 .header("Accept", "application/json")
                 .header("Authorization", "Basic " +  (Base64.encodeBase64String((username + ":" + password).getBytes(StandardCharsets.UTF_8))))

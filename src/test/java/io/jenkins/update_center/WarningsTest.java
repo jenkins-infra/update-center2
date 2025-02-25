@@ -120,8 +120,8 @@ public class WarningsTest {
         JSONObject json;
         try (final HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()) {
             final HttpRequest request = HttpRequest.newBuilder()
-                    .GET()
                     .uri(URI.create("https://updates.jenkins.io/release-history.json"))
+                    .GET()
                     .build();
             final String body = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
             json = JSONObject.fromObject(body);

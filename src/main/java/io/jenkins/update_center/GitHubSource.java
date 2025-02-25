@@ -99,8 +99,8 @@ public class GitHubSource {
             LOGGER.log(Level.FINE, String.format("Retrieving GitHub topics with end token... %s", endCursor));
 
             HttpRequest.Builder builder = HttpRequest.newBuilder()
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonObject.toString()))
-                    .uri(URI.create(getGraphqlUrl()));
+                    .uri(URI.create(getGraphqlUrl()))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonObject.toString()));
             if (GITHUB_API_PASSWORD != null && GITHUB_API_USERNAME != null) {
                 builder = builder.header(
                         "Authorization",

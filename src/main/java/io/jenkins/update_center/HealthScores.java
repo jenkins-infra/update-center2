@@ -40,7 +40,8 @@ public class HealthScores {
     }
 
     private static void initialize() {
-        final HttpRequest request = HttpRequest.newBuilder(URI.create(HEALTH_SCORES_URL))
+        final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(HEALTH_SCORES_URL))
                 .GET()
                 .build();
 

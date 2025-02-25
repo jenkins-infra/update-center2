@@ -35,8 +35,8 @@ public class Popularities {
 
     private static void initialize() throws IOException {
         HttpRequest request = HttpRequest.newBuilder()
-                .GET()
                 .uri(URI.create(JSON_URL))
+                .GET()
                 .build();
         try (final HttpClient client = HttpClient.newHttpClient()) {
             final HttpResponse<String> httpResp = client.send(request, HttpResponse.BodyHandlers.ofString());
