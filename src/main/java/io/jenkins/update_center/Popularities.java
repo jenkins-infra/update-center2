@@ -38,8 +38,7 @@ public class Popularities {
                 .GET()
                 .uri(URI.create(JSON_URL))
                 .build();
-        try {
-            final HttpClient client = HttpClient.newHttpClient();
+        try (final HttpClient client = HttpClient.newHttpClient()) {
             final HttpResponse<String> httpResp = client.send(request, HttpResponse.BodyHandlers.ofString());
             final JsonResponse response = JSON.parseObject(httpResp.body(), JsonResponse.class);
 

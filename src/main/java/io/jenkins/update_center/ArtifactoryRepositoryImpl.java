@@ -164,8 +164,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                 .header("Accept", "application/json")
                 .header("Authorization", "Basic " +  (Base64.encodeBase64String((username + ":" + password).getBytes(StandardCharsets.UTF_8))))
                 .build();
-        try {
-            HttpClient client = HttpClient.newHttpClient();
+        try (HttpClient client = HttpClient.newHttpClient()) {
             final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             JSON.parseObject(response.body(), JsonResponse.class)
                     .results
@@ -278,8 +277,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
                 throw new IllegalStateException("Failed to create non-existing directory " + parentFile);
             }
-            try {
-                final HttpClient client = HttpClient.newHttpClient();
+            try (final HttpClient client = HttpClient.newHttpClient()) {
                 final HttpRequest request = HttpRequest.newBuilder()
                         .GET()
                         .uri(URI.create(url))

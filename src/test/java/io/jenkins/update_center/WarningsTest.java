@@ -4,10 +4,7 @@ import junit.framework.Assert;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.apache.commons.io.IOUtils;
-import org.apache.tools.ant.taskdefs.condition.Http;
 import org.junit.Test;
 
 import java.io.File;
@@ -121,8 +118,7 @@ public class WarningsTest {
         Map<String, List<Warning>> warnings = loadPluginWarnings();
 
         JSONObject json;
-        try {
-            final HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+        try (final HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()) {
             final HttpRequest request = HttpRequest.newBuilder()
                     .GET()
                     .uri(URI.create("https://updates.jenkins.io/release-history.json"))

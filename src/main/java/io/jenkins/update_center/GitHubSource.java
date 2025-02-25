@@ -108,8 +108,7 @@ public class GitHubSource {
                 );
             }
             HttpRequest request = builder.build();
-            try {
-                final HttpClient client = HttpClient.newHttpClient();
+            try (final HttpClient client = HttpClient.newHttpClient()) {
                 final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 final JSONObject jsonResponse = JSONObject.fromObject(response.body());
                 if (jsonResponse.has("errors")) {
