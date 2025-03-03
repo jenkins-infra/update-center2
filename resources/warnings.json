@@ -16863,7 +16863,7 @@
     "versions": [
       {
         "lastVersion": "5.v77a_37f62782d",
-        "pattern": ".*"
+        "pattern": "(1|5)[.].+)"
       }
     ]
   },
