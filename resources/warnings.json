@@ -18398,5 +18398,44 @@
         "pattern": "(1|2[.]107|2[.]121|2[.]138|2[.]150|2[.]164|2[.]176|2[.]19|2[.]190|2[.]204|2[.]222|2[.]235|2[.]249|2[.]263|2[.]277|2[.]289|2[.]303|2[.]319|2[.]32|2[.]332|2[.]346|2[.]361|2[.]375|2[.]387|2[.]401|2[.]414|2[.]426|2[.]440|2[.]452|2[.]46|2[.]462|2[.]479|2[.]492[.]1|2[.]60|2[.]7|2[.]73|2[.]89)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3404",
+    "type": "plugin",
+    "name": "eddsa-api",
+    "message": "EdDSA implementation exhibits signature malleability",
+    "url": "https://www.jenkins.io/security/advisory/2025-03-19/#SECURITY-3404",
+    "versions": [
+      {
+        "lastVersion": "0.3.0-13.v7cb_69ed68f00",
+        "pattern": "(0[.]3[.]0[-]13|0[.]3[.]0[-]4)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3511",
+    "type": "plugin",
+    "name": "zohoqengine",
+    "message": "API key displayed without masking",
+    "url": "https://www.jenkins.io/security/advisory/2025-03-19/#SECURITY-3511",
+    "versions": [
+      {
+        "lastVersion": "1.0.29.vfa_cc23396502",
+        "pattern": "(1[.]0[.]2[249])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3529",
+    "type": "plugin",
+    "name": "AnchorChain",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2025-03-19/#SECURITY-3529",
+    "versions": [
+      {
+        "lastVersion": "1.0",
+        "pattern": ".*"
+      }
+    ]
   }
 ]
