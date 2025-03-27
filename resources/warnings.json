@@ -8799,7 +8799,7 @@
     "versions": [
       {
         "lastVersion": "1.0",
-        "pattern": ".*"
+        "pattern": "1[.].*"
       }
     ]
   },
