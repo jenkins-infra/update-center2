@@ -47,6 +47,7 @@ public class IssueTrackerSource {
             pluginToIssueTrackers = JSON.parseObject(jsonData, new TypeReferenceForHashMapFromStringToListOfIssueTracker().getType());
         } catch (RuntimeException | IOException ex) {
             LOGGER.log(Level.WARNING, ex.getMessage());
+            pluginToIssueTrackers = new HashMap<>();
         }
     }
 
