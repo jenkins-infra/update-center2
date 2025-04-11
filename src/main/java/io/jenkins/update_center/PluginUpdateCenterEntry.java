@@ -191,7 +191,7 @@ public class PluginUpdateCenterEntry {
         return Popularities.getInstance().getPopularity(artifactId);
     }
 
-    public Integer getHealthScore() {
+    public Integer getHealth() {
         return HealthScores.getInstance().getHealthScore(artifactId);
     }
 
