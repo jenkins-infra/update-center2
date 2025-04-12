@@ -191,6 +191,10 @@ public class PluginUpdateCenterEntry {
         return Popularities.getInstance().getPopularity(artifactId);
     }
 
+    public Integer getHealth() {
+        return HealthScores.getInstance().getHealthScore(artifactId);
+    }
+
     public String getLatest() {
         final LatestPluginVersions instance = LatestPluginVersions.getInstance();
         final VersionNumber latestPublishedVersion = instance.getLatestVersion(artifactId);

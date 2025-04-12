@@ -1,18 +1,19 @@
 package io.jenkins.update_center;
 
-import io.jenkins.update_center.util.HttpHelper;
 import junit.framework.Assert;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,14 +115,19 @@ public class WarningsTest {
 
     @Test
     public void testWarningsAgainstReleaseHistory() throws IOException {
-
         Map<String, List<Warning>> warnings = loadPluginWarnings();
 
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        Request request = new Request.Builder().url("https://updates.jenkins.io/release-history.json").get().build();
-
-        String releaseHistoryText = HttpHelper.getResponseBody(client, request);
-        JSONObject json = JSONObject.fromObject(releaseHistoryText);
+        JSONObject json;
+        try (final HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()) {
+            final HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://updates.jenkins.io/release-history.json"))
+                    .GET()
+                    .build();
+            final String body = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            json = JSONObject.fromObject(body);
+        } catch (InterruptedException e) {
+            throw new IOException(e);
+        }
 
         JSONArray dates = json.getJSONArray("releaseHistory");
 
