@@ -50,7 +50,7 @@ MAIN_DIR="$( readlink -f "$SIMPLE_SCRIPT_DIR/../" 2>/dev/null || greadlink -f "$
 echo "Main directory: $MAIN_DIR"
 mkdir -p "$MAIN_DIR"/tmp/
 
-version=3.18-20250412.124342-2
+version=3.18-20250412.142205-3
 coordinates=org/jenkins-ci/update-center2/3.18-SNAPSHOT/update-center2-$version-bin.zip
 
 if [[ -f "$MAIN_DIR"/tmp/generator-$version.zip ]] ; then
