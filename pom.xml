@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.128</version>
+    <version>1.131</version>
   </parent>
 
   <artifactId>update-center2</artifactId>
@@ -90,7 +90,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.2</version>
+        <version>3.5.3</version>
         <configuration>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
@@ -98,7 +98,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.8.6.6</version>
+        <version>4.9.3.0</version>
         <configuration><excludeFilterFile>${project.basedir}/spotbugs-excludes.xml</excludeFilterFile></configuration>
       </plugin>
     </plugins>
@@ -114,17 +114,7 @@
       <groupId>com.alibaba</groupId>
       <artifactId>fastjson</artifactId>
       <!-- latest 1.x release, 2.x has compatibility mode per https://github.com/alibaba/fastjson2/wiki/fastjson_1_upgrade_cn but has a bit of dependency issues -->
-      <version>1.2.83</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.squareup.okhttp3</groupId>
-          <artifactId>okhttp</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.annotation</groupId>
-          <artifactId>javax.annotation-api</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>2.0.57</version>
     </dependency>
     <dependency>
       <groupId>org.dom4j</groupId>
@@ -154,7 +144,7 @@
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>1.17.2</version>
+      <version>1.18.0</version>
     </dependency>
     <dependency>
       <groupId>args4j</groupId>
@@ -164,14 +154,12 @@
     <dependency>
       <groupId>io.jenkins.lib</groupId>
       <artifactId>support-log-formatter</artifactId>
-      <!-- 1.3 requires Java 17 -->
-      <version>1.2</version>
+      <version>1.3</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>version-number</artifactId>
-      <!-- 1.12 requires Java 17 -->
-      <version>1.11</version>
+      <version>1.12</version>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
@@ -202,7 +190,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.18.3</version>
+      <version>1.19.1</version>
     </dependency>
 
     <!-- test dependencies -->
