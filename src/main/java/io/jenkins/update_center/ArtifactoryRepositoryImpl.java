@@ -285,19 +285,21 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                         .header("Authorization", "Basic " +  (Base64.encodeBase64String((username + ":" + password).getBytes(StandardCharsets.UTF_8))))
                         .build();
                 final HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-                if (response.statusCode() == 200 || response.statusCode() == 204) {
-                    try (InputStream is = response.body(); final ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
-                        IOUtils.copy(is, tos);
-                        if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
-                            final String value = baos.toString(StandardCharsets.UTF_8);
-                            LOGGER.log(Level.FINE, () -> "Caching in memory: " + url + " with content: " + value);
-                            this.cache.put(url, value);
+                try (InputStream is = response.body()) {
+                    if (response.statusCode() == 200 || response.statusCode() == 204) {
+                        try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
+                            IOUtils.copy(is, tos);
+                            if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
+                                final String value = baos.toString(StandardCharsets.UTF_8);
+                                LOGGER.log(Level.FINE, () -> "Caching in memory: " + url + " with content: " + value);
+                                this.cache.put(url, value);
+                            }
                         }
-                    }
-                } else {
-                    LOGGER.log(Level.INFO, "Received HTTP error response: " + response.statusCode() + " for URL: " + url);
-                    if (!cacheFile.mkdir()) {
-                        LOGGER.log(Level.WARNING, "Failed to create cache 'not found' directory" + cacheFile);
+                    } else {
+                        LOGGER.log(Level.INFO, "Received HTTP error response: " + response.statusCode() + " for URL: " + url);
+                        if (!cacheFile.mkdir()) {
+                            LOGGER.log(Level.WARNING, "Failed to create cache 'not found' directory" + cacheFile);
+                        }
                     }
                 }
             } catch (RuntimeException | InterruptedException e) {
