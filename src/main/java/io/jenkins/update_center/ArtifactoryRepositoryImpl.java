@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSON;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.update_center.util.Environment;
 
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -26,7 +29,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
@@ -278,16 +280,15 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
                 throw new IllegalStateException("Failed to create non-existing directory " + parentFile);
             }
-            try (final HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()) {
+            try (final HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).authenticator(new AuthenticatorImpl(username, password)).build()) {
                 final HttpRequest request = HttpRequest.newBuilder()
                         .GET()
                         .uri(URI.create(url))
-                        .header("Authorization", "Basic " +  (Base64.encodeBase64String((username + ":" + password).getBytes(StandardCharsets.UTF_8))))
                         .build();
                 final HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-                try (InputStream is = response.body()) {
+                try (InputStream is = response.body(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     if (response.statusCode() == 200 || response.statusCode() == 204) {
-                        try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
+                        try (FileOutputStream fos = new FileOutputStream(cacheFile); TeeOutputStream tos = new TeeOutputStream(fos, baos)) {
                             IOUtils.copy(is, tos);
                             if (baos.size() <= CACHE_ENTRY_MAX_LENGTH) {
                                 final String value = baos.toString(StandardCharsets.UTF_8);
@@ -296,7 +297,8 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
                             }
                         }
                     } else {
-                        LOGGER.log(Level.INFO, "Received HTTP error response: " + response.statusCode() + " for URL: " + url);
+                        IOUtils.copy(is, baos);
+                        LOGGER.log(Level.INFO, "Received HTTP error response: " + response.statusCode() + " for URL: " + url + ": " + baos.toString(StandardCharsets.UTF_8));
                         if (!cacheFile.mkdir()) {
                             LOGGER.log(Level.WARNING, "Failed to create cache 'not found' directory" + cacheFile);
                         }
@@ -337,4 +339,31 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
     }
 
     private static final File LOCAL_REPO = new File(new File(System.getProperty("user.home")), ".m2/repository");
+
+    private static class AuthenticatorImpl extends Authenticator {
+        private final String username;
+        private final char[] password;
+
+        private AuthenticatorImpl(String username, String password) {
+            this.username = username;
+            this.password = password.toCharArray();
+        }
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            try {
+                URI artifactory = new URI(ARTIFACTORY_URL);
+                if (!artifactory.getHost().equals(getRequestingSite().getHostName())) {
+                    LOGGER.log(Level.INFO, "Hostname mismatch: " + artifactory.getHost() + " vs. " + getRequestingSite().getHostName());
+                    return null;
+                }
+                if (artifactory.getPort() != getRequestingPort()) {
+                    LOGGER.log(Level.INFO, "Port mismatch: " + artifactory.getPort() + " vs. " + getRequestingPort());
+                    return null;
+                }
+                return new PasswordAuthentication(username, password);
+            } catch (URISyntaxException e) {
+                return null;
+            }
+        }
+    }
 }
