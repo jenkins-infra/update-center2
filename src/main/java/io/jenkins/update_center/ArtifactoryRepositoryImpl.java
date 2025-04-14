@@ -278,7 +278,7 @@ public class ArtifactoryRepositoryImpl extends BaseMavenRepository {
             if (!parentFile.mkdirs() && !parentFile.isDirectory()) {
                 throw new IllegalStateException("Failed to create non-existing directory " + parentFile);
             }
-            try (final HttpClient client = HttpClient.newHttpClient()) {
+            try (final HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()) {
                 final HttpRequest request = HttpRequest.newBuilder()
                         .GET()
                         .uri(URI.create(url))
