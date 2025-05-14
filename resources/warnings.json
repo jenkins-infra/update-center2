@@ -18532,5 +18532,70 @@
         "pattern": ".*"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3353",
+    "type": "plugin",
+    "name": "dingding-notifications",
+    "message": "SSL/TLS certificate validation unconditionally disabled",
+    "url": "https://www.jenkins.io/security/advisory/2025-05-14/#SECURITY-3353",
+    "versions": [
+      {
+        "lastVersion": "2.7.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3481",
+    "type": "plugin",
+    "name": "wso2id-oauth",
+    "message": "Authentication bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2025-05-14/#SECURITY-3481",
+    "versions": [
+      {
+        "lastVersion": "1.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3548",
+    "type": "plugin",
+    "name": "vmanager-plugin",
+    "message": "CSRF vulnerability and missing permission checks",
+    "url": "https://www.jenkins.io/security/advisory/2025-05-14/#SECURITY-3548",
+    "versions": [
+      {
+        "lastVersion": "4.0.1-286.v9e25a_740b_a_48",
+        "pattern": "([1-3]|4[.]0[.]0[-]268|4[.]0[.]0[-]273|4[.]0[.]0[-]282|4[.]0[.]1[-]286)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3559",
+    "type": "plugin",
+    "name": "cloudbees-jenkins-advisor",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2025-05-14/#SECURITY-3559",
+    "versions": [
+      {
+        "lastVersion": "374.v194b_d4f0c8c8",
+        "pattern": "([1-3]|326|336|340|358|374[.]v194b_d4f0c8c8)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3574",
+    "type": "plugin",
+    "name": "oidc-provider",
+    "message": "Insufficient validation of claims",
+    "url": "https://www.jenkins.io/security/advisory/2025-05-14/#SECURITY-3574",
+    "versions": [
+      {
+        "lastVersion": "96.vee8ed882ec4d",
+        "pattern": "(18|39|4[17]|6[02]|79|89|96)(|[.-].+)"
+      }
+    ]
   }
 ]
