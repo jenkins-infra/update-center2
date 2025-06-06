@@ -18597,5 +18597,18 @@
         "pattern": "(18|39|4[17]|6[02]|79|89|96)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3588",
+    "type": "plugin",
+    "name": "gatling",
+    "message": "XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2025-06-06/#SECURITY-3588",
+    "versions": [
+      {
+        "lastVersion": "136.vb_9009b_3d33a_e",
+        "pattern": "[0-9]{3,}(|[.-].+)"
+      }
+    ]
   }
 ]
