@@ -18611,5 +18611,278 @@
         "pattern": "(136)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3419",
+    "type": "plugin",
+    "name": "git-parameter",
+    "message": "Missing input validation for parameter values",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3419",
+    "versions": [
+      {
+        "lastVersion": "439.vb_0e46ca_14534",
+        "pattern": "(0|43[59])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3499",
+    "type": "plugin",
+    "name": "credentials-binding",
+    "message": "Improper masking of credentials",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3499",
+    "versions": [
+      {
+        "lastVersion": "687.v619cb_15e923f",
+        "pattern": "(1|523|604|62[16]|63[16]|642|657|67[79]|681|687[.]v619cb_15e923f)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3509",
+    "type": "plugin",
+    "name": "applitools-eyes",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3509",
+    "versions": [
+      {
+        "lastVersion": "1.16.5",
+        "pattern": "(1[.]1[02345]|1[.]16[.][0-5]|1[.][3-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3510",
+    "type": "plugin",
+    "name": "applitools-eyes",
+    "message": "API keys stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3510",
+    "versions": [
+      {
+        "lastVersion": "1.16.5",
+        "pattern": "(1[.]1[02345]|1[.]16[.][0-5]|1[.][3-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3515",
+    "type": "plugin",
+    "name": "testsigma",
+    "message": "API keys displayed without masking",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3515",
+    "versions": [
+      {
+        "lastVersion": "1.6",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3516",
+    "type": "plugin",
+    "name": "warrior",
+    "message": "Passwords stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3516",
+    "versions": [
+      {
+        "lastVersion": "1.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3518",
+    "type": "plugin",
+    "name": "user1st-utester",
+    "message": "Token stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3518",
+    "versions": [
+      {
+        "lastVersion": "1.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3522",
+    "type": "plugin",
+    "name": "xooa",
+    "message": "Token stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3522",
+    "versions": [
+      {
+        "lastVersion": "0.0.7",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3524",
+    "type": "plugin",
+    "name": "deadmanssnitch",
+    "message": "Tokens stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3524",
+    "versions": [
+      {
+        "lastVersion": "0.1",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3525",
+    "type": "plugin",
+    "name": "kryptowire",
+    "message": "API key stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3525",
+    "versions": [
+      {
+        "lastVersion": "0.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3526",
+    "type": "plugin",
+    "name": "nouvola-divecloud",
+    "message": "Keys stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3526",
+    "versions": [
+      {
+        "lastVersion": "1.08",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3527",
+    "type": "plugin",
+    "name": "vaddy-plugin",
+    "message": "API Auth keys stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3527",
+    "versions": [
+      {
+        "lastVersion": "1.2.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3532",
+    "type": "plugin",
+    "name": "qmetry-test-management",
+    "message": "API keys stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3532",
+    "versions": [
+      {
+        "lastVersion": "1.13",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3540",
+    "type": "plugin",
+    "name": "ApicaLoadtest",
+    "message": "Tokens stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3540",
+    "versions": [
+      {
+        "lastVersion": "1.10",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3541",
+    "type": "plugin",
+    "name": "ifttt-build-notifier",
+    "message": "Keys stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3541",
+    "versions": [
+      {
+        "lastVersion": "1.2",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3542",
+    "type": "plugin",
+    "name": "aqua-security-scanner",
+    "message": "Tokens stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3542",
+    "versions": [
+      {
+        "lastVersion": "3.2.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3547",
+    "type": "plugin",
+    "name": "htmlpublisher",
+    "message": "File path information disclosure",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3547",
+    "versions": [
+      {
+        "lastVersion": "425",
+        "pattern": "([01]|42[45])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3551",
+    "type": "plugin",
+    "name": "sensedia-api-platform",
+    "message": "Token stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3551",
+    "versions": [
+      {
+        "lastVersion": "1.0",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3552",
+    "type": "plugin",
+    "name": "ibm-cloud-devops",
+    "message": "Tokens stored in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3552",
+    "versions": [
+      {
+        "lastVersion": "2.0.16",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3554",
+    "type": "plugin",
+    "name": "statistics-gatherer",
+    "message": "AWS Secret Key stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3554",
+    "versions": [
+      {
+        "lastVersion": "2.0.3",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3556",
+    "type": "plugin",
+    "name": "soapui-pro-functional-testing",
+    "message": "Credentials stored and displayed in plain text",
+    "url": "https://www.jenkins.io/security/advisory/2025-07-09/#SECURITY-3556",
+    "versions": [
+      {
+        "lastVersion": "1.11",
+        "pattern": ".*"
+      }
+    ]
   }
 ]
