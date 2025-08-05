@@ -6,7 +6,7 @@
 # - [mandatory] UPDATE_CENTER_FILESHARES_ENV_FILES (directory path): directory containing environment files to be sources for each sync. destination.
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
-SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-archives.jenkins.io|rsync-updates.jenkins.io-data-content|rsync-updates.jenkins.io-data-redirections-unsecured|rsync-updates.jenkins.io-data-redirections-secured|s3sync-westeurope|s3sync-eastamerica}"
+SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-archives.jenkins.io|rsync-updates.jenkins.io-data-content|rsync-updates.jenkins.io-data-redirections|s3sync-westeurope|s3sync-eastamerica}"
 MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jio-cli.trusted.ci.jenkins.io}"
 
 # Split strings to arrays for feature flags setup
@@ -112,12 +112,11 @@ then
     date +%s > "${www2_dir}"/TIME # Used by mirrorbits and healthchecks
 
     # Note: these PATH must map to the FILESHARE_SYNC_SOURCE in the ZIP env files (!)
-    httpd_secured_dir=./www-redirections-secured
-    httpd_unsecured_dir=./www-redirections-unsecured
+    httpd_dir=./www-redirections-secured
     content_dir=./www-content
 
     # Cleanup
-    rm -rf "${content_dir}" "${httpd_secured_dir}" "${httpd_unsecured_dir}"
+    rm -rf "${content_dir}" "${httpd_dir}"
 
     # Prepare www-content dir destined to the mirrorbits service
     # By retrieving all JSON files from $www2_dir
@@ -138,21 +137,17 @@ then
 
     # Prepare redirections-*secured/ directories, same content as $www2_dir
     ## TODO: use only www2_dir when the old PKG machine will be decommissioned
-    cp -r "${www2_dir}" "${httpd_secured_dir}"
+    cp -r "${www2_dir}" "${httpd_dir}"
     mirrorbits_hostname='mirrors.updates.jenkins.io'
     {
-        # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file) for www-redirections (both secured and unsecured)
+        # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file)
         echo ''
         echo "## Send JSON files to ${mirrorbits_hostname}, except uctest.json (healthcheck served by Apache)"
         echo 'RewriteCond %{REQUEST_URI} ([.](json|json.html)|TIME)$'
         echo 'RewriteCond %{REQUEST_URI} !/uctest.json$'
         # shellcheck disable=SC2016 # The $1 expansion is for RedirectMatch pattern, not shell
         echo 'RewriteRule ^(.*)$ %{REQUEST_SCHEME}://'"${mirrorbits_hostname}"'/$1 [NC,L,R=307]'
-    } >> "${httpd_secured_dir}"/.htaccess
-
-    # Duplicate to a distinct dir (not required but allow custom HTTP customization if need be)
-    # TODO: remove when we force HTTPS
-    cp -r "${httpd_secured_dir}" "${httpd_unsecured_dir}"
+    } >> "${httpd_dir}"/.htaccess
 
     echo '----------------------- Launch synchronisation(s) -----------------------'
     parallel --halt-on-error now,fail=1 parallelfunction ::: "${sync_uc_tasks[@]}"
@@ -163,10 +158,7 @@ then
     # Trigger a mirror scan on mirrorbits once all synchronized copies are finished
     echo '== Triggering mirrors scans...'
     # MIRRORBITS_CLI_PASSWORD is a sensitive values (comes from encrypted credentials)
-    # 3390 is the port of the "secured" instance (HTTPS) while 3391 of the "unsecured" (HTTP) instance. It's the only difference.
-    for mirrorbits_cli_port in 3390 3391
-    do
-        echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a refresh -rehash
-        echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a scan -all -enable -timeout=120
-    done
+    mirrorbits_cli_port=3390
+    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a refresh -rehash
+    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a scan -all -enable -timeout=120
 fi
