@@ -6,8 +6,8 @@
 # - [mandatory] UPDATE_CENTER_FILESHARES_ENV_FILES (directory path): directory containing environment files to be sources for each sync. destination.
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
-SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-archives.jenkins.io|rsync-updates.jenkins.io-data-content|rsync-updates.jenkins.io-data-redirections|s3sync-westeurope|s3sync-eastamerica}"
-MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jio-cli.trusted.ci.jenkins.io}"
+SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-archives.jenkins.io|localrsync-updates.jenkins.io-content|localrsync-updates.jenkins.io-redirections|s3sync-westeurope|s3sync-eastamerica}"
+MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jenkins.io.trusted.ci.jenkins.io}"
 
 # Split strings to arrays for feature flags setup
 run_stages=()
@@ -83,6 +83,18 @@ then
                 "${fileshare_sync_source_abs}" "${RSYNC_USER}"@"${RSYNC_HOST}":"${RSYNC_REMOTE_DIR}"
             ;;
 
+        localrsync*)
+            # Required variables that should now be set from the .env file
+            : "${RSYNC_REMOTE_DIR?}"
+
+            time rsync --recursive --links --times -D \
+                --checksum --verbose \
+                --exclude=/updates `# populated by https://github.com/jenkins-infra/crawler` \
+                --delete `# delete old sites` \
+                --stats `# add verbose statistics` \
+                "${fileshare_sync_source_abs}" "${RSYNC_REMOTE_DIR}"
+            ;;
+
         s3sync*)
             # Required variables that should now be set from the .env file
             : "${BUCKET_NAME?}" "${BUCKET_ENDPOINT_URL?}" "${AWS_ACCESS_KEY_ID?}" "${AWS_SECRET_ACCESS_KEY?}" "${AWS_DEFAULT_REGION?}"
@@ -116,7 +128,8 @@ then
     content_dir=./www-content
 
     # Cleanup
-    rm -rf "${content_dir}" "${httpd_dir}"
+    rm -rf "${httpd_dir}" "${content_dir}"
+    mkdir -p "${httpd_dir}" "${content_dir}"
 
     # Prepare www-content dir destined to the mirrorbits service
     # By retrieving all JSON files from $www2_dir
@@ -135,9 +148,9 @@ then
         --exclude='*' `# Exclude all other files` \
         "${www2_dir}"/ "${content_dir}"/
 
-    # Prepare "httpd_dir" (www-redirections) directory, same content as $www2_dir
+    # Prepare "httpd_dir" directory, same content as $www2_dir
     ## TODO: use only www2_dir when the old PKG machine will be decommissioned
-    cp -r "${www2_dir}" "${httpd_dir}"
+    rsync -av "${www2_dir}"/ "${httpd_dir}"/
     mirrorbits_hostname='mirrors.updates.jenkins.io'
     {
         # Append the httpd -> mirrorbits redirection as fallback (end of htaccess file)
@@ -159,6 +172,7 @@ then
     echo '== Triggering mirrors scans...'
     # MIRRORBITS_CLI_PASSWORD is a sensitive values (comes from encrypted credentials)
     mirrorbits_cli_port=3390
+    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a list # Sanity check
     echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a refresh -rehash
     echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a scan -all -enable -timeout=120
 fi
