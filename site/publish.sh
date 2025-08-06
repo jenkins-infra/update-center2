@@ -112,7 +112,7 @@ then
     date +%s > "${www2_dir}"/TIME # Used by mirrorbits and healthchecks
 
     # Note: these PATH must map to the FILESHARE_SYNC_SOURCE in the ZIP env files (!)
-    httpd_dir=./www-redirections-secured
+    httpd_dir=./www-redirections
     content_dir=./www-content
 
     # Cleanup
@@ -135,7 +135,7 @@ then
         --exclude='*' `# Exclude all other files` \
         "${www2_dir}"/ "${content_dir}"/
 
-    # Prepare redirections-*secured/ directories, same content as $www2_dir
+    # Prepare "httpd_dir" (www-redirections) directory, same content as $www2_dir
     ## TODO: use only www2_dir when the old PKG machine will be decommissioned
     cp -r "${www2_dir}" "${httpd_dir}"
     mirrorbits_hostname='mirrors.updates.jenkins.io'
