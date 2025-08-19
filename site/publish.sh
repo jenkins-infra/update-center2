@@ -7,7 +7,7 @@
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
 SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-archives.jenkins.io|localrsync-updates.jenkins.io-content|localrsync-updates.jenkins.io-redirections|s3sync-westeurope|s3sync-eastamerica}"
-MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jenkins.io.trusted.ci.jenkins.io}"
+MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jenkins.io.privatelink.azurecr.io}"
 
 # Split strings to arrays for feature flags setup
 run_stages=()
