@@ -7,7 +7,7 @@
 #     Each task named XX expects a file named 'env-XX' in this directory to be sourced by the script to retrieve settings for the task.
 RUN_STAGES="${RUN_STAGES:-generate-site|sync-plugins|sync-uc}"
 SYNC_UC_TASKS="${SYNC_UC_TASKS:-rsync-archives.jenkins.io|localrsync-updates.jenkins.io-content|localrsync-updates.jenkins.io-redirections|s3sync-westeurope|s3sync-eastamerica}"
-MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jenkins.io.trusted.ci.jenkins.io}"
+MIRRORBITS_HOST="${MIRRORBITS_HOST:-updates.jenkins.io.privatelink.azurecr.io}"
 
 # Split strings to arrays for feature flags setup
 run_stages=()
@@ -36,9 +36,16 @@ then
     ## $download_dir folder processing
     # push plugins to mirrors.jenkins-ci.org
     chmod -R a+r "${download_dir}"
+    # TODO: remove in favor of the local NFS mount
     rsync -rlptDvz --chown=mirrorbrain:www-data --size-only "${download_dir}"/plugins/ "${RSYNC_USER}@${UPDATES_SITE}":/srv/releases/jenkins/plugins
+    # Also copy on the new local NFS (no compress, no need to chown) -
+    # TODO: use the credentials to retrieve the mount point
+    rsync --recursive --links --size-only \
+        --times --perms --verbose --devices --specials \
+        --size-only "${download_dir}"/plugins/ /data-storage-jenkins-io/get.jenkins.io/mirrorbits/plugins/
 
     # Invoke a minimal mirrorsync to mirrorbits which will use the 'recent-releases.json' file as input
+    # TODO: remove in favor of the local NFS mount
     ssh "${RSYNC_USER}@${UPDATES_SITE}" "cat > /tmp/update-center2-rerecent-releases.json" < "${www2_dir}"/experimental/recent-releases.json
     ssh "${RSYNC_USER}@${UPDATES_SITE}" "/srv/releases/sync-recent-releases.sh /tmp/update-center2-rerecent-releases.json"
 fi
@@ -74,7 +81,7 @@ then
             # Required variables that should now be set from the .env file
             : "${RSYNC_HOST?}" "${RSYNC_USER?}" "${RSYNC_GROUP?}" "${RSYNC_REMOTE_DIR?}" "${RSYNC_IDENTITY_NAME?}"
 
-            time rsync --chown="${RSYNC_USER}":"${RSYNC_GROUP}" --recursive --links --perms --times -D \
+            time rsync --chown="${RSYNC_USER}":"${RSYNC_GROUP}" --recursive --links --perms --times --devices --specials \
                 --rsh="ssh -i ${UPDATE_CENTER_FILESHARES_ENV_FILES}/${RSYNC_IDENTITY_NAME}" `# rsync identity file is stored with .env files` \
                 --checksum --verbose --compress \
                 --exclude=/updates `# populated by https://github.com/jenkins-infra/crawler` \
@@ -87,7 +94,7 @@ then
             # Required variables that should now be set from the .env file
             : "${RSYNC_REMOTE_DIR?}"
 
-            time rsync --recursive --links --times -D \
+            time rsync --recursive --links --times --devices --specials \
                 --checksum --verbose \
                 --exclude=/updates `# populated by https://github.com/jenkins-infra/crawler` \
                 --delete `# delete old sites` \
