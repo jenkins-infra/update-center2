@@ -28,26 +28,57 @@ then
     "$( dirname "$0" )/generate.sh" "${www2_dir}" "${download_dir}"
 fi
 
+# Publish freshly released plugins to get.jenkins.io (if any)
 if [[ "${run_stages[*]}" =~ 'sync-plugins' ]]
 then
-    UPDATES_SITE="aws.updates.jenkins.io"
-    RSYNC_USER="mirrorbrain"
+    RECENT_RELEASES=$( ./jq --raw-output '.releases[] | .name + "/" + .version' "${www2_dir}"/experimental/recent-releases.json )
+    if [[ -n "${RECENT_RELEASES}" ]] ; then
+        pushd "${download_dir}"
 
-    ## $download_dir folder processing
-    # push plugins to mirrors.jenkins-ci.org
-    chmod -R a+r "${download_dir}"
-    # TODO: remove in favor of the local NFS mount
-    rsync -rlptDvz --chown=mirrorbrain:www-data --size-only "${download_dir}"/plugins/ "${RSYNC_USER}@${UPDATES_SITE}":/srv/releases/jenkins/plugins
-    # Also copy on the new local NFS (no compress, no need to chown) -
-    # TODO: use the credentials to retrieve the mount point
-    rsync --recursive --links --size-only \
-        --times --perms --verbose --devices --specials \
-        --size-only "${download_dir}"/plugins/ /data-storage-jenkins-io/get.jenkins.io/mirrorbits/plugins/
+        # Build the list of files to publish
+        declare -a UPLOAD_LIST
+        while IFS= read -r release; do
+            UPLOAD_LIST+=("plugins/${release}")
+        done <<< "${RECENT_RELEASES}"
+        # This marker file named 'TIME' must be created locally and then uploaded (to ensure mirrors reads its modtime and humans its content)
+        date +%s > ./TIME
+        UPLOAD_LIST+=("TIME")
 
-    # Invoke a minimal mirrorsync to mirrorbits which will use the 'recent-releases.json' file as input
-    # TODO: remove in favor of the local NFS mount
-    ssh "${RSYNC_USER}@${UPDATES_SITE}" "cat > /tmp/update-center2-rerecent-releases.json" < "${www2_dir}"/experimental/recent-releases.json
-    ssh "${RSYNC_USER}@${UPDATES_SITE}" "/srv/releases/sync-recent-releases.sh /tmp/update-center2-rerecent-releases.json"
+        #### Sync files to archives.jenkins.io as first step (as it is the fallback for downloads from get.jenkins.io)
+        # Load the env variables (setting up and credentials) corresponding to the bucket to sync to
+        # Note: we don't use all variables from the env. file, unlike the UC_SYNC_TASKS below
+        envToLoad="${UPDATE_CENTER_FILESHARES_ENV_FILES}/.env-rsync-archives.jenkins.io"
+        # shellcheck source=/dev/null
+        source "${envToLoad}"
+
+        # Required variables that should now be set from the .env file
+        : "${RSYNC_HOST?}" "${RSYNC_USER?}" "${RSYNC_GROUP?}" "${RSYNC_REMOTE_DIR?}" "${RSYNC_IDENTITY_NAME?}"
+
+        # TODO: use the credentials to retrieve the destination mount point
+        time rsync --chown="${RSYNC_USER}":"${RSYNC_GROUP}" --recursive \
+            --links --perms --devices --specials `# Unix filesystem for both source and destination` \
+            --times `# Use default rsync heuristic with size but also check timestamp (when we re-issue a plugin).` \
+            --rsh="ssh -i ${UPDATE_CENTER_FILESHARES_ENV_FILES}/${RSYNC_IDENTITY_NAME}" `# rsync identity file is stored with .env files` \
+            --verbose \
+            --relative `# Keep the source files relative path in the destination`\
+            --stats `# add verbose statistics` \
+            --compress `# Sending data to remote servers means data transfer costs, while CPU time is cheap.` \
+            "${UPLOAD_LIST[@]}" "${RSYNC_USER}"@"${RSYNC_HOST}":/srv/releases/
+
+        #### Sync files to get.jenkins.io as second step (its repository directory is mounted in an NFS mount)
+        # TODO: use the credentials to retrieve the destination mount point
+        time rsync --recursive \
+            --links --perms --devices --specials `# Unix filesystem for both source and destination` \
+            --times `# Use default rsync heuristic with size but also check timestamp (when we re-issue a plugin).` \
+            --verbose \
+            --relative `# Keep the source files relative path in the destination`\
+            --stats `# add verbose statistics` \
+            "${UPLOAD_LIST[@]}" /data-storage-jenkins-io/get.jenkins.io/mirrorbits/
+
+        popd
+    else
+        echo "No recent releases to deploy on get.jenkins.io"
+    fi
 fi
 
 if [[ "${run_stages[*]}" =~ 'sync-uc' ]]
