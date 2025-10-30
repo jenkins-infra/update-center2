@@ -16,7 +16,7 @@ IFS='|' read -r -a run_stages <<< "${RUN_STAGES}"
 www2_dir="${WWW2_DIR:-./www2}"
 download_dir="${DOWNLOAD_DIR:-./download}"
 
-RECENT_RELEASES_JSON_FILE="${1:-"${www2_dir}"/experimental/recent-releases.json}"
+recent_releases_json_file="${1:-"${www2_dir}"/experimental/recent-releases.json}"
 
 if [[ "${run_stages[*]}" =~ 'generate-site' ]]
 then
@@ -33,7 +33,7 @@ fi
 # Publish freshly released plugins to get.jenkins.io (if any)
 if [[ "${run_stages[*]}" =~ 'sync-plugins' ]]
 then
-    RECENT_RELEASES=$( ./jq --raw-output '.releases[] | .name + "/" + .version' "${RECENT_RELEASES_JSON_FILE}" )
+    RECENT_RELEASES=$( ./jq --raw-output '.releases[] | .name + "/" + .version' "${recent_releases_json_file}" )
     if [[ -n "${RECENT_RELEASES}" ]] ; then
         pushd "${download_dir}"
 
