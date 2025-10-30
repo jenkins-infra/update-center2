@@ -27,8 +27,6 @@ These variants exist for historical purposes.
 
 * `update-center.json` contains JSONP (with callback wrapper) on the first and last lines.
   This is the file actually downloaded by Jenkins 2.200+.
-* `update-center.json.html` contains HTML with JSON wrapped in JS.
-  This used to be downloaded using browser-based metadata download (deprecated in 2015, removed in 2.200)
 * `update-center.actual.json` (actual JSON for programmatic clients)
 
 
@@ -99,13 +97,11 @@ The Jenkins project publishes a limited, fixed number of tiered update sites to 
 ├── latestCore.txt                   (Unused, may be removed)
 ├── update-center.actual.json
 ├── update-center.json
-├── update-center.json.html
 └── updates  ->  ../updates
 stable-2.204/
 ├── latestCore.txt                   (Unused, may be removed)
 ├── update-center.actual.json
 ├── update-center.json
-├── update-center.json.html
 └── updates  ->  ../updates
 ```
 
@@ -138,7 +134,6 @@ current/
 ├── release-history.json             (supports top-level file, may be moved)
 ├── update-center.actual.json
 ├── update-center.json
-├── update-center.json.html
 └── updates  ->  ../updates
 ```
 
@@ -150,7 +145,6 @@ stable/
 ├── latestCore.txt
 ├── update-center.actual.json
 ├── update-center.json
-├── update-center.json.html
 └── updates  ->  ../updates
 ```
 
@@ -170,7 +164,6 @@ Otherwise, this is similar to `current/` in that no version caps exist.
 experimental/
 ├── update-center.actual.json
 ├── update-center.json
-├── update-center.json.html
 └── updates  ->  ../updates
 ```
 
