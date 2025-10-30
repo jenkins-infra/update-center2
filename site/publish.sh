@@ -14,7 +14,7 @@ run_stages=()
 IFS='|' read -r -a run_stages <<< "${RUN_STAGES}"
 
 www2_dir="${WWW2_DIR:-./www2}"
-download_dir="${WWW2_DIR:-./download}"
+download_dir="${DOWNLOAD_DIR:-./download}"
 
 RECENT_RELEASES_JSON_FILE="${1:-"${www2_dir}"/experimental/recent-releases.json}"
 
