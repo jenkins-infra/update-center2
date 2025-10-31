@@ -18,14 +18,19 @@ download_dir="${DOWNLOAD_DIR:-./download}"
 
 recent_releases_json_file="${1:-"${www2_dir}"/experimental/recent-releases.json}"
 
-if [[ "${run_stages[*]}" =~ 'generate-site' ]]
+# Ensure jq is present or install it;io
+# TODO: stop relying on this code block once jq is installed (and maintained) in the "agent-1" (agent.trusted.ci.jenkins.io)
+if ! command -v jq >/dev/null && ! test -x ./jq
 then
     ## Install jq, required by generate.sh script
     wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 || { echo "Failed to download jq" >&2 ; exit 1; }
     chmod +x jq || { echo "Failed to make jq executable" >&2 ; exit 1; }
 
     export PATH=.:$PATH
+fi
 
+if [[ "${run_stages[*]}" =~ 'generate-site' ]]
+then
     ## Generate the content of $www2_dir and $download_dir folders
     "$( dirname "$0" )/generate.sh" "${www2_dir}" "${download_dir}"
 fi
