@@ -16,6 +16,9 @@ IFS='|' read -r -a run_stages <<< "${RUN_STAGES}"
 www2_dir="${WWW2_DIR:-./www2}"
 download_dir="${DOWNLOAD_DIR:-./download}"
 
+# Allow using binaries such as `jq` from local directory
+export PATH=.:$PATH
+
 recent_releases_json_file="${1:-"${www2_dir}"/experimental/recent-releases.json}"
 
 # Ensure jq is present or install it;io
