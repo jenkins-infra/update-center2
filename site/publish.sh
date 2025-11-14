@@ -23,7 +23,7 @@ recent_releases_json_file="${1:-"${www2_dir}"/experimental/recent-releases.json}
 
 # Ensure jq is present or install it;io
 # TODO: stop relying on this code block once jq is installed (and maintained) in the "agent-1" (agent.trusted.ci.jenkins.io)
-if ! command -v jq >/dev/null && ! test -x ./jq
+if ! command -v jq >/dev/null
 then
     ## Install jq, required by generate.sh script
     wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 || { echo "Failed to download jq" >&2 ; exit 1; }
