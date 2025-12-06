@@ -19106,7 +19106,6 @@
     "versions": [
       {
         "lastVersion": "239.v5f5c278708cf",
-        "pattern": ".*"
         "pattern": "(1|237|239[.]v5f5c278708cf)(|[.-].+)"
       }
     ]
