@@ -13388,8 +13388,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-07-27/#SECURITY-2404",
     "versions": [
       {
-        "lastVersion": "2.2.5",
-        "pattern": ".*"
+        "lastVersion": "android-signing-2.2.5",
+        "pattern": "(android-signing-[0-2])(|[.-].*)"
       }
     ]
   },
