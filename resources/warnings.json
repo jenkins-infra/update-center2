@@ -13389,7 +13389,7 @@
     "versions": [
       {
         "lastVersion": "2.2.5",
-        "pattern": ".*"
+        "pattern": "(2)(|[.-].+)"
       }
     ]
   },
