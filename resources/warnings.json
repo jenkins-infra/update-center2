@@ -5464,7 +5464,7 @@
     "versions": [
       {
         "lastVersion": "1.5.8",
-        "pattern": ".*"
+        "pattern": "(1[.](|[-.].*)"
       }
     ]
   },
