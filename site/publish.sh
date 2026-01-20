@@ -221,5 +221,5 @@ then
     mirrorbits_cli_port=3390
     echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a list # Sanity check
     echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a refresh -rehash
-    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a scan -all -enable -timeout=120
+    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a scan -all -timeout=120
 fi
