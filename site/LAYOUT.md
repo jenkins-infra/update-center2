@@ -84,30 +84,40 @@ It allows programmatically determining which versions of Jenkins get served whic
 
 ## Regular tiered update sites (LTS and weekly)
 
-Directories with names containing Jenkins LTS baselines like `2.204` are version specific update sites.
-
-* `2.204/` contains the tiered update site for Jenkins 2.204 and _similar_ weekly releases not matching an LTS baseline.
-* `stable-2.204/` contains the tiered update site for Jenkins 2.204.x.
-
-Each of these update sites only offer plugins compatible with the respective baseline, as well as the newest weekly or LTS release, depending on the variant (LTS or weekly).
+The Jenkins update center provides multiple update sites.
+Each of them only offer plugins compatible with the respective baseline, as well as the newest weekly or LTS release, depending on the variant (LTS or weekly).
 This increases the usefulness of the update sites to users of slightly older releases of Jenkins, as they won't regularly be offered incompatible releases of plugins.
 
+---
+**NOTE**:  The update center used to support formats like `2.204/` and `stable-2.204/`.
+This is no longer the case for recent versions.
+
+---
+
 The Jenkins project publishes a limited, fixed number of tiered update sites to encourage users to regularly update Jenkins. 
+Directories with names containing Jenkins LTS baselines like `2.319` are version specific update sites:
+
+* `dynamic-stable-2.319.1/` contains the tiered update site for Jenkins 2.319.x.
+
+By default, the update center generates versions only for the first `.1` release of the LTS baseline.
+We expect binary and API compatibility within the LTS baseline,
+so it is extremely unlikely there would be a need for a specific update site for a `.2` release.
+
+Structure of the update site:
 
 ```
-2.204/
-├── latestCore.txt                   (Unused, may be removed)
-├── update-center.actual.json
-├── update-center.json
-├── update-center.json.html
-└── updates  ->  ../updates
-stable-2.204/
+dynamic-stable-2.319.1
 ├── latestCore.txt                   (Unused, may be removed)
 ├── update-center.actual.json
 ├── update-center.json
 ├── update-center.json.html
 └── updates  ->  ../updates
 ```
+
+## Automatic redirects
+
+By default Jenkins clients submit requests to the update centers with the `?version={JENKINS_VERSION}` argument.
+It allows the update center to redirect the requests based on the version.
 
 Redirect rules will forward requests to the top-level update site files to the most appropriate tiered update site, or `current/`:
 
