@@ -164,7 +164,7 @@ popd
 echo '{}' > "$WWW_ROOT_DIR/uctest.json"
 wget -q --convert-links -O "$WWW_ROOT_DIR/index.html" --convert-links https://www.jenkins.io/templates/updates/index.html
 # replace relative paths in URLs and footer by absolute ones, and set the proper attributes for jio-components
-sed -i '' \
+sed -i.bak '' \
   -e 's|href="/|href="https://www.jenkins.io/|g' \
   -e 's|property="https://www.jenkins.io"|property="https://updates.jenkins.io"|g' \
   -e 's|sourcepath=""|sourcepath="content/templates/updates.adoc"|' \
