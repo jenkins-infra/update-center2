@@ -11343,8 +11343,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-03-15/#SECURITY-2167",
     "versions": [
       {
-        "lastVersion": "0.0.9",
-        "pattern": ".*"
+        "lastVersion": "0.0.11",
+        "pattern": "0[.]0[.]([0-9]|1[0-1])"
       }
     ]
   },
