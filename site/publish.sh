@@ -22,7 +22,7 @@ export PATH=.:$PATH
 recent_releases_json_file="${1:-"${www2_dir}"/experimental/recent-releases.json}"
 
 # Ensure jq is present or install it;io
-# TODO: stop relying on this code block once jq is installed (and maintained) in the "agent-1" (agent.trusted.ci.jenkins.io)
+# TODO: stop relying on this code block once jq is installed (and maintained) in the "permanent agent" in trusted.ci.jenkins.io.
 if ! command -v jq >/dev/null
 then
     ## Install jq, required by generate.sh script
