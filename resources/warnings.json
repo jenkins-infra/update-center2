@@ -19264,5 +19264,96 @@
         "pattern": "(1|2[.]1)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3662",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Missing permission check allows enumerating pending and approved classpaths",
+    "url": "https://www.jenkins.io/security/advisory/2026-04-29/#SECURITY-3662",
+    "versions": [
+      {
+        "lastVersion": "1399.ve6a_66547f6e1",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[1256789]|137[38]|1385|1399)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3672",
+    "type": "plugin",
+    "name": "credentials-binding",
+    "message": "Path traversal vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-04-29/#SECURITY-3672",
+    "versions": [
+      {
+        "lastVersion": "719.v80e905ef14eb_",
+        "pattern": "(1|523|604|62[16]|63[16]|642|657|67[79]|68[17]|696|702|71[79])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3676",
+    "type": "plugin",
+    "name": "matrix-auth",
+    "message": "Unsafe deserialization allows invoking parameterless constructors",
+    "url": "https://www.jenkins.io/security/advisory/2026-04-29/#SECURITY-3676",
+    "versions": [
+      {
+        "lastVersion": "3.2.9",
+        "pattern": "([12]|3[.][01]|3[.]2[.][1-9])(|[.-].+)|(3[.]2)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3702",
+    "type": "plugin",
+    "name": "github-branch-source",
+    "message": "Missing permission check allows performing a connection test",
+    "url": "https://www.jenkins.io/security/advisory/2026-04-29/#SECURITY-3702",
+    "versions": [
+      {
+        "lastVersion": "1967.vdea_d580c1a_b_a_",
+        "pattern": "([12]|1577|1583|159[89]|1602|1619|1628|1637|1656|1677|1687|169[4-6]|170[13]|172[58]|173[024]|174[018]|175[01258]|1767|177[12]|178[1579]|179[037]|180[379]|181[05]|182[24]|183[34]|184[48]|186[249]|1871|1906|191[017]|1925|193[46]|1967[.]vdea_d580c1a_b_a_)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3704",
+    "type": "plugin",
+    "name": "github",
+    "message": "XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-04-29/#SECURITY-3704",
+    "versions": [
+      {
+        "lastVersion": "1.46.0",
+        "pattern": "(0|1[.][0-9]|1[.]1[0-9]|1[.]2[0-9]|1[.]3[0-9]|1[.]4[0-5])(|[.-].+)|(1[.]46[.]0)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3706",
+    "type": "plugin",
+    "name": "htmlpublisher",
+    "message": "XSS vulnerability in legacy wrapper file",
+    "url": "https://www.jenkins.io/security/advisory/2026-04-29/#SECURITY-3706",
+    "versions": [
+      {
+        "lastVersion": "427",
+        "pattern": "([01]|42[45])(|[.-].+)|(427)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3760",
+    "type": "plugin",
+    "name": "azure-ad",
+    "message": "Open redirect vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-04-29/#SECURITY-3760",
+    "versions": [
+      {
+        "lastVersion": "666.v6060de32f87d",
+        "pattern": "([01]|146|15[0234578]|16[4578]|17[012345789]|18[034589]|19[0145]|21[38]|23[34]|241|267|30[368]|313|336|34[0589]|378|385|39[12367]|40[134]|41[12]|433|44[289]|457|47[16]|484|50[12457]|53[01]|55[12]|56[01]|580|60[1-3]|61[89]|631|666)(|[.-].+)"
+      }
+    ]
   }
 ]
