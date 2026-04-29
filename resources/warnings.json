@@ -17733,8 +17733,8 @@
     "url": "https://www.jenkins.io/security/advisory/2024-03-06/#SECURITY-3200",
     "versions": [
       {
-        "lastVersion": "2.11",
-        "pattern": ".*"
+        "lastVersion": "2.13",
+        "pattern": "([0-1][.].*|2[.]([0-9]|1[0-3]))(|[.-].*)"
       }
     ]
   },
