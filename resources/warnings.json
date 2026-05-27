@@ -19368,5 +19368,148 @@
         "pattern": "([01]|146|15[0234578]|16[4578]|17[012345789]|18[034589]|19[0145]|21[38]|23[34]|241|267|30[368]|313|336|34[0589]|378|385|39[12367]|40[134]|41[12]|433|44[289]|457|47[16]|484|50[12457]|53[01]|55[12]|56[01]|580|60[1-3]|61[89]|631|666)(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3486",
+    "type": "plugin",
+    "name": "buildgraph-view",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3486",
+    "versions": [
+      {
+        "lastVersion": "1.8",
+        "pattern": ".*"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3654",
+    "type": "plugin",
+    "name": "ldap",
+    "message": "RCE vulnerability from unvalidated LDAP referrals",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3654",
+    "versions": [
+      {
+        "lastVersion": "807.v7d7de30930cf",
+        "pattern": "([12]|659|67[136]|682|694|701|71[19]|725|733|75[369]|764|77[06]|780|793|807[.]v7d7de30930cf)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3659",
+    "type": "plugin",
+    "name": "active-directory",
+    "message": "RCE vulnerability from unvalidated LDAP referrals",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3659",
+    "versions": [
+      {
+        "lastVersion": "2.41",
+        "pattern": "(1|2[.][023456789]|2[.]1[0-9]|2[.]2[023456789]|2[.]3[013456789]|2[.]40)(|[.-].+)|(2[.]41)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3671",
+    "type": "plugin",
+    "name": "jenkinsci-appspider-plugin",
+    "message": "Missing permission check allows sending requests",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3671",
+    "versions": [
+      {
+        "lastVersion": "1.0.17",
+        "pattern": "(1[.]0[.]1[0-7]|1[.]0[.][2-8])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3705",
+    "type": "plugin",
+    "name": "email-ext",
+    "message": "Arbitrary file read vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3705",
+    "versions": [
+      {
+        "lastVersion": "1933.v45cec755423f",
+        "pattern": "(1806|1814|184[49]|185[15]|186[16]|1876|191[16]|192[25]|1933[.]v45cec755423f|2)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3727",
+    "type": "plugin",
+    "name": "pipeline-groovy-lib",
+    "message": "Arbitrary file read vulnerability through symbolic links",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3727",
+    "versions": [
+      {
+        "lastVersion": "797.v90ea_a_9b_e45a_0",
+        "pattern": "(589|59[138]|61[23]|62[19]|656|67[13]|68[579]|70[04]|710|727|730|74[0459]|75[12]|76[36]|776|787|797)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3761",
+    "type": "plugin",
+    "name": "bitbucket-oauth",
+    "message": "Open redirect vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3761",
+    "versions": [
+      {
+        "lastVersion": "0.17",
+        "pattern": "(0[.][1-9]|0[.]1[0-7])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3776",
+    "type": "plugin",
+    "name": "github-pullrequest",
+    "message": "CSRF vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3776",
+    "versions": [
+      {
+        "lastVersion": "0.7.3",
+        "pattern": "(0[.][0-6]|0[.]7[.][0-3])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3781",
+    "type": "plugin",
+    "name": "jenkins-multijob-plugin",
+    "message": "CSRF vulnerability allows resuming builds",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3781",
+    "versions": [
+      {
+        "lastVersion": "662.vd2e0001f6b_b_d",
+        "pattern": "(1|611|62[2357]|630|659|662)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3783",
+    "type": "plugin",
+    "name": "job-import-plugin",
+    "message": "Missing permission check allows enumerating credentials IDs",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3783",
+    "versions": [
+      {
+        "lastVersion": "143.v044a_2e819b_27",
+        "pattern": "([1-3]|122|143[.]v044a_2e819b_27)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3790",
+    "type": "plugin",
+    "name": "credentials-binding",
+    "message": "Path traversal vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-05-27/#SECURITY-3790",
+    "versions": [
+      {
+        "lastVersion": "720.v3f6decef43ea_",
+        "pattern": "(1|523|604|62[16]|63[16]|642|657|67[79]|68[17]|696|702|71[79]|720)(|[.-].+)"
+      }
+    ]
   }
 ]
