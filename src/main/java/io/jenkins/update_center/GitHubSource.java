@@ -1,6 +1,7 @@
 package io.jenkins.update_center;
 
 import io.jenkins.update_center.util.Environment;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 
@@ -152,7 +153,7 @@ public class GitHubSource {
                         );
                     }
                 }
-            } catch(InterruptedException e) {
+            } catch(InterruptedException|JSONException e) {
                 throw new IOException(e);
             }
         }
