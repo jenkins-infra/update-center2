@@ -239,5 +239,3 @@ Then add these arguments to your tool invocation (or arguments file):
 To have your Jenkins instance accept update site JSON signed with this certificate, create a directory `update-center-rootCAs/` in the Jenkins home directory, and copy the `demo.crt` file in there.
 Once update site JSON files are generated, configure Jenkins to download them in _Manage Jenkins » Manage Plugin » Advanced_:
 Either set up a local HTTP server so the URL would be something like `+http://localhost:8000/update-center.json+`, or specify a `file://` URL like `+file:///Users/yourname/git/update-center2/www2/update-center.json+`
-
-NOTE: For historical reason, the configured URL points to `update-center.json`, but the file actually downloaded by Jenkins (at least up to 2.235 as of this writing) is `update-center.json.html`.
