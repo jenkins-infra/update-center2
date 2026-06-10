@@ -22,3 +22,6 @@
 
 # Mac OS X
 .DS_Store
+
+# Backups from sed
+*.bak
