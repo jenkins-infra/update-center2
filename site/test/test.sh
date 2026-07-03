@@ -44,7 +44,6 @@ function assert {
 }
 
 test_redirect "$TEST_BASE_URL/update-center.json" "$TEST_BASE_URL/current/update-center.json"
-test_redirect "$TEST_BASE_URL/update-center.json.html" "$TEST_BASE_URL/current/update-center.json.html"
 
 # Accessed by https://github.com/jenkins-infra/jenkins.io/blob/3892ea2ad4b4a67e1f8aebbfab261ae88628c176/scripts/fetch-external-resources#L48
 test_redirect "$TEST_BASE_URL/update-center.actual.json" "$TEST_BASE_URL/current/update-center.actual.json"

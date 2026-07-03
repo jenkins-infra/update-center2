@@ -257,7 +257,6 @@ public class Main {
             final String signedUpdateCenterJson = new UpdateCenterRoot(id, connectionCheckUrl, repo, new File(Main.resourcesDir, WARNINGS_JSON_FILENAME)).encodeWithSignature(signer, prettyPrint);
             writeToFile(updateCenterPostCallJson(signedUpdateCenterJson), new File(www, UPDATE_CENTER_JSON_FILENAME));
             writeToFile(signedUpdateCenterJson, new File(www, UPDATE_CENTER_ACTUAL_JSON_FILENAME));
-            writeToFile(updateCenterPostMessageHtml(signedUpdateCenterJson), new File(www, UPDATE_CENTER_JSON_HTML_FILENAME));
         }
 
         if (generatePluginDocumentationUrls) {
@@ -285,11 +284,6 @@ public class Main {
 
     private String updateCenterPostCallJson(String updateCenterJson) {
         return "updateCenter.post(" + EOL + updateCenterJson + EOL + ");";
-    }
-
-    private String updateCenterPostMessageHtml(String updateCenterJson) {
-        // needs the DOCTYPE to make JSON.stringify work on IE8
-        return "\uFEFF<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8' /></head><body><script>window.onload = function () { window.parent.postMessage(JSON.stringify(" + EOL + updateCenterJson+ EOL + "),'*'); };</script></body></html>";
     }
 
     private static void writeToFile(String string, final File file) throws IOException {
@@ -360,7 +354,6 @@ public class Main {
     private static final String WARNINGS_JSON_FILENAME = "warnings.json";
     private static final String UPDATE_CENTER_JSON_FILENAME = "update-center.json";
     private static final String UPDATE_CENTER_ACTUAL_JSON_FILENAME = "update-center.actual.json";
-    private static final String UPDATE_CENTER_JSON_HTML_FILENAME = "update-center.json.html";
     private static final String PLUGIN_DOCUMENTATION_URLS_JSON_FILENAME = "plugin-documentation-urls.json";
     private static final String PLUGIN_VERSIONS_JSON_FILENAME = "plugin-versions.json";
     private static final String RELEASE_HISTORY_JSON_FILENAME = "release-history.json";
