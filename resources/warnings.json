@@ -7,6 +7,7 @@
     "url": "https://github.com/jenkins-infra/update-center2/pull/914",
     "versions": [
       {
+        "firstVersion": "2026.5.09",
         "lastVersion": "2026.5.09",
         "pattern": "2026[.]5[.]09"
       }
