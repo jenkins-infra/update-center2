@@ -1,5 +1,29 @@
 # Jenkins Update Center Root CA
 
+## `jenkins-update-center-root-ca-2026`
+
+This certificate is a replacement for `jenkins-update-center-root-ca-2` and should be added to Jenkins in 2026 for https://github.com/jenkins-infra/helpdesk/issues/5206.
+
+This certificate is valid from 2026-07-21 to 2036-07-18.
+
+### Key owners
+
+As of July 2026, only Damien Duportal may decrypt the corresponding CA private key (stored encrypted in the private repository https://github.com/jenkins-infra/update-center).
+
+## `jenkins-update-center-root-ca-2`
+
+This certificate is a replacement for `jenkins-update-center-root-ca` and has been added to Jenkins in April 2018 for [INFRA-1502][INFRA-1502].
+It is included in Jenkins 2.117 and newer as a trust anchor.
+
+This certificate is valid from 2018-04-08 to 2028-04-05.
+
+### Key owners
+As of May 2020, Kohsuke, Oleg Nenashev, and Olivier Vernin have the corresponding private key.
+
+[INFRA-1502]: https://issues.jenkins-ci.org/browse/INFRA-1502
+[src]: https://github.com/jenkinsci/jenkins/blob/f5ac512bd4e6d3bf041672d179a97f8dfd900e8b/war/src/main/webapp/WEB-INF/update-center-rootCAs/jenkins-update-center-root-ca
+
+
 ## `jenkins-update-center-root-ca`
 
 This certificate and private key is used to generate another keypair, which is used to sign update center metadata.
@@ -15,17 +39,3 @@ uid                  Jenkins project CLA (Used to encrypt Jenkins CLA papers) <j
 uid                  [jpeg image of size 11091]
 sub   4096R/FDDFA9FC 2012-03-21
 ````
-
-
-## `jenkins-update-center-root-ca-2`
-
-This certificate is a replacement for `jenkins-update-center-root-ca` and has been added to Jenkins in April 2018 for [INFRA-1502][INFRA-1502].
-It is included in Jenkins 2.117 and newer as a trust anchor.
-
-This certificate is valid from 2018-04-08 to 2028-04-05.
-
-### Key owners
-As of May 2020, Kohsuke, Oleg Nenashev, and Olivier Vernin have the corresponding private key.
-
-[INFRA-1502]: https://issues.jenkins-ci.org/browse/INFRA-1502
-[src]: https://github.com/jenkinsci/jenkins/blob/f5ac512bd4e6d3bf041672d179a97f8dfd900e8b/war/src/main/webapp/WEB-INF/update-center-rootCAs/jenkins-update-center-root-ca
