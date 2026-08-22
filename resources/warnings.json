@@ -12570,8 +12570,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-06-22/#SECURITY-2784",
     "versions": [
       {
-        "lastVersion": "1.1",
-        "pattern": ".*"
+        "lastVersion": "1.23.v3f9770f9cc1a_",
+        "pattern": "(1[.][01]|1[.]2[13])(|[.-].+)"
       }
     ]
   },
@@ -14238,8 +14238,8 @@
     "url": "https://www.jenkins.io/security/advisory/2022-10-19/#SECURITY-2797",
     "versions": [
       {
-        "lastVersion": "1.4",
-        "pattern": ".*"
+        "lastVersion": "1.72.v6074130b_6587",
+        "pattern": "(1[.][0-4]|1[.](69|72))(|[.-].+)"
       }
     ]
   },
