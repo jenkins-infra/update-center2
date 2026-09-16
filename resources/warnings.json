@@ -20291,5 +20291,265 @@
         "pattern": "(1[012468]|106|11[135]|12[49]|13[59]|14[0139]|15[135]|16[279]|17[156]|18[024]|19[02468]|20[46]|214|22[02]|232|24[257]|25[01579]|26[17]|28|28[45]|29[235]|3[068]|40|5[0345]|6[19]|77|8[38]|9[246])(|[.-].+)"
       }
     ]
+  },
+  {
+    "id": "SECURITY-3729",
+    "type": "plugin",
+    "name": "workflow-multibranch",
+    "message": "Exposure of System-scoped credentials",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3729",
+    "versions": [
+      {
+        "lastVersion": "841.vec5b_9e1806ec",
+        "pattern": "([12]|696|70[467]|71[126]|733|746|756|77[03]|783|79[15]|80[036]|81[01]|821|841)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3767",
+    "type": "plugin",
+    "name": "keycloak",
+    "message": "Open redirect vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3767",
+    "versions": [
+      {
+        "lastVersion": "2.4.1",
+        "pattern": "(2[.][0-3]|2[.]4[.][01])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3778",
+    "type": "plugin",
+    "name": "atlassian-bitbucket-server-integration",
+    "message": "OAuth access token hijacking via callback URL manipulation",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3778",
+    "versions": [
+      {
+        "lastVersion": "6.0.1",
+        "pattern": "([1-5]|6[.]0[.][01])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3796",
+    "type": "plugin",
+    "name": "pipeline-groovy-lib",
+    "message": "Path traversal vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3796",
+    "versions": [
+      {
+        "lastVersion": "805.va_fc79344957d",
+        "pattern": "(589|59[138]|61[23]|62[19]|656|67[13]|68[579]|70[04]|710|727|730|74[0459]|75[12]|76[36]|776|787|79[78]|805)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3851",
+    "type": "plugin",
+    "name": "gitlab-plugin",
+    "message": "Cache confusion",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3851",
+    "versions": [
+      {
+        "lastVersion": "1.2149.vcfc32c82b_f7f",
+        "pattern": "(1[.][0-9]|1[.]214[89])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3897",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Classpath approval bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3897",
+    "versions": [
+      {
+        "lastVersion": "1415.v9a_f9b_3a_c253d",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[1256789]|137[38]|1385|1399|1402|141[25])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3923",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3923",
+    "versions": [
+      {
+        "lastVersion": "1415.v9a_f9b_3a_c253d",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[1256789]|137[38]|1385|1399|1402|141[25])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3925-1",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3925%20(1)",
+    "versions": [
+      {
+        "lastVersion": "1415.v9a_f9b_3a_c253d",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[1256789]|137[38]|1385|1399|1402|141[25])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3925-2",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3925%20(2)",
+    "versions": [
+      {
+        "lastVersion": "1415.v9a_f9b_3a_c253d",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[1256789]|137[38]|1385|1399|1402|141[25])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3929",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3929",
+    "versions": [
+      {
+        "lastVersion": "1415.v9a_f9b_3a_c253d",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[1256789]|137[38]|1385|1399|1402|141[25])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3931",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3931",
+    "versions": [
+      {
+        "lastVersion": "1415.v9a_f9b_3a_c253d",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[1256789]|137[38]|1385|1399|1402|141[25])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3932",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "TOCTOU race condition",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3932",
+    "versions": [
+      {
+        "lastVersion": "1415.v9a_f9b_3a_c253d",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[1256789]|137[38]|1385|1399|1402|141[25])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3937",
+    "type": "plugin",
+    "name": "warnings-ng",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3937",
+    "versions": [
+      {
+        "lastVersion": "13.10258.va_17d49a_78c3b_",
+        "pattern": "([1-9]|1[0-2]|13[.]10041|13[.]1008[3-7]|13[.]1009[167]|13[.]10153|13[.]10189|13[.]10192|13[.]10212|13[.]10221|13[.]10223[.]v8f61dc07f2df|13[.]10233|13[.]1025[18])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3971",
+    "type": "plugin",
+    "name": "robot",
+    "message": "Path traversal vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3971",
+    "versions": [
+      {
+        "lastVersion": "6.2.2",
+        "pattern": "([1-5]|6[.][0-2])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3977",
+    "type": "plugin",
+    "name": "script-security",
+    "message": "Sandbox bypass vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3977",
+    "versions": [
+      {
+        "lastVersion": "1415.v9a_f9b_3a_c253d",
+        "pattern": "(1|1118|1125|113[18]|114[056]|1158|117[25]|118[349]|1190|1209|1218|122[89]|1244|1251|126[459]|127[1345]|1281|1294|130[15]|131[03]|132[16]|133[56]|1341|135[48]|136[1256789]|137[38]|1385|1399|1402|141[25])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3980",
+    "type": "plugin",
+    "name": "bitbucket-push-and-pull-request",
+    "message": "SSRF vulnerability allows capturing credentials",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3980",
+    "versions": [
+      {
+        "lastVersion": "4.0.1",
+        "pattern": "([1-3]|4[.]0)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-3992",
+    "type": "plugin",
+    "name": "dependency-check-jenkins-plugin",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-3992",
+    "versions": [
+      {
+        "lastVersion": "5.6.4",
+        "pattern": "([1-4]|5[.][0-5]|5[.]6[.][0-4])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-4027",
+    "type": "plugin",
+    "name": "gitee",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-4027",
+    "versions": [
+      {
+        "lastVersion": "1301.v8957053c7902",
+        "pattern": "(1|116[45]|1170|1189|119[0578]|120[14]|1224|1232|124[5-7]|125[012356789]|126[0156]|127[1278]|128[28]|1292|1301)(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-4028",
+    "type": "plugin",
+    "name": "gradle",
+    "message": "SSRF vulnerability allows capturing the Develocity access key",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-4028",
+    "versions": [
+      {
+        "lastVersion": "2.19.1252.v15196b_5a_6e10",
+        "pattern": "(1|2[.]1[234589])(|[.-].+)"
+      }
+    ]
+  },
+  {
+    "id": "SECURITY-4118",
+    "type": "plugin",
+    "name": "coverage",
+    "message": "Stored XSS vulnerability",
+    "url": "https://www.jenkins.io/security/advisory/2026-09-16/#SECURITY-4118",
+    "versions": [
+      {
+        "lastVersion": "3.3358.v9487dde48783",
+        "pattern": "([12]|3[.]320[28]|3[.]321[0-2]|3[.]322[05]|3[.]3238|3[.]3240|3[.]325[2346]|3[.]327[6-8]|3[.]3305|3[.]331[168]|3[.]3325[.]v2f3dd167a_b_e5|3[.]3348|3[.]3358)(|[.-].+)"
+      }
+    ]
   }
 ]
