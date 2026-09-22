@@ -2,7 +2,7 @@
 
 ## `jenkins-update-center-root-ca-2026`
 
-This certificate is a replacement for `jenkins-update-center-root-ca-2` and should be added to Jenkins in 2026 for https://github.com/jenkins-infra/helpdesk/issues/5206.
+This certificate is a replacement for `jenkins-update-center-root-ca-2` and was added to Jenkins 2.582 in September 2026 for https://github.com/jenkins-infra/helpdesk/issues/5206.
 
 This certificate is valid from 2026-07-21 to 2036-07-18.
 
