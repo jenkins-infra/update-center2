@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jenkins-ci.plugins</groupId>
+        <artifactId>plugin</artifactId>
+        <version>4.80</version>
+    </parent>
+    <groupId>io.jenkins.plugins</groupId>
+    <artifactId>squote-plugin</artifactId>
+    <version>1.0</version>
+    <packaging>hpi</packaging>
+    <name>Foo&apos; onmouseover=&apos;alert(1)</name>
+    <description>A plugin with single quotes to test attribute breakout</description>
+    <url>https://github.com/jenkinsci/squote-plugin</url>
+    <scm>
+        <url>https://github.com/jenkinsci/squote-plugin</url>
+    </scm>
+</project>

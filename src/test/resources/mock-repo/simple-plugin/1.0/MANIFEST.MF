@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Created-By: Maven Archiver 3.6.0
+Build-Jdk-Spec: 11
+Plugin-Version: 1.0
+Jenkins-Version: 2.401.1
+Short-Name: simple-plugin
+Long-Name: Simple Plugin
+Url: https://github.com/jenkinsci/simple-plugin
+Plugin-Dependencies: structs:325.vcb_307d39b_2f2

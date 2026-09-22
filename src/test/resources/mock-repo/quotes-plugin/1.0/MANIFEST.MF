@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Created-By: Maven Archiver 3.6.0
+Build-Jdk-Spec: 17
+Plugin-Version: 1.0
+Jenkins-Version: 2.440.1
+Short-Name: quotes-plugin
+Long-Name: Quotes Plugin
+Url: https://github.com/jenkinsci/quotes-plugin

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Created-By: Maven Archiver 3.6.0
+Build-Jdk-Spec: 17
+Plugin-Version: 1.5
+Jenkins-Version: 2.440.1
+Short-Name: another-plugin
+Long-Name: Another Plugin
+Url: https://github.com/jenkinsci/another-plugin
+Plugin-Dependencies: simple-plugin:1.0,credentials:1337.v60b_d7b_c7b_c9f;resolution:=optional

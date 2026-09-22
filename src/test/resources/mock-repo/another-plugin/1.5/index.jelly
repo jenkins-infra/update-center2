@@ -1,0 +1,2 @@
+<?jelly escape-by-default='true'?>
+<div>Another plugin that integrates with <a href="https://example.com">Example Service</a></div>

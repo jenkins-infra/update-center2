@@ -1,0 +1,2 @@
+<?jelly escape-by-default='true'?>
+<div>A simple test plugin that does nothing useful</div>

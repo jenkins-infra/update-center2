@@ -37,6 +37,8 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeXml;
+
 /**
  * Generates index.html that has a list of files.
  *
@@ -100,15 +102,15 @@ public class IndexHtmlBuilder implements Closeable {
         add(url, null, caption, null, null);
     }
 
-    public void add(String url, Date releaseDate, String caption, MavenRepository.ArtifactMetadata metadata, String requiredJenkinsVersion) {
+    private void add(String url, Date releaseDate, String caption, MavenRepository.ArtifactMetadata metadata, String requiredJenkinsVersion) {
         String releaseDateString = "";
         if (releaseDate != null) {
             releaseDateString = " Released: " + SimpleDateFormat.getDateInstance().format(releaseDate);
         }
 
-        content.append("<li").append(releaseDate == null ? "" : " id=\"" + caption + "\"")
-                .append("><a class=\"version\" href='").append(url)
-                .append("'>").append(caption).append("</a><div class=\"metadata\">\n<div class=\"released\">")
+        content.append("<li").append(releaseDate == null ? "" : " id=\"" + escapeXml(caption) + "\"")
+                .append("><a class=\"version\" href='").append(escapeXml(url))
+                .append("'>").append(escapeXml(caption)).append("</a><div class=\"metadata\">\n<div class=\"released\">")
                 .append(releaseDateString)
                 .append("</div>");
         if (metadata != null) {
@@ -120,7 +122,7 @@ public class IndexHtmlBuilder implements Closeable {
             }
         }
         if (requiredJenkinsVersion != null) {
-            content.append("\n<div class=\"core-dependency\">Requires Jenkins ").append(requiredJenkinsVersion).append("</div>");
+            content.append("\n<div class=\"core-dependency\">Requires Jenkins ").append(escapeXml(requiredJenkinsVersion)).append("</div>");
         }
         content.append("</div></li>\n");
     }
@@ -128,9 +130,9 @@ public class IndexHtmlBuilder implements Closeable {
     @Override
     public void close() {
         out.println(template
-                .replace("{{ title }}", title)
-                .replace("{{ subtitle }}", subtitle)
-                .replace("{{ description }}", description)
+                .replace("{{ title }}", escapeXml(title))
+                .replace("{{ subtitle }}", escapeXml(subtitle))
+                .replace("{{ description }}", escapeXml(description))
                 .replace("{{ opengraphImage }}", opengraphImage)
                 .replace("{{ content }}", content.toString()));
         out.close();

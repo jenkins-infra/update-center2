@@ -207,7 +207,7 @@ then
     echo '== Triggering mirrors scans...'
     # MIRRORBITS_CLI_PASSWORD is a sensitive values (comes from encrypted credentials)
     mirrorbits_cli_port=3390
-    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a list # Sanity check
-    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a refresh -rehash
-    echo "${MIRRORBITS_CLI_PASSWORD}" | mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -a scan -all -timeout=120
+    mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -P "${MIRRORBITS_CLI_PASSWORD}" list # Sanity check
+    mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -P "${MIRRORBITS_CLI_PASSWORD}" refresh -rehash
+    mirrorbits -h "${MIRRORBITS_HOST}" -p "${mirrorbits_cli_port}" -P "${MIRRORBITS_CLI_PASSWORD}" scan -all -timeout=120
 fi
