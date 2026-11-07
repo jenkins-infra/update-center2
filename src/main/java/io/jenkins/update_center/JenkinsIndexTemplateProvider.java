@@ -25,6 +25,9 @@ public class JenkinsIndexTemplateProvider extends IndexTemplateProvider {
 
             doc.getElementsByAttribute("href").forEach(element -> setAbsoluteUrl(element, "href"));
             doc.getElementsByAttribute("src").forEach(element -> setAbsoluteUrl(element, "src"));
+            doc.select("[property=https://www.jenkins.io]").forEach(element -> element.attr("property", "https://updates.jenkins.io"));
+            doc.select("[sourcepath=\"\"]").forEach(element -> element.attr("sourcepath", "content/templates/updates.adoc"));
+
             globalTemplate = doc.toString();
         } catch (IOException ioe) {
             LOGGER.log(Level.SEVERE, "Problem loading template", ioe);
