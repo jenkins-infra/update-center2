@@ -13823,7 +13823,7 @@
     "versions": [
       {
         "lastVersion": "117.v6eecc36919c2",
-        "pattern": ".*"
+        "pattern": "(0|117)(|[.-].+)"
       }
     ]
   },
